@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "reviewed_date_utc": "2026-11-14",
+  "qualification": "Static upstream implementation, documentation and test evidence only; not firmware/native qualification. Upstreams were not executed.",
+  "local_crosswalk_status": "unresolved; pending separate local Rust runtime/archive crosswalk",
+  "refresh_interval_hours": 168,
+  "refresh_policy": "Weekly GitHub branch metadata observations and review before adoption. Never advance reviewed_sha from ref metadata alone. Review relevant changed source/tests/docs, license and provenance before a separately approved pin change. No automatic imports.",
+  "license_policy": "Original link index and summaries, not copied upstream implementations. Attribution and license observations do not approve reuse or relicensing; no identified license does not mean public domain.",
+  "repositories": [
+    {
+      "id": "mr-manuel/Loxone_api_documentation",
+      "repository_url": "https://github.com/mr-manuel/Loxone_api_documentation",
+      "ref": "refs/heads/main",
+      "reviewed_sha": "fab40ec5c8d25e2dd9a92967b963b32d52e026b4",
+      "latest_seen_sha": "fab40ec5c8d25e2dd9a92967b963b32d52e026b4",
+      "last_checked_utc": "2026-11-14T20:59:53.6277880Z",
+      "license": null,
+      "license_url": null,
+      "license_status": "No license file or GitHub SPDX identified in reviewed evidence; not assumed public domain.",
+      "attribution": "Manuel / mr-manuel",
+      "scope": "Unofficial API reference assembled through reverse engineering, not a runtime library.",
+      "source_url": "https://github.com/mr-manuel/Loxone_api_documentation/blob/fab40ec5c8d25e2dd9a92967b963b32d52e026b4/miniserver-api.yaml#L19-L50",
+      "tests_url": null,
+      "tests_status": "No tests found in pinned tree.",
+      "docs_url": "https://github.com/mr-manuel/Loxone_api_documentation/blob/fab40ec5c8d25e2dd9a92967b963b32d52e026b4/README.md#L1-L7",
+      "compare_url": "https://github.com/mr-manuel/Loxone_api_documentation/compare/fab40ec5c8d25e2dd9a92967b963b32d52e026b4...fab40ec5c8d25e2dd9a92967b963b32d52e026b4"
+    },
+    {
+      "id": "Smarteon/loxone-client-kotlin",
+      "repository_url": "https://github.com/Smarteon/loxone-client-kotlin",
+      "ref": "refs/heads/master",
+      "reviewed_sha": "22fc2d9c1ec58065295fde384fb2cab79fa71d31",
+      "latest_seen_sha": "22fc2d9c1ec58065295fde384fb2cab79fa71d31",
+      "last_checked_utc": "2026-11-14T20:59:54.9836845Z",
+      "license": "BSD-3-Clause",
+      "license_file": "LICENSE",
+      "license_raw_sha256": "52d33f64eade844ca653d984ae90dc746582192d0eadf9ae0f60960212d15e71",
+      "license_url": "https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/LICENSE",
+      "attribution": "Smarteon Systems",
+      "scope": "Multiplatform Kotlin runtime client built around coroutines, Ktor and cryptography dependencies.",
+      "source_url": "https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/ktor/KtorWebsocketLoxoneClient.kt#L166-L204",
+      "tests_url": "https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonTest/kotlin/event/ValueEventTest.kt#L11-L45",
+      "docs_url": "https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/README.md#L1-L34",
+      "compare_url": "https://github.com/Smarteon/loxone-client-kotlin/compare/22fc2d9c1ec58065295fde384fb2cab79fa71d31...22fc2d9c1ec58065295fde384fb2cab79fa71d31"
+    },
+    {
+      "id": "smartmacherei/Loxone-Integration",
+      "repository_url": "https://github.com/smartmacherei/Loxone-Integration",
+      "ref": "refs/heads/main",
+      "reviewed_sha": "85bf863edb8032c5a9e93f22fd2061cc2ca2c866",
+      "latest_seen_sha": "85bf863edb8032c5a9e93f22fd2061cc2ca2c866",
+      "last_checked_utc": "2026-11-14T20:59:56.3063244Z",
+      "license": "Apache-2.0",
+      "license_file": "LICENSE",
+      "license_raw_sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+      "license_url": "https://github.com/smartmacherei/Loxone-Integration/blob/85bf863edb8032c5a9e93f22fd2061cc2ca2c866/LICENSE",
+      "attribution": "smartmacherei and PyLoxone authors per NOTICE",
+      "scope": "Home Assistant integration including an embedded API, topology and program handling.",
+      "source_url": "https://github.com/smartmacherei/Loxone-Integration/blob/85bf863edb8032c5a9e93f22fd2061cc2ca2c866/custom_components/loxone/udp_program.py#L34-L40",
+      "tests_url": "https://github.com/smartmacherei/Loxone-Integration/blob/85bf863edb8032c5a9e93f22fd2061cc2ca2c866/tests/test_gateway_client.py#L46-L59",
+      "docs_url": "https://github.com/smartmacherei/Loxone-Integration/blob/85bf863edb8032c5a9e93f22fd2061cc2ca2c866/NOTICE#L1-L16",
+      "compare_url": "https://github.com/smartmacherei/Loxone-Integration/compare/85bf863edb8032c5a9e93f22fd2061cc2ca2c866...85bf863edb8032c5a9e93f22fd2061cc2ca2c866"
+    },
+    {
+      "id": "JoDehli/PyLoxone",
+      "repository_url": "https://github.com/JoDehli/PyLoxone",
+      "ref": "refs/heads/master",
+      "reviewed_sha": "4a368b2937797308cb247190bced2f5e122e32f1",
+      "latest_seen_sha": "4a368b2937797308cb247190bced2f5e122e32f1",
+      "last_checked_utc": "2026-11-14T20:59:58.0044064Z",
+      "license": "Apache-2.0",
+      "license_file": "LICENSE",
+      "license_raw_sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1",
+      "license_url": "https://github.com/JoDehli/PyLoxone/blob/4a368b2937797308cb247190bced2f5e122e32f1/LICENSE",
+      "attribution": "PyLoxone authors; JoDehli codeowner",
+      "scope": "Home Assistant integration depending on pyloxone-api==0.4.1; not the standalone protocol library.",
+      "source_url": "https://github.com/JoDehli/PyLoxone/blob/4a368b2937797308cb247190bced2f5e122e32f1/custom_components/loxone/coordinator.py#L13-L24",
+      "tests_url": "https://github.com/JoDehli/PyLoxone/blob/4a368b2937797308cb247190bced2f5e122e32f1/tests/test_unload_cleanup.py#L73-L106",
+      "docs_url": "https://github.com/JoDehli/PyLoxone/blob/4a368b2937797308cb247190bced2f5e122e32f1/README.md#L13-L16",
+      "compare_url": "https://github.com/JoDehli/PyLoxone/compare/4a368b2937797308cb247190bced2f5e122e32f1...4a368b2937797308cb247190bced2f5e122e32f1"
+    },
+    {
+      "id": "JoDehli/pyloxone-api",
+      "repository_url": "https://github.com/JoDehli/pyloxone-api",
+      "ref": "refs/heads/main",
+      "reviewed_sha": "acee5727914dacbeb3de179438b3172f8659dabc",
+      "latest_seen_sha": "acee5727914dacbeb3de179438b3172f8659dabc",
+      "last_checked_utc": "2026-11-14T20:59:59.3659947Z",
+      "license": "AGPL-3.0-only",
+      "license_file": "LICENSE",
+      "license_raw_sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef",
+      "license_url": "https://github.com/JoDehli/pyloxone-api/blob/acee5727914dacbeb3de179438b3172f8659dabc/LICENSE",
+      "attribution": "Joachim Dehli",
+      "scope": "Standalone asynchronous Python runtime library requiring Python >=3.13; distinct from PyLoxone.",
+      "source_url": "https://github.com/JoDehli/pyloxone-api/blob/acee5727914dacbeb3de179438b3172f8659dabc/src/pyloxone_api/message.py#L272-L308",
+      "tests_url": "https://github.com/JoDehli/pyloxone-api/blob/acee5727914dacbeb3de179438b3172f8659dabc/tests/test_message_parsing.py#L59-L74",
+      "docs_url": "https://github.com/JoDehli/pyloxone-api/blob/acee5727914dacbeb3de179438b3172f8659dabc/README.md#L9-L15",
+      "compare_url": "https://github.com/JoDehli/pyloxone-api/compare/acee5727914dacbeb3de179438b3172f8659dabc...acee5727914dacbeb3de179438b3172f8659dabc"
+    },
+    {
+      "id": "JoDehli/rs-loxone",
+      "repository_url": "https://github.com/JoDehli/rs-loxone",
+      "ref": "refs/heads/master",
+      "reviewed_sha": "2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a",
+      "latest_seen_sha": "2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a",
+      "last_checked_utc": "2026-11-14T21:00:00.6902157Z",
+      "license": "AGPL-3.0-only",
+      "license_file": "LICENSE",
+      "license_raw_sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+      "license_url": "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/LICENSE",
+      "attribution": "JoDehli",
+      "scope": "Asynchronous Rust runtime with optional CLI and Tokio reconnect supervisor; MSRV 1.95. No Python/JVM FFI identified.",
+      "source_url": "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/lib.rs#L1-L17",
+      "tests_url": "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/tests/auth_hash_vectors.rs#L13-L63",
+      "docs_url": "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/README.md#L1-L12",
+      "compare_url": "https://github.com/JoDehli/rs-loxone/compare/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a...2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a"
+    },
+    {
+      "id": "discostu105/lox",
+      "repository_url": "https://github.com/discostu105/lox",
+      "ref": "refs/heads/main",
+      "reviewed_sha": "7c6c952eab17d23f2906f62d5ccb374749dcee44",
+      "latest_seen_sha": "7c6c952eab17d23f2906f62d5ccb374749dcee44",
+      "last_checked_utc": "2026-11-14T21:00:03.0048021Z",
+      "license": "Apache-2.0",
+      "license_file": "LICENSE",
+      "license_raw_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "license_url": "https://github.com/discostu105/lox/blob/7c6c952eab17d23f2906f62d5ccb374749dcee44/LICENSE",
+      "attribution": "Christoph Neumuller / discostu105",
+      "scope": "Rust CLI and separate loxone-client/loxone-config crates; MSRV 1.91; blocking HTTP alongside asynchronous WebSocket.",
+      "source_url": "https://github.com/discostu105/lox/blob/7c6c952eab17d23f2906f62d5ccb374749dcee44/crates/loxone-client/src/lib.rs#L3-L19",
+      "tests_url": "https://github.com/discostu105/lox/blob/7c6c952eab17d23f2906f62d5ccb374749dcee44/tests/stream_reconnect.rs#L227-L251",
+      "docs_url": "https://github.com/discostu105/lox/blob/7c6c952eab17d23f2906f62d5ccb374749dcee44/crates/loxone-client/README.md#L1-L19",
+      "compare_url": "https://github.com/discostu105/lox/compare/7c6c952eab17d23f2906f62d5ccb374749dcee44...7c6c952eab17d23f2906f62d5ccb374749dcee44"
+    }
+  ],
+  "ancestry": [
+    {
+      "repositories": ["smartmacherei/Loxone-Integration", "JoDehli/PyLoxone"],
+      "status": "Declared attribution plus an identical nonempty source blob, not established shared commit ancestry.",
+      "notice_url": "https://github.com/smartmacherei/Loxone-Integration/blob/85bf863edb8032c5a9e93f22fd2061cc2ca2c866/NOTICE#L1-L10",
+      "shared_blob_sha1": "96a0eb3e000d09afc696bde799bbe17ce8052bb2",
+      "path": "custom_components/loxone/lights/dimmer.py"
+    },
+    {
+      "repositories": ["eisber/lox-cli", "discostu105/lox"],
+      "pins": ["f9454087b1f4690451bc94cbe3df41090e6e2ec6", "7c6c952eab17d23f2906f62d5ccb374749dcee44"],
+      "reported_github_fork_metadata": "Both fork=false; parent/source absent.",
+      "reported_history_method": "Fully paginated commit lists at those pins, counts 499 and 929; no shared SHA reported.",
+      "reported_shared_current_blobs": [".cargo/config.toml", "docs/Gemfile", "docs/guides/index.md"],
+      "limit": "Research summary only: raw history API receipts were not persisted. Not proof against copied/adapted code. No shared Rust-source blob identified in the reviewed selection."
+    }
+  ],
+  "ancestry_limit": "Other relationships are unresolved, not certified independent. Similar contracts, ownership or GitHub fork=false do not establish or exclude shared code ancestry.",
+  "comparison_leads": [
+    {
+      "topic": "authentication",
+      "local_mapping": "unresolved",
+      "finding": "rs-loxone chooses getjwt for firmware >=10.2; Kotlin marks token acquisition encrypted; discostu105/lox uses gettoken after key exchange.",
+      "sources": [
+        "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/commands.rs#L26-L70",
+        "https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/LoxoneCommands.kt#L53-L61",
+        "https://github.com/discostu105/lox/blob/7c6c952eab17d23f2906f62d5ccb374749dcee44/crates/loxone-client/src/token.rs#L263-L274"
+      ]
+    },
+    {
+      "topic": "events",
+      "local_mapping": "unresolved",
+      "finding": "Value records combine UUID and little-endian f64. pyloxone-api has empty daytimer/weather handlers; discostu105/lox includes both parsers.",
+      "sources": [
+        "https://github.com/JoDehli/pyloxone-api/blob/acee5727914dacbeb3de179438b3172f8659dabc/src/pyloxone_api/message.py#L272-L308",
+        "https://github.com/JoDehli/pyloxone-api/blob/acee5727914dacbeb3de179438b3172f8659dabc/src/pyloxone_api/message.py#L351-L377",
+        "https://github.com/discostu105/lox/blob/7c6c952eab17d23f2906f62d5ccb374749dcee44/crates/loxone-client/src/stream.rs#L32-L52"
+      ]
+    },
+    {
+      "topic": "lifecycle",
+      "local_mapping": "unresolved",
+      "finding": "rs-loxone supplies a reconnect supervisor and settings of 30 seconds for keepalive and 90 seconds for silence.",
+      "sources": [
+        "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/transport/keepalive.rs#L1-L20",
+        "https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/supervisor/mod.rs#L1-L6"
+      ]
+    },
+    {
+      "topic": "archives",
+      "local_mapping": "unresolved",
+      "finding": "discostu105/lox documents reader size/CRC fields without verifying them; smartmacherei validates before editing. Neither behavior overrides local characterization.",
+      "sources": [
+        "https://github.com/discostu105/lox/blob/7c6c952eab17d23f2906f62d5ccb374749dcee44/crates/loxone-config/src/archive.rs#L41-L52",
+        "https://github.com/smartmacherei/Loxone-Integration/blob/85bf863edb8032c5a9e93f22fd2061cc2ca2c866/custom_components/loxone/udp_program.py#L34-L40"
+      ]
+    },
+    {
+      "topic": "statistics",
+      "local_mapping": "unresolved",
+      "finding": "Kotlin separates V1 XML/local-time 2009 epoch from V2 binary/Unix UTC statistics.",
+      "sources": [
+        "https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/app/StatisticExtensions.kt#L20-L23",
+        "https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/app/StatisticExtensions.kt#L58-L92"
+      ]
+    }
+  ]
+}
