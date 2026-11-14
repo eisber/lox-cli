@@ -51,8 +51,11 @@ impl ConfigEditor {
                     | "Trigger"
                     | "InputEnable"
                     | "InputTrigger"
+                    | "InputTriggerP"
+                    | "InputTriggerM"
+                    | "Reset"
             ),
-            "Input inversion supports only existing unconnected And/Or/Xor.I1/I2, Not.I, FlipFlop/RSFlipFlop/SRFlipFlop.InputS/InputR, Counter/UpDownCounter.Trigger, HourCounter.InputEnable or OnDelay/OffDelay/OnOffDelay/Monoflop.InputTrigger, not aliases, latch trigger inputs, outputs, analog inputs or parameters; nothing was changed."
+            "Input inversion supports only existing unconnected And/Or/Xor.I1/I2, Not.I, FlipFlop/RSFlipFlop/SRFlipFlop.InputS/InputR, Counter/UpDownCounter.Trigger, HourCounter.InputEnable, OnDelay/OffDelay/OnOffDelay/Monoflop.InputTrigger or StepSel.InputTriggerP/InputTriggerM/Reset, not aliases, latch trigger inputs, outputs, analog inputs or parameters; nothing was changed."
         );
         ensure!(
             Self::sanitize_digit_attrs(data).1.is_empty(),
@@ -118,10 +121,11 @@ impl ConfigEditor {
                         | "OffDelay"
                         | "OnOffDelay"
                         | "Monoflop"
+                        | "StepSel"
                 )
                 && owner.attributes.get("U").map(String::as_str) == Some(requested)
                 && !owner.attributes.contains_key("Dev"),
-            "Input inversion requires an ordinary, non-device-bound And, Or, Xor, Not, FlipFlop, RSFlipFlop, SRFlipFlop, Counter, UpDownCounter, HourCounter, OnDelay, OffDelay, OnOffDelay or Monoflop directly on a Page; nothing was changed."
+            "Input inversion requires an ordinary, non-device-bound And, Or, Xor, Not, FlipFlop, RSFlipFlop, SRFlipFlop, Counter, UpDownCounter, HourCounter, OnDelay, OffDelay, OnOffDelay, Monoflop or StepSel directly on a Page; nothing was changed."
         );
         if matches!(kind(owner), "OnDelay" | "OffDelay" | "OnOffDelay") {
             ensure!(
@@ -149,7 +153,64 @@ impl ConfigEditor {
                 "Monoflop input inversion requires at most one UTF-8 BOM and a root Document or a direct Document in a native ControlList root, not an owning Folder or other wrapper; nothing was changed."
             );
         }
+        if kind(owner) == "StepSel" {
+            ensure!(
+                !data.starts_with(b"\xef\xbb\xbf\xef\xbb\xbf")
+                    && (documents[0].is_empty()
+                        || (editor.root.name == "ControlList"
+                            && !editor.root.attributes.contains_key("Type"))),
+                "StepSel input inversion requires at most one UTF-8 BOM and a root Document or a direct Document in a native ControlList root, not an owning Folder or other wrapper; nothing was changed."
+            );
+        }
         let (input_keys, connector_keys, nio): (&[&str], &[&str], &str) = match kind(owner) {
+            "StepSel" => (
+                &["InputTriggerP", "InputTriggerM", "Reset"],
+                &[
+                    "InputTrigger 1",
+                    "InputTrigger 2",
+                    "InputTrigger 3",
+                    "InputTrigger 4",
+                    "InputTrigger 5",
+                    "InputTrigger 6",
+                    "InputTrigger 7",
+                    "InputTrigger 8",
+                    "InputTrigger 9",
+                    "InputTrigger 10",
+                    "InputTrigger 11",
+                    "InputTrigger 12",
+                    "InputTrigger 13",
+                    "InputTrigger 14",
+                    "InputTrigger 15",
+                    "InputTrigger 16",
+                    "InputTriggerP",
+                    "InputTriggerM",
+                    "InputSel",
+                    "Reset",
+                    "InputDisable",
+                    "Remanence",
+                    "Max",
+                    "Mode",
+                    "Q1",
+                    "Q2",
+                    "Q3",
+                    "Q4",
+                    "Q5",
+                    "Q6",
+                    "Q7",
+                    "Q8",
+                    "Q9",
+                    "Q10",
+                    "Q11",
+                    "Q12",
+                    "Q13",
+                    "Q14",
+                    "Q15",
+                    "Q16",
+                    "AQ",
+                    "OutputAPI",
+                ],
+                "42",
+            ),
             "Monoflop" => (
                 &["InputTrigger"],
                 &["InputTrigger", "Reset", "Remanence", "Time", "Q"],
@@ -232,7 +293,7 @@ impl ConfigEditor {
         ensure!(
             input_keys.contains(&key)
                 && owner.attributes.get("Nio").map(String::as_str) == Some(nio),
-            "Input inversion requires the owner's exact native input and explicit layout: And/Or/Xor I1/I2 with Nio=3, Not I with Nio=2, latch InputS/InputR with FlipFlop Nio=4 or RSFlipFlop/SRFlipFlop Nio=5, Counter Trigger with Nio=7, UpDownCounter Trigger with Nio=9, HourCounter InputEnable with Nio=10, delay InputTrigger with OnDelay/OffDelay Nio=5 or OnOffDelay Nio=6, or Monoflop InputTrigger with Nio=5; nothing was changed."
+            "Input inversion requires the owner's exact native input and explicit layout: And/Or/Xor I1/I2 with Nio=3, Not I with Nio=2, latch InputS/InputR with FlipFlop Nio=4 or RSFlipFlop/SRFlipFlop Nio=5, Counter Trigger with Nio=7, UpDownCounter Trigger with Nio=9, HourCounter InputEnable with Nio=10, delay InputTrigger with OnDelay/OffDelay Nio=5 or OnOffDelay Nio=6, Monoflop InputTrigger with Nio=5, or StepSel InputTriggerP/InputTriggerM/Reset with Nio=42; nothing was changed."
         );
         let mut identities = Vec::new();
         let mut guarded_owners = vec![document];
@@ -302,7 +363,7 @@ impl ConfigEditor {
                         .count()
                         == 1
                 }),
-            "Input inversion requires exactly the owner's complete existing native connector set, including latch Remanence and RSFlipFlop/SRFlipFlop InputTrigger, counter parameters/outputs, UpDownCounter Trigger/InputDir/Reset/OnValue/OffValue/Remanence/StartValue/Q/AQ, delay parameters/output and Monoflop InputTrigger/Reset/Remanence/Time/Q; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
+            "Input inversion requires exactly the owner's complete existing native connector set, including latch Remanence and RSFlipFlop/SRFlipFlop InputTrigger, counter parameters/outputs, UpDownCounter Trigger/InputDir/Reset/OnValue/OffValue/Remanence/StartValue/Q/AQ, delay parameters/output, Monoflop InputTrigger/Reset/Remanence/Time/Q and all 42 StepSel connectors including numbered inputs, parameters, Q1..Q16/AQ/OutputAPI; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
         );
         for connector in &connectors {
             let identity = connector

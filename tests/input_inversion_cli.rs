@@ -398,6 +398,236 @@ fn up_down_counter_qualified_owning_roots_preserve_noops_and_existing_native_dat
     }
 }
 
+fn step_sel_fixture() -> String {
+    let golden =
+        include_str!("eval/golden/configs/Fan_Control_-_Presence_and_Temperature_Support.Loxone");
+    let start = golden.find("<C Type=\"StepSel\"").unwrap();
+    let end = start + golden[start..].find("</C>").unwrap() + 4;
+    let mut owner = golden[start..end]
+        .replace("1f3ef44e-014f-e285-ffffc074cd9342e0", OWNER)
+        .replace("WF=\"64\"", "WF=\"16384\"")
+        .replace(
+            "Nio=\"42\"",
+            "Nio=\"42\" Unknown='12hTF=quoted' Rights='keep'",
+        );
+    let reset = owner.find("<Co K=\"Reset\"").unwrap();
+    let reset_end = reset + owner[reset..].find("</Co>").unwrap() + 5;
+    owner.replace_range(
+        reset..reset_end,
+        "<Co K=\"Reset\" U=\"1f3ef44e-014f-e26e-13ff61ca91a4e69c\" Def='0' Nc='0'/>",
+    );
+    owner = owner.replace(
+        "<Co K=\"Q7\"",
+        "<Co Inv='true' Unknown='keep-output' K=\"Q7\"",
+    );
+    format!(
+        "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ControlList><C Type=\"Document\" U=\"01111111-2222-3333-4444555566667777\" V=\"178\" DateS=\"2147483600\" Date=\"old\"><C Type=\"Program\" U=\"81111111-2222-3333-4444555566667777\" V=\"178\" WF=\"16384\"><C Type=\"Page\" U=\"31111111-2222-3333-4444555566667777\" V=\"178\" WF=\"16384\">{owner}</C></C><SET><Password t='15' v='untouched'/></SET></C></ControlList>\r\n"
+    )
+}
+
+fn step_sel_port(source: &str, key: &str) -> String {
+    let start = source.find(&format!("<Co K=\"{key}\"")).unwrap();
+    let end = start + source[start..].find("/>").unwrap() + 2;
+    source[start..end].to_string()
+}
+
+#[test]
+fn step_sel_native_ports_preserve_full_saved_layout_and_only_stamp_changes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for key in ["InputTriggerP", "InputTriggerM", "Reset"] {
+        let source = step_sel_fixture();
+        let selected = step_sel_port(&source, key);
+        for destination in [None, Some(&output)] {
+            fs::write(&input, &source).unwrap();
+            let mut edit = command(&input, key, false);
+            if let Some(destination) = destination {
+                edit.arg("--save-as").arg(destination);
+            }
+            edit.arg("-q").assert().success();
+            let saved = destination.unwrap_or(&input);
+            assert_eq!(fs::read(saved).unwrap(), source.as_bytes());
+            let mut edit = command(&input, key, true);
+            if let Some(destination) = destination {
+                edit.arg("--save-as").arg(destination);
+            }
+            edit.arg("-q").assert().success();
+            let changed = fs::read_to_string(saved).unwrap();
+            let expected = source.replace(&selected, &selected.replace("/>", " Inv=\"true\"/>"));
+            let body = changed.find("<C Type=\"Program\"").unwrap();
+            assert_eq!(
+                &changed[body..],
+                &expected[expected.find("<C Type=\"Program\"").unwrap()..]
+            );
+            assert!(changed.starts_with("\u{feff}<?xml"));
+            assert!(changed.contains("DateS=\"2147483601\""));
+            assert!(!changed.contains("Date=\"old\""));
+            if destination.is_some() {
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            }
+            command(saved, key, true).arg("-q").assert().success();
+            assert_eq!(fs::read_to_string(saved).unwrap(), changed);
+            command(saved, key, false).arg("-q").assert().success();
+            let cleared = fs::read_to_string(saved).unwrap();
+            let expected = source.replace(&selected, &selected.replace("/>", " />"));
+            let body = cleared.find("<C Type=\"Program\"").unwrap();
+            assert_eq!(
+                &cleared[body..],
+                &expected[expected.find("<C Type=\"Program\"").unwrap()..]
+            );
+            assert!(cleared.contains("DateS=\"2147483602\""));
+        }
+    }
+}
+
+#[test]
+fn step_sel_admits_only_qualified_roots_and_preserves_noop_bytes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    for document_is_root in [false, true] {
+        for with_program in [false, true] {
+            let mut source = step_sel_fixture();
+            if document_is_root {
+                source = source
+                    .replace("<ControlList>", "")
+                    .replace("</ControlList>", "");
+            }
+            if !with_program {
+                let start = source.find("<C Type=\"Program\"").unwrap();
+                let end = start + source[start..].find('>').unwrap() + 1;
+                source.replace_range(start..end, "");
+                source = source.replace("</C></C><SET>", "</C><SET>");
+            }
+            for bom in [false, true] {
+                let source = if bom {
+                    source.clone()
+                } else {
+                    source.trim_start_matches('\u{feff}').to_string()
+                };
+                fs::write(&input, &source).unwrap();
+                command(&input, "InputTriggerP", false)
+                    .arg("-q")
+                    .assert()
+                    .success();
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                command(&input, "InputTriggerP", true)
+                    .arg("-q")
+                    .assert()
+                    .success();
+                let changed = fs::read_to_string(&input).unwrap();
+                let owner = source.find("<C Type=\"StepSel\"").unwrap();
+                let selected = step_sel_port(&source, "InputTriggerP");
+                assert_eq!(
+                    &changed[changed.find("<C Type=\"StepSel\"").unwrap()..],
+                    &source[owner..].replace(&selected, &selected.replace("/>", " Inv=\"true\"/>"))
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn step_sel_capability_identity_layout_and_context_refusals_are_atomic_even_on_noop() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let stages = [
+        dir.path().join("input.Loxone.tmp"),
+        dir.path().join("existing.Loxone.tmp"),
+        dir.path().join("new.Loxone.tmp"),
+    ];
+    let source = step_sel_fixture();
+    let selected = step_sel_port(&source, "InputTriggerP");
+    let mut cases: Vec<(String, &str)> = [
+        "InputTrigger 1",
+        "InputTrigger 16",
+        "InputSel",
+        "InputDisable",
+        "Remanence",
+        "Max",
+        "Mode",
+        "Q1",
+        "OutputAPI",
+        "inputtriggerp",
+    ]
+    .map(|key| (source.clone(), key))
+    .into();
+    for (from, to) in [
+        ("Type=\"StepSel\"", "Type=\"Radio2\""),
+        ("Nio=\"42\"", "Nio=\"41\""),
+        ("K=\"InputTrigger 16\"", "K=\"InputTrigger 15\""),
+        ("<ControlList>", "<ControlList Type='Folder'>"),
+        ("<ControlList>", "<ControlList xmlns='urn:not-native'>"),
+        ("DateS=\"2147483600\"", "DateS=\"2147483647\""),
+        ("Unknown='12hTF=quoted'", "Unknown='before 12hTF=quoted'"),
+        ("WF=\"16384\" T1=", "WF=\"64\" T1="),
+    ] {
+        assert!(source.contains(from), "missing refusal setup: {from}");
+        cases.push((source.replace(from, to), "InputTriggerP"));
+    }
+    for replacement in [
+        selected.replace("/>", " Nc='1'/>"),
+        selected.replace("/>", " Def='1'/>"),
+        selected.replace("/>", " Def='00'/>"),
+        selected.replace("/>", " Inv='1'/>"),
+        selected.replace("/>", "><In Input='keep-wire'/></Co>"),
+        selected.replace("InputTriggerP", "InputTrigger&#80;"),
+        selected.replace("1f3ef44e-014f-e26b-10ff61ca91a4e69c", OWNER),
+        String::new(),
+    ] {
+        cases.push((source.replace(&selected, &replacement), "InputTriggerP"));
+    }
+    for (opening, closing) in [
+        ("<Loxone>", "</Loxone>"),
+        (
+            "<C Type='Folder' U='c7777777-2222-3333-4444555566667777' V='178' WF='536870912'>",
+            "</C>",
+        ),
+    ] {
+        cases.push((
+            source
+                .replace("<ControlList>", opening)
+                .replace("</ControlList>", closing),
+            "InputTriggerP",
+        ));
+    }
+    cases.push((format!("\u{feff}{source}"), "InputTriggerP"));
+    cases.push((
+        source.replace(
+            "<SET>",
+            "<C Type='Folder' U='a1111111-2222-3333-4444-555566667777'/><SET>",
+        ),
+        "InputTriggerP",
+    ));
+    for (index, (xml, key)) in cases.into_iter().enumerate() {
+        for inverted in [false, true] {
+            for destination in [None, Some(&existing), Some(&new)] {
+                fs::write(&input, &xml).unwrap();
+                fs::write(&existing, b"preserve destination").unwrap();
+                for stage in &stages {
+                    fs::write(stage, b"preserve foreign stage").unwrap();
+                }
+                let mut edit = command(&input, key, inverted);
+                if let Some(destination) = destination {
+                    edit.arg("--save-as").arg(destination);
+                }
+                edit.assert().failure().stderr(
+                    predicates::str::contains("nothing was changed")
+                        .or(predicates::str::contains("Nothing was changed")),
+                );
+                assert_eq!(fs::read(&input).unwrap(), xml.as_bytes(), "case {index}");
+                assert_eq!(fs::read(&existing).unwrap(), b"preserve destination");
+                assert!(!new.exists(), "case {index}");
+                for stage in &stages {
+                    assert_eq!(fs::read(stage).unwrap(), b"preserve foreign stage");
+                }
+            }
+        }
+    }
+}
+
 fn monoflop_fixture() -> String {
     let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")

@@ -169,7 +169,8 @@ Edits native connector `Inv`, not `Def`. The bounded supported branch is an
 an ordinary `Not`, `InputS`/`InputR` of an ordinary `FlipFlop`,
 `RSFlipFlop` or `SRFlipFlop`, `Trigger` of `Counter` or `UpDownCounter`, `InputEnable` of
 `HourCounter`, or `InputTrigger` of an ordinary `OnDelay`, `OffDelay` or
-`OnOffDelay`, or `InputTrigger` of an ordinary `Monoflop`**, directly on a Page
+`OnOffDelay`, `InputTrigger` of an ordinary `Monoflop`, or
+`InputTriggerP`/`InputTriggerM`/`Reset` of an ordinary `StepSel`**, directly on a Page
 in one ordinary Document (optionally through one ordinary Program), with
 explicit modern `V >= 90`. `And`/`Or`/`Xor` require `Nio="3"` and exactly `I1`/`I2`/`Q`;
 `Not` requires `Nio="2"` and exactly `I`/`Q` (not `I1`).
@@ -212,6 +213,19 @@ the unconnected `Reset` eligibility is false, and `Remanence`/`Time` are
 parameters. Unselected parameters, defaults, inputs and output wires are preserved;
 the entire owner need not be unwired or have zero parameters. At most one UTF-8
 BOM is admitted for this branch; repeated BOMs are refused before no-op or output.
+`StepSel` requires `Nio="42"` and the complete existing native connector set:
+`InputTrigger 1` through `InputTrigger 16`, `InputTriggerP`, `InputTriggerM`,
+`InputSel`, `Reset`, `InputDisable`, `Remanence`, `Max`, `Mode`,
+`Q1` through `Q16`, `AQ` and `OutputAPI`. Only `InputTriggerP`, `InputTriggerM`
+and `Reset` are qualified in the unconnected neutral-default state. The numbered
+inputs, direct numeric selector, disable input, parameters and outputs are not
+supported inversion targets; their names or UI visibility do not establish eligibility.
+The StepSel Document must be the root or directly inside an untyped native
+`ControlList`, with at most one UTF-8 BOM; owning Folders and other wrappers are
+refused before no-op, stamping or any output write. Unselected wired inputs,
+nonzero `Max`/`Mode`, remanence, output inversion, labels and API wiring are preserved.
+This is a source-qualified static edit, not a GUI/runtime qualification or a change
+to step selection behavior. Existing context and shared-loader refusals still apply.
 The exact `uuid:` owner, its Document/Program/Page ancestors and every owner connector
 must have unique nonnil native35 identities (8-4-4-16); aliases, duplicate
 keys/identities and incomplete connector sets are refused.

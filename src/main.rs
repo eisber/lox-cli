@@ -1170,7 +1170,7 @@ pub(crate) enum ConfigCmd {
         file: String,
         /// Exact uuid:<native35-U> of a supported logic, latch, counter, delay or Monoflop owner
         selector: String,
-        /// And/Or/Xor I1/I2, Not I, latch InputS/InputR, Counter/UpDownCounter Trigger, HourCounter InputEnable, delay/Monoflop InputTrigger
+        /// And/Or/Xor I1/I2, Not I, latch InputS/InputR, Counter/UpDownCounter Trigger, HourCounter InputEnable, delay/Monoflop InputTrigger, StepSel InputTriggerP/InputTriggerM/Reset
         connector: String,
         /// Invert the selected digital input
         #[arg(
