@@ -165,16 +165,24 @@ lox config set-input-inversion file.Loxone uuid:11111111-2222-3333-4444555566667
 ```
 
 Edits native connector `Inv`, not `Def`. The bounded supported branch is an
-**existing, unconnected `I1` or `I2` of an ordinary `And`, `Or` or `Xor`, or `I` of
-an ordinary `Not`**, directly on a Page
+**existing, unconnected `I1` or `I2` of an ordinary `And`, `Or` or `Xor`, `I` of
+an ordinary `Not`, or `InputS`/`InputR` of an ordinary `FlipFlop`,
+`RSFlipFlop` or `SRFlipFlop`**, directly on a Page
 in one ordinary Document (optionally through one ordinary Program), with
 explicit modern `V >= 90`. `And`/`Or`/`Xor` require `Nio="3"` and exactly `I1`/`I2`/`Q`;
 `Not` requires `Nio="2"` and exactly `I`/`Q` (not `I1`).
+`FlipFlop` requires `Nio="4"` and exactly `InputS`/`InputR`/`Remanence`/`Q`;
+`RSFlipFlop` and `SRFlipFlop` require `Nio="5"` and exactly
+`InputS`/`InputTrigger`/`InputR`/`Remanence`/`Q`. Latch names are case-sensitive;
+`I1`/`I2` are not aliases. `InputTrigger` is not an admitted inversion input.
 The exact `uuid:` owner, its Document/Program/Page ancestors and every owner connector
 must have unique nonnil native35 identities (8-4-4-16); aliases, duplicate
 keys/identities and incomplete connector sets are refused.
 The selected input must have absent/literal-zero `Nc`,
 no element children, and absent or literal-zero `Def`.
+Only the selected input is subject to that restriction: other input wires,
+output references, connector inversion/defaults, Remanence parameters and native
+positions remain byte-preserved.
 
 Connected inputs are outside this first CLI branch, although the recovered
 native digital-input gate admits them. Outputs, analog inputs, parameters,

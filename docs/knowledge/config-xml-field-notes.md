@@ -363,6 +363,40 @@ qualification was performed for this recovery.
   transaction above for each new owner. All ordinary-context, neutral Def,
   raw preservation, no-op, identity and template exclusions remain unchanged.
   This adds owner branches, not a new base API or native qualification.
+- **Ordinary latch input inversion (17.2.10.21, source-only owner branches):**
+  actual factory cases `0x14f`/`0x150`/`0x151` in
+  `0x140432790:2446–2459,4182–4185` construct `CControlObjectLogic` with native
+  types 335/336/337, not catalog-name guesses. Registry
+  `0x1404ba670:78–110` calls each actual owner's descriptor slot `+0xf18`.
+  The separately registered cases in `0x1407e7280:122–234` declare exact XML
+  `FlipFlop`, `RSFlipFlop`, `SRFlipFlop`. FlipFlop has four native connectors:
+  `InputS`, `InputR`, parameter `Remanence`, output `Q`; RSFlipFlop and
+  SRFlipFlop have five: `InputS`, `InputTrigger`, `InputR`, `Remanence`, `Q`.
+  `0x14043dff0:39–91` creates every descriptor in native order, including
+  parameters, with its independent numeric default (zero for these descriptors).
+  Hence existing explicit `Nio="4"`/`"5"` and complete exact connector sets
+  are required; neither `I1`/`I2` nor a three-port copy is valid.
+  Their actual primary table `0x140f5c790` binds the same concrete capability,
+  eligibility, false `+0x5a8`, accepted loader and connector factory as above.
+  Each actual `InputS`/`InputR` descriptor has digital input role, neither
+  analog `0x200000`, exclusion `0x40000000`, nor special `0x400000`.
+  The concrete connector table `0x140ec3a60` binds signal kind `0x140467520`
+  (digital for all three actual types), accepted copy `0x14043d790` and
+  serializer `0x14047fb20`. Thus the native action-5/click/bit-`0x20`/`Co.Inv`
+  transaction is independently closed for each owner's `InputS` and `InputR`.
+  `InputTrigger` has special descriptor bit `0x400000`; the unconnected,
+  noninverted branch returns false in `0x140468540:52–63`, so this CLI refuses
+  it rather than extrapolating ordinary-input capability. `Remanence` is a
+  parameter, not another editable input. The template propagation gate
+  `0x140469a90` still requires accepted owning-Document IfT via
+  `0x14050be70`; the existing global Template/IfT/uuidParent exclusions close
+  it for these actual new owners as well. Ordinary absent/0/16384 WF remains
+  preserved operation-specifically, not inferred from latch constructors.
+  Only the selected input needs neutral Def and no wires: other inputs may
+  stay wired and inverted, Remanence may keep its stored value, and output
+  references, defaults, rights, positions and unknown bytes remain untouched.
+  No latch runtime/clock/state persistence, Trigger/wired-input inversion,
+  output/parameter operation, new base API or native qualification is claimed.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not
   locked, 5 = closed and locked, 0 = a sensor is offline. Test for "open" with

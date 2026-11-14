@@ -61,6 +61,262 @@ fn logic_fixture(owner_type: &str) -> String {
     source
 }
 
+fn latch_fragment(owner_type: &str, selected: &str, remanence: u8) -> String {
+    let nio = if owner_type == "FlipFlop" { 4 } else { 5 };
+    let input = |key: &str, uuid: &str| {
+        if key == selected {
+            format!("<Co K=\"{key}\" U=\"{uuid}\" Def=\"0\" Pos='11,22' Unknown=\"selected\"/>")
+        } else {
+            format!(
+                "<Co K=\"{key}\" U=\"{uuid}\" Def=\"1\" Inv=\"true\" Nc=\"1\" Pos='33,44'><Ref U=\"d1111111-2222-3333-4444555566667777\" Unknown=\"input-wire\"/></Co>"
+            )
+        }
+    };
+    let trigger = if owner_type == "FlipFlop" {
+        String::new()
+    } else {
+        "<Co K=\"InputTrigger\" U=\"c1111111-2222-3333-4444555566667777\" Def=\"0\" Nc=\"1\"><Ref U=\"d1111111-2222-3333-4444555566667777\"/></Co>".into()
+    };
+    let input_s = input("InputS", INPUT);
+    let input_r = input("InputR", "41111111-2222-3333-4444555566667777");
+    format!(
+        "<C Type=\"And\" U=\"91111111-2222-3333-4444555566667777\" V=\"121\" WF=\"16384\" Nio=\"3\"><Co K=\"I1\" U=\"92111111-2222-3333-4444555566667777\"/><Co K=\"I2\" U=\"93111111-2222-3333-4444555566667777\"/><Co K=\"Q\" U=\"d1111111-2222-3333-4444555566667777\"/></C><C Type=\"{owner_type}\" U=\"{OWNER}\" V=\"121\" WF=\"16384\" Nio=\"{nio}\" Title=\"Latch\" Position=\"400,500\" Rights=\"keep\">{input_s}{trigger}{input_r}<Co K=\"Remanence\" U=\"e1111111-2222-3333-4444555566667777\" Def=\"{remanence}\" Pos='55,66' Unknown=\"parameter\"/><Co K=\"Q\" U=\"51111111-2222-3333-4444555566667777\" Inv=\"true\" Pos='77,88'/></C><C Type=\"OutputRef\" U=\"61111111-2222-3333-4444555566667777\" V=\"121\" WF=\"16384\"><Co K=\"AI\" U=\"71111111-2222-3333-4444555566667777\" Nc=\"1\"><Ref U=\"51111111-2222-3333-4444555566667777\" Unknown=\"output-wire\"/></Co></C>"
+    )
+}
+
+fn latch_project(owner_type: &str, selected: &str, remanence: u8) -> String {
+    let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("eval")
+        .join("golden")
+        .join("configs")
+        .join("Guest Room Door.Loxone");
+    let mut source = fs::read_to_string(golden).unwrap();
+    let page_uuid = source
+        .find("U=\"1fbf34a5-03b1-83a1-ffff9bb3c1479539\"")
+        .unwrap();
+    let start = source[..page_uuid].rfind("<C ").unwrap();
+    let end = start + source[start..].find('>').unwrap() + 1;
+    assert!(source[start..end].contains("Type=\"Page\""));
+    source.insert_str(end, &latch_fragment(owner_type, selected, remanence));
+    source
+}
+
+fn without_document_stamp(source: &str) -> String {
+    let mut source = source.to_string();
+    let kind = source.find("Type=\"Document\"").unwrap();
+    let start = source[..kind].rfind("<C ").unwrap();
+    for field in [" DateS=", " Date="] {
+        let end = start + source[start..].find('>').unwrap();
+        if let Some(position) = source[start..end].find(field) {
+            let position = start + position;
+            let value = position + field.len();
+            let quote = source.as_bytes()[value] as char;
+            let last = value + 1 + source[value + 1..].find(quote).unwrap();
+            source.replace_range(position..last + 1, "");
+        }
+    }
+    source
+}
+
+#[test]
+fn latch_inputs_preserve_full_project_unselected_wires_defaults_and_atomic_copies() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("latch.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for owner_type in ["FlipFlop", "RSFlipFlop", "SRFlipFlop"] {
+        for key in ["InputS", "InputR"] {
+            for remanence in [0, 1] {
+                let source = latch_project(owner_type, key, remanence);
+                let uuid = if key == "InputS" {
+                    INPUT
+                } else {
+                    "41111111-2222-3333-4444555566667777"
+                };
+                let selected = format!(
+                    "<Co K=\"{key}\" U=\"{uuid}\" Def=\"0\" Pos='11,22' Unknown=\"selected\"/>"
+                );
+                let expected =
+                    source.replace(&selected, &selected.replace("/>", " Inv=\"true\"/>"));
+                fs::write(&input, &source).unwrap();
+                for existing in [false, true] {
+                    if existing {
+                        fs::write(&output, b"preserve until accepted").unwrap();
+                    } else if output.exists() {
+                        fs::remove_file(&output).unwrap();
+                    }
+                    command(&input, key, false)
+                        .arg("--save-as")
+                        .arg(&output)
+                        .arg("-q")
+                        .assert()
+                        .success();
+                    assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+                    if !existing {
+                        fs::remove_file(&output).unwrap();
+                    }
+                    let result = command(&input, key, true)
+                        .arg("--save-as")
+                        .arg(&output)
+                        .args(["-o", "json"])
+                        .assert()
+                        .success()
+                        .get_output()
+                        .stdout
+                        .clone();
+                    let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                    assert_eq!(result["input_inversion"]["connector"], key);
+                    assert_eq!(result["input_inversion"]["connector_uuid"], uuid);
+                    assert_eq!(result["input_inversion"]["changed"], true);
+                    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                    assert_eq!(
+                        without_document_stamp(&fs::read_to_string(&output).unwrap()),
+                        without_document_stamp(&expected)
+                    );
+                }
+                command(&input, key, true).arg("-q").assert().success();
+                let once = fs::read(&input).unwrap();
+                command(&input, key, true).arg("-q").assert().success();
+                assert_eq!(fs::read(&input).unwrap(), once);
+                command(&input, key, false).arg("-q").assert().success();
+                let expected = source.replace(&selected, &selected.replace("/>", " />"));
+                assert_eq!(
+                    without_document_stamp(&fs::read_to_string(&input).unwrap()),
+                    without_document_stamp(&expected)
+                );
+            }
+        }
+    }
+}
+
+#[test]
+fn latch_inputs_refuse_other_native_roles_layouts_and_guarded_context_atomically() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("latch.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for owner_type in ["FlipFlop", "RSFlipFlop", "SRFlipFlop"] {
+        let source = latch_project(owner_type, "InputS", 1);
+        let nio = if owner_type == "FlipFlop" { 4 } else { 5 };
+        let selected = format!("K=\"InputS\" U=\"{INPUT}\" Def=\"0\"");
+        let mut cases = vec![
+            (source.clone(), "I1"),
+            (source.clone(), "InputTrigger"),
+            (source.clone(), "Remanence"),
+            (source.clone(), "Q"),
+            (source.clone(), "inputs"),
+            (source.clone(), "InputR"),
+            (
+                source.replace(
+                    &format!("Nio=\"{nio}\" Title=\"Latch\""),
+                    "Nio=\"3\" Title=\"Latch\"",
+                ),
+                "InputS",
+            ),
+            (source.replace("K=\"Remanence\"", "K=\"I2\""), "InputS"),
+            (source.replace("K=\"Remanence\"", "K=\"InputR\""), "InputS"),
+            (
+                source.replace(
+                    "<Co K=\"Remanence\" U=\"e1111111-2222-3333-4444555566667777\" Def=\"1\" Pos='55,66' Unknown=\"parameter\"/>",
+                    "",
+                ),
+                "InputS",
+            ),
+            (
+                source.replace(&selected, &selected.replace("Def=\"0\"", "Def=\"1\"")),
+                "InputS",
+            ),
+            (
+                source.replace(&selected, &format!("{selected} Nc=\"1\"")),
+                "InputS",
+            ),
+            (
+                source.replace("Title=\"Latch\"", "Title=\"Latch\" Dev=\"unknown\""),
+                "InputS",
+            ),
+            (
+                source.replace("Title=\"Latch\"", "Title=\"Latch\" IfT=\"false\""),
+                "InputS",
+            ),
+            (
+                source.replace("Title=\"Latch\"", "Title=\"Latch\" uuidParent=\"unknown\""),
+                "InputS",
+            ),
+            (
+                source.replace("Title=\"Latch\"", "Title=\"Noon 12hTF=quoted\""),
+                "InputS",
+            ),
+            (
+                source.replace("WF=\"16384\" Nio=", "WF=\"16385\" Nio="),
+                "InputS",
+            ),
+            (
+                source.replace("Type=\"Document\"", "Type=\"DocumentTemplate\""),
+                "InputS",
+            ),
+            (
+                source.replace("K=\"InputS\"", "K=\"InputS\" K=\"InputS\""),
+                "InputS",
+            ),
+            (
+                source.replace(
+                    "<Ref U=\"d1111111-2222-3333-4444555566667777\"",
+                    &format!("<Ref U=\"{INPUT}\""),
+                ),
+                "InputS",
+            ),
+            (
+                source.replace("e1111111-2222-3333-4444555566667777", &INPUT.to_uppercase()),
+                "InputS",
+            ),
+            (
+                source.replace(
+                    "e1111111-2222-3333-4444555566667777",
+                    "b1111111-2222-3333-4444-555566667777",
+                ),
+                "InputS",
+            ),
+            (format!("{source}<C Type=\"Other\"/>"), "InputS"),
+        ];
+        if owner_type != "FlipFlop" {
+            let neutral_trigger = source.replace(
+                "<Co K=\"InputTrigger\" U=\"c1111111-2222-3333-4444555566667777\" Def=\"0\" Nc=\"1\"><Ref U=\"d1111111-2222-3333-4444555566667777\"/></Co>",
+                "<Co K=\"InputTrigger\" U=\"c1111111-2222-3333-4444555566667777\" Def=\"0\"/>",
+            );
+            cases.push((neutral_trigger, "InputTrigger"));
+            cases.push((
+                source.replace("K=\"InputTrigger\"", "K=\"InputTriggerAlias\""),
+                "InputS",
+            ));
+            cases.push((
+                source.replace("K=\"InputTrigger\"", "Inv=\"true\" K=\"InputTrigger\""),
+                "InputTrigger",
+            ));
+        }
+        for (case, (xml, key)) in cases.into_iter().enumerate() {
+            for inverted in [false, true] {
+                for destination in [None, Some(&existing), Some(&new)] {
+                    fs::write(&input, &xml).unwrap();
+                    fs::write(&existing, b"preserve").unwrap();
+                    let mut edit = command(&input, key, inverted);
+                    if let Some(destination) = destination {
+                        edit.arg("--save-as").arg(destination);
+                    }
+                    let result = edit.output().unwrap();
+                    assert!(
+                        !result.status.success(),
+                        "{owner_type} case {case}, key {key}, inverted {inverted}: {}",
+                        String::from_utf8_lossy(&result.stdout)
+                    );
+                    assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                    assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                    assert!(!new.exists());
+                }
+            }
+        }
+    }
+}
+
 #[test]
 fn xor_not_inputs_preserve_raw_project_and_atomic_destinations() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();

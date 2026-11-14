@@ -1165,12 +1165,12 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
-    /// Set native Inv on an existing unconnected ordinary And/Or/Xor.I1/I2 or Not.I
+    /// Set native Inv on an existing ordinary logic input (including latch InputS/InputR)
     SetInputInversion {
         file: String,
-        /// Exact uuid:<native35-U> of the existing And, Or, Xor or Not owner
+        /// Exact uuid:<native35-U> of an And/Or/Xor/Not/FlipFlop/RSFlipFlop/SRFlipFlop
         selector: String,
-        /// Existing native connector key: I1/I2 for And/Or/Xor, I for Not
+        /// Unconnected input: I1/I2 for And/Or/Xor, I for Not, InputS/InputR for latches
         connector: String,
         /// Invert the selected digital input
         #[arg(
