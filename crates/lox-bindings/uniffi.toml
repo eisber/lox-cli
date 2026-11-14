@@ -1,0 +1,8 @@
+[defaults.bindings.python]
+cdylib_name = "lox_archive"
+
+[bindings.java]
+package_name = "net.eisber.lox.archive"
+
+[bindings.python]
+cdylib_name = "lox_archive"

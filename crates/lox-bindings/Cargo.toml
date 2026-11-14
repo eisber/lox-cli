@@ -1,0 +1,26 @@
+[package]
+name = "lox-bindings"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.91"
+license = "AGPL-3.0-or-later AND LicenseRef-Commercial"
+description = "Generated native archive bindings for lox-core"
+repository = "https://github.com/eisber/lox-cli"
+publish = false
+
+[lib]
+name = "lox_archive"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "lox-uniffi-bindgen"
+path = "src/bindgen.rs"
+required-features = ["bindgen"]
+
+[features]
+bindgen = ["uniffi/cli"]
+
+[dependencies]
+lox-core = { path = "../lox-core", version = "=0.1.0" }
+thiserror = "=2.0.18"
+uniffi = "=0.32.1"
