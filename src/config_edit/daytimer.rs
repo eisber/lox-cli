@@ -383,6 +383,29 @@ impl ConfigEditor {
         let mut editor = Self::load(data)?;
         let selected = editor.select_daytimer_entry(selector, &identity)?;
         let (document_path, block_uuid) = editor.daytimer_boundary_context(&selected)?;
+        let owner_depth = selected.path.len() - document_path.len();
+        ensure!(
+            matches!(owner_depth, 2 | 3),
+            "DayTimer movement requires a direct native Page in the owning Document, optionally through one direct Program; nothing was changed."
+        );
+        let page = editor.get_element(&selected.path[..selected.path.len() - 1]);
+        ensure!(
+            page.name == "C"
+                && page.attributes.get("Type").map(String::as_str) == Some("Page")
+                && page.namespace.is_none()
+                && page.prefix.is_none(),
+            "DayTimer movement requires an exact native C/Page parent; nothing was changed."
+        );
+        if owner_depth == 3 {
+            let program = editor.get_element(&selected.path[..selected.path.len() - 2]);
+            ensure!(
+                program.name == "C"
+                    && program.attributes.get("Type").map(String::as_str) == Some("Program")
+                    && program.namespace.is_none()
+                    && program.prefix.is_none(),
+                "DayTimer movement requires one exact native C/Program directly between the owning Document and Page; nothing was changed."
+            );
+        }
         for depth in document_path.len()..=selected.path.len() {
             ensure!(
                 !editor

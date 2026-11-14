@@ -1475,6 +1475,9 @@ same-mode separation. The usual unique owner/mode, digital M=0, plain owning
 Document, ordinary nonzero-WF, Template/IfT/inheritance, raw-storage and DateS
 guards run before no-op/output. No new entries, mode changes, analog conversion,
 Ctrl copying, count/order repair or merge is implemented.
+The timer must be immediately on an exact native Page, either directly in
+the owning Document or in one direct Program. Folder, alias/case, extra or
+incorrectly ordered ancestors are refused before movement calculation.
 Only changed From/To and one save stamp are patched; IDs, N, metadata, modes,
 wires, unselected data, BOM/EOL/quotes and other bytes remain unchanged.
 JSON `move_change` includes the old identity, matched stored mode UUID,

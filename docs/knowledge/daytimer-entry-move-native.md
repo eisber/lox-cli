@@ -114,7 +114,15 @@ The existing DayTimer helpers enforce exact native Type, effective native35/
 RFC mode identities and unique ownership, ordinary nonzero WF including
 16384, one plain owning root/direct-child Document, Template/uuidParent/WF29
 refusals, guarded raw/DOM agreement and incrementable signed32 DateS.
-Movement additionally refuses ancestor IfT state and global owner/mode
+Before timeline calculation, the move caller additionally requires the timer
+immediately beneath an exact native `C Type="Page"`, either directly in that
+owning Document or through one exact `C Type="Program"` directly in the
+Document. Folder, alias/case, extra or incorrectly ordered ancestors are
+refused before no-op, stamping or any destination write. The existing
+root/direct-child Document formats are unchanged; these additional ancestry
+checks apply only to movement, not the older typed boundary, removal,
+activation or replacement operations.
+Movement also refuses ancestor IfT state and global owner/mode
 identity aliases through C/Co/Ref. Global identity attributes cannot be
 duplicated. The published processing-instruction validator is reused, not
 forked: legitimate prolog/PI/comments are preserved, malformed PIs are

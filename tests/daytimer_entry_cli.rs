@@ -30,6 +30,136 @@ fn move_command(input: &std::path::Path, from: &str, to: &str, shift: &str) -> a
     command
 }
 
+fn move_fixture() -> String {
+    end_fixture()
+        .replacen(
+            "<C Type=\"DayTimer\" U=\"timer\"",
+            "<C Type=\"Program\" U=\"program\" V=\"121\" WF=\"16384\"><C Type=\"Page\" U=\"page\" V=\"121\" WF=\"16384\"><C Type=\"DayTimer\" U=\"timer\"",
+            1,
+        )
+        .replacen(
+            "</C><C Type=\"DayTimer\" U=\"other\"",
+            "</C></C></C><C Type=\"DayTimer\" U=\"other\"",
+            1,
+        )
+}
+
+#[test]
+fn daytimer_move_requires_exact_native_page_program_ancestry_before_noop_or_output() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = move_fixture();
+    for source in [
+        end_fixture(),
+        source.replace("Type=\"Program\"", "Type=\"Folder\""),
+        source.replace("Type=\"Page\"", "Type=\"Folder\""),
+        source.replace("Type=\"Page\"", "Type=\"page\""),
+        source
+            .replace("<C Type=\"Page\"", "<Page Type=\"Page\"")
+            .replacen(
+                "</C></C></C><C Type=\"DayTimer\" U=\"other\"",
+                "</C></Page></C><C Type=\"DayTimer\" U=\"other\"",
+                1,
+            ),
+        source
+            .replace("<C Type=\"Page\"", "<C Type=\"Program\"><C Type=\"Page\"")
+            .replacen(
+                "</C></C></C><C Type=\"DayTimer\" U=\"other\"",
+                "</C></C></C></C><C Type=\"DayTimer\" U=\"other\"",
+                1,
+            ),
+        source
+            .replace("Type=\"Program\"", "Type=\"Swap\"")
+            .replace("Type=\"Page\"", "Type=\"Program\"")
+            .replace("Type=\"Swap\"", "Type=\"Page\""),
+    ] {
+        for shift in ["0", "8"] {
+            for existing in [false, true] {
+                fs::write(&input, &source).unwrap();
+                if existing {
+                    fs::write(&output, b"preserve destination").unwrap();
+                }
+                move_command(&input, "02:00", "03:00", shift)
+                    .arg("--save-as")
+                    .arg(&output)
+                    .args(["-o", "json"])
+                    .assert()
+                    .failure()
+                    .stdout(predicate::str::contains("DayTimer movement requires"));
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                if existing {
+                    assert_eq!(fs::read(&output).unwrap(), b"preserve destination");
+                    fs::remove_file(&output).unwrap();
+                } else {
+                    assert!(!output.exists());
+                }
+                assert!(!dir.path().join("output.Loxone.tmp").exists());
+            }
+        }
+    }
+}
+
+#[test]
+fn daytimer_move_admits_only_existing_native_page_program_and_document_root_paths() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let program = move_fixture();
+    let page = program
+        .replace(
+            "<C Type=\"Program\" U=\"program\" V=\"121\" WF=\"16384\">",
+            "",
+        )
+        .replacen(
+            "</C></C></C><C Type=\"DayTimer\" U=\"other\"",
+            "</C></C><C Type=\"DayTimer\" U=\"other\"",
+            1,
+        );
+    for source in [
+        program.clone(),
+        page.clone(),
+        program.replace("<Loxone>", "").replace("</Loxone>", ""),
+        page.replace("<Loxone>", "").replace("</Loxone>", ""),
+    ] {
+        for shift in ["0", "8"] {
+            for existing in [false, true] {
+                fs::write(&input, &source).unwrap();
+                if existing {
+                    fs::write(&output, b"replace destination").unwrap();
+                }
+                let result = move_command(&input, "02:00", "03:00", shift)
+                    .arg("--save-as")
+                    .arg(&output)
+                    .args(["-o", "json"])
+                    .assert()
+                    .success()
+                    .get_output()
+                    .stdout
+                    .clone();
+                let result: Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["saved_to"], output.to_str().unwrap());
+                assert_eq!(result["move_change"]["changed"], shift == "8");
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                let saved = fs::read_to_string(&output).unwrap();
+                if shift == "0" {
+                    assert_eq!(saved, source);
+                } else {
+                    assert_eq!(
+                        without_document_stamp(&saved),
+                        without_document_stamp(&source.replacen(
+                            "From=\"120\" To=\"180\" V=\"5\"",
+                            "From=\"135\" To=\"195\" V=\"5\"",
+                            1,
+                        ))
+                    );
+                }
+                fs::remove_file(&output).unwrap();
+            }
+        }
+    }
+}
+
 #[test]
 fn daytimer_move_real_project_snaps_both_boundaries_and_preserves_every_other_byte() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
@@ -82,7 +212,7 @@ fn daytimer_move_real_project_snaps_both_boundaries_and_preserves_every_other_by
 fn daytimer_move_snaps_start_not_delta_and_saves_once_without_rewriting_metadata() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
-    let source = end_fixture()
+    let source = move_fixture()
         .replace("DateS=\"1\"", "DateS=\"2147483645\" 12hTF=\"true\"")
         .replace(
             "From=\"120\" To=\"180\" V=\"5\"",
@@ -119,10 +249,10 @@ fn daytimer_move_grid_and_clamp_noops_keep_exact_bytes_and_actual_saved_to() {
     let input = dir.path().join("input.Loxone");
     let output = dir.path().join("output.Loxone");
     for (source, from, to, shift) in [
-        (end_fixture(), "02:00", "03:00", "7"),
-        (end_fixture(), "02:00", "03:00", "-7"),
+        (move_fixture(), "02:00", "03:00", "7"),
+        (move_fixture(), "02:00", "03:00", "-7"),
         (
-            end_fixture().replace(
+            move_fixture().replace(
                 "From=\"120\" To=\"180\" V=\"5\"",
                 "From=\"+0122\" To=\"+0182\" V=\"5\"",
             ),
@@ -131,7 +261,7 @@ fn daytimer_move_grid_and_clamp_noops_keep_exact_bytes_and_actual_saved_to() {
             "0",
         ),
         (
-            end_fixture()
+            move_fixture()
                 .replace("N=\"3\"", "N=\"2\"")
                 .replace(
                     "<Entry From=\"600\" To=\"660\" V=\"3\" Marker=\"late\"/>",
@@ -176,7 +306,7 @@ fn daytimer_move_linked_clamp_and_midnight_omission_insertion_follow_native_grid
     let input = dir.path().join("input.Loxone");
     for (source, old_from, old_to, shift, previous, replacement) in [
         (
-            end_fixture(),
+            move_fixture(),
             "02:00",
             "03:00",
             "-121",
@@ -184,7 +314,7 @@ fn daytimer_move_linked_clamp_and_midnight_omission_insertion_follow_native_grid
             " To=\"60\"",
         ),
         (
-            end_fixture().replacen("From=\"120\" To=\"180\"", "To=\"180\"", 1),
+            move_fixture().replacen("From=\"120\" To=\"180\"", "To=\"180\"", 1),
             "00:00",
             "03:00",
             "8",
@@ -192,7 +322,7 @@ fn daytimer_move_linked_clamp_and_midnight_omission_insertion_follow_native_grid
             "To=\"195\" V=\"5\" Marker=\"selected\" From=\"15\"/>",
         ),
         (
-            end_fixture()
+            move_fixture()
                 .replace("N=\"3\"", "N=\"2\"")
                 .replace(
                     "<Entry From=\"600\" To=\"660\" V=\"3\" Marker=\"late\"/>",
@@ -225,7 +355,7 @@ fn daytimer_move_refuses_unmodeled_grid_overflow_overlap_reorder_and_unreachable
     let input = dir.path().join("input.Loxone");
     let existing = dir.path().join("existing.Loxone");
     let missing = dir.path().join("missing.Loxone");
-    let source = end_fixture();
+    let source = move_fixture();
     let overflow = source
         .replace("N=\"3\"", "N=\"2\"")
         .replace(
@@ -263,7 +393,7 @@ fn daytimer_move_admission_including_processing_instructions_precedes_noop_and_o
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
     let output = dir.path().join("output.Loxone");
-    let source = end_fixture();
+    let source = move_fixture();
     let mut refused = vec![
         source.replace("Type=\"DayTimer\"", "Type=\"daytimer\""),
         source.replace("Analog=\"false\"", "Analog=\"true\""),
@@ -321,7 +451,7 @@ fn daytimer_move_admission_including_processing_instructions_precedes_noop_and_o
 fn daytimer_move_valid_prolog_pi_missing_stamps_root_document_and_dry_run() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
-    let source = end_fixture()
+    let source = move_fixture()
         .replace("<Loxone>", "<?outside data?><!--keep-->")
         .replace("</Loxone>", "<?after data?>")
         .replace(" Date=\"2020-01-01 00:00:00\" DateS=\"1\"", "")
@@ -355,7 +485,7 @@ fn daytimer_move_exclusive_staging_and_input_alias_refusals_preserve_all_files()
     let input = dir.path().join("input.Loxone");
     let output = dir.path().join("output.Loxone");
     let staging = dir.path().join("output.Loxone.tmp");
-    let source = end_fixture();
+    let source = move_fixture();
     fs::write(&input, &source).unwrap();
     for shift in ["0", "8"] {
         for existing in [false, true] {
