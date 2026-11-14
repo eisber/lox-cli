@@ -51,8 +51,16 @@ impl ConfigEditor {
                     | "Trigger"
                     | "InputEnable"
                     | "InputTrigger"
+                    | "InputTrigger 1"
+                    | "InputTrigger 2"
+                    | "InputTrigger 3"
+                    | "InputTrigger 4"
+                    | "InputTrigger 5"
+                    | "InputTrigger 6"
+                    | "InputTrigger 7"
+                    | "InputTrigger 8"
             ),
-            "Input inversion supports only existing unconnected And/Or/Xor.I1/I2, Not.I, FlipFlop/RSFlipFlop/SRFlipFlop.InputS/InputR, Counter.Trigger, HourCounter.InputEnable or OnDelay/OffDelay/OnOffDelay.InputTrigger, not aliases, latch trigger inputs, outputs, analog inputs or parameters; nothing was changed."
+            "Input inversion supports only existing unconnected And/Or/Xor.I1/I2, Not.I, FlipFlop/RSFlipFlop/SRFlipFlop.InputS/InputR, Counter.Trigger, HourCounter.InputEnable, OnDelay/OffDelay/OnOffDelay/MultiFuncSW.InputTrigger, Radio InputTrigger 1/2 or Radio2 InputTrigger 1..8, not aliases, latch trigger inputs, outputs, analog inputs or parameters; nothing was changed."
         );
         ensure!(
             Self::sanitize_digit_attrs(data).1.is_empty(),
@@ -116,17 +124,23 @@ impl ConfigEditor {
                         | "OnDelay"
                         | "OffDelay"
                         | "OnOffDelay"
+                        | "MultiFuncSW"
+                        | "Radio"
+                        | "Radio2"
                 )
                 && owner.attributes.get("U").map(String::as_str) == Some(requested)
                 && !owner.attributes.contains_key("Dev"),
-            "Input inversion requires an ordinary, non-device-bound And, Or, Xor, Not, FlipFlop, RSFlipFlop, SRFlipFlop, Counter, HourCounter, OnDelay, OffDelay or OnOffDelay directly on a Page; nothing was changed."
+            "Input inversion requires an ordinary, non-device-bound And, Or, Xor, Not, FlipFlop, RSFlipFlop, SRFlipFlop, Counter, HourCounter, OnDelay, OffDelay, OnOffDelay, MultiFuncSW, Radio or Radio2 directly on a Page; nothing was changed."
         );
-        if matches!(kind(owner), "OnDelay" | "OffDelay" | "OnOffDelay") {
+        if matches!(
+            kind(owner),
+            "OnDelay" | "OffDelay" | "OnOffDelay" | "MultiFuncSW" | "Radio" | "Radio2"
+        ) {
             ensure!(
                 editor.root.name == "ControlList"
                     && !editor.root.attributes.contains_key("Type")
                     && documents[0].len() == 1,
-                "Delay input inversion requires the ordinary Document directly in the native ControlList root; other owning contexts are unsupported. Nothing was changed."
+                "Delay/switch/selection input inversion requires the ordinary Document directly in the native ControlList root; other owning contexts are unsupported. Nothing was changed."
             );
         }
         let (input_keys, connector_keys, nio): (&[&str], &[&str], &str) = match kind(owner) {
@@ -187,12 +201,115 @@ impl ConfigEditor {
                 ],
                 "6",
             ),
+            "MultiFuncSW" => (
+                &["InputTrigger"],
+                &[
+                    "InputTrigger",
+                    "On",
+                    "Reset",
+                    "InputDisable",
+                    "TimeHigh",
+                    "TimeWarn",
+                    "Remanence",
+                    "TimeTrigger",
+                    "WarnTime",
+                    "Q",
+                ],
+                "10",
+            ),
+            "Radio" => (
+                &["InputTrigger 1", "InputTrigger 2"],
+                &[
+                    "InputTrigger 1",
+                    "InputTrigger 2",
+                    "InputTrigger 3",
+                    "InputTrigger 4",
+                    "InputTrigger 5",
+                    "InputTrigger 6",
+                    "InputTrigger 7",
+                    "InputTrigger 8",
+                    "InputTriggerP",
+                    "InputTriggerM",
+                    "InputSel",
+                    "Reset",
+                    "InputDisable",
+                    "Remanence",
+                    "Max",
+                    "Mode",
+                    "Q1",
+                    "Q2",
+                    "Q3",
+                    "Q4",
+                    "Q5",
+                    "Q6",
+                    "Q7",
+                    "Q8",
+                    "AQ",
+                ],
+                "25",
+            ),
+            "Radio2" => (
+                &[
+                    "InputTrigger 1",
+                    "InputTrigger 2",
+                    "InputTrigger 3",
+                    "InputTrigger 4",
+                    "InputTrigger 5",
+                    "InputTrigger 6",
+                    "InputTrigger 7",
+                    "InputTrigger 8",
+                ],
+                &[
+                    "InputTrigger 1",
+                    "InputTrigger 2",
+                    "InputTrigger 3",
+                    "InputTrigger 4",
+                    "InputTrigger 5",
+                    "InputTrigger 6",
+                    "InputTrigger 7",
+                    "InputTrigger 8",
+                    "InputTrigger 9",
+                    "InputTrigger 10",
+                    "InputTrigger 11",
+                    "InputTrigger 12",
+                    "InputTrigger 13",
+                    "InputTrigger 14",
+                    "InputTrigger 15",
+                    "InputTrigger 16",
+                    "InputTriggerP",
+                    "InputTriggerM",
+                    "InputSel",
+                    "Reset",
+                    "InputDisable",
+                    "Remanence",
+                    "Max",
+                    "Mode",
+                    "Q1",
+                    "Q2",
+                    "Q3",
+                    "Q4",
+                    "Q5",
+                    "Q6",
+                    "Q7",
+                    "Q8",
+                    "Q9",
+                    "Q10",
+                    "Q11",
+                    "Q12",
+                    "Q13",
+                    "Q14",
+                    "Q15",
+                    "Q16",
+                    "AQ",
+                ],
+                "41",
+            ),
             _ => (&["I1", "I2"], &["I1", "I2", "Q"], "3"),
         };
         ensure!(
             input_keys.contains(&key)
                 && owner.attributes.get("Nio").map(String::as_str) == Some(nio),
-            "Input inversion requires the owner's exact native input and explicit layout: And/Or/Xor I1/I2 with Nio=3, Not I with Nio=2, latch InputS/InputR with FlipFlop Nio=4 or RSFlipFlop/SRFlipFlop Nio=5, Counter Trigger with Nio=7, HourCounter InputEnable with Nio=10, or delay InputTrigger with OnDelay/OffDelay Nio=5 or OnOffDelay Nio=6; nothing was changed."
+            "Input inversion requires the owner's exact native input and explicit layout: And/Or/Xor I1/I2 with Nio=3, Not I with Nio=2, latch InputS/InputR with FlipFlop Nio=4 or RSFlipFlop/SRFlipFlop Nio=5, Counter Trigger with Nio=7, HourCounter InputEnable with Nio=10, delay InputTrigger with OnDelay/OffDelay Nio=5 or OnOffDelay Nio=6, MultiFuncSW InputTrigger with Nio=10, Radio InputTrigger 1/2 with Nio=25 or Radio2 InputTrigger 1..8 with Nio=41; nothing was changed."
         );
         let mut identities = Vec::new();
         let mut guarded_owners = vec![document];
@@ -262,7 +379,7 @@ impl ConfigEditor {
                         .count()
                         == 1
                 }),
-            "Input inversion requires exactly the owner's complete existing native connector set, including latch Remanence and RSFlipFlop/SRFlipFlop InputTrigger, counter parameters/outputs and delay parameters/output; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
+            "Input inversion requires exactly the owner's complete existing native connector set, including latch Remanence and RSFlipFlop/SRFlipFlop InputTrigger, counter/delay/switch/selection parameters and outputs; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
         );
         for connector in &connectors {
             let identity = connector

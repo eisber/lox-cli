@@ -1168,9 +1168,9 @@ pub(crate) enum ConfigCmd {
     /// Set native Inv on a supported existing unconnected digital input
     SetInputInversion {
         file: String,
-        /// Exact uuid:<native35-U> of a supported logic, latch, counter or delay owner
+        /// Exact uuid:<native35-U> of a supported logic, latch, counter, delay, switch or selection owner
         selector: String,
-        /// And/Or/Xor I1/I2, Not I, latch InputS/InputR, Counter Trigger, HourCounter InputEnable, delay InputTrigger
+        /// Logic I/I1/I2, latch InputS/InputR, Counter Trigger, HourCounter InputEnable, delay/MultiFuncSW InputTrigger, Radio InputTrigger 1/2, Radio2 InputTrigger 1..8
         connector: String,
         /// Invert the selected digital input
         #[arg(

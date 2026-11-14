@@ -120,6 +120,291 @@ fn with_saved_stamp(source: &str, saved: &str) -> String {
     expected
 }
 
+fn selection_fixture(owner_type: &str, selected: &str) -> String {
+    let (nio, mut inputs, parameters, outputs) = match owner_type {
+        "MultiFuncSW" => (
+            10,
+            ["InputTrigger", "On", "Reset", "InputDisable"]
+                .map(str::to_string)
+                .to_vec(),
+            vec![
+                ("TimeHigh", "180"),
+                ("TimeWarn", "15"),
+                ("Remanence", "0"),
+                ("TimeTrigger", "0.5"),
+                ("WarnTime", "0.5"),
+            ],
+            vec!["Q".to_string()],
+        ),
+        "Radio" | "Radio2" => {
+            let count = if owner_type == "Radio" { 8 } else { 16 };
+            let mut outputs: Vec<_> = (1..=count).map(|i| format!("Q{i}")).collect();
+            outputs.push("AQ".to_string());
+            (
+                if owner_type == "Radio" { 25 } else { 41 },
+                (1..=count).map(|i| format!("InputTrigger {i}")).collect(),
+                vec![
+                    ("Remanence", "0"),
+                    ("Max", if owner_type == "Radio" { "8" } else { "16" }),
+                    ("Mode", "0"),
+                ],
+                outputs,
+            )
+        }
+        _ => unreachable!(),
+    };
+    if owner_type != "MultiFuncSW" {
+        inputs.extend(
+            [
+                "InputTriggerP",
+                "InputTriggerM",
+                "InputSel",
+                "Reset",
+                "InputDisable",
+            ]
+            .map(str::to_string),
+        );
+    }
+    let identity = |i: usize| format!("{:08x}-2222-3333-4444555566667777", 0x82000000 + i);
+    let mut connectors = String::new();
+    for (i, key) in inputs.iter().enumerate() {
+        if key == selected {
+            connectors.push_str(&format!(
+                "<Co K=\"{key}\" U=\"{INPUT}\" Def=\"0\" Inv='false' Pos='11,22' Unknown=\"selected\"/>"
+            ));
+        } else {
+            connectors.push_str(&format!(
+                "<Co K=\"{key}\" U=\"{}\" Def=\"1\" Inv=\"true\" Nc=\"1\" Pos='33,44'><Ref U=\"71111111-2222-3333-4444555566667777\" Unknown=\"keep input wire\"/></Co>",
+                identity(i)
+            ));
+        }
+    }
+    for (i, (key, value)) in parameters.iter().enumerate() {
+        connectors.push_str(&format!(
+            "<Co K=\"{key}\" U=\"{}\" Def=\"{value}\" Pos='55,66' Unknown=\"keep native parameter\"/>",
+            identity(inputs.len() + i)
+        ));
+    }
+    for (i, key) in outputs.iter().enumerate() {
+        let uuid = if i == 0 {
+            "51111111-2222-3333-4444555566667777".to_string()
+        } else {
+            identity(inputs.len() + parameters.len() + i)
+        };
+        connectors.push_str(&format!(
+            "<Co K=\"{key}\" U=\"{uuid}\" Pos='77,88' Unknown=\"keep output\"/>"
+        ));
+    }
+    let blocks = format!(
+        r#"
+        <C Type="{owner_type}" V="174" U="{OWNER}" WF="16384" Nio="{nio}" Title="Recovered selection input" Pos="490,280" Pr="4" Unknown="keep &amp; preserve">{connectors}</C>
+        <C Type="Not" V="174" U="c1111111-2222-3333-4444555566667777" WF="16384" Nio="2" Pos="220,280"><Co K="I" U="d1111111-2222-3333-4444555566667777"/><Co K="Q" U="71111111-2222-3333-4444555566667777"/></C>
+        <C Type="OutputRef" V="174" U="e1111111-2222-3333-4444555566667777" WF="16384" Pos="730,280"><Co K="AI" U="f1111111-2222-3333-4444555566667777" Nc="1"><Ref U="51111111-2222-3333-4444555566667777" Unknown="keep output wire"/></Co></C>
+"#
+    );
+    let golden = include_str!("eval/golden/configs/Guest Room Door.Loxone");
+    let page = golden.find("<C Type=\"Page\"").unwrap();
+    let insertion = page + golden[page..].find('>').unwrap() + 1;
+    let project = format!("{}{}{}", &golden[..insertion], blocks, &golden[insertion..]);
+    format!(
+        "\u{feff}{}<!--preserve--><?audit selection?>\r\n",
+        project
+            .trim_start_matches('\u{feff}')
+            .replace("\r\n", "\n")
+            .replace('\n', "\r\n")
+    )
+}
+
+#[test]
+fn selection_input_inversion_preserves_full_native_layout_defaults_and_other_wires() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("selection.Loxone");
+    for (owner_type, count) in [("MultiFuncSW", 1), ("Radio", 2), ("Radio2", 8)] {
+        for index in 1..=count {
+            let key = if owner_type == "MultiFuncSW" {
+                "InputTrigger".to_string()
+            } else {
+                format!("InputTrigger {index}")
+            };
+            let source = selection_fixture(owner_type, &key);
+            fs::write(&input, &source).unwrap();
+            let result = command(&input, &key, true)
+                .args(["-o", "json"])
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+            assert_eq!(result["input_inversion"]["connector"], key);
+            assert_eq!(result["input_inversion"]["connector_uuid"], INPUT);
+            assert_eq!(result["input_inversion"]["changed"], true);
+            assert_eq!(result["saved_to"], input.to_str().unwrap());
+            let saved = fs::read_to_string(&input).unwrap();
+            assert_eq!(
+                saved,
+                with_saved_stamp(&source, &saved).replacen("Inv='false'", "Inv='true'", 1)
+            );
+            command(&input, &key, true).arg("-q").assert().success();
+            assert_eq!(fs::read_to_string(&input).unwrap(), saved);
+            command(&input, &key, false).arg("-q").assert().success();
+            let cleared = fs::read_to_string(&input).unwrap();
+            assert_eq!(
+                cleared,
+                with_saved_stamp(&saved, &cleared).replacen("Inv='true'", "", 1)
+            );
+            let result = command(&input, &key, false)
+                .args(["-o", "json"])
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+            assert_eq!(result["saved_to"], serde_json::Value::Null);
+            assert_eq!(result["input_inversion"]["changed"], false);
+            assert_eq!(fs::read_to_string(&input).unwrap(), cleared);
+        }
+    }
+}
+
+#[test]
+fn selection_input_inversion_save_as_preserves_source_and_reports_actual_writes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("selection.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for (owner_type, key) in [
+        ("MultiFuncSW", "InputTrigger"),
+        ("Radio", "InputTrigger 2"),
+        ("Radio2", "InputTrigger 8"),
+    ] {
+        let source = selection_fixture(owner_type, key)
+            .replace("Def=\"0\" Inv='false'", "Nc=\"0\" Inv='false'");
+        fs::write(&input, &source).unwrap();
+        for existing in [false, true] {
+            for inverted in [false, true] {
+                if output.exists() {
+                    fs::remove_file(&output).unwrap();
+                }
+                if existing {
+                    fs::write(&output, b"preserve until accepted").unwrap();
+                }
+                let result = command(&input, key, inverted)
+                    .arg("--save-as")
+                    .arg(&output)
+                    .args(["-o", "json"])
+                    .assert()
+                    .success()
+                    .get_output()
+                    .stdout
+                    .clone();
+                let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["saved_to"], output.to_str().unwrap());
+                assert_eq!(result["input_inversion"]["changed"], inverted);
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                let saved = fs::read_to_string(&output).unwrap();
+                let expected = if inverted {
+                    with_saved_stamp(&source, &saved).replacen("Inv='false'", "Inv='true'", 1)
+                } else {
+                    source.clone()
+                };
+                assert_eq!(saved, expected);
+            }
+        }
+    }
+}
+
+#[test]
+fn selection_input_inversion_refuses_unqualified_ports_and_contexts_atomically() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("selection.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for (owner_type, key, nio) in [
+        ("MultiFuncSW", "InputTrigger", 10),
+        ("Radio", "InputTrigger 1", 25),
+        ("Radio2", "InputTrigger 1", 41),
+    ] {
+        let source = selection_fixture(owner_type, key);
+        let mut cases: Vec<(String, String)> = [
+            "Reset",
+            "InputDisable",
+            "Remanence",
+            "Max",
+            "Mode",
+            "InputSel",
+            "InputTriggerP",
+            "InputTriggerM",
+            "On",
+            "TimeHigh",
+            "TimeWarn",
+            "TimeTrigger",
+            "WarnTime",
+            "Q",
+            "Q1",
+            "AQ",
+            "I1",
+            "InputTrigger1",
+        ]
+        .map(|key| (selection_fixture(owner_type, key), key.to_string()))
+        .to_vec();
+        if owner_type != "MultiFuncSW" {
+            let (first, last) = if owner_type == "Radio" {
+                (3, 8)
+            } else {
+                (9, 16)
+            };
+            cases.extend((first..=last).map(|i| {
+                let key = format!("InputTrigger {i}");
+                (selection_fixture(owner_type, &key), key)
+            }));
+        }
+        let selected = format!("<Co K=\"{key}\" U=\"{INPUT}\"");
+        for xml in [
+            source.replace(&format!("Nio=\"{nio}\""), "Nio=\"3\""),
+            source.replace("<Co K=\"Remanence\"", "<Co K=\"Unregistered\""),
+            source.replace(&selected, &format!("{selected} Nc=\"1\"")),
+            source.replace("Def=\"0\" Inv='false'", "Def=\"1\" Inv='false'"),
+            source.replace("Unknown=\"selected\"", "Unknown=\"selected\" IfT=\"false\""),
+            source.replace(INPUT, OWNER),
+            source.replace(INPUT, "A1111111-2222-3333-4444-555566667777"),
+            source.replace(
+                &format!("U=\"{OWNER}\" WF=\"16384\""),
+                &format!("U=\"{OWNER}\" WF=\"536870912\""),
+            ),
+            source.replace("Type=\"Program\"", "Type=\"Folder\""),
+            source
+                .replace("<ControlList ", "<Folder ")
+                .replace("</ControlList>", "</Folder>"),
+            source.replace("DateS=\"532627050\"", "DateS=\"2147483647\""),
+            source.replace("DateS=\"532627050\"", "DateS=\"\""),
+            source.replace("Recovered selection input", "Noon 12hTF=quoted"),
+            source.replace(&format!("K=\"{key}\""), &format!("K=\"{key}\" K=\"{key}\"")),
+            source.replace(&format!("Type=\"{owner_type}\""), "Type=\"StepSel\""),
+            source.replace("</ControlList>", "</ControlList><C Type=\"Document\"/>"),
+            source.replace("<?audit selection?>", "<?1audit selection?>"),
+        ] {
+            cases.push((xml, key.to_string()));
+        }
+        for (xml, key) in cases {
+            for inverted in [false, true] {
+                for destination in [None, Some(&existing), Some(&new)] {
+                    fs::write(&input, &xml).unwrap();
+                    fs::write(&existing, b"preserve").unwrap();
+                    let mut edit = command(&input, &key, inverted);
+                    if let Some(destination) = destination {
+                        edit.arg("--save-as").arg(destination);
+                    }
+                    edit.assert().failure();
+                    assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                    assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                    assert!(!new.exists());
+                }
+            }
+        }
+    }
+}
+
 #[test]
 fn delay_input_inversion_preserves_full_native_project_defaults_and_other_wires() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
