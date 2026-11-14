@@ -176,6 +176,8 @@ pub(super) fn entry_name_bytes(
 ) -> Result<(Vec<u8>, Option<String>)> {
     use quick_xml::{Reader, events::Event};
 
+    let clear_irrigation_name =
+        matches!(&identity, EntryNameStorage::Irrigation { .. }) && name == Some("");
     let (owner_type, entry_tag, identity_key, identity_value, name_key, owner_uuid) = match identity
     {
         EntryNameStorage::Alarm {
@@ -307,7 +309,39 @@ pub(super) fn entry_name_bytes(
                         }
                     }
                     found = true;
-                    if let Some(name) = name {
+                    if clear_irrigation_name {
+                        for attribute in &attributes {
+                            if attribute.key.as_ref() != name_key.as_bytes() {
+                                continue;
+                            }
+                            let key_start = (attribute.key.as_ref().as_ptr() as usize)
+                                .checked_sub(data.as_ptr() as usize)
+                                .filter(|start| {
+                                    data.get(*start..*start + name_key.len())
+                                        == Some(name_key.as_bytes())
+                                })
+                                .ok_or_else(|| anyhow::anyhow!("Cannot locate raw irrigation nm attribute; nothing was changed."))?;
+                            let value_start = (attribute.value.as_ptr() as usize)
+                                .checked_sub(data.as_ptr() as usize)
+                                .filter(|start| {
+                                    data.get(*start..*start + attribute.value.len())
+                                        == Some(attribute.value.as_ref())
+                                })
+                                .ok_or_else(|| anyhow::anyhow!("Cannot locate raw irrigation nm value; nothing was changed."))?;
+                            let end = value_start + attribute.value.len() + 1;
+                            if !matches!(data.get(end - 1), Some(b'\'' | b'"')) {
+                                bail!(
+                                    "Cannot locate raw irrigation nm closing quote; nothing was changed."
+                                );
+                            }
+                            let start = if key_start > 0 && data[key_start - 1] == b' ' {
+                                key_start - 1
+                            } else {
+                                key_start
+                            };
+                            patches.push((start..end, String::new()));
+                        }
+                    } else if let Some(name) = name {
                         replacements.push((name_key, name));
                     }
                 }

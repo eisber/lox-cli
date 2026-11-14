@@ -24,6 +24,16 @@ fn command(input: &Path, index: &str, name: &str) -> assert_cmd::Command {
     selected_command(input, &format!("uuid:{BLOCK}"), index, name)
 }
 
+fn clear_command(input: &Path, index: &str) -> assert_cmd::Command {
+    let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    command
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "irrigation-zone-set-name"])
+        .arg(input)
+        .args([&format!("uuid:{BLOCK}"), "--io-index", index, "--clear"]);
+    command
+}
+
 fn selected_command(input: &Path, selector: &str, index: &str, name: &str) -> assert_cmd::Command {
     let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
     command
@@ -271,6 +281,7 @@ fn irrigation_zone_name_rejects_unqualified_identity_autofill_and_text_without_w
         assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
         assert!(!output.exists());
     }
+
     let mut by_name = assert_cmd::cargo::cargo_bin_cmd!("lox");
     by_name
         .env("LOX_TELEMETRY", "0")
@@ -288,4 +299,185 @@ fn irrigation_zone_name_rejects_unqualified_identity_autofill_and_text_without_w
         .failure();
     assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
     assert!(!output.exists());
+}
+
+#[test]
+fn irrigation_zone_clear_omits_only_selected_name_and_can_restore_it() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("cleared.Loxone");
+    let source = fixture();
+    fs::write(&input, &source).unwrap();
+    let stdout = clear_command(&input, "3")
+        .arg("--save-as")
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let report: Value = serde_json::from_slice(&stdout).unwrap();
+    assert_eq!(
+        report["name_change"]["previous_name"],
+        "Wake 7am=ok & garden"
+    );
+    assert_eq!(report["name_change"]["name"], "");
+    assert_eq!(report["name_change"]["changed"], true);
+    let saved = fs::read_to_string(&output).unwrap();
+    let date = |text: &str, key: &str| {
+        text.split_once(&format!(" {key}=\""))
+            .unwrap()
+            .1
+            .split('"')
+            .next()
+            .unwrap()
+            .to_string()
+    };
+    let expected = source
+        .replace(" nm=\"Wake 7am=ok &amp; garden\"", "")
+        .replace(
+            "Date=\"2020-01-01 00:00:00\"",
+            &format!("Date=\"{}\"", date(&saved, "Date")),
+        )
+        .replace(
+            "DateS=\"1\"",
+            &format!("DateS=\"{}\"", date(&saved, "DateS")),
+        );
+    assert_eq!(saved, expected);
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    let restored_stdout = command(&output, "3", "Wake 7am=ok & garden")
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let restored_report: Value = serde_json::from_slice(&restored_stdout).unwrap();
+    assert_eq!(restored_report["name_change"]["previous_name"], "");
+    let restored = fs::read_to_string(&output).unwrap();
+    assert!(restored.contains("nm=\"Wake 7am=ok &amp; garden\""));
+    assert_eq!(
+        restored.replace(
+            "<zone ioIdx=\"3\" Unknown=\"keep-3\" nm=\"Wake 7am=ok &amp; garden\"/>",
+            "<zone ioIdx=\"3\" nm=\"Wake 7am=ok &amp; garden\" Unknown=\"keep-3\"/>",
+        ),
+        source
+            .replace(
+                "Date=\"2020-01-01 00:00:00\"",
+                &format!("Date=\"{}\"", date(&restored, "Date")),
+            )
+            .replace(
+                "DateS=\"1\"",
+                &format!("DateS=\"{}\"", date(&restored, "DateS")),
+            )
+    );
+}
+
+#[test]
+fn irrigation_zone_clear_noop_and_restore_admit_selected_missing_or_empty_name() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for replacement in ["", " nm=\"\"", " nm = ''"] {
+        let source = fixture().replace(" nm=\"Wake 7am=ok &amp; garden\"", replacement);
+        fs::write(&input, &source).unwrap();
+        clear_command(&input, "3")
+            .arg("--save-as")
+            .arg(&output)
+            .args(["-o", "csv", "--no-header"])
+            .assert()
+            .success()
+            .stdout(format!("\"{BLOCK}\",3,\"\",\"\",false\n"));
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+        command(&input, "3", "Restored 7am=ok")
+            .arg("-q")
+            .assert()
+            .success()
+            .stdout("");
+        assert!(
+            fs::read_to_string(&input)
+                .unwrap()
+                .contains("Restored 7am=ok")
+        );
+    }
+}
+
+#[test]
+fn irrigation_zone_clear_removes_whitespace_name_without_changing_other_fields() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let source = fixture().replace("nm=\"Wake 7am=ok &amp; garden\"", "nm = '   '");
+    fs::write(&input, &source).unwrap();
+    clear_command(&input, "3")
+        .arg("-q")
+        .assert()
+        .success()
+        .stdout("");
+    let saved = fs::read_to_string(&input).unwrap();
+    assert!(saved.contains("<zone ioIdx=\"3\" Unknown=\"keep-3\"/>"));
+    assert!(saved.contains("<Co K=\"Tv4\" U=\"timer\" Def=\"300\"/>"));
+    assert!(saved.contains("<Co K=\"Qv4\" U=\"valve\"><In Input=\"physical-output\"/></Co>"));
+    assert!(saved.contains("<C Type=\"OutputRef\" U=\"ref\" Title=\"Old output name\">"));
+}
+
+#[test]
+fn irrigation_zone_clear_retains_atomic_admission_and_nonblank_name_contract() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let source = fixture();
+    for xml in [
+        source.replace("ioIdx=\"7\"", "ioIdx=\"6\""),
+        source.replace("nm=\"North &amp; South\"", "nm=\"\""),
+        source.replace("nm=\"Wake 7am=ok &amp; garden\"", "nm=\"&#65;\""),
+        source.replace("Type=\"Irrigation\"", "Type=\"And\""),
+        source.replace(
+            "<C Type=\"Irrigation\"",
+            "<Template IfT=\"true\"/><C Type=\"Irrigation\"",
+        ),
+        source.replace(
+            "</Loxone>",
+            &format!("<C Type=\"And\" U=\"{}\"/></Loxone>", BLOCK.to_uppercase()),
+        ),
+        source.replace(BLOCK, "00000000-0000-0000-0000000000000000"),
+        source.replace("Type=\"Document\"", "Type=\"Project\""),
+    ] {
+        for destination in [None, Some(&existing), Some(&new)] {
+            fs::write(&input, &xml).unwrap();
+            fs::write(&existing, b"sentinel").unwrap();
+            let mut command = clear_command(&input, "3");
+            if let Some(destination) = destination {
+                command.arg("--save-as").arg(destination);
+            }
+            command.assert().failure();
+            assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+            assert_eq!(fs::read(&existing).unwrap(), b"sentinel");
+            assert!(!new.exists());
+        }
+    }
+    fs::write(&input, &source).unwrap();
+    for name in ["", " ", "\t"] {
+        command(&input, "3", name).assert().failure();
+        clear_command(&input, "3")
+            .args(["--name", name])
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    }
+    clear_command(&input, "3")
+        .args(["--name", "New"])
+        .assert()
+        .failure();
+    let mut missing_action = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    missing_action
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "irrigation-zone-set-name"])
+        .arg(&input)
+        .args([&format!("uuid:{BLOCK}"), "--io-index", "3"])
+        .assert()
+        .failure();
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
 }

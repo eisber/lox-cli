@@ -1,4 +1,4 @@
-# Irrigation: rename one existing named zone
+# Irrigation: rename or clear one existing zone name
 
 `config irrigation-zone-set-name` changes the nested `zone/@nm`, not the
 Irrigation block's Title or a duration's `Co/@Def`. Existing `set-param`
@@ -97,9 +97,11 @@ stamp-helper policy is unchanged.
 
 Opening the dialog calls **`0x140708280`**. For an empty zone name, it may
 copy the name of the first connected output object through virtual +0x1a8.
-Therefore this CLI requires **all eight names already nonempty**, including
-unselected zones. It does not imitate autofill, clear/disable a zone, or
-rename another record.
+Therefore this CLI requires **all seven unselected names already nonempty**.
+The selected name may be missing/empty: its transient opening-time autofill
+would be overwritten by the explicitly selected rename/clear. This permits
+restoring a CLI-cleared name without admitting autofill of another zone.
+It does not imitate autofill, disable a zone, or rename another record.
 
 The Irrigation primary vtable **0x141077be0**, slot **0x248**, is
 **`0x140705830`**: connector indices **16..23** return the corresponding
@@ -107,6 +109,68 @@ zone's +0x28 name. **`0x140d54630:42–53`** uses that virtual result when
 building the displayed connector caption. This is an on-demand derived
 caption, not a serializer instruction to rewrite Co keys/UUIDs, physical
 actors, OutputRef titles, wires or auxiliary references.
+
+### Reachable empty input, not a guessed empty-string reset
+
+The new empty branch is independently source-qualified; the earlier nonempty
+setter proof alone was not sufficient. The dialog's actual view initialization
+`0x140b4f2c0:63` calls **`0x140b66d90`**, which connects table Paste signal
+**`0x140d3f4d0`** to **`0x140b6b170`** (lines 653–671).
+Actual key handler **`0x140d43310:51–55`** emits that signal for the Paste
+standard key and a valid model index, without checking clipboard text.
+`0x140b6b170:28–45` reads the clipboard and directly submits a QVariant to
+`0x140d39e10`, or dispatches tab/newline-containing text to **`0x140b6cb50`**.
+For a clipboard containing just one newline, that latter function's
+do-once first-cell path trims to empty and calls `0x140d39e10` at line 91;
+its empty remainder checks at lines 97–103 then stop before another column
+or row. This is a reachable one-name clear, not a duration edit.
+Direct single-cell whitespace is not trimmed by `0x140b6b170`.
+
+The actual write route has no empty-name rejection: wrapper +0xc8 remains
+false, the shared pre-edit signal **`0x140c08180`** is only forwarding, and
+the dialog installs no rejection callback. `0x140d39e10` forwards the empty
+QVariant through wrapper +0xb0 to the known CZone setter/UTF-8 assignment.
+This Paste route does not depend on assuming that Qt's imported line editor
+will commit an empty string. The common editor's actual setModelData and
+eventFilter slots are Qt import thunks `0x140dd1624`/`0x140dd163c`;
+no imported Qt implementation body is claimed.
+
+The actual OK connection **`0x140b4f800:183–196`** uses thunk
+`0x1401c10fc`, an indirect call through dialog virtual **+0x180**.
+Bounded original-PE reads bind the installed dialog table **0x141559ac0**:
++0x180 is **`0x1409179c6`**, the imported `QDialog::accept`, while +0x188
+is the known snapshot-restoring Cancel implementation `0x140b4f750`.
+There is no name check or old-name restoration on OK.
+
+### Empty persistence, reload and later derived names
+
+Zone-array initialization **`0x140706db0:29–49`**, installed at primary
+virtual +0xf10, creates the eight CZone records and clears each +0x28 string.
+The factory's established final initialization calls that virtual.
+There is no localized zone-name constructor default.
+`0x140708ff0:29` passes flags **1,1,0** for nm.
+Shared reader **`0x1404c52f0:75–105,169–174`** clears its temporary string,
+reads/unescapes the attribute and copies it even when missing/empty
+(skip-empty-read flag zero). Its writer **lines 682–686** returns without
+writing nm when the string is empty (omit-empty flag one).
+Thus both absent nm and `nm=""` reload as empty storage, not a proven
+reset-to-default or localized-name request.
+
+Primary virtual **+0xf20 = `0x140707680`** is called during simulation
+initialization by `0x140511a60:25–31` (caller `0x14015de80:82–85`).
+Like dialog opening, its lines 34–45 copy the first connected output
+object's virtual +0x1a8 string only when the zone name is empty.
+This is connection-dependent later derivation, not constructor/read-time
+locale regeneration. No graph/reference/title extraction framework is added.
+For an empty name, **`0x140d54630:45–65`** skips the custom suffix altogether;
+the existing base connector caption remains. The CLI does not invent its
+locale-dependent text.
+
+Explicit `--clear` removes only the selected nm and stamps the Document.
+Missing/explicit-empty selected storage is admitted for restoration by
+`--name`, and clearing it is an exact-byte no-op. Unselected empty storage
+continues to be refused. Requested `--name ""` and whitespace-only `--name`
+remain errors; no prior nonblank request contract is weakened.
 
 ## Persistence and conservative CLI shape
 
@@ -122,8 +186,8 @@ order**, without missing, duplicate or reordered records; default creation
 and migration are not qualified. The first zone's zero ioIdx may be absent:
 the shared reader clears its temporary string, the type-5 path calls
 `0x140422760`, and that parser returns zero for empty input. The writer's
-omit-zero flag is enabled. No other omission, empty value, sign or
-noncanonical numeric spelling is admitted or normalized.
+omit-zero flag is enabled. No other ioIdx omission, empty value, sign or noncanonical numeric spelling
+is admitted or normalized.
 
 The established type-0x0f native XML string-reader evidence is reused:
 five named entities, ampersand last, not general numeric references or

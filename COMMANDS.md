@@ -1483,10 +1483,11 @@ the native physical sort order. JSON returns `name_change` (including nullable
 `previous_name`); CSV, `--no-header`, `--quiet`, `--room` and save-as are supported.
 See [native string behavior and limits](docs/knowledge/alarm-entry-name-native.md).
 
-Rename one existing, already named Irrigation zone:
+Rename or explicitly clear one existing Irrigation zone's stored name:
 
 ```bash
 lox config irrigation-zone-set-name file.Loxone "uuid:0f8e1234-1234-5678-90abcdef01234567" --io-index 3 --name "South garden" --save-as edited.Loxone -o json
+lox config irrigation-zone-set-name file.Loxone "uuid:0f8e1234-1234-5678-90abcdef01234567" --io-index 3 --clear -o json
 ```
 
 `--io-index` is native zero-based `zone/@ioIdx` (0..7), not the display row
@@ -1502,11 +1503,13 @@ native template locking and accepted-edit WF/uuidParent propagation are not
 implemented by this operation. These guards do not change other commands.
 Requires all eight existing
 `zone` records in canonical ioIdx order 0..7 (zero alone may be omitted),
-each with a nonempty `nm`.
-Missing/empty names can trigger native output-based autofill of other zones,
-so those layouts are refused, not repaired. Duplicate names are allowed.
+with every **unselected** zone's `nm` nonempty. An unselected missing/empty
+name can trigger native output-based autofill, so those layouts are refused,
+not repaired. The selected name may be missing/empty: use `--name` to restore
+it after clearing. Duplicate names are allowed.
 
-The requested name must be nonempty, nonblank, single-line XML-safe Unicode;
+Exactly one of `--name` / `--clear` is required. A requested `--name` must
+still be nonempty, nonblank, single-line XML-safe Unicode;
 no trimming, normalization or case folding is performed. Existing relied-on
 name/identity/stamp storage containing numeric XML references, literal
 tab/newline names, DTD-dependent/non-UTF-8 input or namespaced target/stamp
@@ -1515,7 +1518,14 @@ from original bytes, not the editing DOM (including `Wake 7am=ok`).
 Only the selected `nm` and normal Document save stamp change. Physical outputs,
 ioIdx, durations, other names, wires, references, passwords and all other bytes
 remain intact. Native output captions derive from this name; no persisted
-output/reference titles are rewritten. A decoded-name no-op preserves every
+output/reference titles are rewritten. `--clear` removes the selected `nm`
+attribute, matching native omit-empty persistence; JSON/CSV report `name: ""`.
+This is **not reset-to-default**: constructor/read storage is empty, while
+later opening the native zone dialog or initializing simulation can fill it
+from the first connected output object's display name. An empty name adds no
+custom suffix to the on-demand connector caption. No actor/default/locale name
+is guessed by the CLI. Clearing an already missing/empty name is a no-op,
+preserving even an explicit empty attribute. A decoded-name no-op preserves every
 source byte and stamp, including `--save-as`. Errors do not write either file.
 JSON returns `name_change`; CSV, `--no-header` and `--quiet` are supported.
 See [native scope and evidence](docs/knowledge/irrigation-zone-name-native.md).

@@ -24,8 +24,36 @@ fn native_owner_uuid(raw: &str) -> Option<uuid::Uuid> {
 }
 
 impl ConfigEditor {
-    /// Rename an already named zone without opening the dialog's empty-name autofill path.
+    /// Rename one zone; a selected empty name can be restored without autofilling other zones.
     pub fn edit_irrigation_zone_name(
+        data: &[u8],
+        selector: &str,
+        io_index: u8,
+        name: &str,
+    ) -> Result<(Vec<u8>, IrrigationZoneNameChange)> {
+        if name.trim().is_empty()
+            || name.chars().any(|character| {
+                character.is_control()
+                    || matches!(character, '\u{2028}' | '\u{2029}' | '\u{fffe}' | '\u{ffff}')
+            })
+        {
+            bail!(
+                "Irrigation zone name: this CLI supports nonempty, nonblank single-line XML text only; use --clear to remove the stored name. Nothing was changed."
+            );
+        }
+        Self::change_irrigation_zone_name(data, selector, io_index, name)
+    }
+
+    /// Clear the stored name, not a request for native default-name regeneration.
+    pub fn clear_irrigation_zone_name(
+        data: &[u8],
+        selector: &str,
+        io_index: u8,
+    ) -> Result<(Vec<u8>, IrrigationZoneNameChange)> {
+        Self::change_irrigation_zone_name(data, selector, io_index, "")
+    }
+
+    fn change_irrigation_zone_name(
         data: &[u8],
         selector: &str,
         io_index: u8,
@@ -40,16 +68,6 @@ impl ConfigEditor {
         if io_index > 7 {
             bail!(
                 "Irrigation io-index must be 0..7, not a 1-based display row; nothing was changed."
-            );
-        }
-        if name.trim().is_empty()
-            || name.chars().any(|character| {
-                character.is_control()
-                    || matches!(character, '\u{2028}' | '\u{2029}' | '\u{fffe}' | '\u{ffff}')
-            })
-        {
-            bail!(
-                "Irrigation zone name: this CLI supports nonempty, nonblank single-line XML text only; nothing was changed."
             );
         }
         let mut editor = Self::load(data)?;
@@ -155,11 +173,12 @@ impl ConfigEditor {
                 None,
                 None,
             )?;
-            let previous = previous.filter(|name| !name.is_empty()).ok_or_else(|| {
-                anyhow::anyhow!(
-                    "Every irrigation zone must already have a nonempty nm. Native dialog opening can fill empty names from connected outputs; that path is not qualified. Nothing was changed."
-                )
-            })?;
+            let previous = previous.unwrap_or_default();
+            if index != usize::from(io_index) && previous.is_empty() {
+                bail!(
+                    "Every unselected irrigation zone must already have a nonempty nm. Native dialog opening can fill those names from connected outputs; that path is not qualified. Nothing was changed."
+                );
+            }
             if index == usize::from(io_index) {
                 selected = Some((ordinal, previous, stored_identity.cloned()));
             }

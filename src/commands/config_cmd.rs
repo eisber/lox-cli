@@ -2638,11 +2638,19 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             selector,
             io_index,
             name,
+            clear,
             save_as,
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
-            let (output, change) =
-                ConfigEditor::edit_irrigation_zone_name(&data, &selector, io_index, &name)?;
+            let (output, change) = match (name.as_deref(), clear) {
+                (Some(name), false) => {
+                    ConfigEditor::edit_irrigation_zone_name(&data, &selector, io_index, name)?
+                }
+                (None, true) => {
+                    ConfigEditor::clear_irrigation_zone_name(&data, &selector, io_index)?
+                }
+                _ => bail!("Choose exactly one of --name or --clear; nothing was changed."),
+            };
             let quiet = ctx.quiet || ctx.json || ctx.csv;
             if change.changed || save_as.is_some() {
                 write_edited_bytes(&output, &file, save_as.as_deref(), quiet)?;
@@ -2670,7 +2678,8 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             } else if !ctx.quiet {
                 println!(
-                    "✓ Irrigation io-index {io_index}: name = '{name}' ({})",
+                    "✓ Irrigation io-index {io_index}: stored name = '{}' ({})",
+                    change.name,
                     if change.changed {
                         "changed"
                     } else {

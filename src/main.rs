@@ -875,7 +875,7 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
-    /// Rename one already named Irrigation zone, preserving its physical output identity
+    /// Rename or clear one Irrigation zone's stored name, preserving physical output identity
     IrrigationZoneSetName {
         file: String,
         /// uuid:<exact-stored-native35-U> only (8-4-4-16); no RFC/name/room aliases
@@ -884,8 +884,11 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         io_index: u8,
         /// Nonempty, nonblank single-line Unicode name; duplicate names are allowed
-        #[arg(long)]
-        name: String,
+        #[arg(long, required_unless_present = "clear", conflicts_with = "clear")]
+        name: Option<String>,
+        /// Remove the stored name (not reset-to-default); native dialog opening may autofill it
+        #[arg(long, required_unless_present = "name")]
+        clear: bool,
         #[arg(long)]
         save_as: Option<String>,
     },
