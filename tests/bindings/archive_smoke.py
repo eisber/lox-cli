@@ -29,13 +29,16 @@ def prepare_fixtures(directory: Path) -> None:
         backup.writestr("sps0.LoxCC", b"not the first match")
     with zipfile.ZipFile(directory / "empty.zip", "w"):
         pass
-    with zipfile.ZipFile(directory / "badcrc.zip", "w") as backup:
-        backup.writestr("sps0.LoxCC", encoded)
-    corrupt = bytearray((directory / "badcrc.zip").read_bytes())
-    central = corrupt.index(b"PK\x01\x02")
-    crc = struct.unpack_from("<I", corrupt, central + 16)[0]
-    struct.pack_into("<I", corrupt, central + 16, crc ^ 0xFFFFFFFF)
-    (directory / "badcrc.zip").write_bytes(corrupt)
+    prefix, suffix = "native-archive-release-", "sps0.LoxCC"
+    long_name = prefix + "r" * (65500 - len(prefix) - len(suffix)) + suffix
+    for filename, member in (("badcrc.zip", "sps0.LoxCC"), ("long-error.zip", long_name)):
+        with zipfile.ZipFile(directory / filename, "w") as backup:
+            backup.writestr(member, encoded)
+        corrupt = bytearray((directory / filename).read_bytes())
+        central = corrupt.index(b"PK\x01\x02")
+        crc = struct.unpack_from("<I", corrupt, central + 16)[0]
+        struct.pack_into("<I", corrupt, central + 16, crc ^ 0xFFFFFFFF)
+        (directory / filename).write_bytes(corrupt)
     (directory / "zero-offset.bin").write_bytes(encoded[:16] + b"\x00\x00\x00")
     (directory / "bad-offset.bin").write_bytes(encoded[:16] + b"\x00\x01\x00")
 

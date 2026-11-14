@@ -3,6 +3,7 @@ param(
     [Parameter(Mandatory)][string]$JavaGenerator,
     [Parameter(Mandatory)][string]$JavaHome,
     [Parameter(Mandatory)][string]$KotlinCompiler,
+    [string]$VcVars,
     [string]$Python = 'python',
     [string]$OutputDirectory = 'target\archive-bindings',
     [string]$CargoTargetDirectory
@@ -90,13 +91,17 @@ Step 'wheel-install' $VenvPython @('-m', 'pip', '--disable-pip-version-check', '
 Step 'python-smoke' $VenvPython @('-I', 'tests\bindings\archive_smoke.py', '--fixtures', "$Output\fixtures")
 $InstalledDll = "$Output\venv\Lib\site-packages\lox_archive\lox_archive.dll"
 Step 'java-generate' $JavaGenerator @('generate', '--no-format', '--out-dir', "$Output\generated-java", $InstalledDll)
+Step 'java-correction-guards' $Python @('-I', '-B', 'tests\bindings\test_java_generator_correction.py', '--generated-dir', "$Output\generated-java", '--scratch', "$Output\correction-guard-tests")
+Step 'java-generator-correction' $Python @('-I', '-B', 'scripts\patch-archive-java-generator.py', '--generated-dir', "$Output\generated-java", '--generator-version', '0.5.2', '--receipt', "$Output\java-generator-correction.json")
 
-New-Item -ItemType Directory -Force "$Output\jvm\classes", "$Output\jvm\test-classes", "$Output\jvm\native", "$Output\jvm\metadata\META-INF\licenses" | Out-Null
+New-Item -ItemType Directory -Force "$Output\jvm\classes", "$Output\jvm\test-classes", "$Output\jvm\native", "$Output\jvm\metadata\META-INF\licenses", "$Output\jvm\metadata\META-INF\lox-build" | Out-Null
 foreach ($file in @('LICENSE', 'LICENSE-AGPL', 'LICENSE-COMMERCIAL', 'NOTICE')) {
     Copy-Item -Force $file "$Output\jvm\metadata\META-INF\licenses\$file"
 }
 Copy-Item -Force 'crates\lox-bindings\THIRD_PARTY_NOTICES' "$Output\jvm\metadata\META-INF\licenses"
 Copy-Item -Force 'crates\lox-bindings\licenses\MPL-2.0.txt' "$Output\jvm\metadata\META-INF\licenses"
+Copy-Item -Force 'crates\lox-bindings\patches\uniffi-bindgen-java-0.5.2-rustbuffer-free.json' "$Output\jvm\metadata\META-INF\lox-build\PATCH-SPEC.json"
+Copy-Item -Force "$Output\java-generator-correction.json" "$Output\jvm\metadata\META-INF\lox-build\PATCH-RECEIPT.json"
 $Sources = Get-ChildItem "$Output\generated-java" -Recurse -Filter '*.java' |
     ForEach-Object { '"' + $_.FullName.Replace('\', '\\') + '"' }
 [IO.File]::WriteAllLines("$Output\jvm\sources.args", [string[]]$Sources, [Text.UTF8Encoding]::new($false))
@@ -108,14 +113,38 @@ Copy-Item -Force $InstalledDll "$Output\jvm\native\lox_archive.dll"
 if ((Get-FileHash $InstalledDll).Hash -ne (Get-FileHash "$Output\jvm\native\lox_archive.dll").Hash) {
     throw 'Python and JVM native artifacts differ.'
 }
-Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java')
+Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java')
 $NativeAccess = @('--enable-native-access=ALL-UNNAMED', "-Djava.library.path=$Output\jvm\native")
 Step 'java-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveSmoke', "$Output\fixtures"))
+$VsWhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+if (-not $VcVars) {
+    if (-not (Test-Path $VsWhere)) { throw 'Pass -VcVars pointing to an existing vcvars64.bat.' }
+    $VsInstall = & $VsWhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    if ($LASTEXITCODE -ne 0 -or -not $VsInstall) { throw 'Existing MSVC x64 build tools not found.' }
+    $VcVars = Join-Path $VsInstall 'VC\Auxiliary\Build\vcvars64.bat'
+}
+if (Test-Path $VsWhere) { $env:PATH = "$(Split-Path $VsWhere);$env:PATH" }
+$VcVars = (Resolve-Path $VcVars).Path
+New-Item -ItemType Directory -Force "$Output\jvm\test-native" | Out-Null
+$Probe = "$Output\jvm\test-native\windows_heap_probe"
+$NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
+Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
+$AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'java-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveAllocationSmoke', "$Output\fixtures"))
 Step 'kotlinc-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-smoke.jar", 'tests\bindings\ArchiveSmoke.kt')
 Step 'kotlin-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\kotlin-smoke.jar", 'ArchiveSmokeKt', "$Output\fixtures"))
+Step 'jar-allocation-test-support' $Jar @('--create', '--file', "$Output\jvm\allocation-test-support.jar", '-C', "$Output\jvm\test-classes", '.')
+$KotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-allocation-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\ArchiveAllocationSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-allocation.args", $KotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-allocation-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-allocation.args")
+Step 'kotlin-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-allocation-smoke.jar", 'ArchiveAllocationSmokeKt', "$Output\fixtures"))
 
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
+$Artifacts += Get-Item "$Output\java-generator-correction.json"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
