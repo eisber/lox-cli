@@ -63,6 +63,8 @@ fn logic_fixture(owner_type: &str) -> String {
 
 fn up_down_counter_fixture() -> String {
     logic_fixture("UpDownCounter")
+        .replace("<Loxone>", "<ControlList>")
+        .replace("</Loxone>", "</ControlList>")
         .replace("Nio=\"3\"", "Nio=\"9\"")
         .replace("K=\"I1\"", "K=\"Trigger\"")
         .replace(
@@ -203,8 +205,11 @@ fn up_down_counter_refuses_other_caps_incomplete_layout_and_context_before_all_w
             &format!("U='{}'", INPUT.to_uppercase()),
         ),
         source.replace(
-            "</Loxone>",
-            &format!("<C Type='Other' U='{}'/></Loxone>", OWNER.to_uppercase()),
+            "</ControlList>",
+            &format!(
+                "<C Type='Other' U='{}'/></ControlList>",
+                OWNER.to_uppercase()
+            ),
         ),
     ] {
         cases.push((malformed, "Trigger"));
@@ -274,6 +279,123 @@ fn up_down_counter_trigger_on_full_golden_project_preserves_every_unselected_byt
         .assert()
         .success();
     assert_eq!(fs::read_to_string(&input).unwrap(), saved);
+}
+
+#[test]
+fn up_down_counter_owning_root_refuses_before_noop_stamp_or_any_destination_write() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let stages = [
+        dir.path().join("input.Loxone.tmp"),
+        dir.path().join("existing.Loxone.tmp"),
+        dir.path().join("new.Loxone.tmp"),
+    ];
+    let source = up_down_counter_fixture();
+    for (opening, closing) in [
+        (
+            "<C Type='Folder' U='c7777777-2222-3333-4444555566667777' V='121' WF='0'>",
+            "</C>",
+        ),
+        (
+            "<C Type='Folder' U='c7777777-2222-3333-4444555566667777' V='121' WF='536870912'>",
+            "</C>",
+        ),
+        ("<Loxone>", "</Loxone>"),
+        (
+            "<ControlList Type='Folder' V='121' WF='16384'>",
+            "</ControlList>",
+        ),
+    ] {
+        let xml = source
+            .replace("<ControlList>", opening)
+            .replace("</ControlList>", closing);
+        for inverted in [false, true] {
+            for destination in [None, Some(&existing), Some(&new)] {
+                fs::write(&input, &xml).unwrap();
+                fs::write(&existing, b"preserve destination").unwrap();
+                for stage in &stages {
+                    fs::write(stage, b"preserve foreign stage").unwrap();
+                }
+                let mut edit = command(&input, "Trigger", inverted);
+                if let Some(destination) = destination {
+                    edit.arg("--save-as").arg(destination);
+                }
+                edit.assert().failure().stderr(predicates::str::contains(
+                    "UpDownCounter input inversion requires",
+                ));
+                assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"preserve destination");
+                assert!(!new.exists());
+                for stage in &stages {
+                    assert_eq!(fs::read(stage).unwrap(), b"preserve foreign stage");
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn up_down_counter_qualified_owning_roots_preserve_noops_and_existing_native_data() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for document_is_root in [false, true] {
+        for with_program in [false, true] {
+            let mut source = up_down_counter_fixture();
+            if document_is_root {
+                source = source
+                    .replace("<ControlList>", "")
+                    .replace("</ControlList>", "");
+            }
+            if !with_program {
+                let start = source.find("<C Type=\"Program\"").unwrap();
+                let end = start + source[start..].find('>').unwrap() + 1;
+                source.replace_range(start..end, "");
+                source = source.replacen(
+                    "</C></C></C><C Type=\"OutputRef\"",
+                    "</C></C><C Type=\"OutputRef\"",
+                    1,
+                );
+            }
+            fs::write(&input, &source).unwrap();
+            let selected = format!("<Co K=\"Trigger\" U=\"{INPUT}\" Def=\"0\" Unknown=\"keep\"/>");
+            let body_start = source.find("<C Type=\"Page\"").unwrap();
+            for inverted in [false, true] {
+                for destination in [&existing, &new] {
+                    if destination == &existing {
+                        fs::write(destination, b"replace only after admission").unwrap();
+                    } else if destination.exists() {
+                        fs::remove_file(destination).unwrap();
+                    }
+                    command(&input, "Trigger", inverted)
+                        .arg("--save-as")
+                        .arg(destination)
+                        .arg("-q")
+                        .assert()
+                        .success();
+                    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+                    let saved = fs::read_to_string(destination).unwrap();
+                    if inverted {
+                        assert_eq!(
+                            &saved[saved.find("<C Type=\"Page\"").unwrap()..],
+                            source[body_start..]
+                                .replace(&selected, &selected.replace("/>", " Inv=\"true\"/>"))
+                        );
+                    } else {
+                        assert_eq!(saved, source);
+                    }
+                    command(destination, "Trigger", inverted)
+                        .arg("-q")
+                        .assert()
+                        .success();
+                    assert_eq!(fs::read_to_string(destination).unwrap(), saved);
+                }
+            }
+        }
+    }
 }
 
 fn monoflop_fixture() -> String {

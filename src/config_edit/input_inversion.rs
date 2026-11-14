@@ -131,6 +131,15 @@ impl ConfigEditor {
                 "Delay input inversion requires the ordinary Document directly in the native ControlList root; other owning contexts are unsupported. Nothing was changed."
             );
         }
+        if kind(owner) == "UpDownCounter" {
+            ensure!(
+                !data.starts_with(b"\xef\xbb\xbf\xef\xbb\xbf")
+                    && (documents[0].is_empty()
+                        || (editor.root.name == "ControlList"
+                            && !editor.root.attributes.contains_key("Type"))),
+                "UpDownCounter input inversion requires at most one UTF-8 BOM and a root Document or a direct Document in a native ControlList root, not an owning Folder or other wrapper; nothing was changed."
+            );
+        }
         if kind(owner) == "Monoflop" {
             ensure!(
                 !data.starts_with(b"\xef\xbb\xbf\xef\xbb\xbf")

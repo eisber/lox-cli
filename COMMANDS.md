@@ -180,6 +180,9 @@ explicit modern `V >= 90`. `And`/`Or`/`Xor` require `Nio="3"` and exactly `I1`/`
 `Counter` requires `Nio="7"` and exactly `Trigger`/`Reset`/`Remanence`/`EndValue`/`Mode`/`Q`/`AQ`.
 `UpDownCounter` requires `Nio="9"` and exactly `Trigger`/`InputDir`/`Reset`/
 `OnValue`/`OffValue`/`Remanence`/`StartValue`/`Q`/`AQ`.
+Its Document must be the XML root or directly under an untyped native
+`ControlList` root, with at most one UTF-8 BOM. Owning Folders and other wrappers
+are refused before no-op, stamping or any destination write.
 Its unconnected, uninverted `InputDir` and `Reset` do not qualify for the native
 inversion click; both keys remain unsupported by this command. Registered parameter
 defaults are `OnValue=10`, `OffValue=5`, `Remanence=0`, `StartValue=0`; these and
