@@ -22,6 +22,195 @@ fn command(input: &Path, uuid: &str, format: &str) -> assert_cmd::Command {
 }
 
 #[test]
+fn virtual_input_format_branch_unicode_preserves_literal_bytes_and_byte_limit() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    for value in [
+        "<v.1>°C".to_owned(),
+        "<v>µg/m³".to_owned(),
+        "<v.2>μg/m²".to_owned(),
+        "<v.3>€/kWh".to_owned(),
+        "<v>°²³µμ€".to_owned(),
+        format!("<v>{}€", "x".repeat(122)),
+    ] {
+        let source = fixture();
+        fs::write(&input, &source).unwrap();
+        let output = command(&input, OWNER, &value)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["virtual_input_format"]["format"], value);
+        let saved = fs::read_to_string(&input).unwrap();
+        let document = |text: &str| {
+            let start = text.find("<C Type=\"Document\"").unwrap();
+            let end = start + text[start..].find('>').unwrap() + 1;
+            text[start..end].to_owned()
+        };
+        assert_eq!(
+            saved,
+            source
+                .replacen(&document(&source), &document(&saved), 1)
+                .replace(
+                    "Unit=\"&lt;v&gt;\"",
+                    &format!("Unit=\"{}\"", quick_xml::escape::escape(&value)),
+                )
+        );
+        command(&input, OWNER, &value)
+            .args(["-o", "csv", "--no-header"])
+            .assert()
+            .success()
+            .stdout(format!("{OWNER},\"{value}\",\"{value}\",false\n"));
+        assert_eq!(fs::read(&input).unwrap(), saved.as_bytes());
+    }
+    let original = fixture();
+    fs::write(&input, &original).unwrap();
+    for value in [
+        format!("<v>{}€", "x".repeat(123)),
+        "<v>\u{00a0}".to_owned(),
+        "<v>Μg".to_owned(),
+        "<v>m¹".to_owned(),
+        "<v>e\u{0301}".to_owned(),
+        "<v>😀".to_owned(),
+        "<v>°\u{007f}".to_owned(),
+    ] {
+        command(&input, OWNER, &value).assert().failure();
+        assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    }
+}
+
+#[test]
+fn virtual_input_format_branch_explicit_clear_omits_unit_and_preserves_noops() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for state in ["", "StateOnly=\"true\"", "StateOnly=\"false\""] {
+        let original = fixture().replace("StateOnly=\"true\"", state);
+        fs::write(&input, &original).unwrap();
+        let output = command(&input, OWNER, "--clear")
+            .args(["-o", "json", "--save-as"])
+            .arg(&existing)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(result["virtual_input_format"]["previous_format"], "<v>");
+        assert_eq!(result["virtual_input_format"]["format"], "");
+        assert_eq!(result["virtual_input_format"]["changed"], true);
+        assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+        let saved = fs::read_to_string(&existing).unwrap();
+        let document = |text: &str| {
+            let start = text.find("<C Type=\"Document\"").unwrap();
+            let end = start + text[start..].find('>').unwrap() + 1;
+            text[start..end].to_owned()
+        };
+        assert_eq!(
+            saved,
+            original
+                .replacen(&document(&original), &document(&saved), 1)
+                .replace("Unit=\"&lt;v&gt;\"", "")
+        );
+        for noop in [
+            original.replace("Unit=\"&lt;v&gt;\"", ""),
+            original.replace("Unit=\"&lt;v&gt;\"", "Unit=''"),
+        ] {
+            fs::write(&input, &noop).unwrap();
+            command(&input, OWNER, "--clear")
+                .args(["-o", "csv", "--no-header"])
+                .assert()
+                .success()
+                .stdout(format!("{OWNER},\"\",\"\",false\n"));
+            assert_eq!(fs::read(&input).unwrap(), noop.as_bytes());
+            command(&input, OWNER, "--clear")
+                .args(["-q", "--save-as"])
+                .arg(&existing)
+                .assert()
+                .success()
+                .stdout("");
+            assert_eq!(fs::read(&existing).unwrap(), noop.as_bytes());
+        }
+    }
+    let source = fixture();
+    for malformed in [
+        source.replace("DateS=\"1\"", "DateS=\"2147483647\""),
+        format!("{source}<C/>"),
+        source.replace("Analog=\"true\"", "Analog=\"false\""),
+        source.replace("Unit=\"&lt;v&gt;\"", "Unit='' Unit=''"),
+    ] {
+        fs::write(&input, &malformed).unwrap();
+        fs::write(&existing, b"preserve").unwrap();
+        for destination in [None, Some(&existing), Some(&new)] {
+            let mut edit = command(&input, OWNER, "--clear");
+            if let Some(destination) = destination {
+                edit.arg("--save-as").arg(destination);
+            }
+            edit.assert().failure().stdout("");
+            assert_eq!(fs::read(&input).unwrap(), malformed.as_bytes());
+            assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+            assert!(!new.exists());
+        }
+    }
+    fs::write(&input, &source).unwrap();
+    command(&input, OWNER, "").assert().failure().stdout("");
+    command(&input, OWNER, "<v>")
+        .arg("--clear")
+        .assert()
+        .failure();
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+}
+
+#[test]
+fn virtual_input_format_branch_accepts_unmodified_cli_created_input() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("created.Loxone");
+    fs::write(&input, fixture()).unwrap();
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "add-virtual-in"])
+        .arg(&input)
+        .args(["Meter", "--analog", "--unit", "<v>", "-q"])
+        .assert()
+        .success();
+    let created = fs::read(&input).unwrap();
+    let mut reader = Reader::from_reader(created.as_slice());
+    let owner = loop {
+        match reader.read_event().unwrap() {
+            Event::Start(element) if element.name().as_ref() == b"C" => {
+                let attributes: std::collections::BTreeMap<_, _> = element
+                    .attributes()
+                    .map(|attribute| {
+                        let attribute = attribute.unwrap();
+                        (
+                            attribute.key.as_ref().to_vec(),
+                            attribute.unescape_value().unwrap().into_owned(),
+                        )
+                    })
+                    .collect();
+                if attributes.get(b"Title".as_slice()).map(String::as_str) == Some("Meter") {
+                    assert_eq!(attributes[b"WF".as_slice()], "16400");
+                    break attributes[b"U".as_slice()].clone();
+                }
+            }
+            Event::Eof => panic!("missing CLI-created input"),
+            _ => {}
+        }
+    };
+    for value in ["<v.1>°C", "--clear"] {
+        command(&input, &owner, value)
+            .arg("-q")
+            .assert()
+            .success()
+            .stdout("");
+    }
+}
+
+#[test]
 fn virtual_input_format_cli_outputs_noop_and_atomic_refusals() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
@@ -287,6 +476,20 @@ fn virtual_input_format_edits_existing_native_golden_inputs() {
                     .success()
                     .stdout("");
                 assert_eq!(fs::read(&input).unwrap(), saved);
+                for value in ["<v.1>µg/m³", "--clear"] {
+                    command(&input, &owner, value)
+                        .arg("-q")
+                        .assert()
+                        .success()
+                        .stdout("");
+                    let once = fs::read(&input).unwrap();
+                    command(&input, &owner, value)
+                        .arg("-q")
+                        .assert()
+                        .success()
+                        .stdout("");
+                    assert_eq!(fs::read(&input).unwrap(), once);
+                }
             }
         }
     }

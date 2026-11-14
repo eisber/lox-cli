@@ -1150,8 +1150,12 @@ pub(crate) enum ConfigCmd {
         file: String,
         /// Exact uuid:<native35-U> of the existing VirtualIn
         selector: String,
-        /// <v> or <v.0> through <v.3>, optionally followed by an ASCII unit suffix
-        format: String,
+        /// <v> or <v.0> through <v.3>, with an optional bounded literal unit suffix
+        #[arg(required_unless_present = "clear", conflicts_with = "clear")]
+        format: Option<String>,
+        /// Clear Unit to empty (omitted on change), not a reset to a default
+        #[arg(long)]
+        clear: bool,
         #[arg(long)]
         save_as: Option<String>,
     },

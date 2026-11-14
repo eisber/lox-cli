@@ -36,14 +36,53 @@ Kind 4 in `0x140748be0` converts to string and removes newlines, then calls
 `0x1404d3860` and property verifier. The generic check transforms case-insensitive
 `<script`, `<div`, `<style`, and exact `<!--`; transformed inputs fail verification.
 `0x14047cdd0` applies `0x1404210e0`, replacing bytes 1–31 with dots and marking
-transformed input invalid. The accepted mutation helper `0x140748940` invokes
+transformed input invalid. Its machine predicate loads an **unsigned** byte,
+decrements its low byte, and compares unsigned against 30. Bytes 128–255 do not
+enter the replacement branch. The accepted mutation helper `0x140748940` invokes
 the bound string setter, which copies the Unit string and applies that same
 control-byte replacement.
 
+The kind-4 GUI conversion is `0x14041db10`: `QString::toUtf8`, `strlen`,
+then byte-preserving `memcpy`. No normalization or unit-catalog lookup is on
+this path. The literal UTF-8 bytes for `°²³µμ€` therefore survive the verifier
+and setter unchanged. In particular, micro sign and Greek mu are not aliases.
+The attribute writer `0x1404bfdd0` copies the string, escapes XML syntax bytes,
+and stores it using `strdup`/`memcpy`, without converting high bytes.
+
 No Unit-specific placeholder parser is on this recovered property path.
-The CLI deliberately offers only the documented bounded ASCII no-transform
-subset. This does not classify every native placeholder, promise that an
-arbitrary suffix is a recognized physical unit, or reproduce universal rendering.
+The CLI deliberately offers only the existing ASCII suffix characters plus
+those six literal Unicode characters, with the existing conservative 128-byte
+limit measured in UTF-8, not characters. This is not an arbitrary-Unicode,
+HTML, template, physical-unit validation, or universal-rendering claim.
+
+## Actual GUI commit, including empty input
+
+The concrete CSetting table `0x141030980`, slot `+0x40 -> 0x140623670`,
+maps kind 4 to editor kind 0. Property-panel factory `0x140b08d60` constructs
+`CSettingEditorText` via `0x140d017a0`. Its QLineEdit `textEdited` callback
+`0x140d02c20` marks the editor dirty independently of its text.
+`editingFinished -> 0x140d02c80` constructs a QString QVariant from the actual
+line-edit text and calls `0x140b12750`, with no nonempty check.
+The kind-4 path through `0x140b08830/0x140b089f0` has no combo-entry restriction.
+`0x140b0f090` rejects null/invalid/unchanged variants, then dispatches the
+concrete CSetting through `0x140748b80 -> 0x140748be0`.
+
+The null guard is not an empty-string refusal. In the shipped Qt6Core.dll
+(SHA-256 `b98eea394a95563879b614dbd4432ce074b0fceeb154c3bae252f4e7a9376a40`),
+the QString QVariant constructor at RVA `0x10ad70` initializes a nonnull type
+header independently of QString contents. `isValid` at RVA `0x5980` accepts
+that header. `isNull` at RVA `0x10caf0` checks the null bit and pointer-type
+flag; QString's metatype at RVA `0x982c90` has flags `0xc007`, not pointer flag
+`0x800`. Thus even an empty/null QString payload is a valid, nonnull QVariant.
+After deleting nonempty text, the actual callback can commit empty Unit.
+The empty verifier loop performs no replacement; the setter copies empty.
+
+`0x1406252d0` snapshots the previous value for the setting handler, and
+`0x140624ba0` computes a change/default marker without writing Unit or a
+persisted customization flag. Neither is a ResetToDefault callback.
+The recovered Unit setter does not change StateOnly, Mult, or another Display
+field. GUI undo/notifications and native whole-document resaving are not
+implemented by the CLI.
 
 ## Default and independent state
 
@@ -55,8 +94,14 @@ Missing Display is a different branch and is not admitted.
 
 Type-15 string serialization in `0x1404c52f0` omits empty Unit when requested;
 nonempty spaces are retained. The XML entity helper `0x1404c0000` decodes named
-entities, not arbitrary numeric references. The CLI refuses empty/reset requests
-and numeric-reference guarded metadata instead of guessing equivalence.
+entities, not arbitrary numeric references. The CLI refuses numeric-reference
+guarded metadata instead of guessing equivalence.
+
+Explicit `--clear`, mutually exclusive with FORMAT, follows that proven
+empty-input branch. A changed clear removes only the selected Unit attribute
+and updates the Document stamp. Already absent/empty Unit is an exact-byte
+no-op after all admission checks. It does not construct a new Display or
+restore `<v.1>`, and does not claim inherited/default-reset semantics.
 
 `StateOnly` is property `0x413`, separate setter `0x140474b50`, Display `+0xc`.
 The Unit setter and selected accepted string path do not invoke it. Its existing

@@ -3373,11 +3373,16 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             file,
             selector,
             format,
+            clear,
             save_as,
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
-            let (output, change) =
-                ConfigEditor::edit_virtual_input_format(&data, &selector, &format)?;
+            let (output, change) = ConfigEditor::edit_virtual_input_format(
+                &data,
+                &selector,
+                format.as_deref().unwrap_or(""),
+                clear,
+            )?;
             if change.changed || save_as.is_some() {
                 write_edited_bytes(
                     &output,
@@ -3411,7 +3416,7 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!(
                     "✓ {} display format: {}{}",
                     change.block_uuid,
-                    change.format,
+                    if clear { "(empty)" } else { &change.format },
                     if change.changed { "" } else { " (unchanged)" },
                 );
             }

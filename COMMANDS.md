@@ -1715,6 +1715,8 @@ to add a direct permission entry; inherited denies still apply.
 ```bash
 lox config set-virtual-input-format file.Loxone uuid:11111111-2222-3333-4444555566667777 "<v.1>hPa"
 lox config set-virtual-input-format file.Loxone uuid:11111111-2222-3333-4444555566667777 "<v.2> %" --save-as edited.Loxone -o json
+lox config set-virtual-input-format file.Loxone uuid:11111111-2222-3333-4444555566667777 "<v.1>°C"
+lox config set-virtual-input-format file.Loxone uuid:11111111-2222-3333-4444555566667777 --clear
 ```
 
 Edits only the existing direct `Display/@Unit`, plus the containing Document's
@@ -1723,11 +1725,19 @@ This is not numeric unit conversion, scaling, a range edit, or an all-controls
 formatter. Creation-only `--unit` and generic C/SET/connector setters are unchanged.
 
 The supported no-transformation subset is `<v>`, `<v.0>` through `<v.3>`,
-optionally followed by ASCII letters/digits, spaces, `%`, `/`, `.`, `_` or `-`
-(maximum 128 bytes, a CLI limit). Suffixes are literal strings, not validated
-physical units. Unicode, other placeholders and empty/whitespace-only/default
-reset requests are refused rather than normalized. An existing empty/missing
-Unit is not interpreted as `<v>` or the constructor's `<v.1>` default.
+optionally followed by ASCII letters/digits, spaces, `%`, `/`, `.`, `_`, `-`,
+or the literal characters `°²³µμ€` (maximum 128 **UTF-8 bytes**, a CLI limit).
+For example, `°C`, `µg/m³`, `μg/m²` and `€/kWh` are admitted suffixes.
+The micro sign `µ` and Greek mu `μ` remain distinct; nothing is normalized.
+Suffixes are literal strings, not validated physical units. Other Unicode,
+placeholders and bare empty/whitespace-only formats are refused.
+
+Use `--clear` **instead of FORMAT** to set Unit to empty. A changed clear omits
+the Unit attribute; an already missing or explicitly empty Unit is an exact-byte
+no-op, including its original spelling. This is not reset-to-default or
+inheritance: empty/missing Unit in an existing Display reloads as empty, not
+`<v>` or the constructor's `<v.1>`. Clear uses the same admission and save-as
+guards as nonempty edits. JSON reports `format: ""`; CSV emits an empty field.
 
 Admission requires an exact, unique nonnil native35 UUID, one modern ordinary
 `Document -> LoxLIVE -> VirtualInCaption -> VirtualIn`, explicit `Analog="true"`,

@@ -34,16 +34,19 @@ impl ConfigEditor {
         data: &[u8],
         selector: &str,
         format: &str,
+        clear: bool,
     ) -> Result<(Vec<u8>, VirtualInputFormatChange)> {
         let suffix = ["<v>", "<v.0>", "<v.1>", "<v.2>", "<v.3>"]
             .iter()
             .find_map(|prefix| format.strip_prefix(prefix));
         ensure!(
-            format.len() <= 128
-                && suffix.is_some_and(|suffix| suffix
-                    .bytes()
-                    .all(|byte| { byte.is_ascii_alphanumeric() || b" %/._-".contains(&byte) })),
-            "Virtual Input format supports <v> or <v.0> through <v.3> followed by an optional ASCII unit suffix (letters, digits, space, %, /, ., _, -), at most 128 bytes. Empty/default reset, Unicode and other placeholders are unsupported; nothing was changed."
+            (clear && format.is_empty())
+                || (!clear
+                    && format.len() <= 128
+                    && suffix.is_some_and(|suffix| suffix.chars().all(|character| {
+                        character.is_ascii_alphanumeric() || " %/._-°²³µμ€".contains(character)
+                    }))),
+            "Virtual Input format supports <v> or <v.0> through <v.3> followed by ASCII letters/digits, space, %, /, ., _, -, or literal °²³µμ€, at most 128 UTF-8 bytes. Use --clear without FORMAT for an empty Unit, not a default reset. Other Unicode and placeholders are unsupported; nothing was changed."
         );
         let requested = selector.strip_prefix("uuid:").unwrap_or("");
         ensure!(
@@ -329,7 +332,18 @@ fn format_bytes(
                 if ordinal == target
                     && let Some(format) = format
                 {
-                    replacements.push(("Unit", format));
+                    if format.is_empty() {
+                        if let Some(attribute) = attributes
+                            .iter()
+                            .find(|attribute| attribute.key.as_ref() == b"Unit")
+                        {
+                            let key = raw_span(data, attribute.key.as_ref())?;
+                            let value = raw_span(data, attribute.value.as_ref())?;
+                            patches.push((key.start..value.end + 1, String::new()));
+                        }
+                    } else {
+                        replacements.push(("Unit", format));
+                    }
                 }
                 if ordinal == document
                     && let Some((date, seconds)) = stamp
@@ -425,6 +439,7 @@ mod tests {
             input.as_bytes(),
             &format!("uuid:{OWNER}"),
             "<v.1>hPa",
+            false,
         )
         .unwrap();
         assert!(change.changed);
@@ -442,9 +457,13 @@ mod tests {
                 &format!("DateS=\"{}\"", document.attributes["DateS"]),
             );
         assert_eq!(output, expected.as_bytes());
-        let (noop, change) =
-            ConfigEditor::edit_virtual_input_format(&output, &format!("uuid:{OWNER}"), "<v.1>hPa")
-                .unwrap();
+        let (noop, change) = ConfigEditor::edit_virtual_input_format(
+            &output,
+            &format!("uuid:{OWNER}"),
+            "<v.1>hPa",
+            false,
+        )
+        .unwrap();
         assert!(!change.changed);
         assert_eq!(noop, output);
     }
@@ -457,6 +476,7 @@ mod tests {
                 input.as_bytes(),
                 &format!("uuid:{OWNER}"),
                 "<v.2> %",
+                false,
             )
             .unwrap();
             assert_eq!(change.previous_format, "");
@@ -469,12 +489,13 @@ mod tests {
 
     #[test]
     fn virtual_input_format_refuses_unsupported_values_and_noop_contexts() {
-        for value in ["", " ", "<v.4>", "<v.col>", "<v.1>°C", "<v>\n", "<script>"] {
+        for value in ["", " ", "<v.4>", "<v.col>", "<v.1>℃", "<v>\n", "<script>"] {
             assert!(
                 ConfigEditor::edit_virtual_input_format(
                     XML.as_bytes(),
                     &format!("uuid:{OWNER}"),
                     value,
+                    false,
                 )
                 .is_err(),
                 "{value:?}"
@@ -517,6 +538,7 @@ mod tests {
                     input.as_bytes(),
                     &format!("uuid:{OWNER}"),
                     "<v>",
+                    false,
                 )
                 .is_err(),
                 "case {index}"
