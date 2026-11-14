@@ -1009,6 +1009,205 @@ fn config_extract_raw_loxcc_and_resources() {
     }
 }
 
+mod archive_boundary {
+    use super::*;
+    use std::io::{Cursor, Write};
+
+    fn sandbox() -> TempDir {
+        tempfile::Builder::new()
+            .prefix(".archive-cli-")
+            .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+            .unwrap()
+    }
+
+    fn command(dir: &TempDir) -> Command {
+        let mut command = lox();
+        command
+            .current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"));
+        command
+    }
+
+    fn zip_entry(name: &str, data: &[u8]) -> Vec<u8> {
+        let mut writer = zip::ZipWriter::new(Cursor::new(Vec::new()));
+        writer
+            .start_file(name, zip::write::SimpleFileOptions::default())
+            .unwrap();
+        writer.write_all(data).unwrap();
+        writer.finish().unwrap().into_inner()
+    }
+
+    #[test]
+    fn config_archive_cli_roundtrip_preserves_raw_bytes_and_emits_crc() {
+        let dir = sandbox();
+        let mut xml = vec![0xEF, 0xBB, 0xBF];
+        let text = FIXTURE_XML
+            .replacen(
+                "<ControlList Version=\"267\">",
+                "<ControlList Version='267' 12hTF='true' NextObj='00073' NextObj='00073'>",
+                1,
+            )
+            .replace("\r\n", "\n")
+            .replace('\n', "\r\n")
+            .replace("Title=\"Room1\"", "Title='Room&#49;' Note='first\nsecond'");
+        xml.extend_from_slice(text.as_bytes());
+        fs::write(dir.path().join("source.loxone"), &xml).unwrap();
+
+        command(&dir)
+            .args(["config", "compress", "source.loxone"])
+            .assert()
+            .success()
+            .stderr(predicate::str::is_empty());
+        let compressed = fs::read(dir.path().join("source.LoxCC")).unwrap();
+        assert_eq!(
+            u32::from_le_bytes(compressed[12..16].try_into().unwrap()),
+            crc32fast::hash(&xml)
+        );
+        assert_eq!(fs::read(dir.path().join("source.loxone")).unwrap(), xml);
+
+        command(&dir)
+            .args([
+                "config",
+                "compress",
+                "source.loxone",
+                "--save-as",
+                "custom.LxRes",
+            ])
+            .assert()
+            .success()
+            .stdout(format!(
+                "Compressed {} KB → {} KB → custom.LxRes\n",
+                xml.len() / 1024,
+                compressed.len() / 1024
+            ))
+            .stderr(predicate::str::is_empty());
+        assert_eq!(
+            fs::read(dir.path().join("custom.LxRes")).unwrap(),
+            compressed
+        );
+
+        let zip = zip_entry("SpS0.lOxCc", &compressed);
+        fs::write(dir.path().join("backup.zip"), &zip).unwrap();
+        let baseline = serde_json::to_vec(&serde_json::json!({
+            "version": 1,
+            "host": "offline.invalid",
+            "serial": "synthetic",
+            "xml": std::str::from_utf8(&xml).unwrap(),
+        }))
+        .unwrap();
+        fs::write(dir.path().join("custom.LxRes.lox-base.json"), &baseline).unwrap();
+        for (input, output, explicit) in [
+            ("custom.LxRes", "raw-output.Loxone", true),
+            ("backup.zip", "backup.Loxone", false),
+        ] {
+            fs::write(dir.path().join(output), b"previous destination").unwrap();
+            let output_baseline = dir.path().join(format!("{output}.lox-base.json"));
+            fs::write(&output_baseline, b"stale baseline").unwrap();
+            let mut cmd = command(&dir);
+            cmd.args(["config", "extract", input]);
+            if explicit {
+                cmd.args(["--save-as", output]);
+            }
+            cmd.assert()
+                .success()
+                .stdout(format!(
+                    "Decompressed {} KB → {} KB → {output}\n",
+                    if explicit {
+                        compressed.len()
+                    } else {
+                        zip.len()
+                    } / 1024,
+                    xml.len() / 1024
+                ))
+                .stderr("Extracting config archive...\n");
+            assert_eq!(fs::read(dir.path().join(output)).unwrap(), xml);
+            if explicit {
+                assert_eq!(fs::read(output_baseline).unwrap(), baseline);
+            } else {
+                assert!(!output_baseline.exists());
+            }
+        }
+        assert_eq!(fs::read(dir.path().join("backup.zip")).unwrap(), zip);
+        assert_eq!(
+            fs::read(dir.path().join("custom.LxRes")).unwrap(),
+            compressed
+        );
+    }
+
+    #[test]
+    fn config_archive_extract_decode_errors_leave_destinations_untouched() {
+        let dir = sandbox();
+        let mut truncated = 0xaabbccee_u32.to_le_bytes().to_vec();
+        truncated.push(0);
+        for (name, data, message) in [
+            ("invalid.zip", b"not a zip".to_vec(), "Invalid ZIP archive"),
+            (
+                "missing-entry.zip",
+                zip_entry("unrelated.txt", b"retain"),
+                "Backup ZIP does not contain sps0.LoxCC",
+            ),
+            (
+                "truncated.LoxCC",
+                truncated,
+                "LoxCC data too short (5 bytes)",
+            ),
+        ] {
+            fs::write(dir.path().join(name), &data).unwrap();
+            for existing in [false, true] {
+                let output = if existing {
+                    "existing.Loxone"
+                } else {
+                    "absent.Loxone"
+                };
+                if existing {
+                    fs::write(dir.path().join(output), b"retain destination").unwrap();
+                }
+                command(&dir)
+                    .args(["config", "extract", name, "--save-as", output])
+                    .assert()
+                    .code(1)
+                    .stdout(predicate::str::is_empty())
+                    .stderr(
+                        predicate::str::starts_with("Extracting config archive...\n")
+                            .and(predicate::str::contains(message)),
+                    );
+                if existing {
+                    assert_eq!(
+                        fs::read(dir.path().join(output)).unwrap(),
+                        b"retain destination"
+                    );
+                } else {
+                    assert!(!dir.path().join(output).exists());
+                }
+            }
+            assert_eq!(fs::read(dir.path().join(name)).unwrap(), data);
+        }
+    }
+
+    #[test]
+    fn config_archive_read_errors_precede_progress_and_do_not_create_output() {
+        let dir = sandbox();
+        for operation in ["compress", "extract"] {
+            command(&dir)
+                .args([
+                    "config",
+                    operation,
+                    "missing.Loxone",
+                    "--save-as",
+                    "output.Loxone",
+                ])
+                .assert()
+                .code(1)
+                .stdout(predicate::str::is_empty())
+                .stderr(
+                    predicate::str::contains("Cannot read missing.Loxone")
+                        .and(predicate::str::contains("Extracting config archive").not()),
+                );
+            assert!(!dir.path().join("output.Loxone").exists());
+        }
+    }
+}
+
 #[test]
 fn config_surfaces_reads_native_attributes_without_exposing_values_or_modifying_source() {
     let dir = TempDir::new().unwrap();
