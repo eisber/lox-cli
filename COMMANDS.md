@@ -167,7 +167,7 @@ lox config set-input-inversion file.Loxone uuid:11111111-2222-3333-4444555566667
 Edits native connector `Inv`, not `Def`. The bounded supported branch is an
 **existing, unconnected `I1` or `I2` of an ordinary `And`, `Or` or `Xor`, `I` of
 an ordinary `Not`, `InputS`/`InputR` of an ordinary `FlipFlop`,
-`RSFlipFlop` or `SRFlipFlop`, `Trigger` of `Counter`, `InputEnable` of
+`RSFlipFlop` or `SRFlipFlop`, `Trigger` of `Counter` or `UpDownCounter`, `InputEnable` of
 `HourCounter`, or `InputTrigger` of an ordinary `OnDelay`, `OffDelay` or
 `OnOffDelay`, or `InputTrigger` of an ordinary `Monoflop`**, directly on a Page
 in one ordinary Document (optionally through one ordinary Program), with
@@ -178,6 +178,12 @@ explicit modern `V >= 90`. `And`/`Or`/`Xor` require `Nio="3"` and exactly `I1`/`
 `InputS`/`InputTrigger`/`InputR`/`Remanence`/`Q`. Latch names are case-sensitive;
 `I1`/`I2` are not aliases. Latch `InputTrigger` is not an admitted inversion input.
 `Counter` requires `Nio="7"` and exactly `Trigger`/`Reset`/`Remanence`/`EndValue`/`Mode`/`Q`/`AQ`.
+`UpDownCounter` requires `Nio="9"` and exactly `Trigger`/`InputDir`/`Reset`/
+`OnValue`/`OffValue`/`Remanence`/`StartValue`/`Q`/`AQ`.
+Its unconnected, uninverted `InputDir` and `Reset` do not qualify for the native
+inversion click; both keys remain unsupported by this command. Registered parameter
+defaults are `OnValue=10`, `OffValue=5`, `Remanence=0`, `StartValue=0`; these and
+any existing parameter values are preserved, not imposed or reset.
 `HourCounter` requires `Nio="10"` and exactly
 `InputEnable`/`Reset`/`InputResetAll`/`Unit`/`Maintenance`/`Q`/`AQ`/`AQl`/`AQr`/`AQs`.
 These counter branches edit only the named input's `Inv`; they do not change

@@ -61,6 +61,221 @@ fn logic_fixture(owner_type: &str) -> String {
     source
 }
 
+fn up_down_counter_fixture() -> String {
+    logic_fixture("UpDownCounter")
+        .replace("Nio=\"3\"", "Nio=\"9\"")
+        .replace("K=\"I1\"", "K=\"Trigger\"")
+        .replace(
+            "<Co K=\"I2\" U=\"41111111-2222-3333-4444555566667777\"/>",
+            "<Co K=\"InputDir\" U=\"41111111-2222-3333-4444555566667777\" Def='1' Inv='true' Nc='1'><Ref U='51111111-2222-3333-4444555566667777' Note='direction wire'/></Co>\
+             <Co K='Reset' U='91111111-2222-3333-4444555566667777' Def='1' Inv='false'/>\
+             <Co K='OnValue' U='a2222222-2222-3333-4444555566667777' Def='10'/>\
+             <Co K='OffValue' U='a3333333-2222-3333-4444555566667777' Def='5'/>\
+             <Co K='Remanence' U='a4444444-2222-3333-4444555566667777' Def='0'/>\
+             <Co K='StartValue' U='a5555555-2222-3333-4444555566667777' Def='0'/>\
+             <Co K='AQ' U='a6666666-2222-3333-4444555566667777' Note='analog output'/>",
+        )
+        .replace(
+            "Title=\"Gate\"",
+            "Title=\"Gate\" Pos='120,240' Rights='keep' Unit='pulses'",
+        )
+}
+
+#[test]
+fn up_down_counter_trigger_preserves_full_native_layout_and_atomic_destinations() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("counter.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let source = up_down_counter_fixture();
+    for selected_storage in ["Def=\"0\"", "Inv='false'"] {
+        let source = source.replace("Def=\"0\"", selected_storage);
+        fs::write(&input, &source).unwrap();
+        let result = command(&input, "Trigger", false)
+            .args(["-o", "json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["input_inversion"]["changed"], false);
+        assert!(result["saved_to"].is_null());
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        fs::write(&existing, b"preserve until accepted").unwrap();
+        for destination in [&existing, &new] {
+            command(&input, "Trigger", false)
+                .arg("--save-as")
+                .arg(destination)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(destination).unwrap(), source.as_bytes());
+            if destination == &new {
+                fs::remove_file(destination).unwrap();
+            }
+            command(&input, "Trigger", true)
+                .arg("--save-as")
+                .arg(destination)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            let saved = fs::read_to_string(destination).unwrap();
+            let selected =
+                format!("<Co K=\"Trigger\" U=\"{INPUT}\" {selected_storage} Unknown=\"keep\"/>");
+            let changed = if selected_storage == "Inv='false'" {
+                selected.replace("Inv='false'", "Inv='true'")
+            } else {
+                selected.replace("/>", " Inv=\"true\"/>")
+            };
+            let expected = source.replace(&selected, &changed);
+            let page_start = source.find("<C Type=\"Program\"").unwrap();
+            assert_eq!(
+                &saved[saved.find("<C Type=\"Program\"").unwrap()..],
+                &expected[page_start..]
+            );
+            assert!(saved.starts_with("\u{feff}<?xml"));
+            command(destination, "Trigger", true)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read_to_string(destination).unwrap(), saved);
+            command(destination, "Trigger", false)
+                .arg("-q")
+                .assert()
+                .success();
+            let cleared = fs::read_to_string(destination).unwrap();
+            assert!(!cleared.contains("Inv=\"true\""));
+            assert!(!cleared.contains("Inv='true' Unknown=\"keep\""));
+            assert!(cleared.contains("Def='1' Inv='true' Nc='1'"));
+        }
+        fs::remove_file(&new).unwrap();
+    }
+}
+
+#[test]
+fn up_down_counter_refuses_other_caps_incomplete_layout_and_context_before_all_writes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("counter.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let source = up_down_counter_fixture();
+    let mut cases: Vec<_> = [
+        "InputDir",
+        "Reset",
+        "OnValue",
+        "OffValue",
+        "Remanence",
+        "StartValue",
+        "Q",
+        "AQ",
+        "I1",
+        "trigger",
+    ]
+    .into_iter()
+    .map(|key| (source.clone(), key))
+    .collect();
+    for malformed in [
+        source.replace("Nio=\"9\"", "Nio=\"8\""),
+        source.replace(
+            "<Co K='Remanence' U='a4444444-2222-3333-4444555566667777' Def='0'/>",
+            "",
+        ),
+        source.replace("K='StartValue'", "K='OnValue'"),
+        source.replace("Def=\"0\"", "Def=\"1\""),
+        source.replace("Def=\"0\"", "Def=\"0\" Nc=\"1\""),
+        source.replace(
+            "Unknown=\"keep\"/>",
+            "Unknown=\"keep\"><Ref U='51111111-2222-3333-4444555566667777'/></Co>",
+        ),
+        source.replace("Type=\"Program\"", "Type=\"Folder\""),
+        source.replace("Type=\"Page\"", "Type=\"Folder\""),
+        source.replace("WF=\"16384\"", "WF=\"16385\""),
+        source.replace("Title=\"Gate\"", "Title=\"Gate\" IfT='true'"),
+        source.replace("Title=\"Gate\"", "Title=\"Gate\" uuidParent='x'"),
+        source.replace("DateS=\"1\"", "DateS=\"2147483647\""),
+        source.replace("DateS=\"1\"", "DateS=\"+1\""),
+        source.replace("Title=\"Gate\"", "Title=\"Noon 12hTF=quoted\""),
+        source.replace("Def=\"0\"", "Def=\"0\" Def=\"0\""),
+        source.replace(
+            "U='a6666666-2222-3333-4444555566667777'",
+            &format!("U='{}'", INPUT.to_uppercase()),
+        ),
+        source.replace(
+            "</Loxone>",
+            &format!("<C Type='Other' U='{}'/></Loxone>", OWNER.to_uppercase()),
+        ),
+    ] {
+        cases.push((malformed, "Trigger"));
+    }
+    for (xml, key) in cases {
+        for invert in [false, true] {
+            for destination in [None, Some(&existing), Some(&new)] {
+                fs::write(&input, &xml).unwrap();
+                fs::write(&existing, b"preserve").unwrap();
+                let mut edit = command(&input, key, invert);
+                if let Some(destination) = destination {
+                    edit.arg("--save-as").arg(destination);
+                }
+                edit.assert().failure();
+                assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                assert!(!new.exists());
+            }
+        }
+    }
+}
+
+#[test]
+fn up_down_counter_trigger_on_full_golden_project_preserves_every_unselected_byte() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("golden-counter.Loxone");
+    let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("eval")
+        .join("golden")
+        .join("configs")
+        .join("Guest Room Door.Loxone");
+    let mut source = fs::read_to_string(golden).unwrap();
+    let fixture = up_down_counter_fixture()
+        .replace("Def='10'", "Def='37'")
+        .replace("Def='5'", "Def='11'")
+        .replace(
+            "K='StartValue' U='a5555555-2222-3333-4444555566667777' Def='0'",
+            "K='StartValue' U='a5555555-2222-3333-4444555566667777' Def='3'",
+        )
+        .replace(
+            "K='Remanence' U='a4444444-2222-3333-4444555566667777' Def='0'",
+            "K='Remanence' U='a4444444-2222-3333-4444555566667777' Def='1'",
+        );
+    let owner_start = fixture.find("<C Type=\"UpDownCounter\"").unwrap();
+    let owner_end = owner_start + fixture[owner_start..].find("</C>").unwrap() + 4;
+    let page = source
+        .find("U=\"1fbf34a5-03b1-83a1-ffff9bb3c1479539\"")
+        .unwrap();
+    let insertion = page + source[page..].find('>').unwrap() + 1;
+    source.insert_str(insertion, &fixture[owner_start..owner_end]);
+    fs::write(&input, &source).unwrap();
+    command(&input, "Trigger", true)
+        .arg("-q")
+        .assert()
+        .success();
+    let saved = fs::read_to_string(&input).unwrap();
+    let selected = format!("<Co K=\"Trigger\" U=\"{INPUT}\" Def=\"0\" Unknown=\"keep\"/>");
+    let expected = source.replace(&selected, &selected.replace("/>", " Inv=\"true\"/>"));
+    let program = source.find("<C Type=\"Program\"").unwrap();
+    assert_eq!(
+        &saved[saved.find("<C Type=\"Program\"").unwrap()..],
+        &expected[program..]
+    );
+    command(&input, "Trigger", true)
+        .arg("-q")
+        .assert()
+        .success();
+    assert_eq!(fs::read_to_string(&input).unwrap(), saved);
+}
+
 fn monoflop_fixture() -> String {
     let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
