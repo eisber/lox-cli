@@ -96,7 +96,7 @@ fn monoflop_fixture() -> String {
     source
 }
 
-fn monoflop_expected_stamp(source: &str, saved: &str) -> String {
+fn native_project_expected_stamp(source: &str, saved: &str) -> String {
     let before = xmltree::Element::parse(source.trim_start_matches('\u{feff}').as_bytes()).unwrap();
     let after = xmltree::Element::parse(saved.trim_start_matches('\u{feff}').as_bytes()).unwrap();
     let document = "1fbf3415-030f-bc7d-ffff9bb3c1479539";
@@ -111,6 +111,217 @@ fn monoflop_expected_stamp(source: &str, saved: &str) -> String {
         );
     }
     expected
+}
+
+fn edge_fixture() -> String {
+    let mut source = monoflop_fixture();
+    let start = source.find("<C Type=\"Monoflop\"").unwrap();
+    let end = start + source[start..].find("</C>").unwrap() + "</C>".len();
+    source.replace_range(
+        start..end,
+        &format!(
+            "<C Type=\"EdgeDetection\" V=\"174\" U=\"{OWNER}\" WF=\"16384\" Nio=\"5\" Title=\"Edges\" Cx=\"440\" Cy=\"280\" Pr=\"keep-rights\" Unknown=\"été\">
+<Co K=\"Input\" U=\"{INPUT}\" Def=\"0\" Nc=\"0\" Unknown='keep-input'/>
+<Co K=\"PulseTime\" U=\"81111111-2222-3333-4444555566667777\" Def=\"2.75\" Unknown=\"keep-param\"/>
+<Co K=\"Edge\" U=\"51111111-2222-3333-4444555566667777\" Unknown=\"keep-output\"/>
+<Co K=\"RisingEdge\" U=\"91111111-2222-3333-4444555566667777\"/>
+<Co K=\"FallingEdge\" U=\"a2222222-2222-3333-4444555566668888\"/>
+</C>
+<C Type=\"And\" V=\"174\" U=\"b2222222-2222-3333-4444555566668888\" WF=\"16384\" Nio=\"3\"><Co K=\"I1\" U=\"c2222222-2222-3333-4444555566668888\" Nc=\"1\"><Ref U=\"91111111-2222-3333-4444555566667777\" Unknown=\"keep-rising-wire\"/></Co><Co K=\"I2\" U=\"d2222222-2222-3333-4444555566668888\" Nc=\"1\"><Ref U=\"a2222222-2222-3333-4444555566668888\" Unknown=\"keep-falling-wire\"/></Co><Co K=\"Q\" U=\"e2222222-2222-3333-4444555566668888\"/></C>"
+        ),
+    );
+    source
+}
+
+#[test]
+fn edge_input_inversion_preserves_registered_layout_defaults_wires_and_atomic_copies() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for pulse_time in ["1", "2.75"] {
+        let mut source =
+            edge_fixture().replacen("Def=\"2.75\"", &format!("Def=\"{pulse_time}\""), 1);
+        if pulse_time == "1" {
+            source = source.replacen(" Def=\"0\" Nc=\"0\"", " Nc=\"0\"", 1);
+        }
+        fs::write(&input, &source).unwrap();
+        for existing in [false, true] {
+            if existing {
+                fs::write(&output, b"PRESERVE UNTIL ACCEPTED").unwrap();
+            } else if output.exists() {
+                fs::remove_file(&output).unwrap();
+            }
+            command(&input, "Input", false)
+                .arg("--save-as")
+                .arg(&output)
+                .arg("-q")
+                .assert()
+                .success();
+            assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+            if !existing {
+                fs::remove_file(&output).unwrap();
+            }
+            let result = command(&input, "Input", true)
+                .arg("--save-as")
+                .arg(&output)
+                .args(["-o", "json"])
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+            assert_eq!(result["input_inversion"]["connector_uuid"], INPUT);
+            assert_eq!(result["input_inversion"]["changed"], true);
+            assert_eq!(result["saved_to"], output.to_str().unwrap());
+            let saved = fs::read_to_string(&output).unwrap();
+            assert_eq!(
+                saved,
+                native_project_expected_stamp(&source, &saved).replacen(
+                    "Unknown='keep-input'/>",
+                    "Unknown='keep-input' Inv=\"true\"/>",
+                    1,
+                )
+            );
+            assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            let once = fs::read(&output).unwrap();
+            let result = command(&output, "Input", true)
+                .args(["-o", "json"])
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+            assert_eq!(result["input_inversion"]["changed"], false);
+            assert!(result["saved_to"].is_null());
+            assert_eq!(fs::read(&output).unwrap(), once);
+            command(&output, "Input", false)
+                .arg("-q")
+                .assert()
+                .success();
+            let cleared = fs::read_to_string(&output).unwrap();
+            assert_eq!(
+                cleared,
+                native_project_expected_stamp(&source, &cleared).replacen(
+                    "Unknown='keep-input'/>",
+                    "Unknown='keep-input' />",
+                    1,
+                )
+            );
+        }
+        let duplicated = source.replacen(
+            "<C Type=\"Not\" V=\"174\"",
+            "<C Type=\"Not\" V=\"174\" Cx=\"10\" Cx=\"10\"",
+            1,
+        );
+        fs::write(&input, &duplicated).unwrap();
+        command(&input, "Input", false).arg("-q").assert().success();
+        assert_eq!(fs::read(&input).unwrap(), duplicated.as_bytes());
+    }
+}
+
+#[test]
+fn edge_input_inversion_refuses_unqualified_ports_layout_and_context_before_any_write() {
+    let source = edge_fixture();
+    let mut cases: Vec<_> = [
+        "InputTrigger",
+        "InputEnable",
+        "I1",
+        "Reset",
+        "PulseTime",
+        "Edge",
+        "RisingEdge",
+        "FallingEdge",
+    ]
+    .into_iter()
+    .map(|key| (source.clone(), key))
+    .collect();
+    cases.extend(
+        [
+            source.replace("Type=\"EdgeDetection\"", "Type=\"edgedetection\""),
+            source.replacen("Title=\"Edges\"", "Title=\"Edges\" Dev=\"device\"", 1),
+            source.replace("Nio=\"5\"", "Nio=\"6\""),
+            source.replacen(
+                "<Co K=\"FallingEdge\" U=\"a2222222-2222-3333-4444555566668888\"/>",
+                "",
+                1,
+            ),
+            source.replace("K=\"FallingEdge\"", "K=\"RisingEdge\""),
+            source.replace("K=\"PulseTime\"", "K=\"Time\""),
+            source.replace("K=\"Input\"", "K=\"I1\""),
+            source.replace("Def=\"0\" Nc=\"0\"", "Def=\"1\" Nc=\"0\""),
+            source.replace("Nc=\"0\"", "Nc=\"1\""),
+            source.replacen(
+                "Nc=\"0\" Unknown='keep-input'/>",
+                "Nc=\"1\" Unknown='keep-input'><Ref U=\"d1111111-2222-3333-4444555566667777\"/></Co>",
+                1,
+            ),
+            source.replacen("Title=\"Edges\"", "Title=\"Edges\" IfT=\"false\"", 1),
+            source.replacen("Title=\"Edges\"", "Title=\"Edges\" uuidParent=\"parent\"", 1),
+            source.replacen("Title=\"Edges\"", "Title=\"Noon 12hTF=quoted\"", 1),
+            source.replacen("<ControlList", "<Folder", 1).replace("</ControlList>", "</Folder>"),
+            source.replacen(
+                "<C Type=\"Document\"",
+                "<C Type=\"Folder\" V=\"174\" U=\"f2222222-2222-3333-4444555566668888\"><C Type=\"Document\"",
+                1,
+            ).replace("</ControlList>", "</C></ControlList>"),
+            source.replace("<C Type=\"Page\"", "<C Type=\"Folder\""),
+            source.replacen(
+                "<ControlList",
+                "<ControlList xmlns=\"urn:not-native\"",
+                1,
+            ),
+            source.replacen("<?audit native-input?>", "<?7bad instruction?>", 1),
+            source.replacen("<?audit native-input?>", "<!DOCTYPE ControlList>", 1),
+            source.replacen("</ControlList>", "</ControlList><C Type=\"EdgeDetection\"/>", 1),
+            source.replacen("K=\"Input\"", "K=\"Input\" K=\"Input\"", 1),
+            source.replacen(INPUT, "b1111111-2222-3333-4444-555566667777", 1),
+            source.replacen(
+                "U=\"91111111-2222-3333-4444555566667777\"/>",
+                &format!("U=\"{}\"/>", INPUT.to_uppercase()),
+                1,
+            ),
+            format!("\u{feff}{source}"),
+        ]
+        .into_iter()
+        .map(|xml| (xml, "Input")),
+    );
+    let tree = xmltree::Element::parse(source.trim_start_matches('\u{feff}').as_bytes()).unwrap();
+    let document = control(&tree, "1fbf3415-030f-bc7d-ffff9bb3c1479539").unwrap();
+    for stamp in ["", "-1", "2147483647"] {
+        cases.push((
+            source.replacen(
+                &format!("DateS=\"{}\"", document.attributes["DateS"]),
+                &format!("DateS=\"{stamp}\""),
+                1,
+            ),
+            "Input",
+        ));
+    }
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for (xml, key) in cases {
+        if key == "Input" {
+            assert_ne!(xml, source, "mutation must exercise its refusal");
+        }
+        for inverted in [false, true] {
+            for destination in [None, Some(&existing), Some(&new)] {
+                fs::write(&input, &xml).unwrap();
+                fs::write(&existing, b"preserve").unwrap();
+                let mut invocation = command(&input, key, inverted);
+                if let Some(destination) = destination {
+                    invocation.arg("--save-as").arg(destination);
+                }
+                invocation.assert().failure();
+                assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                assert!(!new.exists());
+            }
+        }
+    }
 }
 
 #[test]
@@ -148,7 +359,7 @@ fn monoflop_input_trigger_preserves_full_project_defaults_wires_and_atomic_copie
                 .success();
             assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
             let saved = fs::read_to_string(&output).unwrap();
-            let expected = monoflop_expected_stamp(&source, &saved).replacen(
+            let expected = native_project_expected_stamp(&source, &saved).replacen(
                 "Unknown='keep-input'/>",
                 "Unknown='keep-input' Inv=\"true\"/>",
                 1,
@@ -178,7 +389,7 @@ fn monoflop_input_trigger_preserves_full_project_defaults_wires_and_atomic_copie
         let cleared = fs::read_to_string(&input).unwrap();
         assert_eq!(
             cleared,
-            monoflop_expected_stamp(&source, &cleared).replacen(
+            native_project_expected_stamp(&source, &cleared).replacen(
                 "Unknown='keep-input'/>",
                 "Unknown='keep-input' />",
                 1,

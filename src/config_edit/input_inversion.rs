@@ -46,13 +46,14 @@ impl ConfigEditor {
                 key,
                 "I" | "I1"
                     | "I2"
+                    | "Input"
                     | "InputS"
                     | "InputR"
                     | "Trigger"
                     | "InputEnable"
                     | "InputTrigger"
             ),
-            "Input inversion supports only existing unconnected And/Or/Xor.I1/I2, Not.I, FlipFlop/RSFlipFlop/SRFlipFlop.InputS/InputR, Counter.Trigger, HourCounter.InputEnable or OnDelay/OffDelay/OnOffDelay/Monoflop.InputTrigger, not aliases, latch trigger inputs, outputs, analog inputs or parameters; nothing was changed."
+            "Input inversion supports only existing unconnected And/Or/Xor.I1/I2, Not.I, FlipFlop/RSFlipFlop/SRFlipFlop.InputS/InputR, Counter.Trigger, HourCounter.InputEnable, OnDelay/OffDelay/OnOffDelay/Monoflop.InputTrigger or EdgeDetection.Input, not aliases, latch trigger inputs, outputs, analog inputs or parameters; nothing was changed."
         );
         ensure!(
             Self::sanitize_digit_attrs(data).1.is_empty(),
@@ -117,10 +118,11 @@ impl ConfigEditor {
                         | "OffDelay"
                         | "OnOffDelay"
                         | "Monoflop"
+                        | "EdgeDetection"
                 )
                 && owner.attributes.get("U").map(String::as_str) == Some(requested)
                 && !owner.attributes.contains_key("Dev"),
-            "Input inversion requires an ordinary, non-device-bound And, Or, Xor, Not, FlipFlop, RSFlipFlop, SRFlipFlop, Counter, HourCounter, OnDelay, OffDelay, OnOffDelay or Monoflop directly on a Page; nothing was changed."
+            "Input inversion requires an ordinary, non-device-bound And, Or, Xor, Not, FlipFlop, RSFlipFlop, SRFlipFlop, Counter, HourCounter, OnDelay, OffDelay, OnOffDelay, Monoflop or EdgeDetection directly on a Page; nothing was changed."
         );
         if matches!(kind(owner), "OnDelay" | "OffDelay" | "OnOffDelay") {
             ensure!(
@@ -130,16 +132,21 @@ impl ConfigEditor {
                 "Delay input inversion requires the ordinary Document directly in the native ControlList root; other owning contexts are unsupported. Nothing was changed."
             );
         }
-        if kind(owner) == "Monoflop" {
+        if matches!(kind(owner), "Monoflop" | "EdgeDetection") {
             ensure!(
                 !data.starts_with(b"\xef\xbb\xbf\xef\xbb\xbf")
                     && (documents[0].is_empty()
                         || (editor.root.name == "ControlList"
                             && !editor.root.attributes.contains_key("Type"))),
-                "Monoflop input inversion requires at most one UTF-8 BOM and a root Document or a direct Document in a native ControlList root, not an owning Folder or other wrapper; nothing was changed."
+                "Monoflop/EdgeDetection input inversion requires at most one UTF-8 BOM and a root Document or a direct Document in a native ControlList root, not an owning Folder or other wrapper; nothing was changed."
             );
         }
         let (input_keys, connector_keys, nio): (&[&str], &[&str], &str) = match kind(owner) {
+            "EdgeDetection" => (
+                &["Input"],
+                &["Input", "PulseTime", "Edge", "RisingEdge", "FallingEdge"],
+                "5",
+            ),
             "Monoflop" => (
                 &["InputTrigger"],
                 &["InputTrigger", "Reset", "Remanence", "Time", "Q"],
@@ -207,7 +214,7 @@ impl ConfigEditor {
         ensure!(
             input_keys.contains(&key)
                 && owner.attributes.get("Nio").map(String::as_str) == Some(nio),
-            "Input inversion requires the owner's exact native input and explicit layout: And/Or/Xor I1/I2 with Nio=3, Not I with Nio=2, latch InputS/InputR with FlipFlop Nio=4 or RSFlipFlop/SRFlipFlop Nio=5, Counter Trigger with Nio=7, HourCounter InputEnable with Nio=10, delay InputTrigger with OnDelay/OffDelay Nio=5 or OnOffDelay Nio=6, or Monoflop InputTrigger with Nio=5; nothing was changed."
+            "Input inversion requires the owner's exact native input and explicit layout: And/Or/Xor I1/I2 with Nio=3, Not I with Nio=2, latch InputS/InputR with FlipFlop Nio=4 or RSFlipFlop/SRFlipFlop Nio=5, Counter Trigger with Nio=7, HourCounter InputEnable with Nio=10, delay InputTrigger with OnDelay/OffDelay Nio=5 or OnOffDelay Nio=6, Monoflop InputTrigger with Nio=5, or EdgeDetection Input with Nio=5; nothing was changed."
         );
         let mut identities = Vec::new();
         let mut guarded_owners = vec![document];
@@ -277,7 +284,7 @@ impl ConfigEditor {
                         .count()
                         == 1
                 }),
-            "Input inversion requires exactly the owner's complete existing native connector set, including latch Remanence and RSFlipFlop/SRFlipFlop InputTrigger, counter parameters/outputs, delay parameters/output and Monoflop InputTrigger/Reset/Remanence/Time/Q; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
+            "Input inversion requires exactly the owner's complete existing native connector set, including latch Remanence and RSFlipFlop/SRFlipFlop InputTrigger, counter parameters/outputs, delay parameters/output, Monoflop InputTrigger/Reset/Remanence/Time/Q and EdgeDetection Input/PulseTime/Edge/RisingEdge/FallingEdge; duplicate/alias/default connector layouts are unsupported. Nothing was changed."
         );
         for connector in &connectors {
             let identity = connector
