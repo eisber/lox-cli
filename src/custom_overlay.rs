@@ -108,7 +108,7 @@ impl<'a> Document<'a> {
         let mut reader = Reader::from_reader(&bytes[offset..]);
         let mut controls: Vec<Control> = Vec::new();
         let mut stack: Vec<Option<usize>> = Vec::new();
-        let mut ids = HashSet::new();
+        let mut ids: HashMap<String, Vec<Option<(usize, String)>>> = HashMap::new();
         let mut roots = 0;
         loop {
             let start = reader.buffer_position() as usize + offset;
@@ -124,10 +124,29 @@ impl<'a> Document<'a> {
                         let value = attr.unescape_value()?.into_owned();
                         attrs.insert(key, value);
                     }
-                    if let Some(id) = attrs.get("U")
-                        && (id.is_empty() || !ids.insert(identity(id)))
-                    {
-                        bail!("Empty or duplicate UUID {id:?} in config XML.");
+                    if let Some(id) = attrs.get("U") {
+                        let owner = stack.iter().rev().find_map(|i| *i);
+                        let reference_connector = owner.and_then(|owner| {
+                            (e.name().as_ref() == b"Co" && controls[owner].kind == "InputRef")
+                                .then(|| attrs.get("K").filter(|key| !key.is_empty()))
+                                .flatten()
+                                .map(|key| (owner, key.clone()))
+                        });
+                        let locations = ids.entry(identity(id)).or_default();
+                        // Diagram InputRefs may alias the same connector on different pages.
+                        if id.is_empty()
+                            || locations.iter().any(|previous| {
+                                match (previous, &reference_connector) {
+                                    (Some((old_owner, old_key)), Some((owner, key))) => {
+                                        old_owner == owner || old_key != key
+                                    }
+                                    _ => true,
+                                }
+                            })
+                        {
+                            bail!("Empty or duplicate UUID {id:?} in config XML.");
+                        }
+                        locations.push(reference_connector);
                     }
                     let empty = bytes[reader.buffer_position() as usize + offset - 2] == b'/';
                     let node = if e.name().as_ref() == b"C" && attrs.contains_key("U") {
@@ -751,6 +770,35 @@ mod tests {
             loxcc::compress_loxcc(control(alternate, "two").as_bytes()),
         );
         assert!(merge_overlays(&xml, &overlays).is_err());
+    }
+
+    #[test]
+    fn input_reference_connector_aliases_survive_app_overlays() {
+        let connector = "shared-reference-connector";
+        let first = format!(
+            r#"<C Type="InputRef" U="{A}" Title="before"><Co U="{connector}" K="AQ"/></C>"#
+        );
+        let second = format!(
+            r#"<C Type="InputRef" U="{B}" Title="other page"><Co U="{connector}" K="AQ"/></C>"#
+        );
+        let xml = format!("<Root>{first}{second}</Root>");
+        let changed = first.replace("before", "after");
+        let result = merge_overlays(xml.as_bytes(), &overlay(A, &changed)).unwrap();
+        assert_eq!(result, format!("<Root>{changed}{second}</Root>").as_bytes());
+    }
+
+    #[test]
+    fn conflicting_reference_connector_aliases_are_rejected() {
+        for (kind, key) in [("DayTimer", "AQ"), ("InputRef", "Q")] {
+            let xml = format!(
+                r#"<Root><C Type="InputRef" U="{A}"><Co U="port" K="AQ"/></C><C Type="{kind}" U="{B}"><Co U="port" K="{key}"/></C></Root>"#
+            );
+            assert!(Document::parse(xml.as_bytes()).is_err());
+        }
+        let xml = format!(
+            r#"<Root><C Type="InputRef" U="{A}"><Co U="port" K="AQ"/><Co U="port" K="AQ"/></C></Root>"#
+        );
+        assert!(Document::parse(xml.as_bytes()).is_err());
     }
 
     #[test]
