@@ -307,6 +307,50 @@ qualification was performed for this recovery.
   are contextualized as input-inversion refusals. No shared-parser refactor
   or additional native tracing was needed for these review corrections.
   No native UI execution, Miniserver work or new native qualification was used.
+- **Ordinary pulse-owner input inversion (17.2.10.21, source-only owner extensions):**
+  separately bound existing owners are `StairwayLS` (CT340/catalog302,
+  primary table `0x140f9b9e0`, descriptor `0x140814a90`), `PulseGen`
+  (CT360/catalog322, `0x140f7b5c0`, `0x1407fc5d0`) and `OnPulseDelay`
+  (CT372/catalog334, `0x140f70430`, `0x1407f72b0`). The actual factory
+  `0x140432790:2477–2487,2758–2764,2857–2863,4182–4185` constructs and
+  stamps each exact type. Registry `0x1404ba670:78–110` invokes each actual
+  `+0xf18`; `0x14043dff0:39–90` constructs all matching connector descriptors.
+  Complete native connector counts are respectively 9, 6 and 6; see the
+  command reference for their exact case-sensitive keys.
+  Only `StairwayLS.InputTrigger`, `PulseGen.InputEnable` and
+  `OnPulseDelay.InputTrigger` qualify in the selected unconnected Def-zero
+  branch. Each selected descriptor has flags `type & 0xfff`, not the special
+  bit `0x400000` on StairwayLS `On`/`Reset`/`InputDisable`, PulseGen
+  `InputInvert` and OnPulseDelay `Reset`. Those other ports have false native
+  inversion capability with zero connections; their names prove nothing.
+  All three concrete tables independently bind `+0x4b0=0x140446520`,
+  `+0x5a8=0x14000c610`, `+0x5d0=0x140468540` and
+  `+0xc20=0x140463f70`. Actual Co `+0x78=0x140467520` takes its digital
+  default for these exact types. Thus the already-recovered action-5 click
+  and `0x1401e6630:719–735` setter change only selected Co flag `0x20`.
+  This is not inferred from delay, Monoflop, latch or Counter behavior.
+  Registered XML construction `0x140487c90:110–130` binds each owning
+  Document before the concrete `+8=0x14047e260` load. For these actual
+  owners, the setter's `0x140469a90` propagation remains gated by
+  `0x14050be70 -> 0x1404b8640 -> 0x140525ab0`, reading accepted Document
+  `+0x1120`. The existing global Template/IfT/DocumentTemplate/uuidParent
+  exclusions keep it false. Ordinary absent/0/16384 WF is preserved, not
+  guessed from a pulse override. The new owners also require a root Document
+  or a direct Document within the native `ControlList` root, then an exact
+  Page, optionally through one Program; Folder wrappers are refused.
+  Actual Co construction `0x140423420`, load `0x14047fb20:222–238`,
+  accepted copy `0x14043d790:27–35` and serializer
+  `0x14047fb20:84–103` bind the same separate Def/Inv storage.
+  All three primary tables bind `+0x458=0x14046b4b0`, which traverses the
+  native connectors and calls `0x1404416c0:37–50` to derive initial digital
+  state from Inv independently of Def. No runtime/timing claim is made.
+  The complete native parameter defaults remain untouched: StairwayLS
+  TimeHigh=180, TimeWarn=15, Remanence=0, WarnTime=0.5; PulseGen
+  Remanence=0, TimeHigh=1, TimeLow=1; OnPulseDelay Remanence=0, Delay=5,
+  Time=0.5. Other input and output wires, Def/Inv values, native positions,
+  rights and unknown raw fields need not be empty or zero.
+  These are owner/input branches of `set-input-inversion`, not new base APIs;
+  no native execution or additional native qualification was used.
 - **Ordinary Or input inversion (17.2.10.21, source-only owner extension):**
   this is a separately bound owner branch of the existing operation, not
   inferred And/Or symmetry. Registry construction `0x1404ba670:78–110` allocates

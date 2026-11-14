@@ -838,6 +838,10 @@ fn latch_fragment(owner_type: &str, selected: &str, remanence: u8) -> String {
 }
 
 fn latch_project(owner_type: &str, selected: &str, remanence: u8) -> String {
+    project_with_fragment(&latch_fragment(owner_type, selected, remanence))
+}
+
+fn project_with_fragment(fragment: &str) -> String {
     let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("eval")
@@ -851,8 +855,300 @@ fn latch_project(owner_type: &str, selected: &str, remanence: u8) -> String {
     let start = source[..page_uuid].rfind("<C ").unwrap();
     let end = start + source[start..].find('>').unwrap() + 1;
     assert!(source[start..end].contains("Type=\"Page\""));
-    source.insert_str(end, &latch_fragment(owner_type, selected, remanence));
+    source.insert_str(end, fragment);
     source
+}
+
+fn pulse_project(owner_type: &str, selected: &str) -> String {
+    let (keys, parameters): (&[&str], &[(&str, &str)]) = match owner_type {
+        "StairwayLS" => (
+            &["InputTrigger", "On", "Reset", "InputDisable"],
+            &[
+                ("TimeHigh", "180"),
+                ("TimeWarn", "15"),
+                ("Remanence", "0"),
+                ("WarnTime", "0.5"),
+            ],
+        ),
+        "PulseGen" => (
+            &["InputEnable", "InputInvert"],
+            &[("Remanence", "0"), ("TimeHigh", "1"), ("TimeLow", "1")],
+        ),
+        "OnPulseDelay" => (
+            &["InputTrigger", "Reset"],
+            &[("Remanence", "0"), ("Delay", "5"), ("Time", "0.5")],
+        ),
+        _ => unreachable!(),
+    };
+    let mut connectors = String::new();
+    for (index, key) in keys
+        .iter()
+        .copied()
+        .chain(parameters.iter().map(|(key, _)| *key))
+        .enumerate()
+    {
+        let uuid = if key == selected {
+            INPUT.to_string()
+        } else {
+            format!("f00000{index:02x}-2222-3333-4444555566667777")
+        };
+        let state = if key == selected {
+            "Def=\"0\" Pos='11,22' Unknown=\"selected\"".to_string()
+        } else if let Some((_, default)) = parameters.iter().find(|(name, _)| *name == key) {
+            format!("Def=\"{default}\" Pos='55,66' Unknown=\"native-parameter\"")
+        } else {
+            "Def=\"1\" Inv=\"true\" Nc=\"1\" Pos='33,44'".to_string()
+        };
+        let wire = if keys.contains(&key) && key != selected {
+            "<Ref U=\"d1111111-2222-3333-4444555566667777\" Unknown=\"input-wire\"/>"
+        } else {
+            ""
+        };
+        connectors.push_str(&format!("<Co K=\"{key}\" U=\"{uuid}\" {state}>{wire}</Co>"));
+    }
+    let nio = keys.len() + parameters.len() + 1;
+    let fragment = format!(
+        "<C Type=\"And\" U=\"91111111-2222-3333-4444555566667777\" V=\"121\" WF=\"16384\" Nio=\"3\"><Co K=\"I1\" U=\"92111111-2222-3333-4444555566667777\"/><Co K=\"I2\" U=\"93111111-2222-3333-4444555566667777\"/><Co K=\"Q\" U=\"d1111111-2222-3333-4444555566667777\"/></C><C Type=\"{owner_type}\" U=\"{OWNER}\" V=\"121\" WF=\"16384\" Nio=\"{nio}\" Title=\"Pulse owner\" Position=\"400,500\" Rights=\"keep\">{connectors}<Co K=\"Q\" U=\"51111111-2222-3333-4444555566667777\" Inv=\"true\" Pos='77,88'/></C><C Type=\"OutputRef\" U=\"61111111-2222-3333-4444555566667777\" V=\"121\" WF=\"16384\"><Co K=\"AI\" U=\"71111111-2222-3333-4444555566667777\" Nc=\"1\"><Ref U=\"51111111-2222-3333-4444555566667777\" Unknown=\"output-wire\"/></Co></C>"
+    );
+    project_with_fragment(&fragment).replacen(
+        "<ControlList ",
+        "<?pulse keep='ä'?>\r\n<!-- retained -->\r\n<ControlList ",
+        1,
+    )
+}
+
+#[test]
+fn pulse_inputs_preserve_full_native_layout_defaults_wires_and_atomic_copies() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("pulse.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    for (owner_type, key) in [
+        ("StairwayLS", "InputTrigger"),
+        ("PulseGen", "InputEnable"),
+        ("OnPulseDelay", "InputTrigger"),
+    ] {
+        for default in [" Def=\"0\"", ""] {
+            let source = pulse_project(owner_type, key).replace(
+                &format!("K=\"{key}\" U=\"{INPUT}\" Def=\"0\""),
+                &format!("K=\"{key}\" U=\"{INPUT}\"{default}"),
+            );
+            let selected =
+                format!("<Co K=\"{key}\" U=\"{INPUT}\"{default} Pos='11,22' Unknown=\"selected\">");
+            let expected = source.replace(&selected, &selected.replace('>', " Inv=\"true\">"));
+            fs::write(&input, &source).unwrap();
+            for existing in [false, true] {
+                if existing {
+                    fs::write(&output, b"preserve until accepted").unwrap();
+                } else if output.exists() {
+                    fs::remove_file(&output).unwrap();
+                }
+                command(&input, key, false)
+                    .arg("--save-as")
+                    .arg(&output)
+                    .arg("-q")
+                    .assert()
+                    .success();
+                assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+                if !existing {
+                    fs::remove_file(&output).unwrap();
+                }
+                let result = command(&input, key, true)
+                    .arg("--save-as")
+                    .arg(&output)
+                    .args(["-o", "json"])
+                    .assert()
+                    .success()
+                    .get_output()
+                    .stdout
+                    .clone();
+                let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+                assert_eq!(result["input_inversion"]["connector_uuid"], INPUT);
+                assert_eq!(result["input_inversion"]["connector"], key);
+                assert_eq!(result["input_inversion"]["changed"], true);
+                assert_eq!(
+                    without_document_stamp(&fs::read_to_string(&output).unwrap()),
+                    without_document_stamp(&expected)
+                );
+                assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+            }
+            command(&input, key, true).arg("-q").assert().success();
+            let once = fs::read(&input).unwrap();
+            let result = command(&input, key, true)
+                .args(["-o", "json"])
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            let result: serde_json::Value = serde_json::from_slice(&result).unwrap();
+            assert_eq!(result["input_inversion"]["changed"], false);
+            assert!(result["saved_to"].is_null());
+            assert_eq!(fs::read(&input).unwrap(), once);
+            command(&input, key, false).arg("-q").assert().success();
+            assert_eq!(
+                without_document_stamp(&fs::read_to_string(&input).unwrap()),
+                without_document_stamp(&source.replace(&selected, &selected.replace('>', " >")))
+            );
+        }
+    }
+}
+
+#[test]
+fn pulse_inputs_refuse_excluded_native_ports_layouts_and_context_before_noop() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("pulse.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for (owner_type, key, excluded) in [
+        (
+            "StairwayLS",
+            "InputTrigger",
+            &["On", "Reset", "InputDisable"][..],
+        ),
+        ("PulseGen", "InputEnable", &["InputInvert"][..]),
+        ("OnPulseDelay", "InputTrigger", &["Reset"][..]),
+    ] {
+        let source = pulse_project(owner_type, key);
+        let selected = format!("K=\"{key}\" U=\"{INPUT}\" Def=\"0\"");
+        let nio = if owner_type == "StairwayLS" { 9 } else { 6 };
+        let parameter_start = source.find("<Co K=\"Remanence\"").unwrap();
+        let parameter_end = parameter_start + source[parameter_start..].find("</Co>").unwrap() + 5;
+        let mut missing_parameter = source.clone();
+        missing_parameter.replace_range(parameter_start..parameter_end, "");
+        let mut cases: Vec<(String, &str)> = excluded
+            .iter()
+            .map(|excluded| (pulse_project(owner_type, excluded), *excluded))
+            .collect();
+        cases.extend([
+            (source.clone(), "I1"),
+            (source.clone(), "Q"),
+            (source.clone(), "Remanence"),
+            (
+                source.clone(),
+                if key == "InputTrigger" {
+                    "InputEnable"
+                } else {
+                    "InputTrigger"
+                },
+            ),
+            (
+                source.replace(
+                    &format!("Nio=\"{nio}\" Title=\"Pulse owner\""),
+                    "Nio=\"3\" Title=\"Pulse owner\"",
+                ),
+                key,
+            ),
+            (missing_parameter, key),
+            (
+                source.replace("Title=\"Pulse owner\"", "Title=\"Pulse owner\" Nio=\"3\""),
+                key,
+            ),
+            (source.replace("K=\"Remanence\"", "K=\"Alias\""), key),
+            (
+                source.replace("K=\"Remanence\"", &format!("K=\"{key}\"")),
+                key,
+            ),
+            (
+                source.replace(&selected, &selected.replace("Def=\"0\"", "Def=\"1\"")),
+                key,
+            ),
+            (
+                source.replace(&selected, &format!("{selected} Nc=\"1\"")),
+                key,
+            ),
+            (
+                source.replace(
+                    "Title=\"Pulse owner\"",
+                    "Title=\"Pulse owner\" Dev=\"unknown\"",
+                ),
+                key,
+            ),
+            (
+                source.replace("Title=\"Pulse owner\"", "Title=\"Noon 12hTF=quoted\""),
+                key,
+            ),
+            (
+                source.replace("WF=\"16384\" Nio=", "WF=\"16385\" Nio="),
+                key,
+            ),
+            (source.replace("Type=\"Program\"", "Type=\"Folder\""), key),
+            (
+                source.replace("Type=\"Document\"", "Type=\"DocumentTemplate\""),
+                key,
+            ),
+            (
+                source.replace(
+                    "Title=\"Pulse owner\"",
+                    "Title=\"Pulse owner\" IfT=\"false\"",
+                ),
+                key,
+            ),
+            (
+                source.replace(
+                    "Title=\"Pulse owner\"",
+                    "Title=\"Pulse owner\" uuidParent=\"unknown\"",
+                ),
+                key,
+            ),
+            (source.replace("ControlList", "Folder"), key),
+            (
+                source
+                    .replace("<ControlList ", "<C Type=\"Folder\" ")
+                    .replace("</ControlList>", "</C>"),
+                key,
+            ),
+            (
+                source.replace("f0000001-2222-3333-4444555566667777", &INPUT.to_uppercase()),
+                key,
+            ),
+            (
+                source.replace(
+                    "f0000001-2222-3333-4444555566667777",
+                    "b1111111-2222-3333-4444-555566667777",
+                ),
+                key,
+            ),
+            (
+                source.replace("DateS=\"532627050\"", "DateS=\"2147483647\""),
+                key,
+            ),
+            (source.replace("DateS=\"532627050\"", "DateS=\"\""), key),
+            (
+                source.replace("<?xml version=", "<?bad?target data?><?xml version="),
+                key,
+            ),
+            (format!("{source}<C Type=\"Other\"/>"), key),
+        ]);
+        for (case, (xml, port)) in cases.into_iter().enumerate() {
+            for inverted in [false, true] {
+                for destination in [None, Some(&existing), Some(&new)] {
+                    fs::write(&input, &xml).unwrap();
+                    fs::write(&existing, b"preserve").unwrap();
+                    let mut edit = command(&input, port, inverted);
+                    if let Some(destination) = destination {
+                        edit.arg("--save-as").arg(destination);
+                    }
+                    let result = edit.output().unwrap();
+                    assert!(
+                        !result.status.success(),
+                        "{owner_type} case {case}, port {port}, inverted {inverted}"
+                    );
+                    assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                    assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                    assert!(!new.exists());
+                }
+            }
+        }
+        fs::write(&input, &source).unwrap();
+        command(&input, key, true)
+            .args(["--dry-run", "-o", "json"])
+            .arg("--save-as")
+            .arg(&new)
+            .assert()
+            .failure();
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+        assert!(!new.exists());
+    }
 }
 
 fn without_document_stamp(source: &str) -> String {

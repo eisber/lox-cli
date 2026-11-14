@@ -169,7 +169,9 @@ Edits native connector `Inv`, not `Def`. The bounded supported branch is an
 an ordinary `Not`, `InputS`/`InputR` of an ordinary `FlipFlop`,
 `RSFlipFlop` or `SRFlipFlop`, `Trigger` of `Counter` or `UpDownCounter`, `InputEnable` of
 `HourCounter`, or `InputTrigger` of an ordinary `OnDelay`, `OffDelay` or
-`OnOffDelay`, or `InputTrigger` of an ordinary `Monoflop`**, directly on a Page
+`OnOffDelay`, `InputTrigger` of an ordinary `Monoflop`,
+`InputTrigger` of `StairwayLS` or `OnPulseDelay`,
+or `InputEnable` of `PulseGen`**, directly on a Page
 in one ordinary Document (optionally through one ordinary Program), with
 explicit modern `V >= 90`. `And`/`Or`/`Xor` require `Nio="3"` and exactly `I1`/`I2`/`Q`;
 `Not` requires `Nio="2"` and exactly `I`/`Q` (not `I1`).
@@ -212,6 +214,16 @@ the unconnected `Reset` eligibility is false, and `Remanence`/`Time` are
 parameters. Unselected parameters, defaults, inputs and output wires are preserved;
 the entire owner need not be unwired or have zero parameters. At most one UTF-8
 BOM is admitted for this branch; repeated BOMs are refused before no-op or output.
+`StairwayLS` requires `Nio="9"` and exactly
+`InputTrigger`/`On`/`Reset`/`InputDisable`/`TimeHigh`/`TimeWarn`/`Remanence`/`WarnTime`/`Q`.
+`PulseGen` requires `Nio="6"` and exactly
+`InputEnable`/`InputInvert`/`Remanence`/`TimeHigh`/`TimeLow`/`Q`;
+`OnPulseDelay` requires `Nio="6"` and exactly
+`InputTrigger`/`Reset`/`Remanence`/`Delay`/`Time`/`Q`.
+These three pulse owners require the Document at the root or directly within
+the native `ControlList` root. Their other inputs (including `InputInvert`)
+are not eligible in this unconnected branch. Parameter defaults may be nonzero
+and remain untouched; this command does not edit timing or runtime behavior.
 The exact `uuid:` owner, its Document/Program/Page ancestors and every owner connector
 must have unique nonnil native35 identities (8-4-4-16); aliases, duplicate
 keys/identities and incomplete connector sets are refused.
