@@ -1403,7 +1403,7 @@ lox config timer-entry-set-end file.Loxone "Night Timer" --mode-uuid 00000000-00
 its end, in exact `HH:MM` minute increments, strictly after the unchanged
 start and at most `24:00` (not `00:00`). `--room` and native/RFC mode UUID
 comparison follow `timer-entry-remove`. Both shortening and extending the
-end are supported; there is no atomic two-endpoint edit.
+end are supported; this boundary command does not atomically edit two endpoints.
 Already sorted, separated ordinary digital storage is required. Touching,
 overlap, wrap/collapse, sorting/merging other rows, analog schedules, and
 missing, duplicate, nested-only, namespaced, non-owning or Template-owned
@@ -1450,11 +1450,45 @@ native/RFC mode UUID aliases are supported. `--dry-run` remains unsupported;
 this is an offline file edit, not deployment. See
 [independent From branch proof](docs/knowledge/daytimer-entry-start-native.md).
 
+Move one **whole existing ordinary digital interval** with native Ctrl-up drag
+semantics, keeping the operating mode unchanged:
+
+```bash
+lox config timer-entry-move file.Loxone "Night Timer" --mode-uuid 00000000-0000-0004-1500000000000000 --from 20:00 --to 23:00 --shift-minutes 8 --save-as edited.Loxone -o json
+```
+
+This models a fresh down/move/release with one movement update, not an
+arbitrary multi-update mouse-history replay.
+`--from` / `--to` select the existing interval. `--shift-minutes` is a signed
+timeline-pointer delta from grabbing its From point, in `-From-1 .. 1440-From`.
+The native operation first clamps both boundaries together to the day, then
+snaps **From** to the nearest 15 minutes (remainders 1..7 down, 8..14 up),
+shifting To by the same correction. A downward snap with To already at 24:00
+leaves To at 24:00, so **duration can increase at the right boundary**.
+An upward snap leaving the day is refused, not clamped a second time.
+The example becomes 20:15–23:15, not 20:08–23:08.
+An already unchanged clamped pair skips snapping; effective no-ops preserve
+all original bytes. This is not a wrapper around separate start/end saves.
+
+Original/final entries must keep their sorted Ix/From order and strict
+same-mode separation. The usual unique owner/mode, digital M=0, plain owning
+Document, ordinary nonzero-WF, Template/IfT/inheritance, raw-storage and DateS
+guards run before no-op/output. No new entries, mode changes, analog conversion,
+Ctrl copying, count/order repair or merge is implemented.
+Only changed From/To and one save stamp are patched; IDs, N, metadata, modes,
+wires, unselected data, BOM/EOL/quotes and other bytes remain unchanged.
+JSON `move_change` includes the old identity, matched stored mode UUID,
+`shift_minutes`, actual `new_from_minutes` / `new_to_minutes` and `changed`.
+`saved_to` identifies an actual write, or is null on a no-write no-op.
+Supports `--room`, CSV, `--quiet`, `--no-header` and exact no-op `--save-as`;
+`--dry-run` remains unsupported. This is an offline edit, not deployment.
+See [actual mouse path and limits](docs/knowledge/daytimer-entry-move-native.md).
+
 Offline config byte writes exclusively create the destination's sibling
 `<filename>.tmp` before writing, then atomically rename it into place.
 If that staging path already exists (including an input-path alias, symlink
 or hardlink), the edit refuses without changing input, destination or the
-existing staging entry. For `timer-entry-set-start`, a save-as destination
+existing staging entry. For `timer-entry-set-start` and `timer-entry-move`, a save-as destination
 resolving to the input is also refused. Only newly created, owned staging
 files are cleaned up on failure; there is no non-atomic copy fallback. Normal in-place edits and
 save-as to a different destination remain supported.

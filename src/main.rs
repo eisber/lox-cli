@@ -1012,6 +1012,25 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Move one existing digital DayTimer interval with a fresh native Ctrl-up 15-minute drag
+    TimerEntryMove {
+        file: String,
+        selector: String,
+        /// Referenced operating mode UUID; the operating mode remains unchanged
+        #[arg(long)]
+        mode_uuid: String,
+        #[arg(long, value_name = "HH:MM")]
+        from: String,
+        #[arg(long, value_name = "HH:MM")]
+        to: String,
+        /// Signed pointer-minute delta from a From grab; linked clamp, then native grid snap
+        #[arg(long, allow_negative_numbers = true)]
+        shift_minutes: i32,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Set an existing ordinary digital DayTimer interval's Activation required checkbox
     TimerEntrySetActivation {
         file: String,

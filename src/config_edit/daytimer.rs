@@ -73,6 +73,17 @@ pub struct DayTimerEntryStartChange {
     pub changed: bool,
 }
 
+#[derive(Debug, Serialize)]
+pub struct DayTimerEntryMoveChange {
+    pub block_uuid: String,
+    pub entry: DayTimerEntryIdentity,
+    pub stored_mode_uuid: String,
+    pub shift_minutes: i32,
+    pub new_from_minutes: u32,
+    pub new_to_minutes: u32,
+    pub changed: bool,
+}
+
 struct SelectedEntry {
     path: Vec<usize>,
     position: usize,
@@ -179,6 +190,7 @@ fn boundary_storage(
     let mut depth = 0usize;
     let mut roots = 0usize;
     loop {
+        let event_start = reader.buffer_position();
         let event = reader.read_event()?;
         let opening = matches!(&event, Event::Start(_));
         match event {
@@ -219,7 +231,9 @@ fn boundary_storage(
                         !key.contains(':') && key != "xmlns",
                         "Namespaced DayTimer XML is unsupported; nothing was changed."
                     );
-                    let identity = element.name == "C" && matches!(key, "Type" | "U" | "Title");
+                    let identity = (element.name == "C" && matches!(key, "Type" | "U" | "Title"))
+                        || (matches!(element.name.as_str(), "Co" | "Ref") && key == "U")
+                        || (element.name == "Co" && key == "K");
                     let guarded = owner
                         || entry
                         || identity
@@ -230,6 +244,8 @@ fn boundary_storage(
                         let guarded_duplicate = owner
                             || entry
                             || (element.name == "C" && matches!(key, "Type" | "U"))
+                            || (matches!(element.name.as_str(), "Co" | "Ref") && key == "U")
+                            || (element.name == "Co" && key == "K")
                             || (stamp && matches!(key, "Type" | "Date" | "DateS"))
                             || (ancestors.contains(&ordinal) && matches!(key, "WF" | "uuidParent"));
                         ensure!(
@@ -301,6 +317,10 @@ fn boundary_storage(
                 ordinal += 1;
             }
             Event::Decl(declaration) => {
+                ensure!(
+                    event_start == 0 && roots == 0,
+                    "DayTimer XML declaration must precede all other content; nothing was changed."
+                );
                 if let Some(encoding) = declaration.encoding() {
                     let encoding = encoding?;
                     ensure!(
@@ -310,6 +330,10 @@ fn boundary_storage(
                     );
                 }
             }
+            Event::PI(instruction) => ensure!(
+                super::input_inversion::valid_processing_instruction(instruction.as_ref()),
+                "DayTimer editing requires valid XML processing instructions; nothing was changed."
+            ),
             Event::DocType(_) => {
                 bail!("DTD-dependent DayTimer XML is unsupported; nothing was changed.")
             }
@@ -350,6 +374,156 @@ fn boundary_storage(
 }
 
 impl ConfigEditor {
+    pub fn move_daytimer_entry(
+        data: &[u8],
+        selector: &str,
+        identity: DayTimerEntryIdentity,
+        shift_minutes: i32,
+    ) -> Result<(Vec<u8>, DayTimerEntryMoveChange)> {
+        let mut editor = Self::load(data)?;
+        let selected = editor.select_daytimer_entry(selector, &identity)?;
+        let (document_path, block_uuid) = editor.daytimer_boundary_context(&selected)?;
+        for depth in document_path.len()..=selected.path.len() {
+            ensure!(
+                !editor
+                    .get_element(&selected.path[..depth])
+                    .attributes
+                    .contains_key("IfT"),
+                "DayTimer movement does not emulate IfT instance state; nothing was changed."
+            );
+        }
+        let block = editor.get_element(&selected.path);
+        let identities =
+            std::iter::once(block_uuid.as_str()).chain(block.attributes["Modes"].split(','));
+        let elements = Self::iter_elements(&editor.root);
+        for identity in identities {
+            let key = mode_uuid_key(identity);
+            ensure!(
+                elements
+                    .iter()
+                    .filter(|element| {
+                        matches!(element.name.as_str(), "C" | "Co" | "Ref")
+                            && element.attributes.get("U").is_some_and(|candidate| {
+                                key.as_ref().map_or_else(
+                                    || candidate == identity,
+                                    |key| mode_uuid_key(candidate).as_ref() == Some(key),
+                                )
+                            })
+                    })
+                    .count()
+                    == 1,
+                "Ambiguous global DayTimer owner or mode identity; nothing was changed."
+            );
+        }
+        let original_from = identity.from_minutes as i32;
+        let original_to = identity.to_minutes as i32;
+        ensure!(
+            (-original_from - 1..=1440 - original_from).contains(&shift_minutes),
+            "The shift must be a reachable timeline-minute delta from the interval's From grab point ({}..={} minutes); nothing was changed.",
+            -original_from - 1,
+            1440 - original_from
+        );
+        let duration = original_to - original_from;
+        let mut from = original_from + shift_minutes;
+        let mut to = original_to + shift_minutes;
+        if from < 0 {
+            from = 0;
+            to = duration;
+        } else if to > 1440 {
+            to = 1440;
+            from = 1440 - duration;
+        }
+        if (from, to) != (original_from, original_to) {
+            // First native Ctrl-up body update: clamp, then snap From, not the delta.
+            let remainder = from % 15;
+            if (1..8).contains(&remainder) {
+                from -= remainder;
+                if to != 1440 {
+                    to -= remainder;
+                }
+            } else if remainder >= 8 {
+                from += 15 - remainder;
+                to += 15 - remainder;
+            }
+        }
+        ensure!(
+            0 <= from && from < to && to <= 1440,
+            "The native grid result leaves the supported day; a second clamp would invent semantics. Nothing was changed."
+        );
+        let target = block.children[selected.position].as_element().unwrap();
+        let mode_index = integer(target, "Ix")?;
+        let mut previous_key = None;
+        let mut previous_new_key = None;
+        for (position, child) in block.children.iter().enumerate() {
+            let Some(entry) = child.as_element().filter(|entry| entry.name == "Entry") else {
+                continue;
+            };
+            let index = integer(entry, "Ix")?;
+            let entry_from = integer(entry, "From")?;
+            let entry_to = integer(entry, "To")?;
+            let key = (index, entry_from);
+            let new_key = (
+                index,
+                if position == selected.position {
+                    from as u32
+                } else {
+                    entry_from
+                },
+            );
+            ensure!(
+                previous_key.is_none_or(|previous| previous < key)
+                    && previous_new_key.is_none_or(|previous| previous < new_key),
+                "DayTimer movement must retain sorted Ix/From order; incidental native sorting is refused. Nothing was changed."
+            );
+            previous_key = Some(key);
+            previous_new_key = Some(new_key);
+            ensure!(
+                position == selected.position
+                    || index != mode_index
+                    || (to as u32) < entry_from
+                    || entry_to < from as u32,
+                "The moved interval would touch or overlap another entry; incidental native normalization is refused. Nothing was changed."
+            );
+        }
+        let storage = boundary_storage(data, &editor, &selected, &document_path)?;
+        let change = DayTimerEntryMoveChange {
+            block_uuid,
+            changed: (from, to) != (original_from, original_to),
+            entry: identity,
+            stored_mode_uuid: selected.stored_mode_uuid,
+            shift_minutes,
+            new_from_minutes: from as u32,
+            new_to_minutes: to as u32,
+        };
+        if !change.changed {
+            return Ok((data.to_vec(), change));
+        }
+        let mut patches = Vec::new();
+        if from != original_from {
+            patches.push(if from == 0 {
+                (
+                    storage
+                        .from_attribute
+                        .clone()
+                        .context("Missing selected From attribute")?,
+                    String::new(),
+                )
+            } else if let Some(range) = &storage.from {
+                (range.clone(), from.to_string())
+            } else {
+                (
+                    storage.entry_insert..storage.entry_insert,
+                    format!(" From=\"{from}\""),
+                )
+            });
+        }
+        if to != original_to {
+            patches.push((storage.to.clone(), to.to_string()));
+        }
+        let output = editor.patch_daytimer_boundary(data, &document_path, &storage, patches)?;
+        Ok((output, change))
+    }
+
     fn daytimer_boundary_context(&self, selected: &SelectedEntry) -> Result<(Vec<usize>, String)> {
         let documents = self.find_elements("Type:Document");
         ensure!(

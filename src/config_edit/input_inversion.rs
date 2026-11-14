@@ -297,7 +297,7 @@ fn raw_span(data: &[u8], value: &[u8]) -> Result<std::ops::Range<usize>> {
     Ok(start..end)
 }
 
-fn valid_processing_instruction(raw: &[u8]) -> bool {
+pub(super) fn valid_processing_instruction(raw: &[u8]) -> bool {
     // XML 1.0 NameStartChar/NameChar, not a Unicode-letter approximation.
     fn name_start(character: char) -> bool {
         matches!(
