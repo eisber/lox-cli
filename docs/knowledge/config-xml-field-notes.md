@@ -282,8 +282,30 @@ qualification was performed for this recovery.
   `set-input-inversion` initially supports only unconnected existing I1/I2
   with neutral stored Def, complete three-connector owners and exact unique
   native35 identities. It refuses wired inputs instead of claiming reference
-  graph parity, as well as namespaces, protected/nonzero ancestor flags,
+  graph parity, as well as namespaces, unsupported ancestor flags,
   device bindings and shared-loader rewrites (lox-n37w), even on no-op.
+  The ordinary ancestry admits Page directly in the unique Document or through
+  exactly one ordinary Program, matching Config-saved projects. The already
+  recovered hit-test enumerates current Page children (`0x14014a670:85–104`);
+  the closed capability/eligibility and selected-connector transaction do not
+  predicate on the outer XML depth.
+  On these guarded Document/Program/Page/And objects, absent WF, literal zero
+  and literal `16384` (`0x4000`) are accepted and preserved. This correction is
+  justified by the already-closed operation, not by golden frequency or a
+  constructor default: `0x140463f70` and `0x140468540` inspect connector
+  descriptors/signal kind rather than C.WF, and the only recovered persisted
+  marker propagation in `0x140469a90` requires accepted IfT and concerns
+  `0x20000000`, not `0x4000`. The no-Template guard keeps that gate false.
+  Other flags/combinations remain refused; no universal meaning for `0x4000`
+  or whole-native-resave equivalence is inferred. A regression adds an And
+  with the public CLI to the unchanged Guest Room Door golden Page and edits
+  its input while all four original/generated WF values remain `16384`.
+  The local raw reader follows the existing Autopilot pattern: preserve
+  unrelated raw-value-identical duplicate attributes byte-for-byte, but
+  refuse conflicting duplicates, any duplicate on guarded objects and
+  duplicate global identity fields before no-op/stamp/save. Parser failures
+  are contextualized as input-inversion refusals. No shared-parser refactor
+  or additional native tracing was needed for these review corrections.
   No native UI execution, Miniserver work or new native qualification was used.
 - **Combined window contact** (`JoinWindowSensor`): its `AQ` connector is the
   docs' status output (S): 1 = closed, 2 = tilted, 3 = open, 4 = closed and not

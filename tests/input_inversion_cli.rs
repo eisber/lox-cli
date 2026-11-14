@@ -1,5 +1,7 @@
 use std::{fs, path::Path};
 
+use predicates::prelude::PredicateBooleanExt;
+
 const OWNER: &str = "a1111111-2222-3333-4444555566667777";
 const INPUT: &str = "b1111111-2222-3333-4444555566667777";
 
@@ -25,6 +27,153 @@ fn command(input: &Path, key: &str, invert: bool) -> assert_cmd::Command {
             },
         ]);
     command
+}
+
+fn control<'a>(element: &'a xmltree::Element, uuid: &str) -> Option<&'a xmltree::Element> {
+    if element.name == "C" && element.attributes.get("U").map(String::as_str) == Some(uuid) {
+        return Some(element);
+    }
+    element
+        .children
+        .iter()
+        .filter_map(xmltree::XMLNode::as_element)
+        .find_map(|child| control(child, uuid))
+}
+
+#[test]
+fn input_inversion_review_admits_cli_added_and_on_unchanged_golden_page() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("golden-with-cli-and.Loxone");
+    let golden = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("eval")
+        .join("golden")
+        .join("configs")
+        .join("Guest Room Door.Loxone");
+    fs::copy(&golden, &input).unwrap();
+    let page = "1fbf34a5-03b1-83a1-ffff9bb3c1479539";
+    let mut add = assert_cmd::cargo::cargo_bin_cmd!("lox");
+    let output = add
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "add"])
+        .arg(&input)
+        .args([
+            "--type",
+            "And",
+            "--title",
+            "Input inversion admission regression",
+            "--parent",
+            format!("uuid:{page}").as_str(),
+            "-o",
+            "json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let added: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    let owner = added["uuid"].as_str().unwrap();
+    let before = fs::read(&input).unwrap();
+    let original = xmltree::Element::parse(before.as_slice()).unwrap();
+    let ancestors = [
+        "1fbf3415-030f-bc7d-ffff9bb3c1479539",
+        "1fbf341a-00e9-c0af-ffff9bb3c1479539",
+        page,
+        owner,
+    ];
+    for uuid in ancestors {
+        assert_eq!(control(&original, uuid).unwrap().attributes["WF"], "16384");
+    }
+    for flag in ["--inverted", "--no-inverted"] {
+        let mut edit = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        edit.env("LOX_TELEMETRY", "0")
+            .args(["config", "set-input-inversion"])
+            .arg(&input)
+            .args([format!("uuid:{owner}").as_str(), "I1", flag, "-q"])
+            .assert()
+            .success();
+        let after = fs::read(&input).unwrap();
+        let saved = xmltree::Element::parse(after.as_slice()).unwrap();
+        for uuid in ancestors {
+            assert_eq!(control(&saved, uuid).unwrap().attributes["WF"], "16384");
+        }
+        let selected = control(&saved, owner)
+            .unwrap()
+            .children
+            .iter()
+            .filter_map(xmltree::XMLNode::as_element)
+            .find(|co| co.attributes.get("K").map(String::as_str) == Some("I1"))
+            .unwrap();
+        assert_eq!(
+            selected.attributes.get("Inv").map(String::as_str),
+            (flag == "--inverted").then_some("true")
+        );
+    }
+}
+
+#[test]
+fn input_inversion_review_preserves_unrelated_identical_duplicate_attributes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("duplicates.Loxone");
+    let output = dir.path().join("copy.Loxone");
+    let duplicate = "<C Type=\"Foo\" U=\"91111111-2222-3333-4444555566667777\" Title=\"x\" Title='x' Note=\"&amp;\" Note=\"&amp;\"/>";
+    let source = fixture().replace("</Loxone>", &format!("{duplicate}</Loxone>"));
+    fs::write(&input, &source).unwrap();
+    fs::write(&output, b"existing output").unwrap();
+    command(&input, "I1", false)
+        .arg("--save-as")
+        .arg(&output)
+        .arg("-q")
+        .assert()
+        .success();
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+    command(&input, "I1", true).arg("-q").assert().success();
+    let changed = fs::read(&input).unwrap();
+    assert!(std::str::from_utf8(&changed).unwrap().contains(duplicate));
+    command(&input, "I1", true).arg("-q").assert().success();
+    assert_eq!(fs::read(&input).unwrap(), changed);
+    command(&input, "I1", false).arg("-q").assert().success();
+    assert!(fs::read_to_string(&input).unwrap().contains(duplicate));
+}
+
+#[test]
+fn input_inversion_review_refuses_conflicting_or_guarded_duplicates_atomically() {
+    let source = fixture();
+    let cases = [
+        source.replace("</Loxone>", "<C Type=\"Foo\" U=\"91111111-2222-3333-4444555566667777\" Title=\"x\" Title=\"y\"/></Loxone>"),
+        source.replace("</Loxone>", "<C Type=\"Foo\" U=\"91111111-2222-3333-4444555566667777\" Title=\"x\" Title=\"&#120;\"/></Loxone>"),
+        source.replace("</Loxone>", "<C Type=\"Foo\" Type=\"Foo\" U=\"91111111-2222-3333-4444555566667777\"/></Loxone>"),
+        source.replace("</Loxone>", "<C Type=\"Foo\" U=\"91111111-2222-3333-4444555566667777\" U=\"91111111-2222-3333-4444555566667777\"/></Loxone>"),
+        source.replace("Title=\"Gate\"", "Title=\"Gate\" Title=\"Gate\""),
+        source.replace("Def=\"0\"", "Def=\"0\" Def=\"0\""),
+        source.replace("DateS=\"1\"", "DateS=\"1\" DateS=\"1\""),
+        source.replace("U=\"51111111-2222-3333-4444555566667777\" Unknown=\"keep-wire\"", "U=\"51111111-2222-3333-4444555566667777\" U=\"51111111-2222-3333-4444555566667777\" Unknown=\"keep-wire\""),
+    ];
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    for xml in cases {
+        for inverted in [false, true] {
+            for destination in [None, Some(&existing), Some(&new)] {
+                fs::write(&input, &xml).unwrap();
+                fs::write(&existing, b"preserve").unwrap();
+                let mut edit = command(&input, "I1", inverted);
+                if let Some(destination) = destination {
+                    edit.arg("--save-as").arg(destination);
+                }
+                edit.assert().failure().stderr(
+                    predicates::str::contains("Input inversion")
+                        .and(predicates::str::contains("nothing was changed")),
+                );
+                assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+                assert_eq!(fs::read(&existing).unwrap(), b"preserve");
+                assert!(!new.exists());
+            }
+        }
+    }
 }
 
 #[test]
@@ -115,6 +264,9 @@ fn input_inversion_admission_precedes_noop_and_all_destination_writes() {
             "Unknown=\"keep\"><Ref U=\"51111111-2222-3333-4444555566667777\"/></Co>",
         ),
         source.replace("Title=\"Gate\"", "Title=\"Gate\" WF=\"8192\""),
+        source.replace("Title=\"Gate\"", "Title=\"Gate\" WF=\"16385\""),
+        source.replace("Type=\"Page\"", "Type=\"Page\" WF=\"32768\""),
+        source.replace("Type=\"Document\"", "Type=\"Document\" WF=\"536887296\""),
         source.replace("Title=\"Gate\"", "Title=\"Gate\" Dev=\"device\""),
         source.replace("Title=\"Gate\"", "Title=\" Wake 7am=ok\""),
         source.replace("K=\"I2\"", "K=\"I1\""),
@@ -155,6 +307,18 @@ fn input_inversion_admission_precedes_noop_and_all_destination_writes() {
         source.replace("Title=\"Gate\"", "Title=\"Gate\" IfT=\"false\""),
         source.replace("Title=\"Gate\"", "Title=\"Gate\" uuidParent=\"parent\""),
     ];
+    let program = source
+        .replace(
+            "<C Type=\"Page\"",
+            "<C Type=\"Program\" V=\"121\" U=\"81111111-2222-3333-4444555566667777\" WF=\"16384\"><C Type=\"Page\"",
+        )
+        .replace("</C></C><C Type=\"OutputRef\"", "</C></C></C><C Type=\"OutputRef\"");
+    cases.extend([
+        program.replace("WF=\"16384\"", "WF=\"16385\""),
+        program.replace("Type=\"Program\"", "Type=\"Folder\""),
+        program.replace("Type=\"Program\" V=\"121\"", "Type=\"Program\" V=\"89\""),
+        program.replace("WF=\"16384\"", "WF=\"16384\" WF=\"16384\""),
+    ]);
     for template in [
         "<Template/>",
         "<Template IfT=\"true\"/>",

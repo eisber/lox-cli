@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use anyhow::{Context, Result, ensure};
 use quick_xml::{Reader, events::Event};
 use serde::Serialize;
@@ -47,7 +49,9 @@ impl ConfigEditor {
             Self::sanitize_digit_attrs(data).1.is_empty(),
             "Input inversion refuses shared-loader digit-name rewrites (lox-n37w), including digit-like text; nothing was changed."
         );
-        let mut editor = Self::load(data)?;
+        let mut editor = Self::load(data).context(
+            "Input inversion cannot admit malformed XML or conflicting duplicate attributes; nothing was changed",
+        )?;
         let all = Self::iter_elements(&editor.root);
         ensure!(
             all.iter().all(|element| {
@@ -68,13 +72,24 @@ impl ConfigEditor {
                 && documents[0].len() <= 1
                 && owners.len() == 1
                 && owners[0].starts_with(&documents[0])
-                && owners[0].len() == documents[0].len() + 2,
-            "Input inversion requires one exact owner directly on a Page in one root/direct ordinary Document; duplicate/missing owners are refused. Nothing was changed."
+                && (owners[0].len() == documents[0].len() + 2
+                    || owners[0].len() == documents[0].len() + 3),
+            "Input inversion requires one exact owner directly on a Page in one root/direct ordinary Document, optionally through one Program; duplicate/missing owners are refused. Nothing was changed."
         );
         let document = editor.get_element(&documents[0]);
         let owner_path = &owners[0];
         let page = editor.get_element(&owner_path[..owner_path.len() - 1]);
         let owner = editor.get_element(owner_path);
+        let program = if owner_path.len() == documents[0].len() + 3 {
+            let program = editor.get_element(&owner_path[..owner_path.len() - 2]);
+            ensure!(
+                kind(program) == "Program",
+                "Input inversion supports only an ordinary Program between Document and Page, not other or nested wrappers; nothing was changed."
+            );
+            Some(program)
+        } else {
+            None
+        };
         ensure!(
             kind(document) == "Document"
                 && kind(page) == "Page"
@@ -85,7 +100,10 @@ impl ConfigEditor {
             "Input inversion requires an ordinary, non-device-bound And with explicit Nio=3 directly on a Page; nothing was changed."
         );
         let mut identities = Vec::new();
-        for element in [document, page, owner] {
+        let mut guarded_owners = vec![document];
+        guarded_owners.extend(program);
+        guarded_owners.extend([page, owner]);
+        for element in guarded_owners {
             ensure!(
                 element.name == "C"
                     && !element.attributes.contains_key("Dev")
@@ -97,8 +115,8 @@ impl ConfigEditor {
                     && element
                         .attributes
                         .get("WF")
-                        .is_none_or(|value| value == "0"),
-                "Input inversion requires explicit modern V>=90 and absent/zero WF on Document, Page and owner; protected/default/legacy contexts are unsupported. Nothing was changed."
+                        .is_none_or(|value| matches!(value.as_str(), "0" | "16384")),
+                "Input inversion requires explicit modern V>=90 and absent/literal 0/16384 WF on Document, optional Program, Page and owner; other flags/default/legacy contexts are unsupported. Nothing was changed."
             );
             let raw = element.attributes.get("U").context(
                 "Input inversion requires native35 owner/ancestor identities; nothing was changed",
@@ -289,9 +307,32 @@ fn inversion_bytes(
         match reader.read_event()? {
             Event::Start(element) | Event::Empty(element) => {
                 let end = reader.buffer_position() as usize + offset;
-                let attributes = element
-                    .attributes()
-                    .collect::<std::result::Result<Vec<_>, _>>()?;
+                let guarded = identities.iter().any(|identity| identity.0 == ordinal);
+                let control = element.name().as_ref() == b"C";
+                let connector = element.name().as_ref() == b"Co";
+                let reference = element.name().as_ref() == b"Ref";
+                let mut seen = BTreeMap::new();
+                let mut attributes = Vec::new();
+                for attribute in element.attributes().with_checks(false) {
+                    let attribute = attribute.context(
+                        "Input inversion cannot inspect raw attributes; nothing was changed",
+                    )?;
+                    let key = std::str::from_utf8(attribute.key.as_ref()).context(
+                        "Input inversion requires UTF-8 attribute names; nothing was changed",
+                    )?;
+                    let global_identity = ((control || connector || reference) && key == "U")
+                        || (control && key == "Type")
+                        || (connector && key == "K");
+                    if let Some(previous) = seen.insert(key.to_owned(), attribute.value.to_vec()) {
+                        ensure!(
+                            !guarded && !global_identity && previous == attribute.value.as_ref(),
+                            "Input inversion refuses duplicate attribute '{key}' on guarded state/identities or conflicting raw values; nothing was changed."
+                        );
+                        // Deduplicate only this view; the original duplicate bytes stay untouched.
+                        continue;
+                    }
+                    attributes.push(attribute);
+                }
                 for attribute in &attributes {
                     raw_span(data, attribute.key.as_ref())?;
                     let value = raw_span(data, attribute.value.as_ref())?;
