@@ -149,6 +149,59 @@ reviewed/latest-seen pins and ancestry findings are unchanged. Only the relevant
 source/model/tests/reference were inspected; no upstream integration or device
 was executed. Source evidence is not firmware/native qualification.
 
+## Complete runtime Daytimer-State payloads
+
+**New Rust-only payload capability at base
+`5440927e86ac5356f8af8c31aef466994576aad2`.** No runtime decoder/caller
+was found locally to extract. This does not restart completed Config DayTimer
+editing. The public operation is
+`lox_core::daytimer_state::decode_daytimer_state_payload`, not a command or
+WebSocket client.
+
+Focused static evidence reuses the unchanged reviewed
+[Smarteon/loxone-client-kotlin pin `22fc2d9c1ec58065295fde384fb2cab79fa71d31`](https://github.com/Smarteon/loxone-client-kotlin/commit/22fc2d9c1ec58065295fde384fb2cab79fa71d31):
+
+- The actual runtime caller,
+  [`KtorWebsocketLoxoneClient.kt::processBinaryMessage`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/ktor/KtorWebsocketLoxoneClient.kt#L321-L361),
+  dispatches `EVENT_DAYTIMER` to `processAndEmitEvents` with
+  `Codec::readDaytimerEvents`. The wrapper parses a list and then emits each
+  event; the caller logs `IndexOutOfBoundsException`/`IllegalArgumentException`.
+  Event buffering may independently drop updates. None of that session,
+  logging, error suppression or delivery policy is imported.
+- [`Codec.kt::readDaytimerEvents`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/Codec.kt#L184-L219)
+  reads UUID16/default LE f64/signed LE32 count, then 24-byte entries containing
+  signed mode/from/to/activation and LE f64. Activation becomes `word != 0`.
+  Short headers terminate the loop; negative counts or short entries break it,
+  returning previously parsed states, not an atomic error.
+- **Both models** are in
+  [`event/DaytimerEvent.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/event/DaytimerEvent.kt)
+  (blob `4ea82d017fdc12a2d182edda19e628b6d824cfdf`); there is no separate
+  `DaytimerEntry.kt` at this pin. The entry model's time-formatting convenience
+  and documented range are not adopted as validators. Its tests even format
+  1440 as `24:00`; no universal scheduling range is established here.
+- [`event/DaytimerEventTest.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonTest/kotlin/event/DaytimerEventTest.kt)
+  (blob `db395cea3af59e554c69b352d43323b7c1fef3d2`) exercises the actual codec
+  with empty/zero-entry/single/multiple states and lenient truncation/negative
+  counts. `CodecTest.kt` has no Daytimer cases. Upstream vectors are not copied.
+- The existing [protocol reference](../loxone-miniserver-protocol.txt#L870-L901),
+  blob `8f84fca03c987c5d4447f1179ee8adcaedac19e0`, agrees on layout and
+  minutes. Existing numeric `StateUuid` supplies wire/native35 identity; no UUID
+  parser or formatter is duplicated.
+
+| Mapping | Result |
+| --- | --- |
+| Covered observations | Signed fields, state/entry order and duplicates, empty/zero-entry states, shared UUID identity and default/entry IEEE bits. Raw activation is retained separately from nonzero convenience interpretation. |
+| Original local policy | Strict atomic complete-input errors, checked count/extent/bounds before entry allocation, payload-free positions/counts, all IEEE patterns preserved without reconstructing authoritative bits from host floats. This deliberately differs from upstream prefix success. |
+| Out of scope | Separate type-4 eight-byte header, message/session/reassembly/subscription ownership, CLI/native heads, Config editing, mode UUID/range/activation validation, schedule normalization or round-trip encoding. |
+| Unknown/unqualified | Actual firmware/native behavior, delivery and schedule semantics; 32-bit overflow branch is checked in source but not qualified by a 64-bit run. Payload shape is not proof of message type. |
+
+This is original implementation, concise factual mapping and original synthetic
+public-consumer tests, not imported code/tests. The existing
+[BSD-3-Clause license](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/LICENSE)
+attributes Copyright (c) 2024, Smarteon Systems. Catalog pins/ancestry and all
+other upstream scopes are unchanged. Static upstream evidence is not firmware
+or native Config qualification; no integration or device was executed.
+
 ## Application binary-message headers
 
 **Missing public capability at local base
