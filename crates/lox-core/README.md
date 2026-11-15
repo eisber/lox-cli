@@ -61,6 +61,10 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   ControlInventoryError}` for offline XML control inventory. The existing
   `lox config controls` producer uses it; CLI serialization, files and display
   limits remain in the binary. This is distinct from the online `control` API.
+- `configuration::devices::{parse_devices, DeviceInfo, DeviceBus,
+  DeviceInventoryError}` shares the existing default `lox config devices` table
+  producer. `--ports`, JSON, `--summary` and `--room` still use the separate
+  DOM/editor discovery paths, not this legacy inventory.
 - Optional `statistics-xml`: `statistics::{parse_series, StatSeries,
   StatisticsError}` decodes monthly statistics XML. The existing `lox stats get`
   producer uses it, while HTTP, selection, merging and formatting stay in the CLI.
@@ -153,6 +157,61 @@ Existing numeric contracts/tests are unchanged.
 This adds no CLI command, Python/JVM operation, frame classifier/reassembler,
 network runtime, subscription, backpressure, timestamp interpretation or
 firmware/native Config qualification.
+
+## Optional read-only XML device inventory
+
+Enable `configuration-xml` and supply borrowed XML bytes:
+
+```rust,ignore
+use lox_core::configuration::devices::{DeviceBus, DeviceInventoryError, parse_devices};
+
+fn inventory(xml: &[u8]) -> Result<(), DeviceInventoryError> {
+    let devices = parse_devices(xml)?;
+    for device in devices {
+        if device.bus == DeviceBus::Tree {
+            let _serial: Option<String> = device.serial;
+        }
+    }
+    Ok(())
+}
+```
+
+`DeviceInfo` owns `name`, typed `bus`, optional `serial`, optional `sub_type:
+u32`, `type_label`, optional `mac` and optional `address`. Only exact raw `C`
+types `TreeDevice`, `LoxAIRDevice` and `NetworkDevice` are inventoried, including
+nested devices and devices on pages. Bus is determined **only** by that type;
+extensions, ancestors, rooms, child ports and serials do not infer another bus.
+Rows retain encounter order and duplicates, with no filters, sort or identity
+grouping. Only Tree retains `Serial`; only Network retains `MAC` and `Addr`.
+Air ignores `Serial`. Network always labels itself `Network device`, while
+Tree/Air use the inherited subtype table, `Unknown (n)` for other numbers and
+`Unknown` for absent/unparseable subtypes. `subtype_label(u32)` exposes that
+same table, returning an empty string for unknown numbers.
+
+Attribute names/types are case-sensitive. Values remain raw UTF-8, including
+entity spellings and whitespace; the first matching attribute wins even if
+its UTF-8 is unreadable. Unreadable/absent titles become empty strings, optional
+values become `None`, and explicit empty optional strings stay `Some("")`.
+Subtype uses untrimmed Rust `u32` parsing (leading `+`/zeros accepted; whitespace,
+negative and overflow values absent). Attribute syntax errors are ignored and
+iteration can recover later attributes. BOM/CRLF and input bytes are unchanged.
+This is not strict XML admission: text-only input and incomplete EOF can succeed.
+Reader errors return typed `DeviceInventoryError::Xml { source }` with the
+underlying `quick_xml::Error`, not a partial inventory. No new resource/value
+limits, XML repair, archive detection or deployability validation are added.
+
+The actual default CLI table path uses this parser through a serialization/error
+adapter. CLI still owns file reads, lowercase `.zip` rejection, Tree/Air/Network
+display grouping, one shared `--limit` budget, total count and truncation warning.
+The nested legacy JSON formatter is unreachable: **JSON, `--summary` or any
+`--room` selects `ConfigEditor::config_devices` instead**, with different identity,
+entity-decoding, ancestry, filtering and sorting semantics. `--ports` takes
+precedence over all these flags and stays `ConfigEditor::list_device_ports`.
+Those DOM paths are not migrated. The known shared-loader quote/digit rewrite
+defect `lox-n37w` and all existing admission/value limits remain unchanged.
+No new CLI operation, Python/JVM device API, binding or native qualification is
+claimed. Run `cargo test -p lox-core --features configuration-xml --test
+device_inventory` and `cargo test -p lox-cli --test device_inventory_cli`.
 
 ## Optional LoxApp3 control catalog
 
