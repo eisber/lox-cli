@@ -37,15 +37,7 @@ pub struct LoxDevice {
 
 // ── Diff ──
 
-#[derive(Debug, Serialize)]
-pub struct ConfigSummary {
-    pub version: String,
-    pub date: String,
-    pub controls: HashMap<String, ControlEntry>,
-    pub rooms: HashMap<String, String>,
-    pub categories: HashMap<String, String>,
-    pub users: Vec<String>,
-}
+pub use lox_core::configuration::summary::ConfigSummary;
 
 #[derive(Debug, Serialize, Clone)]
 pub struct ControlEntry {
@@ -193,30 +185,9 @@ pub fn parse_devices(xml: &[u8]) -> Result<Vec<LoxDevice>> {
 }
 
 pub fn parse_config_summary(xml: &[u8]) -> Result<ConfigSummary> {
-    let summary = lox_core::configuration::summary::parse_config_summary(xml)
+    lox_core::configuration::summary::parse_config_summary(xml)
         .map_err(|lox_core::configuration::summary::ConfigSummaryError::Xml { source }| source)
-        .context("Failed to parse XML")?;
-    Ok(ConfigSummary {
-        version: summary.version,
-        date: summary.date,
-        controls: summary
-            .controls
-            .into_iter()
-            .map(|(uuid, entry)| {
-                (
-                    uuid,
-                    ControlEntry {
-                        name: entry.name,
-                        control_type: entry.control_type,
-                        room_uuid: entry.room_uuid,
-                    },
-                )
-            })
-            .collect(),
-        rooms: summary.rooms,
-        categories: summary.categories,
-        users: summary.users,
-    })
+        .context("Failed to parse XML")
 }
 
 // ── Diff output ──
@@ -415,139 +386,89 @@ pub fn parse_controls(
 }
 
 pub fn diff_configs(old: &ConfigSummary, new: &ConfigSummary) -> ConfigDiff {
-    let mut diff = ConfigDiff {
-        version_old: old.version.clone(),
-        version_new: new.version.clone(),
-        date_old: old.date.clone(),
-        date_new: new.date.clone(),
-        controls_added: Vec::new(),
-        controls_removed: Vec::new(),
-        controls_changed: Vec::new(),
-        rooms_added: Vec::new(),
-        rooms_removed: Vec::new(),
-        rooms_renamed: Vec::new(),
-        categories_added: Vec::new(),
-        categories_removed: Vec::new(),
-        categories_renamed: Vec::new(),
-        users_added: Vec::new(),
-        users_removed: Vec::new(),
-    };
-
-    // Controls
-    for (uuid, entry) in &new.controls {
-        match old.controls.get(uuid) {
-            None => diff.controls_added.push(entry.clone()),
-            Some(old_entry) => {
-                if old_entry.name != entry.name {
-                    diff.controls_changed.push(ControlChange {
-                        name: entry.name.clone(),
-                        field: "name".to_string(),
-                        old_value: old_entry.name.clone(),
-                        new_value: entry.name.clone(),
-                    });
-                }
-                if old_entry.control_type != entry.control_type {
-                    diff.controls_changed.push(ControlChange {
-                        name: entry.name.clone(),
-                        field: "type".to_string(),
-                        old_value: old_entry.control_type.clone(),
-                        new_value: entry.control_type.clone(),
-                    });
-                }
-                if old_entry.room_uuid != entry.room_uuid
-                    && !(old_entry.room_uuid.is_empty() && entry.room_uuid.is_empty())
-                {
-                    let old_room =
-                        old.rooms
-                            .get(&old_entry.room_uuid)
-                            .cloned()
-                            .unwrap_or_else(|| {
-                                if old_entry.room_uuid.is_empty() {
-                                    "(none)".to_string()
-                                } else {
-                                    old_entry.room_uuid.clone()
-                                }
-                            });
-                    let new_room = new.rooms.get(&entry.room_uuid).cloned().unwrap_or_else(|| {
-                        if entry.room_uuid.is_empty() {
-                            "(none)".to_string()
-                        } else {
-                            entry.room_uuid.clone()
-                        }
-                    });
-                    diff.controls_changed.push(ControlChange {
-                        name: entry.name.clone(),
-                        field: "room".to_string(),
-                        old_value: old_room,
-                        new_value: new_room,
-                    });
-                }
-            }
-        }
-    }
-    for (uuid, entry) in &old.controls {
-        if !new.controls.contains_key(uuid) {
-            diff.controls_removed.push(entry.clone());
-        }
-    }
-
-    // Rooms
-    diff_named_map(
-        &old.rooms,
-        &new.rooms,
-        &mut diff.rooms_added,
-        &mut diff.rooms_removed,
-        &mut diff.rooms_renamed,
-    );
-
-    // Categories
-    diff_named_map(
-        &old.categories,
-        &new.categories,
-        &mut diff.categories_added,
-        &mut diff.categories_removed,
-        &mut diff.categories_renamed,
-    );
-
-    // Users (compare by name since they have UUIDs but name is more meaningful)
-    let old_users: std::collections::HashSet<&String> = old.users.iter().collect();
-    let new_users: std::collections::HashSet<&String> = new.users.iter().collect();
-    for u in &new_users {
-        if !old_users.contains(u) {
-            diff.users_added.push((*u).clone());
-        }
-    }
-    for u in &old_users {
-        if !new_users.contains(u) {
-            diff.users_removed.push((*u).clone());
-        }
-    }
-
-    diff
+    lox_core::configuration::diff::diff_configs(old, new).into()
 }
 
-fn diff_named_map(
-    old: &HashMap<String, String>,
-    new: &HashMap<String, String>,
-    added: &mut Vec<String>,
-    removed: &mut Vec<String>,
-    renamed: &mut Vec<NameChange>,
-) {
-    for (uuid, name) in new {
-        match old.get(uuid) {
-            None => added.push(name.clone()),
-            Some(old_name) if old_name != name => {
-                renamed.push(NameChange {
-                    old: old_name.clone(),
-                    new: name.clone(),
-                });
-            }
-            _ => {}
+impl From<lox_core::configuration::summary::ControlEntry> for ControlEntry {
+    fn from(entry: lox_core::configuration::summary::ControlEntry) -> Self {
+        Self {
+            name: entry.name,
+            control_type: entry.control_type,
+            room_uuid: entry.room_uuid,
         }
     }
-    for (uuid, name) in old {
-        if !new.contains_key(uuid) {
-            removed.push(name.clone());
+}
+
+impl From<lox_core::configuration::diff::ConfigDiff> for ConfigDiff {
+    fn from(diff: lox_core::configuration::diff::ConfigDiff) -> Self {
+        Self {
+            version_old: diff.version_old,
+            version_new: diff.version_new,
+            date_old: diff.date_old,
+            date_new: diff.date_new,
+            controls_added: diff
+                .controls_added
+                .into_iter()
+                .map(|c| c.entry.into())
+                .collect(),
+            controls_removed: diff
+                .controls_removed
+                .into_iter()
+                .map(|c| c.entry.into())
+                .collect(),
+            controls_changed: diff.controls_changed.into_iter().map(Into::into).collect(),
+            rooms_added: diff.rooms_added.into_iter().map(|r| r.name).collect(),
+            rooms_removed: diff.rooms_removed.into_iter().map(|r| r.name).collect(),
+            rooms_renamed: diff.rooms_renamed.into_iter().map(Into::into).collect(),
+            categories_added: diff.categories_added.into_iter().map(|c| c.name).collect(),
+            categories_removed: diff
+                .categories_removed
+                .into_iter()
+                .map(|c| c.name)
+                .collect(),
+            categories_renamed: diff
+                .categories_renamed
+                .into_iter()
+                .map(Into::into)
+                .collect(),
+            users_added: diff.users_added,
+            users_removed: diff.users_removed,
+        }
+    }
+}
+
+impl From<lox_core::configuration::diff::ControlChange> for ControlChange {
+    fn from(change: lox_core::configuration::diff::ControlChange) -> Self {
+        use lox_core::configuration::diff::ControlFieldChange;
+        let (field, old_value, new_value) = match change.field {
+            ControlFieldChange::Name { old, new } => ("name", old, new),
+            ControlFieldChange::Type { old, new } => ("type", old, new),
+            ControlFieldChange::Room { old, new } => ("room", room_label(old), room_label(new)),
+        };
+        Self {
+            name: change.name,
+            field: field.to_string(),
+            old_value,
+            new_value,
+        }
+    }
+}
+
+fn room_label(room: lox_core::configuration::diff::RoomReference) -> String {
+    room.name.unwrap_or_else(|| {
+        if room.uuid.is_empty() {
+            "(none)".to_string()
+        } else {
+            room.uuid
+        }
+    })
+}
+
+impl From<lox_core::configuration::diff::NameChange> for NameChange {
+    fn from(change: lox_core::configuration::diff::NameChange) -> Self {
+        Self {
+            old: change.old,
+            new: change.new,
         }
     }
 }
@@ -555,6 +476,7 @@ fn diff_named_map(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lox_core::configuration::summary::ControlEntry;
 
     #[test]
     fn test_parse_users() {
