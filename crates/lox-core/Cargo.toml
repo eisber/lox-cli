@@ -23,6 +23,9 @@ sha2 = { version = "0.10", optional = true }
 hex = { version = "0.4", optional = true }
 xmltree = { version = "0.12.0", features = ["attribute-order"], optional = true }
 chrono = { version = "0.4", features = ["clock"], optional = true }
+aes = { version = "0.8", optional = true }
+cbc = { version = "0.1", features = ["alloc"], optional = true }
+base64 = { version = "0.22", optional = true }
 
 [features]
 default = []
@@ -30,6 +33,7 @@ configuration-editor = ["dep:xmltree", "dep:chrono"]
 # UNSTABLE, doc-hidden migration adapter for the legacy binary, never foreign API.
 unstable-legacy-cli-editor = ["configuration-editor"]
 legacy-wsx = []
+legacy-token-aes = ["dep:aes", "dep:cbc", "dep:base64"]
 auth-hash = ["dep:hmac", "dep:sha1", "dep:sha2", "dep:hex"]
 configuration-xml = ["dep:quick-xml"]
 statistics-xml = ["dep:quick-xml"]
@@ -86,3 +90,7 @@ required-features = ["legacy-wsx"]
 [[test]]
 name = "firmware_metadata"
 required-features = ["firmware-metadata"]
+
+[[test]]
+name = "legacy_token_aes"
+required-features = ["legacy-token-aes"]
