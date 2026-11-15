@@ -1,4 +1,4 @@
-//! Parsers for the `/stats/` HTML index and monthly `/stats/<file>.xml` files.
+//! Statistics HTML index/XML decoding and caller-ordered series concatenation.
 //!
 //! This is not a decoder for binary statistics or an epoch/timezone converter.
 
@@ -6,6 +6,7 @@ use quick_xml::Reader;
 use quick_xml::escape::unescape;
 use quick_xml::events::attributes::AttrError;
 use quick_xml::events::{BytesStart, Event};
+use std::collections::HashSet;
 use std::fmt;
 use std::num::{ParseFloatError, ParseIntError};
 
@@ -144,15 +145,92 @@ fn strip_label_suffix(label: &str) -> &str {
     label
 }
 
-/// One monthly file, with row and output ordering preserved.
+/// One statistics series, with row and output ordering preserved.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StatSeries {
     pub name: String,
     pub group: Option<u32>,
-    /// Entity-decoded, trimmed labels, with `V`, `V2`, ... for empty labels.
+    /// Ordered labels; the XML parser decodes/trims them and fills empty labels.
     pub outputs: Vec<String>,
-    /// Entity-decoded, otherwise opaque timestamp and finite values in output order.
+    /// Opaque timestamps and values in output order; only XML parsing requires finite values.
     pub rows: Vec<(String, Vec<f64>)>,
+}
+
+/// Exact output-label mismatch between the first series and a later part.
+///
+/// `previous_month` identifies the immediately preceding part, even if empty;
+/// `name` and `previous_outputs` still come from the first series.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MergeMonthsError {
+    pub name: String,
+    pub previous_month: String,
+    pub month: String,
+    pub previous_outputs: Vec<String>,
+    pub outputs: Vec<String>,
+}
+
+impl fmt::Display for MergeMonthsError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Statistic '{}' has different outputs in {} ({}) and {} ({}); \
+             use --from/--to to select months with the same outputs",
+            self.name,
+            self.previous_month,
+            self.previous_outputs.join(", "),
+            self.month,
+            self.outputs.join(", ")
+        )
+    }
+}
+
+impl std::error::Error for MergeMonthsError {}
+
+/// Concatenate `(month, series)` parts in caller order, without sorting.
+///
+/// Empty input returns an empty series. The first part's metadata and rows are
+/// retained. Exact output-vector equality is checked before each later batch.
+/// Timestamps are opaque: only rows matching timestamps from earlier parts are
+/// dropped. Duplicates within the first part or any later batch all survive,
+/// because the seen set is extended only after collecting that entire batch.
+///
+/// Months, names/groups, row widths and values are not validated or converted;
+/// repeated/unsorted months, arbitrary timestamps and every f64 bit pattern are
+/// preserved. This compatibility operation does not enforce the XML parser's
+/// finite-value policy.
+pub fn merge_months(
+    parts: Vec<(String, StatSeries)>,
+) -> std::result::Result<StatSeries, MergeMonthsError> {
+    let mut parts = parts.into_iter();
+    let Some((mut prev_month, mut merged)) = parts.next() else {
+        return Ok(StatSeries {
+            name: String::new(),
+            group: None,
+            outputs: Vec::new(),
+            rows: Vec::new(),
+        });
+    };
+    let mut seen: HashSet<String> = merged.rows.iter().map(|(t, _)| t.clone()).collect();
+    for (month, part) in parts {
+        if part.outputs != merged.outputs {
+            return Err(MergeMonthsError {
+                name: merged.name,
+                previous_month: prev_month,
+                month,
+                previous_outputs: merged.outputs,
+                outputs: part.outputs,
+            });
+        }
+        prev_month = month;
+        let fresh: Vec<_> = part
+            .rows
+            .into_iter()
+            .filter(|(t, _)| !seen.contains(t))
+            .collect();
+        seen.extend(fresh.iter().map(|(t, _)| t.clone()));
+        merged.rows.extend(fresh);
+    }
+    Ok(merged)
 }
 
 #[derive(Debug)]

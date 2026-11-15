@@ -627,43 +627,9 @@ pub fn parse_index(html: &str) -> Vec<StatEntry> {
         .collect()
 }
 
-/// Concatenate month files (in month order) into one series.
-///
-/// Each part is `(month, series)`. A month file can end with the first
-/// timestamp of the next month; rows whose timestamp was already emitted by an
-/// earlier month are dropped (P5). Months whose outputs differ cannot be
-/// combined into one table and are an error.
+/// Preserve the CLI's single-message error chain around the typed merge.
 pub fn merge_months(parts: Vec<(String, StatSeries)>) -> Result<StatSeries> {
-    let mut parts = parts.into_iter();
-    let Some((mut prev_month, mut merged)) = parts.next() else {
-        return Ok(StatSeries {
-            name: String::new(),
-            group: None,
-            outputs: Vec::new(),
-            rows: Vec::new(),
-        });
-    };
-    let mut seen: HashSet<String> = merged.rows.iter().map(|(t, _)| t.clone()).collect();
-    for (month, part) in parts {
-        if part.outputs != merged.outputs {
-            bail!(
-                "Statistic '{}' has different outputs in {prev_month} ({}) and {month} ({}); \
-                 use --from/--to to select months with the same outputs",
-                merged.name,
-                merged.outputs.join(", "),
-                part.outputs.join(", ")
-            );
-        }
-        prev_month = month;
-        let fresh: Vec<_> = part
-            .rows
-            .into_iter()
-            .filter(|(t, _)| !seen.contains(t))
-            .collect();
-        seen.extend(fresh.iter().map(|(t, _)| t.clone()));
-        merged.rows.extend(fresh);
-    }
-    Ok(merged)
+    lox_core::statistics::merge_months(parts).map_err(|error| anyhow::anyhow!(error.to_string()))
 }
 
 #[cfg(test)]
@@ -1066,6 +1032,116 @@ mod tests {
     }
 
     // ── merge_months ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn merge_empty_and_first_metadata_keep_caller_order_without_validation() {
+        let empty = merge_months(vec![]).unwrap();
+        assert_eq!(
+            empty,
+            StatSeries {
+                name: String::new(),
+                group: None,
+                outputs: vec![],
+                rows: vec![],
+            }
+        );
+        let mut first = series(&[("z", 1.0), ("a", 2.0)]);
+        first.name = "first".into();
+        first.group = Some(u32::MAX);
+        first.outputs = vec![" raw ".into(), " raw ".into()];
+        let mut later = series(&[("between", 3.0)]);
+        later.name = "ignored".into();
+        later.group = None;
+        later.outputs = first.outputs.clone();
+        let merged = merge_months(vec![
+            ("not-a-month".into(), first.clone()),
+            ("0000-00".into(), later.clone()),
+            ("0000-00".into(), later),
+        ])
+        .unwrap();
+        assert_eq!(merged.name, first.name);
+        assert_eq!(merged.group, first.group);
+        assert_eq!(merged.outputs, first.outputs);
+        assert_eq!(
+            merged.rows,
+            vec![
+                ("z".into(), vec![1.0]),
+                ("a".into(), vec![2.0]),
+                ("between".into(), vec![3.0]),
+            ]
+        );
+    }
+
+    #[test]
+    fn merge_deduplicates_only_earlier_parts_and_preserves_value_bits() {
+        let bits = [
+            0x8000_0000_0000_0000,
+            0x7ff8_0000_0000_0042,
+            0x7ff0_0000_0000_0001,
+            0xfff0_0000_0000_0000,
+            1,
+        ];
+        let merged = merge_months(vec![
+            (
+                "z".into(),
+                series(&[
+                    ("same", f64::from_bits(bits[0])),
+                    ("same", f64::from_bits(bits[1])),
+                ]),
+            ),
+            (
+                "a".into(),
+                series(&[
+                    ("same", 123.0),
+                    ("new", f64::from_bits(bits[2])),
+                    ("new", f64::from_bits(bits[3])),
+                    (" same", f64::from_bits(bits[4])),
+                ]),
+            ),
+            ("a".into(), series(&[("new", 456.0), ("same", 789.0)])),
+        ])
+        .unwrap();
+        assert_eq!(
+            merged
+                .rows
+                .iter()
+                .map(|(t, _)| t.as_str())
+                .collect::<Vec<_>>(),
+            ["same", "same", "new", "new", " same"]
+        );
+        assert_eq!(
+            merged
+                .rows
+                .iter()
+                .map(|(_, v)| v[0].to_bits())
+                .collect::<Vec<_>>(),
+            bits
+        );
+    }
+
+    #[test]
+    fn merge_mismatch_keeps_exact_message_and_single_cause_after_empty_part() {
+        let mut first = series(&[("row", 1.0)]);
+        first.outputs = vec!["A".into(), "B".into()];
+        let mut empty = first.clone();
+        empty.name = "ignored".into();
+        empty.rows.clear();
+        let mut mismatch = series(&[("row", 2.0)]);
+        mismatch.outputs = vec!["B".into(), "A".into()];
+        let err = merge_months(vec![
+            ("later".into(), first),
+            ("empty".into(), empty),
+            ("earlier".into(), mismatch),
+        ])
+        .unwrap_err();
+        let expected = "Statistic 'Heat Pump' has different outputs in empty (A, B) and earlier (B, A); use --from/--to to select months with the same outputs";
+        assert_eq!(err.to_string(), expected);
+        assert_eq!(format!("{err:#}"), expected);
+        assert_eq!(
+            err.chain().map(ToString::to_string).collect::<Vec<_>>(),
+            [expected]
+        );
+    }
 
     fn series(rows: &[(&str, f64)]) -> StatSeries {
         StatSeries {
