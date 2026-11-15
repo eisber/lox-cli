@@ -80,6 +80,10 @@ name = "config_diff"
 required-features = ["configuration-xml"]
 
 [[test]]
+name = "runtime_overlay"
+required-features = ["configuration-xml"]
+
+[[test]]
 name = "control_catalog"
 required-features = ["structure-json"]
 

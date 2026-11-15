@@ -2,11 +2,10 @@
 //! See issue #28. Keep untouched XML byte-for-byte, including literal attribute newlines.
 
 use anyhow::{Context, Result, bail};
-use quick_xml::{Reader, events::Event};
+use lox_core::configuration::runtime_overlay::{self, OverlayError, XmlContext};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::BTreeMap;
 use std::fs;
-use std::ops::Range;
 use std::path::{Path, PathBuf};
 
 use crate::{config::Config, ftp, loxcc};
@@ -67,408 +66,62 @@ fn acquire_with(mut capture: impl FnMut() -> Result<Capture>) -> Result<Snapshot
     })
 }
 
-#[derive(Debug)]
-struct Control {
-    id: String,
-    raw_id: String,
-    kind: String,
-    sp_no: Option<String>,
-    span: Range<usize>,
-    close: usize,
-    empty: bool,
-    parent: Option<usize>,
-}
-
-struct Document<'a> {
-    bytes: &'a [u8],
-    controls: Vec<Control>,
-}
-
-fn identity(value: &str) -> String {
-    value.replace('-', "").to_ascii_lowercase()
-}
-
-fn overlay_id(name: &str) -> Result<String> {
-    let stem = name
-        .strip_suffix(".LoxCC")
-        .context("Runtime overlay must end in .LoxCC")?;
-    let groups: Vec<_> = stem.split('-').map(str::len).collect();
-    if !matches!(groups.as_slice(), [8, 4, 4, 16] | [8, 4, 4, 4, 12])
-        || !stem.bytes().all(|b| b.is_ascii_hexdigit() || b == b'-')
-    {
-        bail!("Invalid runtime overlay filename {name}; expected a control UUID.LoxCC.");
-    }
-    Ok(identity(stem))
-}
-
-impl<'a> Document<'a> {
-    fn parse(bytes: &'a [u8]) -> Result<Self> {
-        std::str::from_utf8(bytes).context("Config XML is not valid UTF-8")?;
-        let offset = usize::from(bytes.starts_with(b"\xef\xbb\xbf")) * 3;
-        let mut reader = Reader::from_reader(&bytes[offset..]);
-        let mut controls: Vec<Control> = Vec::new();
-        let mut stack: Vec<Option<usize>> = Vec::new();
-        let mut ids = HashSet::new();
-        let mut roots = 0;
-        loop {
-            let start = reader.buffer_position() as usize + offset;
-            match reader.read_event().context("Malformed config XML")? {
-                Event::Start(ref e) | Event::Empty(ref e) => {
-                    if stack.is_empty() {
-                        roots += 1;
-                    }
-                    let mut attrs = HashMap::new();
-                    for attr in e.attributes() {
-                        let attr = attr.context("Malformed XML attribute")?;
-                        let key = std::str::from_utf8(attr.key.as_ref())?.to_string();
-                        let value = attr.unescape_value()?.into_owned();
-                        attrs.insert(key, value);
-                    }
-                    if let Some(id) = attrs.get("U")
-                        && (id.is_empty() || !ids.insert(identity(id)))
-                    {
-                        bail!("Empty or duplicate UUID {id:?} in config XML.");
-                    }
-                    let empty = bytes[reader.buffer_position() as usize + offset - 2] == b'/';
-                    let node = if e.name().as_ref() == b"C" && attrs.contains_key("U") {
-                        let index = controls.len();
-                        controls.push(Control {
-                            id: identity(&attrs["U"]),
-                            raw_id: attrs["U"].clone(),
-                            kind: attrs
-                                .get("Type")
-                                .filter(|s| !s.is_empty())
-                                .cloned()
-                                .context("Control has no Type")?,
-                            sp_no: attrs.get("SpNo").cloned(),
-                            span: start..reader.buffer_position() as usize + offset,
-                            close: reader.buffer_position() as usize + offset,
-                            empty,
-                            parent: stack.iter().rev().find_map(|i| *i),
-                        });
-                        Some(index)
-                    } else {
-                        None
-                    };
-                    if !empty {
-                        stack.push(node);
-                    }
-                }
-                Event::End(_) => {
-                    let node = stack.pop().context("Unexpected XML closing tag")?;
-                    if let Some(index) = node {
-                        controls[index].span.end = reader.buffer_position() as usize + offset;
-                        controls[index].close = start;
-                    }
-                }
-                Event::DocType(_) => bail!("DTD in config XML is not supported."),
-                Event::Text(text) if stack.is_empty() => {
-                    if !text.unescape()?.trim().is_empty() {
-                        bail!("Unexpected content outside config XML root.");
-                    }
-                }
-                Event::Eof => break,
-                _ => {}
-            }
+/// Preserve the CLI's pre-Core error messages, contexts and payload types.
+fn overlay_error(error: OverlayError) -> anyhow::Error {
+    match error {
+        OverlayError::DocumentUtf8 { source } => {
+            anyhow::Error::new(source).context("Config XML is not valid UTF-8")
         }
-        if roots != 1 || !stack.is_empty() {
-            bail!("Config XML must contain exactly one complete root element.");
+        OverlayError::Utf8 { source } => source.into(),
+        OverlayError::StringUtf8 { source } => source.into(),
+        OverlayError::Xml { source, context } => match context {
+            XmlContext::Document => anyhow::Error::new(source).context("Malformed config XML"),
+            XmlContext::Bare => source.into(),
+        },
+        OverlayError::Attribute { source, context } => match context {
+            XmlContext::Document => anyhow::Error::new(source).context("Malformed XML attribute"),
+            XmlContext::Bare => source.into(),
+        },
+        OverlayError::Archive { source } => loxcc::archive_error(source),
+        OverlayError::FragmentRead { name, source } => {
+            overlay_error(*source).context(format!("Cannot read /sys/custom/{name}"))
         }
-        Ok(Self { bytes, controls })
+        OverlayError::UuidConsistency { name, source } => {
+            overlay_error(*source).context(format!("UUID consistency failed after {name}"))
+        }
+        OverlayError::MergedConsistency { source } => {
+            overlay_error(*source).context("Merged config has inconsistent UUIDs")
+        }
+        OverlayError::FilenameSuffix => anyhow::Error::msg("Runtime overlay must end in .LoxCC"),
+        OverlayError::MissingControlType => anyhow::Error::msg("Control has no Type"),
+        OverlayError::UnexpectedClosingTag => anyhow::Error::msg("Unexpected XML closing tag"),
+        OverlayError::Dtd => anyhow::Error::msg("DTD in config XML is not supported."),
+        OverlayError::OutsideRoot => {
+            anyhow::Error::msg("Unexpected content outside config XML root.")
+        }
+        OverlayError::IncompleteRoot => {
+            anyhow::Error::msg("Config XML must contain exactly one complete root element.")
+        }
+        OverlayError::FragmentIntegrity => anyhow::Error::msg(
+            "Runtime overlay LoxCC length or CRC32 mismatch; refusing a partial/corrupt fragment.",
+        ),
+        OverlayError::ParentChildOverlap => anyhow::Error::msg(
+            "Overlapping parent/child runtime overlays have no evidenced precedence. Reconcile with Loxone Config.",
+        ),
+        OverlayError::NotControl => anyhow::Error::msg("Runtime overlay is not a control"),
+        OverlayError::Placement => anyhow::Error::msg(
+            "Three-way merge cannot determine placement of a concurrently added control. Reconcile in Loxone Config.",
+        ),
+        other => anyhow::Error::msg(other.to_string()),
     }
-
-    fn control_bytes(&self, index: usize) -> &[u8] {
-        &self.bytes[self.controls[index].span.clone()]
-    }
-
-    fn children(&self, parent: Option<usize>) -> Vec<usize> {
-        self.controls
-            .iter()
-            .enumerate()
-            .filter_map(|(i, c)| (c.parent == parent).then_some(i))
-            .collect()
-    }
-}
-
-fn checked_fragment(data: &[u8]) -> Result<Vec<u8>> {
-    let xml = loxcc::decompress_loxcc(data)?;
-    let field = |offset| u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
-    if field(4) != data.len() - 16
-        || field(8) != xml.len()
-        || field(12) as u32 != crc32fast::hash(&xml)
-    {
-        bail!(
-            "Runtime overlay LoxCC length or CRC32 mismatch; refusing a partial/corrupt fragment."
-        );
-    }
-    Ok(xml)
 }
 
 pub fn merge_overlays(base: &[u8], overlays: &BTreeMap<String, Vec<u8>>) -> Result<Vec<u8>> {
-    if overlays.is_empty() {
-        return Ok(base.to_vec());
-    }
-    let mut result = base.to_vec();
-    let document = Document::parse(base)?;
-    let mut seen = HashSet::new();
-    for name in overlays.keys() {
-        let expected = overlay_id(name)?;
-        if !seen.insert(expected.clone()) {
-            bail!("Multiple runtime overlays identify UUID {expected}.");
-        }
-    }
-    for control in &document.controls {
-        if seen.contains(&control.id) {
-            let mut parent = control.parent;
-            while let Some(index) = parent {
-                if seen.contains(&document.controls[index].id) {
-                    bail!(
-                        "Overlapping parent/child runtime overlays have no evidenced precedence. Reconcile with Loxone Config."
-                    );
-                }
-                parent = document.controls[index].parent;
-            }
-        }
-    }
-    for (name, data) in overlays {
-        let expected = overlay_id(name)?;
-        let xml =
-            checked_fragment(data).with_context(|| format!("Cannot read /sys/custom/{name}"))?;
-        let fragment = Document::parse(&xml)?;
-        let root = fragment
-            .controls
-            .first()
-            .context("Runtime overlay is not a control")?;
-        if fragment
-            .controls
-            .iter()
-            .skip(1)
-            .any(|c| seen.contains(&c.id))
-        {
-            bail!(
-                "Runtime overlay {name} overlaps another control's fragment. Reconcile with Loxone Config."
-            );
-        }
-        // The only evidenced fragment format is one standalone C, not a document wrapper.
-        let offset = usize::from(xml.starts_with(b"\xef\xbb\xbf")) * 3;
-        let mut reader = Reader::from_reader(&xml[offset..]);
-        let (root_name, root_start) = loop {
-            let start = reader.buffer_position() as usize + offset;
-            match reader.read_event()? {
-                Event::Start(e) | Event::Empty(e) => break (e.name().as_ref().to_vec(), start),
-                Event::Decl(_) | Event::Comment(_) | Event::Text(_) => {}
-                _ => bail!("Unsupported runtime overlay root in {name}."),
-            }
-        };
-        let fragment_id = overlay_id(&format!("{}.LoxCC", root.raw_id))?;
-        if root_name != b"C"
-            || root.id != expected
-            || fragment_id != expected
-            || root.parent.is_some()
-            || root.span.start != root_start
-        {
-            bail!("Runtime overlay {name} must be a standalone C with the filename's UUID.");
-        }
-        let current = Document::parse(&result)?;
-        let matches: Vec<_> = current
-            .controls
-            .iter()
-            .filter(|c| c.id == expected)
-            .collect();
-        if let Some(target) = matches.first() {
-            if target.kind != root.kind {
-                bail!(
-                    "Runtime overlay {name} changes control Type; refusing ambiguous replacement."
-                );
-            }
-            result.splice(
-                target.span.clone(),
-                fragment.control_bytes(0).iter().copied(),
-            );
-        } else if root.kind == "AutopilotRule" {
-            let pages: Vec<_> = current
-                .controls
-                .iter()
-                .filter(|c| c.kind == "Page" && c.sp_no.as_deref() == Some("1"))
-                .collect();
-            if pages.len() != 1 {
-                bail!(
-                    "Cannot place new AutopilotRule {name}: expected exactly one Page with SpNo=\"1\". Use Loxone Config to reconcile."
-                );
-            }
-            let page = pages[0];
-            let insertion = fragment.control_bytes(0);
-            if page.empty {
-                let mut replacement = result[page.span.start..page.span.end - 2].to_vec();
-                replacement.push(b'>');
-                replacement.extend_from_slice(insertion);
-                replacement.extend_from_slice(b"</C>");
-                result.splice(page.span.clone(), replacement);
-            } else {
-                result.splice(page.close..page.close, insertion.iter().copied());
-            }
-        } else {
-            bail!(
-                "Runtime overlay {name} has no matching control (Type {}). Only new AutopilotRule placement is evidenced; use Loxone Config.",
-                root.kind
-            );
-        }
-        Document::parse(&result)
-            .with_context(|| format!("UUID consistency failed after {name}"))?;
-    }
-    Ok(result)
-}
-
-/// Compare XML without confusing formatting/attribute order with a config edit.
-fn semantic(bytes: &[u8]) -> Result<Vec<String>> {
-    let bytes = bytes.strip_prefix(b"\xef\xbb\xbf").unwrap_or(bytes);
-    let mut reader = Reader::from_reader(bytes);
-    let mut tokens = Vec::new();
-    loop {
-        match reader.read_event()? {
-            Event::Start(e) | Event::Empty(e) => {
-                let empty = bytes[reader.buffer_position() as usize - 2] == b'/';
-                let mut attrs = BTreeMap::new();
-                for a in e.attributes() {
-                    let a = a?;
-                    attrs.insert(a.key.as_ref().to_vec(), a.unescape_value()?.into_owned());
-                }
-                let name = String::from_utf8(e.name().as_ref().to_vec())?;
-                tokens.push(format!("start:{name}:{attrs:?}"));
-                if empty {
-                    tokens.push(format!("end:{name}"));
-                }
-            }
-            Event::End(e) => tokens.push(format!(
-                "end:{}",
-                String::from_utf8_lossy(e.name().as_ref())
-            )),
-            Event::Text(e) => {
-                let text = e.unescape()?;
-                if !text.trim().is_empty() {
-                    tokens.push(format!("text:{text}"));
-                }
-            }
-            Event::Decl(_) => {}
-            Event::Eof => break,
-            e => tokens.push(format!("{e:?}")),
-        }
-    }
-    Ok(tokens)
-}
-
-fn shell(doc: &Document<'_>, index: Option<usize>) -> Vec<u8> {
-    let range = index
-        .map(|i| doc.controls[i].span.clone())
-        .unwrap_or(0..doc.bytes.len());
-    let mut result = doc.bytes[range.clone()].to_vec();
-    for child in doc.children(index).into_iter().rev() {
-        let c = &doc.controls[child];
-        let slot = format!("<OverlaySlot U=\"{}\"/>", c.id);
-        result.splice(
-            c.span.start - range.start..c.span.end - range.start,
-            slot.bytes(),
-        );
-    }
-    result
-}
-
-fn merge_node(
-    base: &Document<'_>,
-    local: &Document<'_>,
-    live: &Document<'_>,
-    indexes: (Option<usize>, Option<usize>, Option<usize>),
-) -> Result<Vec<u8>> {
-    let (bi, li, ri) = indexes;
-    let bs = shell(base, bi);
-    let ls = shell(local, li);
-    let rs = shell(live, ri);
-    let b = semantic(&bs)?;
-    let l = semantic(&ls)?;
-    let r = semantic(&rs)?;
-    let (chosen, index) = if l == b {
-        (live, ri)
-    } else if r == b || l == r {
-        (local, li)
-    } else {
-        bail!(
-            "Three-way merge conflict at UUID {} (local and live both changed). Reconcile in Loxone Config; no deployment was performed.",
-            li.map(|i| local.controls[i].id.as_str())
-                .unwrap_or("document")
-        );
-    };
-    let child_map = |doc: &Document<'_>, parent| -> HashMap<String, usize> {
-        doc.children(parent)
-            .into_iter()
-            .map(|i| (doc.controls[i].id.clone(), i))
-            .collect()
-    };
-    let bm = child_map(base, bi);
-    let lm = child_map(local, li);
-    let rm = child_map(live, ri);
-    let mut merged = HashMap::new();
-    let ids: HashSet<_> = bm
-        .keys()
-        .chain(lm.keys())
-        .chain(rm.keys())
-        .cloned()
-        .collect();
-    for id in ids {
-        let b = bm.get(&id).copied();
-        let l = lm.get(&id).copied();
-        let r = rm.get(&id).copied();
-        let value = match (b, l, r) {
-            (Some(b), Some(l), Some(r)) => {
-                Some(merge_node(base, local, live, (Some(b), Some(l), Some(r)))?)
-            }
-            (None, Some(l), None) => Some(local.control_bytes(l).to_vec()),
-            (None, None, Some(r)) => Some(live.control_bytes(r).to_vec()),
-            (None, Some(l), Some(r))
-                if semantic(local.control_bytes(l))? == semantic(live.control_bytes(r))? =>
-            {
-                Some(local.control_bytes(l).to_vec())
-            }
-            (Some(b), None, Some(r))
-                if semantic(base.control_bytes(b))? == semantic(live.control_bytes(r))? =>
-            {
-                None
-            }
-            (Some(b), Some(l), None)
-                if semantic(base.control_bytes(b))? == semantic(local.control_bytes(l))? =>
-            {
-                None
-            }
-            (Some(_), None, None) => None,
-            _ => bail!(
-                "Three-way merge conflict for UUID {id}: concurrent addition, deletion, or modification. Reconcile in Loxone Config."
-            ),
-        };
-        merged.insert(id, value);
-    }
-    let range = index
-        .map(|i| chosen.controls[i].span.clone())
-        .unwrap_or(0..chosen.bytes.len());
-    let mut result = chosen.bytes[range.clone()].to_vec();
-    for child in chosen.children(index).into_iter().rev() {
-        let c = &chosen.controls[child];
-        let value = merged.remove(&c.id).flatten().unwrap_or_default();
-        result.splice(c.span.start - range.start..c.span.end - range.start, value);
-    }
-    if merged.values().any(Option::is_some) {
-        bail!(
-            "Three-way merge cannot determine placement of a concurrently added control. Reconcile in Loxone Config."
-        );
-    }
-    Ok(result)
+    runtime_overlay::merge_overlays(base, overlays).map_err(overlay_error)
 }
 
 pub fn three_way(base: &[u8], local: &[u8], live: &[u8]) -> Result<Vec<u8>> {
-    let base = Document::parse(base)?;
-    let local = Document::parse(local)?;
-    let live = Document::parse(live)?;
-    let result = merge_node(&base, &local, &live, (None, None, None))?;
-    Document::parse(&result).context("Merged config has inconsistent UUIDs")?;
-    Ok(result)
+    runtime_overlay::three_way(base, local, live).map_err(overlay_error)
 }
 
 #[derive(Serialize, Deserialize)]
@@ -553,7 +206,7 @@ pub fn prepare(cfg: &Config, path: &Path, local: &[u8]) -> Result<Prepared> {
 }
 
 fn prepare_with_base(base: Option<&[u8]>, local: &[u8], live: Snapshot) -> Result<Prepared> {
-    Document::parse(local)?;
+    runtime_overlay::validate_document(local).map_err(overlay_error)?;
     let xml = if let Some(base) = base {
         three_way(base, local, &live.xml)?
     } else if live.overlays.is_empty() {
@@ -608,6 +261,219 @@ mod tests {
 
     fn overlay(id: &str, xml: &str) -> BTreeMap<String, Vec<u8>> {
         BTreeMap::from([(format!("{id}.LoxCC"), loxcc::compress_loxcc(xml.as_bytes()))])
+    }
+
+    #[test]
+    fn runtime_overlay_legacy_message_payload_downcasts() {
+        let invalid = BTreeMap::from([("bad.LoxCC".to_owned(), Vec::new())]);
+        let error = merge_overlays(b"<Root/>", &invalid).unwrap_err();
+        let message = error.to_string();
+        assert_eq!(error.downcast_ref::<String>(), Some(&message));
+        assert!(error.downcast_ref::<&'static str>().is_none());
+        assert!(error.downcast_ref::<OverlayError>().is_none());
+        assert_eq!(error.chain().count(), 1);
+
+        let suffix = BTreeMap::from([("bad.loxcc".to_owned(), Vec::new())]);
+        let error = merge_overlays(b"<Root/>", &suffix).unwrap_err();
+        assert_eq!(
+            error.downcast_ref::<&'static str>().copied(),
+            Some("Runtime overlay must end in .LoxCC")
+        );
+        assert!(error.downcast_ref::<String>().is_none());
+        assert!(error.downcast_ref::<OverlayError>().is_none());
+        assert_eq!(error.chain().count(), 1);
+
+        for (xml, expected) in [
+            (
+                br#"<C U="missing-type"/>"#.as_slice(),
+                "Control has no Type",
+            ),
+            (
+                b"<!DOCTYPE Root><Root/>".as_slice(),
+                "DTD in config XML is not supported.",
+            ),
+            (
+                b"outside<Root/>".as_slice(),
+                "Unexpected content outside config XML root.",
+            ),
+            (
+                b"".as_slice(),
+                "Config XML must contain exactly one complete root element.",
+            ),
+        ] {
+            let error = merge_overlays(xml, &invalid).unwrap_err();
+            assert_eq!(
+                error.downcast_ref::<&'static str>().copied(),
+                Some(expected)
+            );
+            assert!(error.downcast_ref::<String>().is_none());
+            assert_eq!(error.chain().count(), 1);
+        }
+    }
+
+    #[test]
+    fn runtime_overlay_byte_and_error_characterization() {
+        fn observe(name: &str, result: Result<Vec<u8>>) {
+            let value = match result {
+                Ok(bytes) => serde_json::json!({"bytes": hex::encode(bytes)}),
+                Err(error) => serde_json::json!({
+                    "message": error.to_string(),
+                    "chain": error.chain().map(ToString::to_string).collect::<Vec<_>>(),
+                    "utf8": error.downcast_ref::<std::str::Utf8Error>().is_some(),
+                    "xml": error.downcast_ref::<quick_xml::Error>().is_some(),
+                    "attribute": error.downcast_ref::<quick_xml::events::attributes::AttrError>().is_some(),
+                    "archive": error.downcast_ref::<lox_core::configuration::archive::ArchiveError>().is_some(),
+                }),
+            };
+            println!(
+                "OVERLAY_PROOF {}",
+                serde_json::json!({"case":name,"result":value})
+            );
+        }
+        let base = config("before", "literal\r\nattribute<!--not markup-->");
+        observe(
+            "empty-invalid-base",
+            merge_overlays(b"\xff<", &BTreeMap::new()),
+        );
+        observe(
+            "replace",
+            merge_overlays(&base, &overlay(A, &control(A, "after"))),
+        );
+        let rule = format!(r#"<C Type="AutopilotRule" U="{RULE}"/>"#);
+        for (name, bytes) in [
+            ("new-rule", base.as_slice()),
+            (
+                "new-rule-empty-page",
+                br#"<Root><!--keep--><C Type="Page" U="p" SpNo="1"/></Root>"#.as_slice(),
+            ),
+            ("new-rule-no-page", b"<Root/>".as_slice()),
+            (
+                "new-rule-ambiguous",
+                br#"<Root><C Type="Page" U="p" SpNo="1"/><C Type="Page" U="q" SpNo="1"/></Root>"#
+                    .as_slice(),
+            ),
+        ] {
+            observe(name, merge_overlays(bytes, &overlay(RULE, &rule)));
+        }
+        for (name, fragment) in [
+            ("wrong-uuid", control(B, "wrong")),
+            (
+                "wrapped-root",
+                format!("<Wrapper>{}</Wrapper>", control(A, "wrapped")),
+            ),
+            ("wrong-type", format!(r#"<C Type="Not" U="{A}"/>"#)),
+            ("missing-type", format!(r#"<C U="{A}"/>"#)),
+            (
+                "malformed-fragment",
+                format!(r#"<C Type="DayTimer" U="{A}">"#),
+            ),
+            (
+                "multiple-roots",
+                format!("{}{}", control(A, "a"), control(B, "b")),
+            ),
+            ("fragment-dtd", format!("<!DOCTYPE C>{}", control(A, "a"))),
+            (
+                "fragment-duplicate-attribute",
+                format!(r#"<C Type="DayTimer" Type="DayTimer" U="{A}"/>"#),
+            ),
+            (
+                "fragment-entity",
+                format!(r#"<C Type="DayTimer" U="{A}" Title="&unknown;"/>"#),
+            ),
+            (
+                "result-duplicate-connector",
+                format!(r#"<C Type="DayTimer" U="{A}"><Co U="{B}"/></C>"#),
+            ),
+        ] {
+            observe(name, merge_overlays(&base, &overlay(A, &fragment)));
+        }
+        for (name, bytes) in [
+            ("invalid-base-utf8", b"\xff".as_slice()),
+            ("base-dtd", b"<!DOCTYPE Root><Root/>".as_slice()),
+            ("base-no-root", b"<!--only-->".as_slice()),
+            ("base-outside-root", b"text<Root/>".as_slice()),
+            ("base-empty-uuid", br#"<C Type="Page" U=""/>"#.as_slice()),
+            ("base-duplicate-attr", br#"<Root a="1" a="2"/>"#.as_slice()),
+            ("base-broken-tag", b"<Root></Other>".as_slice()),
+        ] {
+            observe(name, merge_overlays(bytes, &overlay(A, &control(A, "a"))));
+        }
+        for name in [
+            "wrong.loxcc",
+            "bad.LoxCC",
+            "00000000-0000-0000-ffff00000000000g.LoxCC",
+        ] {
+            observe(
+                name,
+                merge_overlays(&base, &BTreeMap::from([(name.into(), vec![])])),
+            );
+        }
+        let valid = loxcc::compress_loxcc(control(A, "after").as_bytes());
+        for (name, mut bytes, index) in [
+            ("crc", valid.clone(), Some(12)),
+            ("compressed-length", valid.clone(), Some(4)),
+            ("uncompressed-length", valid.clone(), Some(8)),
+            ("magic", valid.clone(), Some(0)),
+            ("header-short", vec![0; 15], None),
+            ("truncated", valid[..valid.len() - 1].to_vec(), None),
+        ] {
+            if let Some(index) = index {
+                bytes[index] ^= 1;
+            }
+            observe(
+                name,
+                merge_overlays(&base, &BTreeMap::from([(format!("{A}.LoxCC"), bytes)])),
+            );
+        }
+        let alias = "00000000-0000-0000-ffff-000000000001";
+        let mut duplicate = overlay(A, &control(A, "one"));
+        duplicate.extend(overlay(alias, &control(alias, "two")));
+        observe("alias-overlay", merge_overlays(&base, &duplicate));
+        let nested_base = format!(
+            r#"<Root><C Type="Page" U="{A}" SpNo="1">{}</C></Root>"#,
+            control(B, "old")
+        );
+        let mut nested = overlay(
+            A,
+            &format!(
+                r#"<C Type="Page" U="{A}" SpNo="1">{}</C>"#,
+                control(B, "nested")
+            ),
+        );
+        nested.extend(overlay(B, &control(B, "direct")));
+        observe(
+            "parent-child",
+            merge_overlays(nested_base.as_bytes(), &nested),
+        );
+        let mut cross = overlay(
+            A,
+            &format!(r#"<C Type="DayTimer" U="{A}">{}</C>"#, control(B, "nested")),
+        );
+        cross.extend(overlay(B, &control(B, "direct")));
+        observe("cross-fragment", merge_overlays(&base, &cross));
+        let mut ordered = overlay(B, &control(B, "second"));
+        ordered.extend(overlay(A, &control(A, "first")));
+        observe("source-order", merge_overlays(&base, &ordered));
+        let local = config("local", "literal\r\nattribute<!--not markup-->");
+        let live = config("before", "live");
+        for (name, b, l, r) in [
+            ("three-local", base.as_slice(), local.as_slice(), base.as_slice()),
+            ("three-live", base.as_slice(), base.as_slice(), live.as_slice()),
+            ("three-same", base.as_slice(), local.as_slice(), local.as_slice()),
+            ("three-disjoint", base.as_slice(), local.as_slice(), live.as_slice()),
+            ("three-conflict", base.as_slice(), local.as_slice(), config("conflict", "live").as_slice()),
+            ("three-format", b"<Root><C Type=\"And\" U=\"a\"/></Root>", b"\xef\xbb\xbf<?xml version=\"1.0\"?><Root>\r\n<C U=\"a\" Type=\"And\"></C>\r\n</Root>", b"<Root><C Type=\"Or\" U=\"a\"/></Root>"),
+            ("three-comment-conflict", b"<Root><!--a--></Root>", b"<Root><!--b--></Root>", b"<Root><!--c--></Root>"),
+            ("three-invalid", b"<Root/>", b"\xff", b"<Root/>"),
+            ("three-delete", b"<Root><C Type=\"And\" U=\"a\"/></Root>", b"<Root/>", b"<Root><C Type=\"And\" U=\"a\"/></Root>"),
+            ("three-both-delete", b"<Root><C Type=\"And\" U=\"a\"/></Root>", b"<Root/>", b"<Root/>"),
+            ("three-delete-modify", b"<Root><C Type=\"And\" U=\"a\"/></Root>", b"<Root/>", b"<Root><C Type=\"Or\" U=\"a\"/></Root>"),
+            ("three-live-add", b"<Root/>", b"<Root/>", b"<Root><C Type=\"And\" U=\"a\"/></Root>"),
+            ("three-same-add", b"<Root/>", b"<Root><C Type=\"And\" U=\"a\"/></Root>", b"<Root><C U=\"a\" Type=\"And\"></C></Root>"),
+            ("three-conflicting-add", b"<Root/>", b"<Root><C Type=\"And\" U=\"a\"/></Root>", b"<Root><C Type=\"Or\" U=\"a\"/></Root>"),
+        ] {
+            observe(name, three_way(b, l, r));
+        }
     }
 
     fn archive(xml: &[u8]) -> Vec<u8> {
