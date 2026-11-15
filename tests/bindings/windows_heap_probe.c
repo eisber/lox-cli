@@ -59,3 +59,38 @@ __declspec(dllexport) DWORD lox_test_heap_catalog_error_count(
     }
     return lox_test_heap_count(prefix, sizeof(prefix), sizeof(prefix), count);
 }
+
+/* Text decoder's exact error serialization, assembled on the stack so the
+   measurement cannot itself retain a matching serialized error on the heap.
+   InvalidUtf8 uses second == ~0ULL for an absent error_len. */
+__declspec(dllexport) DWORD lox_test_heap_text_error_count(
+    DWORD variant, ULONGLONG record_offset, ULONGLONG first, ULONGLONG second,
+    SIZE_T *count
+) {
+    unsigned char prefix[29] = {0};
+    SIZE_T length = 4;
+    unsigned int i;
+    if (variant < 1 || variant > 5) return ERROR_INVALID_PARAMETER;
+    prefix[3] = (unsigned char)variant;
+    for (i = 0; i < 8; ++i) {
+        prefix[length++] = (unsigned char)(record_offset >> ((7 - i) * 8));
+    }
+    if (variant == 2 || variant == 3) {
+        for (i = 0; i < 4; ++i) {
+            prefix[length++] = (unsigned char)(first >> ((3 - i) * 8));
+        }
+    } else {
+        for (i = 0; i < 8; ++i) {
+            prefix[length++] = (unsigned char)(first >> ((7 - i) * 8));
+        }
+    }
+    if (variant == 5) {
+        prefix[length++] = (unsigned char)(second != ~0ULL);
+    }
+    if (variant == 3 || variant == 4 || (variant == 5 && second != ~0ULL)) {
+        for (i = 0; i < 8; ++i) {
+            prefix[length++] = (unsigned char)(second >> ((7 - i) * 8));
+        }
+    }
+    return lox_test_heap_count(prefix, length, length, count);
+}
