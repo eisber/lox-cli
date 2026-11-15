@@ -36,7 +36,7 @@ legacy-wsx = []
 legacy-token-reply = ["dep:serde_json"]
 legacy-token-aes = ["dep:aes", "dep:cbc", "dep:base64"]
 auth-hash = ["dep:hmac", "dep:sha1", "dep:sha2", "dep:hex"]
-configuration-xml = ["dep:quick-xml"]
+configuration-xml = ["dep:quick-xml", "configuration-editor"]
 statistics-xml = ["dep:quick-xml"]
 firmware-metadata = ["dep:quick-xml"]
 structure-json = ["dep:serde_json"]
@@ -51,6 +51,10 @@ tokio = { version = "1", features = ["rt", "sync", "time", "macros"] }
 [[test]]
 name = "configuration_editor"
 required-features = ["configuration-editor"]
+
+[[test]]
+name = "mqtt_catalog"
+required-features = ["configuration-xml"]
 
 [[test]]
 name = "user_inventory"

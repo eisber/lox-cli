@@ -5201,8 +5201,12 @@ fn cmd_mqtt_config(ctx: &RunContext, action: MqttConfigCmd) -> Result<()> {
         }
         MqttConfigCmd::Topics { file } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            let editor = ConfigEditor::load(&data)?;
-            let topics = editor.list_mqtt_topics();
+            let topics: Vec<crate::config_edit::MqttTopic> =
+                lox_core::configuration::mqtt::list_topics(&data)
+                    .map_err(crate::config_edit::editor_error)?
+                    .into_iter()
+                    .map(Into::into)
+                    .collect();
 
             if ctx.json {
                 println!("{}", serde_json::to_string_pretty(&topics)?);

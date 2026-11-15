@@ -21,6 +21,18 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `configuration-xml`: `configuration::mqtt::list_topics(&[u8])`
+  returns owned `MqttTopic` records with typed `MqttDirection`. The actual
+  `lox config mqtt topics` producer and cached CLI editor share this one walker.
+  Exact `C`/`GenTSensor` subscriptions and `C`/`GenTActor` publishes are kept in
+  depth-first source order, including duplicates, empty strings and raw QoS.
+  Later direct `SET` properties win, including a missing `v` resetting to empty.
+  This reuses the editor loader and typed `EditError` with its native cause;
+  configuration XML now enables the existing editor dependencies. The known
+  lox-n37w quoted-text/digit-name behavior is unchanged. File I/O, output DTOs,
+  flag policy and terminal rendering remain in the CLI. This is not a broker,
+  topic/QoS validator, device/reference-alias discovery or foreign binding.
+
 - Optional `legacy-token-reply`: `legacy_token_reply::{parse, Reply, ReplyError,
   ReplyErrorKind}` is the exact existing token WebSocket LL projection, now used
   by the CLI's plaintext, key-exchange and encrypted receive helpers through
