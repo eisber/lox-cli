@@ -1,6 +1,7 @@
 //! Offline configuration operations.
 
 pub mod archive;
+pub mod custom_listing;
 
 #[cfg(feature = "configuration-xml")]
 pub mod runtime_overlay;

@@ -121,22 +121,21 @@ pub fn list_custom_changes(cfg: &Config) -> Result<Vec<String>> {
         let listing = ftp.list(Some("/sys/custom")).context(
             "Cannot list /sys/custom; cannot safely assume there are no runtime changes",
         )?;
-        let mut names = Vec::new();
-        for line in listing {
-            let name = line
-                .split_whitespace()
-                .last()
-                .context("Malformed /sys/custom FTP listing")?;
-            if name.to_ascii_lowercase().ends_with(".loxcc") {
-                if line.starts_with('d') || line.starts_with('l') || name.contains(['/', '\\']) {
-                    anyhow::bail!("Unsupported runtime overlay listing: {line}");
-                }
-                names.push(name.to_string());
-            }
-        }
-        names.sort();
+        let names = parse_custom_listing(&listing)?;
         ftp.quit().ok();
         Ok(names)
+    })
+}
+
+fn parse_custom_listing(listing: &[String]) -> Result<Vec<String>> {
+    use lox_core::configuration::custom_listing::{ListingError, parse_custom_listing};
+
+    parse_custom_listing(listing).map_err(|error| match error {
+        ListingError::Malformed { .. } => anyhow::Error::msg("Malformed /sys/custom FTP listing"),
+        ListingError::Unsupported { row } => anyhow::Error::msg(format!(
+            "Unsupported runtime overlay listing: {}",
+            listing[row]
+        )),
     })
 }
 
@@ -204,6 +203,109 @@ fn ftp_host(cfg: &Config) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // Frozen original loop: compare the migrated producer adapter independently.
+    fn old_custom_listing(listing: Vec<String>) -> Result<Vec<String>> {
+        let mut names = Vec::new();
+        for line in listing {
+            let name = line
+                .split_whitespace()
+                .last()
+                .context("Malformed /sys/custom FTP listing")?;
+            if name.to_ascii_lowercase().ends_with(".loxcc") {
+                if line.starts_with('d') || line.starts_with('l') || name.contains(['/', '\\']) {
+                    anyhow::bail!("Unsupported runtime overlay listing: {line}");
+                }
+                names.push(name.to_string());
+            }
+        }
+        names.sort();
+        Ok(names)
+    }
+
+    #[test]
+    fn strict_custom_listing_matches_original_values() {
+        for rows in [
+            vec![],
+            vec!["d /a.txt", "l x\\y.txt", "- a.ℓoxcc", "- a.loxccé"],
+            vec!["- z.loXcC", "- A.LoxCC", "- z.loXcC"],
+            vec![
+                "- 12345678-1234-1234-1234567890123456.LoxCC",
+                "- not-a-uuid.loxcc",
+                "D q.loxcc",
+                "L r.loxcc",
+                " d s.loxcc",
+                " l t.loxcc",
+                "nonnumeric permissions\u{2003}u.loxcc",
+                "- nul\0.loxcc",
+                "- first.loxcc tail",
+            ],
+        ] {
+            let rows: Vec<String> = rows.into_iter().map(str::to_owned).collect();
+            assert_eq!(
+                parse_custom_listing(&rows).unwrap(),
+                old_custom_listing(rows).unwrap()
+            );
+        }
+    }
+
+    #[test]
+    fn strict_custom_listing_preserves_error_payloads_and_context() {
+        let check = |old: &anyhow::Error, new: &anyhow::Error| {
+            assert_eq!(old.to_string(), new.to_string());
+            assert_eq!(format!("{old:?}"), format!("{new:?}"));
+            assert_eq!(format!("{old:#}"), format!("{new:#}"));
+            assert_eq!(
+                old.downcast_ref::<&'static str>(),
+                new.downcast_ref::<&'static str>()
+            );
+            assert_eq!(old.downcast_ref::<String>(), new.downcast_ref::<String>());
+            assert_eq!(old.source().is_some(), new.source().is_some());
+            assert_eq!(
+                old.chain().map(ToString::to_string).collect::<Vec<_>>(),
+                new.chain().map(ToString::to_string).collect::<Vec<_>>()
+            );
+            assert!(
+                new.downcast_ref::<lox_core::configuration::custom_listing::ListingError>()
+                    .is_none()
+            );
+        };
+        for row in [
+            "",
+            " \t",
+            "\u{2003}",
+            "d bad.loxcc",
+            "l bad.loxcc",
+            "- x/y.loxcc",
+            "- x\\y.loxcc",
+        ] {
+            let rows = vec![
+                "- valid.LoxCC".to_owned(),
+                "- unrelated.txt".to_owned(),
+                row.to_owned(),
+            ];
+            let old = old_custom_listing(rows.clone()).unwrap_err();
+            let new = parse_custom_listing(&rows).unwrap_err();
+            check(&old, &new);
+            if row.split_whitespace().next().is_none() {
+                assert_eq!(
+                    new.downcast_ref::<&'static str>(),
+                    Some(&"Malformed /sys/custom FTP listing")
+                );
+                assert!(new.downcast_ref::<String>().is_none());
+            } else {
+                assert_eq!(
+                    new.downcast_ref::<String>(),
+                    Some(&format!("Unsupported runtime overlay listing: {row}"))
+                );
+                assert!(new.downcast_ref::<&'static str>().is_none());
+            }
+            check(
+                &old.context(format!("capture {}", 42)),
+                &new.context(format!("capture {}", 42)),
+            );
+        }
+    }
 
     #[test]
     fn test_parse_backup_name_valid() {
