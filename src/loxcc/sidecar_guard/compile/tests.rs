@@ -518,6 +518,120 @@ fn intercom_password_does_not_allow_other_hardware_changes() {
     assert!(repack_zip(&without_device, original.as_bytes()).is_err());
 }
 
+fn referenced_intercom_project() -> String {
+    let device = INTERCOM_DEVICE.replace(
+        "IntVideoUrl=",
+        r#"IntAlertImage="https://camera.example/picture.jpg" IntVideoUrl="#,
+    );
+    PROJECT
+        .replace(PAGE_END, &format!("{device}{PAGE_END}"))
+        .replace(
+            r#"Type="Doorcontroller""#,
+            r#"Type="Doorcontroller" Ref="7b000000-0000-0001-ffff000000000000""#,
+        )
+}
+
+#[test]
+fn referenced_intercom_camera_urls_preserve_native_sidecars() {
+    let original = referenced_intercom_project();
+    let source = archive(&original, CATALOGUE, &source_permissions());
+    let edited = original.replace(
+        "https://camera.example/picture.jpg",
+        "https://camera.home.arpa/picture.jpg",
+    );
+    let repacked = repack_zip(&source, edited.as_bytes()).unwrap();
+    assert_eq!(
+        extract_and_decompress(&repacked).unwrap(),
+        edited.as_bytes()
+    );
+    for name in ["LoxAPP3.json", "permissions.bin", "unrelated.bin"] {
+        assert_eq!(member(&repacked, name), member(&source, name), "{name}");
+    }
+    validate_archive_deployment(&source, &repacked, edited.as_bytes()).unwrap();
+    assert_eq!(repack_zip(&repacked, edited.as_bytes()).unwrap(), repacked);
+}
+
+#[test]
+fn referenced_intercom_camera_urls_require_a_matching_native_controller() {
+    let original = referenced_intercom_project();
+    let mut missing: Value = serde_json::from_str(CATALOGUE).unwrap();
+    missing["controls"]
+        .as_object_mut()
+        .unwrap()
+        .remove("U:7a000000-0000-0001-ffff000000000000");
+    let mut wrong_type: Value = serde_json::from_str(CATALOGUE).unwrap();
+    wrong_type["controls"]["U:7a000000-0000-0001-ffff000000000000"]["type"] = json!("Unknown");
+    let mut wrong_identity: Value = serde_json::from_str(CATALOGUE).unwrap();
+    wrong_identity["controls"]["U:7a000000-0000-0001-ffff000000000000"]["uuidAction"] =
+        json!(uuid("3a", 1));
+    for (xml, catalogue) in [
+        (
+            original.replace(r#" Ref="7b000000-0000-0001-ffff000000000000""#, ""),
+            CATALOGUE.to_string(),
+        ),
+        (
+            original.replace(
+                r#"Ref="7b000000-0000-0001-ffff000000000000""#,
+                r#"Ref="7c000000-0000-0001-ffff000000000000""#,
+            ),
+            CATALOGUE.to_string(),
+        ),
+        (
+            original.replace(r#"Type="Doorcontroller""#, r#"Type="Unknown""#),
+            CATALOGUE.to_string(),
+        ),
+        (original.clone(), missing.to_string()),
+        (original.clone(), wrong_type.to_string()),
+        (original, wrong_identity.to_string()),
+    ] {
+        let source = archive(&xml, &catalogue, &source_permissions());
+        let edited = xml.replace(
+            "https://camera.example/picture.jpg",
+            "https://camera.home.arpa/picture.jpg",
+        );
+        assert!(rejection_from(&source, &edited).contains("unsupported"));
+    }
+}
+
+#[test]
+fn referenced_intercom_camera_urls_do_not_allow_other_hardware_edits() {
+    let original = referenced_intercom_project();
+    let source = archive(&original, CATALOGUE, &source_permissions());
+    let camera_edit = original.replace(
+        "https://camera.example/picture.jpg",
+        "https://camera.home.arpa/picture.jpg",
+    );
+    for (from, to) in [
+        (r#"VideoUser="viewer""#, r#"VideoUser="admin""#),
+        (r#"Title="Camera""#, r#"Title="Other camera""#),
+        (
+            r#"Title="Camera""#,
+            r#"Title="Camera" IntAudioHost="new.example""#,
+        ),
+        (r#"Title="Camera""#, r#"Title="Camera" RightGroup="other""#),
+        (r#"Type="IntercomDevice""#, r#"Type="FutureDevice""#),
+        (
+            r#"Ref="7b000000-0000-0001-ffff000000000000""#,
+            r#"Ref="7c000000-0000-0001-ffff000000000000""#,
+        ),
+    ] {
+        assert!(
+            repack_zip(&source, camera_edit.replace(from, to).as_bytes()).is_err(),
+            "{from}"
+        );
+    }
+    let without_device = original.replace(
+        &INTERCOM_DEVICE.replace(
+            "IntVideoUrl=",
+            r#"IntAlertImage="https://camera.example/picture.jpg" IntVideoUrl="#,
+        ),
+        "",
+    );
+    assert!(repack_zip(&source, without_device.as_bytes()).is_err());
+    let missing = archive(&without_device, CATALOGUE, &source_permissions());
+    assert!(repack_zip(&missing, original.as_bytes()).is_err());
+}
+
 #[test]
 fn new_runtime_only_logic_needs_no_sidecar_changes() {
     let xml = edited(
