@@ -4,6 +4,7 @@
 //! resolution require no networking runtime.
 //! [`color`] provides typed offline encoders and explicit legacy color observers.
 //! [`numeric_state`] decodes complete numeric value-state table payloads, not frames.
+//! [`text_state`] decodes complete UTF-8 text-state table payloads, including icon IDs.
 //! Optional `configuration-xml` adds typed room inventory, summaries and summary deltas.
 //! Optional `statistics-xml` decodes monthly statistics XML without I/O.
 //! Optional `auth-hash` provides explicit existing APP/CONFIG hash profiles.
@@ -17,6 +18,7 @@ pub mod color;
 pub mod configuration;
 pub mod control;
 pub mod numeric_state;
+pub mod text_state;
 
 #[cfg(feature = "structure-json")]
 pub mod control_catalog;

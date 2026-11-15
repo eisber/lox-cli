@@ -19,6 +19,10 @@ const RECORD_BYTES: usize = 24;
 pub struct StateUuid([u8; 16]);
 
 impl StateUuid {
+    pub(crate) const fn from_wire_bytes(bytes: [u8; 16]) -> Self {
+        Self(bytes)
+    }
+
     /// Original wire bytes, including the little-endian first three fields.
     pub fn wire_bytes(&self) -> &[u8; 16] {
         &self.0
@@ -131,7 +135,7 @@ pub fn decode_value_state_payload(
             let mut value = [0; 8];
             value.copy_from_slice(&record[16..]);
             NumericState {
-                uuid: StateUuid(uuid),
+                uuid: StateUuid::from_wire_bytes(uuid),
                 value_bits: u64::from_le_bytes(value),
             }
         })
