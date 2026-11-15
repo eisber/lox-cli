@@ -30,9 +30,13 @@ class GeneratorCorrection(unittest.TestCase):
         PATCHER.correct(self.directory, "0.5.2", receipt)
         corrected = target.read_bytes()
         self.assertEqual(PATCHER.digest(corrected), SPEC["corrected_sha256"])
+        companion = self.directory.joinpath(*SPEC["companion"].split("/"))
+        companion_corrected = companion.read_bytes()
+        self.assertEqual(PATCHER.digest(companion_corrected), SPEC["companion_corrected_sha256"])
         with self.assertRaises(ValueError):
             PATCHER.correct(self.directory, "0.5.2", receipt)
         self.assertEqual(target.read_bytes(), corrected)
+        self.assertEqual(companion.read_bytes(), companion_corrected)
 
     def test_unreviewed_version_or_either_changed_source_refuses_without_editing(self):
         for change in ("version", "target", "companion"):
@@ -46,10 +50,13 @@ class GeneratorCorrection(unittest.TestCase):
                     destination.write_bytes(original + (b"\n" if change == key else b""))
                 target = directory.joinpath(*SPEC["target"].split("/"))
                 before = target.read_bytes()
+                companion = directory.joinpath(*SPEC["companion"].split("/"))
+                companion_before = companion.read_bytes()
                 with self.assertRaises(ValueError):
                     PATCHER.correct(directory, "0.5.3" if change == "version" else "0.5.2",
                                     directory / "receipt.json")
                 self.assertEqual(target.read_bytes(), before)
+                self.assertEqual(companion.read_bytes(), companion_before)
                 self.assertFalse((directory / "receipt.json").exists())
 
 

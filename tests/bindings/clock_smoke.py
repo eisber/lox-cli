@@ -183,6 +183,7 @@ def main():
     parser.add_argument("--classes")
     parser.add_argument("--kotlin-jar")
     parser.add_argument("--native-dir")
+    parser.add_argument("--heap-probe")
     args = parser.parse_args()
     assert Path(native.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())
     with FIXTURE.ClockFixture(args.signals) as fixture:
@@ -197,6 +198,7 @@ def main():
                 command = [
                     args.java, "--enable-native-access=ALL-UNNAMED",
                     f"-Djava.library.path={args.native_dir}",
+                    f"-Dlox.archive.heapProbe={args.heap_probe}",
                     "-cp", args.api_jar + ";" + args.classes + extra,
                     main_class, fixture.host, str(args.signals),
                 ]

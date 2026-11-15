@@ -113,7 +113,7 @@ Copy-Item -Force $InstalledDll "$Output\jvm\native\lox_archive.dll"
 if ((Get-FileHash $InstalledDll).Hash -ne (Get-FileHash "$Output\jvm\native\lox_archive.dll").Hash) {
     throw 'Python and JVM native artifacts differ.'
 }
-Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java', 'tests\bindings\ClockTestSupport.java', 'tests\bindings\ClockSmoke.java')
+Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java', 'tests\bindings\NativeClockStatusProbe.java', 'tests\bindings\ClockTestSupport.java', 'tests\bindings\ClockSmoke.java')
 $NativeAccess = @('--enable-native-access=ALL-UNNAMED', "-Djava.library.path=$Output\jvm\native")
 Step 'java-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveSmoke', "$Output\fixtures"))
 $VsWhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -147,9 +147,11 @@ $ClockKotlinArguments = @('-jvm-target', '22', '-classpath',
     'tests\bindings\ClockSmoke.kt')
 [IO.File]::WriteAllLines("$Output\jvm\kotlin-clock.args", $ClockKotlinArguments, [Text.UTF8Encoding]::new($false))
 Step 'kotlinc-clock-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-clock.args")
+Remove-Item Env:RUST_MIN_STACK
 Step 'clock-head-smokes' $VenvPython @('-I', '-B', 'tests\bindings\clock_smoke.py', '--signals', "$Output\clock-signals",
     '--java', $Java, '--api-jar', $ApiJar, '--classes', "$Output\jvm\test-classes",
-    '--kotlin-jar', "$Output\jvm\kotlin-clock-smoke.jar", '--native-dir', "$Output\jvm\native")
+    '--kotlin-jar', "$Output\jvm\kotlin-clock-smoke.jar", '--native-dir', "$Output\jvm\native",
+    '--heap-probe', "$Probe.dll")
 
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"

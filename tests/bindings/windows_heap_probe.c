@@ -36,3 +36,12 @@ __declspec(dllexport) DWORD lox_test_heap_count(
     }
     return error == ERROR_NO_MORE_ITEMS ? ERROR_SUCCESS : error;
 }
+
+/* By-value marker: the expected bytes live on the stack, never in the heap
+   being measured. A reused address alone is not evidence of retention. */
+__declspec(dllexport) DWORD lox_test_heap_status_count(ULONGLONG marker, SIZE_T *count) {
+    const ULONGLONG prefix[4] = {
+        marker, ~marker, marker ^ 0x5a17c93eb46d208fULL, marker ^ 0x8c26f1a05b73de49ULL
+    };
+    return lox_test_heap_count((const unsigned char *)prefix, sizeof(prefix), sizeof(prefix), count);
+}
