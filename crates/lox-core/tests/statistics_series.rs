@@ -2,7 +2,113 @@ use lox_core::statistics::{
     MergeMonthsError, StatEntry, StatSeries, StatisticsError, merge_months, parse_index,
     parse_series,
 };
+use lox_core::statistics::{StatisticIdentity, StatisticResolutionError, resolve_identity};
 use std::error::Error;
+
+#[test]
+fn identity_consumer_preserves_priority_raw_query_and_uuid_distinctness() {
+    let rows = [
+        StatisticIdentity {
+            name: "Heat",
+            group: Some(2),
+            uuid: "winner",
+        },
+        StatisticIdentity {
+            name: "winner",
+            group: None,
+            uuid: "other",
+        },
+        StatisticIdentity {
+            name: "Heat Pump",
+            group: None,
+            uuid: "third",
+        },
+        StatisticIdentity {
+            name: "Heat",
+            group: None,
+            uuid: "winner",
+        },
+    ];
+    assert_eq!(resolve_identity(&rows, "WINNER"), Ok("winner"));
+    assert_eq!(resolve_identity(&rows, "hEaT"), Ok("winner"));
+    assert_eq!(resolve_identity(&rows[..1], ""), Ok("winner"));
+    assert!(matches!(
+        resolve_identity(&rows, ""),
+        Err(StatisticResolutionError::Ambiguous {
+            distinct_uuids: 3,
+            ..
+        })
+    ));
+    let unicode = [
+        StatisticIdentity {
+            name: "İSTANBUL",
+            group: None,
+            uuid: "ABC",
+        },
+        StatisticIdentity {
+            name: "Café",
+            group: None,
+            uuid: "x",
+        },
+    ];
+    assert_eq!(resolve_identity(&unicode, "İstanbul"), Ok("ABC"));
+    for query in ["ABC", "Istanbul", "cafe\u{301}", "Café "] {
+        assert!(matches!(
+            resolve_identity(&unicode, query),
+            Err(StatisticResolutionError::NotFound { .. })
+        ));
+    }
+}
+
+#[test]
+fn identity_consumer_gets_sorted_typed_diagnostics_without_presentation() {
+    let rows = [
+        StatisticIdentity {
+            name: "Same",
+            group: Some(2),
+            uuid: "z",
+        },
+        StatisticIdentity {
+            name: "Same",
+            group: None,
+            uuid: "z",
+        },
+        StatisticIdentity {
+            name: "Same",
+            group: Some(1),
+            uuid: "a",
+        },
+        StatisticIdentity {
+            name: "Same",
+            group: Some(2),
+            uuid: "z",
+        },
+        StatisticIdentity {
+            name: "same",
+            group: None,
+            uuid: "a",
+        },
+    ];
+    let error = resolve_identity(&rows, "SAME").unwrap_err();
+    assert_eq!(
+        error,
+        StatisticResolutionError::Ambiguous {
+            distinct_uuids: 2,
+            candidates: vec![rows[1], rows[2], rows[0], rows[4]],
+        }
+    );
+    assert!(error.source().is_none());
+    assert_eq!(
+        resolve_identity(&rows, "missing"),
+        Err(StatisticResolutionError::NotFound {
+            names: vec!["Same", "same"]
+        })
+    );
+    assert_eq!(
+        resolve_identity(&[], "raw"),
+        Err(StatisticResolutionError::NotFound { names: vec![] })
+    );
+}
 
 #[test]
 fn index_consumer_preserves_owned_order_duplicates_and_permissive_raw_fallback() {
