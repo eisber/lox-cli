@@ -1,9 +1,10 @@
-# Experimental generated native archive bindings
+# Experimental generated native archive and clock bindings
 
-This is the first **archive-only** shared-core binding slice, not a general
+This is a narrow **archive plus HTTP clock** shared-core binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::archive`; all codec behavior remains in
-the Rust core. Python and the Java-first JVM API load the same native library.
+facade over `lox_core::configuration::archive` and the optional production
+`runtime::ClockDriver`; all codec, transport, retry and validation behavior
+remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
 No head invokes the CLI or runs another protocol stack.
 
@@ -16,8 +17,10 @@ No head invokes the CLI or runs another protocol stack.
 | Decode raw LoxCC or select ZIP member | `extract_and_decompress` | Existing backup extraction | `extract_and_decompress(bytes) -> bytes` | `LoxArchive.extractAndDecompress(byte[]) -> byte[]` |
 | Filesystem/config context selection | No implicit operations | Existing CLI behavior | Unsupported; caller owns I/O | Unsupported; caller owns I/O |
 | XML parsing/editing, validation, deployment, sidecars/trust | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
-| Runtime, HTTP, auth/crypto, controls, WebSocket events | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
-| Async/cancel, runtime close, subscriptions, backpressure | Pending runtime slice | No new behavior | Unsupported/unproved | Unsupported/unproved |
+| Ordered HTTP Basic clock read, strict shared validation | Production `ClockDriver` / `ClockClient` | No CLI changes in this binding slice | `ClockRuntime` and `AsyncClockClient` | `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
+| Current clock cancellation, shutdown, admission | Production sticky cancellation and owned worker close | No new CLI behavior | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
+| Other runtime/auth/crypto, controls, WebSocket events | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
+| Subscriptions/event delivery/backpressure | No event stream exists | No new behavior | Unsupported | Unsupported |
 
 Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
@@ -56,11 +59,109 @@ casts. ZIP selection is the first case-insensitive name containing
 input hardening, root/unique-member rule, filesystem sidecar or atomic-write
 policy. Do not equate successful decoding with safe deployability.
 
-These are stateless synchronous calls returning owned values. They prove
-**nothing** about runtime shutdown, cancellation, subscription disposal,
-callbacks, resource bounds or event-loop integration. Those require the next
-real mocked-runtime slice; language-only tests and generator internals are
-not lifecycle proof. Task `lox-vuc6` remains open for that work.
+Archive calls are stateless and still prove **nothing** about runtime lifecycle.
+The separate clock proofs below cover the current HTTP operation only, never
+imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
+until coherent prerequisite integration and independent review are complete.
+
+## Production-backed clock heads
+
+The native facade exposes `ClockRuntime(host, user, password, settings)`,
+`read_clock(ClockCancellation) -> ClockReading`, `shutdown`, `is_closed`, and
+`active_operations` (Java camelCase equivalents). Construction explicitly
+creates the production driver's worker; import does not start a connection
+runtime. `default_clock_settings()` / `LoxArchive.defaultClockSettings()`
+obtains production defaults. Settings contain no credentials; constructor
+arguments are explicit and never selected from home/context/cache files.
+
+`ClockReading.date/time` are shared-core validated **text**, not calendar,
+timezone or synchronized-clock values. The facade calls the production
+operation and `ClockObservation.validate()`, not a copied decoder. Both date
+and time are observed before validation of their fields. Missing/invalid
+envelopes, protocol codes and values raise typed `ClockRuntimeError.Validation`
+(Java `ClockRuntimeException.Validation`) with endpoint/issue. HTTP,
+transport-kind, strict JSON decode, requested/shutdown cancellation, Busy,
+Closed, driver-stop and shutdown-timeout errors retain distinct native types.
+No arbitrary JSON or success-shaped fallback is exposed.
+
+The native default stays **StrictJson**. The CLI-only legacy text/lossy decode
+and `-vv` raw-body observer are neither exposed nor enabled by these heads.
+There are no foreign callbacks/subscriptions or implicit diagnostics. Errors
+carry sanitized categories/context, never URLs, credentials or response bodies.
+Returned clock text is caller-owned data; do not treat it as trusted calendar
+syntax. Caller Python/JVM strings and Rust/HTTP copies are **not promised
+zeroized**, and the adapter cannot erase caller-owned secret memory.
+
+### Host async dispatch and explicit disposal
+
+`from lox_archive_async import AsyncClockClient` adds a stdlib-only asyncio
+adapter without changing existing `lox_archive` imports/archive APIs. Create it
+inside its owning event loop and use `async with` or `await client.aclose()`.
+One read reservation and one close reservation bound an owned
+`ThreadPoolExecutor(max_workers=2)`; concurrent reads fail Busy, not an
+unbounded work queue. Offload threads only wait on generated blocking FFI;
+the **same production Rust worker** owns all HTTP/retry/scheduling. No second
+Rust runtime, nested caller-thread `block_on`, language HTTP stack or protocol
+implementation exists.
+
+Cancelling the Python read task explicitly signals the production Rust
+cancellation handle. The underlying wait is shielded and admission is not
+released until it returns. `aclose` invokes shared Rust shutdown on its separate
+bounded close lane, drains the read, joins its own idle workers and releases its
+native reference. Cancelling an `aclose` **awaiter** does not abandon the already
+requested cleanup; await `aclose` again to observe completion/errors.
+
+Java's `net.eisber.lox.archive.ClockClient` is a thin convenience over the
+generated `ClockRuntime`. `readClock()` returns `CompletableFuture<ClockReading>`;
+its cancellation explicitly signals Rust (interrupting/abandoning a Java wait
+alone is insufficient). One owned wait thread and a one-entry bounded handoff
+queue are guarded by one read reservation. Kotlin uses this **same Java API**,
+not another native binding or coroutine protocol stack.
+
+Java `close()` first invokes shared Rust shutdown, then stops/joins the head
+executor and explicitly destroys the native handle. It is idempotent. Shared
+`ShutdownTimeout` propagates honestly and leaves the closed handle available
+for a retry. If caller-owned synchronous future continuations prevent head
+drain, `ClockDispatchTimeout` reports that separate limit rather than claiming
+disposal; release those continuations and retry close. Do not block a wait
+thread's continuation waiting for another operation on that same client.
+Use nonblocking/appropriately dispatched continuations. Interrupting close may
+also require a retry to finish head cleanup. Java host drain milliseconds must
+fit a nonnegative signed `long`.
+
+Reads after close fail Closed. Generated object destruction/Cleaners and
+Python GC are **fallbacks, not the shutdown contract**. Direct native-handle
+users must call `shutdown()` before releasing the generated object; simply
+closing a generated Java wrapper is not a checked shared-core shutdown call.
+Core runtime teardown waits at most 100 ms for platform blocking/DNS tasks;
+it cannot forcibly terminate OS DNS or arbitrary blocking user code.
+
+### What the clock artifact tests prove
+
+`clock_smoke.py`, compiled `ClockSmoke.java` and `ClockSmoke.kt` share one
+loopback-only Basic-auth fixture. They check repeated typed reads on the same
+client, numeric-to-text validation, malformed/invalid-UTF8 JSON, missing values,
+rejected protocol status and HTTP errors. Host task/future cancellation is
+tested while date/time bodies are blocked and after a retryable response;
+socket EOF and production active-operation drain must occur **before close**,
+with native attempt/retry settings longer than the fixture deadline. A second
+read while blocked is rejected Busy.
+
+Closing blocked reads produces native shutdown cancellation, socket EOF,
+after-close refusal and idempotent cleanup. Python also cancels a close
+awaiter and observes independent completion/EOF before requesting close again.
+Java deliberately blocks a caller continuation, observes a typed bounded head
+drain timeout after native shutdown, releases it and successfully retries close.
+These are actual production API/socket/resource proofs, not RSS/thread-count
+thresholds or language-only lifecycle assertions. Forced native-core timeout,
+real devices, TLS, DNS termination, calendar meaning, event subscriptions and
+other targets remain unqualified. Existing archive/error and both 64-error
+allocation regressions remain mandatory.
+
+The runtime composition is private/reversible until both prerequisite source
+changes are actually published and parent-serialized reconciliation receives
+fresh coherent review/gates. A local artifact proof is not a public release or
+authority to publish the composed prerequisite subtree.
 
 ## Reproduce the local artifact proof
 

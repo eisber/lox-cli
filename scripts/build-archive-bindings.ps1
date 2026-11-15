@@ -102,18 +102,18 @@ Copy-Item -Force 'crates\lox-bindings\THIRD_PARTY_NOTICES' "$Output\jvm\metadata
 Copy-Item -Force 'crates\lox-bindings\licenses\MPL-2.0.txt' "$Output\jvm\metadata\META-INF\licenses"
 Copy-Item -Force 'crates\lox-bindings\patches\uniffi-bindgen-java-0.5.2-rustbuffer-free.json' "$Output\jvm\metadata\META-INF\lox-build\PATCH-SPEC.json"
 Copy-Item -Force "$Output\java-generator-correction.json" "$Output\jvm\metadata\META-INF\lox-build\PATCH-RECEIPT.json"
-$Sources = Get-ChildItem "$Output\generated-java" -Recurse -Filter '*.java' |
+$Sources = Get-ChildItem "$Output\generated-java", 'bindings\java' -Recurse -Filter '*.java' |
     ForEach-Object { '"' + $_.FullName.Replace('\', '\\') + '"' }
 [IO.File]::WriteAllLines("$Output\jvm\sources.args", [string[]]$Sources, [Text.UTF8Encoding]::new($false))
 Step 'javac-api' $Javac @('--release', '22', '-d', "$Output\jvm\classes", "@$Output\jvm\sources.args")
 $ApiJar = "$Output\jvm\lox-archive-0.1.0.jar"
 Step 'jar-api' $Jar @('--create', '--file', $ApiJar, '-C', "$Output\jvm\classes", '.', '-C', "$Output\jvm\metadata", '.')
-Step 'jar-sources' $Jar @('--create', '--file', "$Output\jvm\lox-archive-0.1.0-sources.jar", '-C', "$Output\generated-java", '.', '-C', "$Output\jvm\metadata", '.')
+Step 'jar-sources' $Jar @('--create', '--file', "$Output\jvm\lox-archive-0.1.0-sources.jar", '-C', "$Output\generated-java", '.', '-C', 'bindings\java', '.', '-C', "$Output\jvm\metadata", '.')
 Copy-Item -Force $InstalledDll "$Output\jvm\native\lox_archive.dll"
 if ((Get-FileHash $InstalledDll).Hash -ne (Get-FileHash "$Output\jvm\native\lox_archive.dll").Hash) {
     throw 'Python and JVM native artifacts differ.'
 }
-Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java')
+Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java', 'tests\bindings\ClockTestSupport.java', 'tests\bindings\ClockSmoke.java')
 $NativeAccess = @('--enable-native-access=ALL-UNNAMED', "-Djava.library.path=$Output\jvm\native")
 Step 'java-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveSmoke', "$Output\fixtures"))
 $VsWhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -141,10 +141,21 @@ $KotlinArguments = @('-jvm-target', '22', '-classpath',
 [IO.File]::WriteAllLines("$Output\jvm\kotlin-allocation.args", $KotlinArguments, [Text.UTF8Encoding]::new($false))
 Step 'kotlinc-allocation-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-allocation.args")
 Step 'kotlin-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-allocation-smoke.jar", 'ArchiveAllocationSmokeKt', "$Output\fixtures"))
+$ClockKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-clock-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\ClockSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-clock.args", $ClockKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-clock-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-clock.args")
+Step 'clock-head-smokes' $VenvPython @('-I', '-B', 'tests\bindings\clock_smoke.py', '--signals', "$Output\clock-signals",
+    '--java', $Java, '--api-jar', $ApiJar, '--classes', "$Output\jvm\test-classes",
+    '--kotlin-jar', "$Output\jvm\kotlin-clock-smoke.jar", '--native-dir', "$Output\jvm\native")
 
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
+$Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
 $Artifacts += Get-Item "$Output\java-generator-correction.json"
+$Artifacts += Get-Item "$Output\CLOCK-PROOF.json", "$Output\clock-java.log", "$Output\clock-kotlin.log"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -156,9 +167,9 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'archive functions only; no runtime/lifecycle qualification'
+    contract = 'Archive and strict production HTTP clock; current loopback cancellation/close only, no subscriptions/full-runtime/platform parity. Prerequisite composition remains publication-gated.'
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest
-    excluded = @('target', 'temp', 'venv except tested native DLL/generated module')
+    excluded = @('target', 'temp', 'venv except tested native DLL/generated module/async adapter')
 } | ConvertTo-Json -Depth 8 | Set-Content "$Output\ARTIFACTS.json" -Encoding utf8
 Write-Output "Archive artifact proof complete: $Output\ARTIFACTS.json"

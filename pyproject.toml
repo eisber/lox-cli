@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "lox-archive"
 version = "0.1.0"
-description = "Generated native lox-core archive operations (experimental)"
+description = "Generated native lox-core archive and strict clock operations (experimental)"
 requires-python = ">=3.10"
 license = "AGPL-3.0-or-later AND LicenseRef-Commercial"
 license-files = [
@@ -21,3 +21,4 @@ readme = "docs/toolkit-archive-bindings.md"
 [tool.maturin]
 bindings = "uniffi"
 manifest-path = "crates/lox-bindings/Cargo.toml"
+include = ["lox_archive_async.py"]

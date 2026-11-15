@@ -1,4 +1,4 @@
-Native archive binding provenance
+Native archive and clock binding provenance
 =================================
 
 Project-authored facade, build scripts and tests retain this repository's
@@ -37,6 +37,13 @@ patch specification and application receipt in META-INF/lox-build.
 Do not substitute unpatched generator output. Native ABI checks remain on.
 No other generated helper source is changed. These MPL notices do not claim
 ownership of upstream code or relicense this repository's own source.
+
+The project-authored lox_archive_async.py and Java ClockClient /
+ClockDispatchTimeout sources retain the project license. These stdlib-only
+adapters bound host offload of generated native waits and explicitly forward
+cancel/shutdown to the same production Rust driver. They do not implement
+HTTP, protocol decoding, retries or validation. Java sources are included in
+the sources jar; the Python adapter is included in the wheel.
 
 maturin 1.16.0 is a build-only tool (MIT OR Apache-2.0), not a runtime Python
 dependency. JDK/Kotlin compilers are external tools, not bundled in the API

@@ -45,3 +45,6 @@ See `crates/lox-bindings/THIRD_PARTY_NOTICES` and its `licenses/MPL-2.0.txt`.
 The generated Java RustBuffer helper receives an explicit local MPL-2.0
 descriptor-preservation correction for generator 0.5.2. Its guarded patch
 specification and receipt accompany both JVM jars; unpatched output is unsafe.
+The clock facade delegates to the optional production lox-core runtime.
+Project-authored stdlib asyncio/CompletableFuture adapters only offload native
+waits and forward cancellation/shutdown; they contain no HTTP/protocol stack.
