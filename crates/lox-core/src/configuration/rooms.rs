@@ -3,8 +3,9 @@
 //! Attribute strings are raw UTF-8, not entity-decoded or normalized. This is
 //! neither document validation nor a serialization/preservation API.
 
+use super::xml::attr_value;
 use quick_xml::Reader;
-use quick_xml::events::{BytesStart, Event};
+use quick_xml::events::Event;
 use std::collections::HashMap;
 use std::fmt;
 
@@ -39,15 +40,6 @@ impl std::error::Error for RoomInventoryError {
 }
 
 pub type Result<T> = std::result::Result<T, RoomInventoryError>;
-
-fn attr_value(e: &BytesStart<'_>, name: &[u8]) -> Option<String> {
-    for attr in e.attributes().flatten() {
-        if attr.key.as_ref() == name {
-            return String::from_utf8(attr.value.to_vec()).ok();
-        }
-    }
-    None
-}
 
 /// Inventory all `C Type="Place"` elements with readable `U` and `Title` attributes.
 ///

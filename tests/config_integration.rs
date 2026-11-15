@@ -1497,6 +1497,125 @@ fn config_room_add() {
 // ── config diff ─────────────────────────────────────────────────────────────
 
 #[test]
+fn summary_producer_cli_raw_loader_output_and_zip_dispatch() {
+    let dir = tempfile::Builder::new()
+        .prefix(".summary-producer-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let old = dir.path().join("old.Loxone");
+    let new = dir.path().join("new.ZIP");
+    let before = b"\xef\xbb\xbf<ControlList Version=\"1\"><C Type=\"Document\" Date=\"old\"/><C Type=\"Place\" U=\"r1\" Title=\"A&amp;B\"/><C Type=\"Switch\" U=\"a\" Title='has 12hTF=\"x\"'><IoData Pr=\"r1\"/></C></ControlList>";
+    let after = "<ControlList Version=\"2\"><C Type=\"Document\" Date=\"new\"/><C Type=\"Place\" U=\"r2\" Title=\"室\"/><C Type=\"Switch\" U=\"a\" Title='has 12hTF=\"x\"'><IoData Pr=\"r2\"/></C></ControlList>".as_bytes();
+    fs::write(&old, before).unwrap();
+    fs::write(&new, after).unwrap();
+    let command = || {
+        let mut cmd = lox();
+        cmd.current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .env("LOX_HOME", dir.path().join("home"));
+        cmd
+    };
+    let expected = serde_json::json!({
+        "version_old":"1", "version_new":"2", "date_old":"old", "date_new":"new",
+        "controls_added":[], "controls_removed":[],
+        "controls_changed":[{"name":"has 12hTF=\"x\"", "field":"room", "old_value":"A&amp;B", "new_value":"室"}],
+        "rooms_added":["室"], "rooms_removed":["A&amp;B"], "rooms_renamed":[],
+        "categories_added":[], "categories_removed":[], "categories_renamed":[],
+        "users_added":[], "users_removed":[]
+    });
+    for dry_run in [false, true] {
+        let mut cmd = command();
+        cmd.args(["--json", "config", "diff", "old.Loxone", "new.ZIP"]);
+        if dry_run {
+            cmd.arg("--dry-run");
+        }
+        let result = cmd.assert().success().stderr("").get_output().clone();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&result.stdout).unwrap(),
+            expected
+        );
+    }
+    command()
+        .args(["config", "diff", "old.Loxone", "new.ZIP"])
+        .assert()
+        .success()
+        .stdout("Config version: 1 → 2\nModified: old → new\n\nControls:\n  ~ Changed: \"has 12hTF=\"x\"\" — room \"A&amp;B\" → \"室\"\n\nRooms:\n  + Added: \"室\"\n  - Removed: \"A&amp;B\"\n\n3 changes total\n")
+        .stderr("");
+    let zip_path = dir.path().join("backup.zip");
+    {
+        let mut zip = zip::ZipWriter::new(fs::File::create(&zip_path).unwrap());
+        zip.start_file("sps0.LoxCC", zip::write::SimpleFileOptions::default())
+            .unwrap();
+        let archive = lox_core::configuration::archive::compress_loxcc(before);
+        std::io::Write::write_all(&mut zip, &archive).unwrap();
+        zip.finish().unwrap();
+    }
+    command()
+        .args(["config", "diff", "old.Loxone", "backup.zip"])
+        .assert()
+        .success()
+        .stdout("Config version: 1 → 1\nModified: old → old\n\nNo structural changes.\n")
+        .stderr("");
+    assert_eq!(fs::read(old).unwrap(), before);
+    assert_eq!(fs::read(new).unwrap(), after);
+    assert!(!dir.path().join("home").exists());
+}
+
+#[test]
+fn summary_producer_cli_errors_and_permissive_input() {
+    let dir = tempfile::Builder::new()
+        .prefix(".summary-producer-errors-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    fs::write(dir.path().join("empty.Loxone"), b"not XML").unwrap();
+    fs::write(dir.path().join("open.Loxone"), b"<Root>").unwrap();
+    fs::write(dir.path().join("bad.Loxone"), b"<Root><C></Root>").unwrap();
+    fs::write(dir.path().join("bad.zip"), b"not a zip").unwrap();
+    let command = || {
+        let mut cmd = lox();
+        cmd.current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .env("LOX_HOME", dir.path().join("home"));
+        cmd
+    };
+    command()
+        .args(["config", "diff", "empty.Loxone", "open.Loxone"])
+        .assert()
+        .success()
+        .stdout("Config version:  → \nModified:  → \n\nNo structural changes.\n");
+    for (file, prefix) in [
+        (
+            "bad.Loxone",
+            "Failed to parse XML: ill-formed document: expected `</C>`, but `</Root>` was found: expected `</C>`, but `</Root>` was found",
+        ),
+        ("missing.Loxone", "Cannot read missing.Loxone: "),
+        ("bad.zip", "Invalid ZIP archive: "),
+    ] {
+        let output = command()
+            .args(["--json", "config", "diff", "empty.Loxone", file])
+            .assert()
+            .code(1)
+            .stderr("")
+            .get_output()
+            .clone();
+        let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(value["ok"], false);
+        assert_eq!(value["error"], "error");
+        let message = value["message"].as_str().unwrap();
+        assert!(message.starts_with(prefix), "{message}");
+        command()
+            .args(["config", "diff", "empty.Loxone", file])
+            .assert()
+            .code(1)
+            .stdout("")
+            .stderr(format!(
+                "Error: {message}\n\n{}\n",
+                value["report_hint"].as_str().unwrap()
+            ));
+    }
+}
+
+#[test]
 fn config_diff_identical_files() {
     let dir = TempDir::new().unwrap();
     let path = write_fixture(&dir);

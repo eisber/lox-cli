@@ -101,45 +101,6 @@ fn device_type_label(sub_type: Option<u32>) -> String {
     }
 }
 
-/// Check if a `<C>` element is a known control type (function block) for diff purposes.
-/// We use a blacklist of infrastructure/structural types.
-fn is_control_type(type_attr: &str) -> bool {
-    !matches!(
-        type_attr,
-        "Document"
-            | "Page"
-            | "Place"
-            | "Category"
-            | "User"
-            | "UserCaption"
-            | "LoxCaption"
-            | "TreeDevice"
-            | "LoxAIRDevice"
-            | "NetworkDevice"
-            | "TreeAsensor"
-            | "TreeDsensor"
-            | "TreeAactuator"
-            | "TreeDactuator"
-            | "LoxAIRAsensor"
-            | "LoxAIRDsensor"
-            | "LoxAIRAactuator"
-            | "LoxAIRDactuator"
-            | "InputRef"
-            | "OutputRef"
-            | "Co"
-            | "IoData"
-            | "Display"
-            | "HP"
-            | "IoList"
-            | "Const"
-            | "Note"
-            | "ControlList"
-            | "SubGroup"
-            | "VirtUserDevice"
-            | "CentralDevice"
-    )
-}
-
 // ── Parsing ──
 
 pub fn parse_users(xml: &[u8]) -> Result<Vec<LoxUser>> {
@@ -232,100 +193,29 @@ pub fn parse_devices(xml: &[u8]) -> Result<Vec<LoxDevice>> {
 }
 
 pub fn parse_config_summary(xml: &[u8]) -> Result<ConfigSummary> {
-    let mut reader = Reader::from_reader(xml);
-    reader.config_mut().trim_text(true);
-    let mut buf = Vec::new();
-
-    let mut version = String::new();
-    let mut date = String::new();
-    let mut controls: HashMap<String, ControlEntry> = HashMap::new();
-    let mut rooms: HashMap<String, String> = HashMap::new();
-    let mut categories: HashMap<String, String> = HashMap::new();
-    let mut users: Vec<String> = Vec::new();
-    // IoData belongs to its parent element, not the last control in document order.
-    let mut element_controls: Vec<Option<String>> = Vec::new();
-
-    loop {
-        let event = reader.read_event_into(&mut buf);
-        let opens_element = matches!(&event, Ok(Event::Start(_)));
-        match event {
-            Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
-                let mut control_uuid = None;
-                let tag = e.name();
-                if tag.as_ref() == b"ControlList" {
-                    version = attr_value_or(e, b"Version", "");
-                } else if tag.as_ref() == b"IoData" {
-                    if let Some(Some(uuid)) = element_controls.last()
-                        && let Some(pr) = attr_value(e, b"Pr")
-                        && let Some(entry) = controls.get_mut(uuid)
-                    {
-                        entry.room_uuid = pr;
-                    }
-                } else if tag.as_ref() == b"C" {
-                    let type_val = attr_value(e, b"Type");
-                    match type_val.as_deref() {
-                        Some("Document") => {
-                            date = attr_value_or(e, b"Date", "");
-                        }
-                        Some("Place") => {
-                            if let (Some(u), Some(t)) =
-                                (attr_value(e, b"U"), attr_value(e, b"Title"))
-                            {
-                                rooms.insert(u, t);
-                            }
-                        }
-                        Some("Category") => {
-                            if let (Some(u), Some(t)) =
-                                (attr_value(e, b"U"), attr_value(e, b"Title"))
-                            {
-                                categories.insert(u, t);
-                            }
-                        }
-                        Some("User") => {
-                            if let Some(t) = attr_value(e, b"Title") {
-                                users.push(t);
-                            }
-                        }
-                        Some(typ) if is_control_type(typ) => {
-                            if let (Some(u), Some(t)) =
-                                (attr_value(e, b"U"), attr_value(e, b"Title"))
-                                && !t.is_empty()
-                            {
-                                control_uuid = Some(u.clone());
-                                controls.insert(
-                                    u,
-                                    ControlEntry {
-                                        name: t,
-                                        control_type: typ.to_string(),
-                                        room_uuid: String::new(),
-                                    },
-                                );
-                            }
-                        }
-                        _ => {}
-                    }
-                }
-                if opens_element {
-                    element_controls.push(control_uuid);
-                }
-            }
-            Ok(Event::End(_)) => {
-                element_controls.pop();
-            }
-            Ok(Event::Eof) => break,
-            Err(e) => return Err(e).context("Failed to parse XML"),
-            _ => {}
-        }
-        buf.clear();
-    }
-
+    let summary = lox_core::configuration::summary::parse_config_summary(xml)
+        .map_err(|lox_core::configuration::summary::ConfigSummaryError::Xml { source }| source)
+        .context("Failed to parse XML")?;
     Ok(ConfigSummary {
-        version,
-        date,
-        controls,
-        rooms,
-        categories,
-        users,
+        version: summary.version,
+        date: summary.date,
+        controls: summary
+            .controls
+            .into_iter()
+            .map(|(uuid, entry)| {
+                (
+                    uuid,
+                    ControlEntry {
+                        name: entry.name,
+                        control_type: entry.control_type,
+                        room_uuid: entry.room_uuid,
+                    },
+                )
+            })
+            .collect(),
+        rooms: summary.rooms,
+        categories: summary.categories,
+        users: summary.users,
     })
 }
 
@@ -1146,6 +1036,55 @@ mod tests {
     }
 
     #[test]
+    fn summary_characterization_raw_attributes_duplicates_and_parentage() {
+        let xml = br#"<ControlList Version="first">
+<C Type="Document" Date="old"/><C Type="Document"/>
+<C Type="Place" U="r" Title="Old"/><C Type="Place" U="r" Title=" A&amp;&#65;&custom; "/>
+<C Type="Category" U="" Title=""/><C Type="User" Title=""/><C Type="User" Title="Ada"/><C Type="User" Title="Ada"/>
+<C Type="Switch" U="a" Title="Old"><IoData Pr="r"/></C>
+<C Type="FutureBlock" U="a" Title='has 12hTF="x"'><IoData Pr="r"/><Other><IoData Pr="wrong"/></Other><IoData Pr="last"/></C>
+<C Type="Switch" U="b" U="ignored" Title="First" Title="Ignored"><IoData Pr=""/><IoData/></C>
+<C Type="Switch" U="" Title="Empty ID"/><C Type="Switch" U="a" Title=""/>
+<C Type="Page" U="page" Title="No"/><C Type="TreeDevice" U="device" Title="No"/>
+<C Type="switch" U="lower" Title="Yes"/><C Type="Sw&#105;tch" U="entity" Title="Yes"/>
+<C Type="Switch" U="missing-title"/><C Type="Switch" Title="missing-id"/>
+<ControlList Version="last"></ControlList>
+</ControlList>"#;
+        let s = parse_config_summary(xml).unwrap();
+        assert_eq!(s.version, "last");
+        assert_eq!(s.date, "");
+        assert_eq!(s.rooms["r"], " A&amp;&#65;&custom; ");
+        assert_eq!(s.categories[""], "");
+        assert_eq!(s.users, ["", "Ada", "Ada"]);
+        assert_eq!(s.controls.len(), 5);
+        assert_eq!(s.controls["a"].name, "has 12hTF=\"x\"");
+        assert_eq!(s.controls["a"].control_type, "FutureBlock");
+        assert_eq!(s.controls["a"].room_uuid, "last");
+        assert_eq!(s.controls["b"].name, "First");
+        assert_eq!(s.controls["b"].room_uuid, "");
+        assert_eq!(s.controls["entity"].control_type, "Sw&#105;tch");
+        assert_eq!(s.controls[""].name, "Empty ID");
+    }
+
+    #[test]
+    fn summary_characterization_byte_acceptance_and_error_chain() {
+        let mut xml = b"\xef\xbb\xbf<Root>\r\n".to_vec();
+        xml.extend_from_slice("<C Type=\"Switch\" U=\"室\" Title=\"Grüße\"/>".as_bytes());
+        xml.extend_from_slice(b"<C Type=\"Switch\" U=\"bad\" Title=\"\xff\"/><C Type=\"Switch\" U=\"ok\" Title=\"A\" Extra=\"\xff\"/>");
+        let s = parse_config_summary(&xml).unwrap();
+        assert_eq!(s.controls.len(), 2);
+        assert_eq!(s.controls["室"].name, "Grüße");
+        assert_eq!(s.controls["ok"].name, "A");
+        for bytes in [b"".as_slice(), b"not XML", b"<Root>"] {
+            assert!(parse_config_summary(bytes).unwrap().controls.is_empty());
+        }
+        let error = parse_config_summary(b"<Root><C></Root>").unwrap_err();
+        assert_eq!(error.to_string(), "Failed to parse XML");
+        assert!(error.chain().nth(1).unwrap().is::<quick_xml::Error>());
+        assert_eq!(error.chain().count(), 3);
+    }
+
+    #[test]
     fn test_parse_config_summary_empty() {
         let xml = br#"<?xml version="1.0"?><ControlList Version="99"/>"#;
         let s = parse_config_summary(xml).unwrap();
@@ -1282,6 +1221,12 @@ mod tests {
 
     #[test]
     fn test_is_control_type_filters() {
+        let is_control_type = |typ| {
+            !parse_config_summary(format!(r#"<C Type="{typ}" U="c" Title="Control"/>"#).as_bytes())
+                .unwrap()
+                .controls
+                .is_empty()
+        };
         // Structural types should be filtered out
         assert!(!is_control_type("Document"));
         assert!(!is_control_type("Place"));
