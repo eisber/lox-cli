@@ -5080,8 +5080,12 @@ fn cmd_control(ctx: &RunContext, action: ControlCmd) -> Result<()> {
         }
         ControlCmd::Wires { file, selector } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            let editor = ConfigEditor::load(&data)?;
-            let wires = editor.list_wires(&selector)?;
+            let wires: Vec<crate::config_edit::WireInfo> =
+                lox_core::configuration::wiring::connector_wiring(&data, &selector)
+                    .map_err(crate::config_edit::editor_error)?
+                    .into_iter()
+                    .map(Into::into)
+                    .collect();
 
             if ctx.json {
                 println!("{}", serde_json::to_string_pretty(&wires)?);

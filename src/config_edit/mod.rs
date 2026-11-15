@@ -47,6 +47,8 @@ mod template;
 mod validation;
 mod virtual_input_format;
 mod wiring;
+#[cfg(test)]
+mod wiring_catalog_tests;
 mod write;
 
 pub use blocks::VirtualInOpts;
@@ -488,6 +490,23 @@ pub struct WireInfo {
     pub direction: String,
     pub target_uuid: String,
     pub connected: bool,
+}
+
+impl From<lox_core::configuration::wiring::ConnectorWiring> for WireInfo {
+    fn from(value: lox_core::configuration::wiring::ConnectorWiring) -> Self {
+        use lox_core::configuration::wiring::ConnectorDirection;
+        Self {
+            connector: value.connector,
+            direction: match value.direction {
+                ConnectorDirection::Input => "input",
+                ConnectorDirection::Output => "output",
+                ConnectorDirection::Parameter => "parameter",
+            }
+            .to_owned(),
+            target_uuid: value.target_uuid,
+            connected: value.connected,
+        }
+    }
 }
 
 #[derive(Debug, serde::Serialize)]

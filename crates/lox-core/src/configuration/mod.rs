@@ -31,4 +31,7 @@ pub mod summary;
 pub mod users;
 
 #[cfg(feature = "configuration-xml")]
+pub mod wiring;
+
+#[cfg(feature = "configuration-xml")]
 mod xml;
