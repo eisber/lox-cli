@@ -1,6 +1,7 @@
 //! Loxone WebSocket client — used for token auth key exchange
 
 use anyhow::Result;
+use lox_core::authentication::{self, CredentialProfile, HashKey, WsxPasswordDigest};
 use rustls::{ClientConfig, crypto::ring};
 use std::sync::Arc;
 use tokio_tungstenite::Connector;
@@ -475,25 +476,25 @@ fn compute_wsx_autht(client: &crate::client::LoxClient, cfg: &Config) -> Result<
         .and_then(|v| v.as_str())
         .unwrap_or("SHA1");
 
-    // 2. Hash password: HASH("password:salt") → uppercase hex
-    let pw_hash = if hash_alg == "SHA256" {
-        use sha2::{Digest, Sha256};
-        hex::encode_upper(Sha256::digest(format!("{}:{}", cfg.pass, salt).as_bytes()))
+    // Retain the exact existing advertised-algorithm fallback at the head.
+    let password_digest = if hash_alg == "SHA256" {
+        WsxPasswordDigest::Sha256
     } else {
-        use sha1::Digest as _;
-        hex::encode_upper(sha1::Sha1::digest(
-            format!("{}:{}", cfg.pass, salt).as_bytes(),
-        ))
+        WsxPasswordDigest::Sha1
     };
 
-    // 3. Sign: HMAC-SHA256(key, "user:pw_hash")
-    let sig = {
-        use hmac::{Hmac, Mac};
-        type HmacSha256 = Hmac<sha2::Sha256>;
-        let mut mac = HmacSha256::new_from_slice(&hex::decode(key_hex)?)?;
-        mac.update(format!("{}:{}", cfg.user, pw_hash).as_bytes());
-        hex::encode(mac.finalize().into_bytes())
-    };
+    // Keep decoding here to preserve the original CLI error type and chain.
+    let key_bytes = hex::decode(key_hex)?;
+    let sig = authentication::hash_credentials(
+        CredentialProfile::ConfigWsx {
+            salt,
+            password_digest,
+        },
+        &cfg.user,
+        &cfg.pass,
+        &HashKey::from_bytes(&key_bytes),
+    )
+    .to_hex();
 
     // 4. getjwt — permission 8 = CONFIG
     let jwt_resp = client.get_text(&format!(
@@ -510,16 +511,11 @@ fn compute_wsx_autht(client: &crate::client::LoxClient, cfg: &Config) -> Result<
         .as_str()
         .ok_or_else(|| anyhow::anyhow!("no JWT key"))?;
 
-    // 5. autht = HMAC-SHA256(hex_decode(jwt_key).as_ascii(), jwt_token)
-    //    Python: hmac.new(bytes.fromhex(key).decode("ascii").encode(), token, sha256)
-    let jwt_key_ascii = String::from_utf8(hex::decode(jwt_key_hex)?)?;
-    let autht = {
-        use hmac::{Hmac, Mac};
-        type HmacSha256 = Hmac<sha2::Sha256>;
-        let mut mac = HmacSha256::new_from_slice(jwt_key_ascii.as_bytes())?;
-        mac.update(jwt_token.as_bytes());
-        hex::encode_upper(mac.finalize().into_bytes())
-    };
+    // 5. Retain the CLI's UTF-8 (not ASCII-only) key check and error chain.
+    let jwt_key_utf8 = String::from_utf8(hex::decode(jwt_key_hex)?)?;
+    let autht =
+        authentication::hash_wsx_autht(jwt_token, &HashKey::from_bytes(jwt_key_utf8.as_bytes()))?
+            .to_hex();
 
     Ok(autht)
 }
@@ -527,6 +523,139 @@ fn compute_wsx_autht(client: &crate::client::LoxClient, cfg: &Config) -> Result<
 #[cfg(test)]
 mod tests {
     use super::*;
+    use httpmock::prelude::*;
+
+    fn auth_hash_client(server: &MockServer) -> (crate::client::LoxClient, Config) {
+        let cfg = Config {
+            host: server.base_url(),
+            user: "fixture".into(),
+            pass: "password".into(),
+            ..Default::default()
+        };
+        let mut client = crate::client::LoxClient::new(cfg.clone()).unwrap();
+        client.client = reqwest::blocking::Client::builder()
+            .no_proxy()
+            .build()
+            .unwrap();
+        (client, cfg)
+    }
+
+    #[test]
+    fn auth_hash_wsx_existing_profiles_loopback() {
+        let server = MockServer::start();
+        let (client, cfg) = auth_hash_client(&server);
+        for alg in [
+            Some("SHA256"),
+            Some("SHA1"),
+            None,
+            Some("sha256"),
+            Some("other"),
+        ] {
+            for double_encoded in [false, true] {
+                let mut value = serde_json::json!({"key": "001122aaccee", "salt": "salt"});
+                if let Some(alg) = alg {
+                    value["hashAlg"] = alg.into();
+                }
+                if double_encoded {
+                    value = value.to_string().into();
+                }
+                let mut challenge = server.mock(|when, then| {
+                    when.method(GET).path("/jdev/sys/getkey2/fixture");
+                    then.json_body(serde_json::json!({"LL": {"value": value}}));
+                });
+                let signature = if alg == Some("SHA256") {
+                    "2cc3c3931adb712b59c77340702fae6b93eb1b3ecd2b98d188ca3e6610273f90"
+                } else {
+                    "4ee294d1e78a0d6df061f0bdab1f35494f0b9eaaa11f25917a4c1323692320fb"
+                };
+                let mut jwt = server.mock(|when, then| {
+                    when.method(GET).path_matches(regex_for_jwt(signature));
+                    then.json_body(serde_json::json!({"LL": {"value": {
+                        "token": "synthetic-jwt", "key": hex::encode("clé:key")
+                    }}}));
+                });
+                assert_eq!(
+                    compute_wsx_autht(&client, &cfg).unwrap(),
+                    "1AFE6FEF65123FEBD7CB0909C142DF327F2D685C575B8A7DC385A26E0BD89122"
+                );
+                challenge.assert_hits(1);
+                jwt.assert_hits(1);
+                challenge.delete();
+                jwt.delete();
+            }
+        }
+    }
+
+    fn regex_for_jwt(signature: &str) -> httpmock::Regex {
+        httpmock::Regex::new(&format!(
+            "^/jdev/sys/getjwt/{signature}/fixture/8/[0-9a-f-]{{36}}/lox-cli$"
+        ))
+        .unwrap()
+    }
+
+    #[test]
+    fn auth_hash_wsx_unicode_colons_loopback() {
+        let server = MockServer::start();
+        let (client, mut cfg) = auth_hash_client(&server);
+        cfg.pass = "päss:word".into();
+        let challenge = server.mock(|when, then| {
+            when.method(GET).path("/jdev/sys/getkey2/fixture");
+            then.json_body(serde_json::json!({"LL": {"value": {
+                "key": "001122aaccee", "salt": "s:älт", "hashAlg": "SHA256"
+            }}}));
+        });
+        let jwt = server.mock(|when, then| {
+            when.method(GET).path_matches(regex_for_jwt(
+                "5b24565771893b1a89d74bf5f23137ed4c3f431c48dbb95c3730c4101ece8cdd",
+            ));
+            then.json_body(serde_json::json!({"LL": {"value": {
+                "token": "synthetic-jwt", "key": hex::encode("clé:key")
+            }}}));
+        });
+        assert_eq!(
+            compute_wsx_autht(&client, &cfg).unwrap(),
+            "1AFE6FEF65123FEBD7CB0909C142DF327F2D685C575B8A7DC385A26E0BD89122"
+        );
+        challenge.assert_hits(1);
+        jwt.assert_hits(1);
+    }
+
+    #[test]
+    fn auth_hash_wsx_encoding_error_chains_loopback() {
+        for (challenge_key, jwt_key, expected) in [
+            ("zz", "aa", "Invalid character 'z' at position 0"),
+            ("a", "aa", "Odd number of digits"),
+            ("aa", "zz", "Invalid character 'z' at position 0"),
+            ("aa", "ff", "invalid utf-8 sequence of 1 bytes from index 0"),
+        ] {
+            let server = MockServer::start();
+            let (client, cfg) = auth_hash_client(&server);
+            let challenge = server.mock(|when, then| {
+                when.method(GET).path("/jdev/sys/getkey2/fixture");
+                then.json_body(serde_json::json!({"LL": {"value": {
+                    "key": challenge_key, "salt": "salt"
+                }}}));
+            });
+            let jwt = server.mock(|when, then| {
+                when.method(GET).path_contains("/jdev/sys/getjwt/");
+                then.json_body(serde_json::json!({"LL": {"value": {
+                    "token": "synthetic-jwt", "key": jwt_key
+                }}}));
+            });
+            let error = compute_wsx_autht(&client, &cfg).unwrap_err();
+            if jwt_key == "ff" {
+                assert!(error.is::<std::string::FromUtf8Error>());
+            } else {
+                assert!(error.is::<hex::FromHexError>());
+            }
+            assert_eq!(
+                error.chain().map(ToString::to_string).collect::<Vec<_>>(),
+                [expected]
+            );
+            challenge.assert_hits(1);
+            jwt.assert_hits(usize::from(challenge_key == "aa"));
+        }
+    }
 
     #[test]
     fn test_generate_ws_key_length() {

@@ -45,6 +45,10 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 - Optional `statistics-xml`: `statistics::{parse_series, StatSeries,
   StatisticsError}` decodes monthly statistics XML. The existing `lox stats get`
   producer uses it, while HTTP, selection, merging and formatting stay in the CLI.
+- Optional `auth-hash`: `authentication` provides the distinct existing APP
+  and CONFIG `/wsx` credential/token hash profiles. Both CLI producers use it;
+  transport, JSON, endpoint/permission selection and compatibility errors stay
+  in the binary.
 
 The library does not read files, select a connection context, print, implicitly
 start a runtime or normalize XML. Arbitrary decoded archive bytes are
@@ -242,6 +246,81 @@ and `cargo test -p lox-cli --bin lox --test config_integration summary_` for typ
 and actual-producer regressions. Comparison/diff APIs, editing, strict validation,
 and Python/Java/Kotlin summary bindings remain unsupported by this capability.
 
+## Optional authentication hash profiles
+
+```toml
+lox-core = { path = "path/to/lox-cli/crates/lox-core", features = ["auth-hash"] }
+```
+
+```rust,ignore
+use lox_core::authentication::{
+    CredentialProfile, HashError, HashKey, WsxPasswordDigest, hash_credentials,
+};
+
+fn config_signature(key_hex: &str, user: &str, password: &str, salt: &str)
+    -> Result<String, HashError>
+{
+    let key = HashKey::from_hex(key_hex)?;
+    Ok(hash_credentials(
+        CredentialProfile::ConfigWsx {
+            salt,
+            password_digest: WsxPasswordDigest::Sha1,
+        },
+        user,
+        password,
+        &key,
+    ).to_hex())
+}
+```
+
+These are **existing local profiles**, not a generic advertised-HMAC scheme or
+a newly qualified authentication protocol:
+
+| Operation | Exact existing calculation | Hex casing |
+| --- | --- | --- |
+| `hash_credentials(AppRawPassword, ...)` | HMAC-SHA256(key, `user:RAWpassword`) | lowercase |
+| `hash_credentials(ConfigWsx { .. }, ...)` | HMAC-SHA256(key, `user:UPPER(HASH(password:salt))`) | lowercase |
+| `hash_app_token` | HMAC-SHA256(key, token) | lowercase |
+| `hash_wsx_autht` | HMAC-SHA256(UTF8-valid decoded JWT key, token) | uppercase |
+
+`WsxPasswordDigest` explicitly selects only the inner SHA1 or SHA256 digest.
+The outer HMAC is **always SHA256**, including with SHA1 inside. The CLI keeps
+its exact `"SHA256"` comparison and SHA1 fallback for missing, unknown or
+differently cased `hashAlg`. Unicode and colons remain verbatim UTF-8 bytes.
+The JWT key check accepts valid non-ASCII UTF-8, not just ASCII.
+
+`HashKey::from_hex` strictly rejects malformed hex with a payload-free
+`HashError::InvalidHexKey`; `from_bytes` borrows already decoded bytes, including
+empty keys. `hash_wsx_autht` rejects invalid UTF-8 with
+`HashError::NonUtf8WsxKey`. Errors retain no backend/input sources. Keys, salted
+profiles and hash outputs redact Debug; wire output is available only through
+explicit `to_hex()`. There is no implicit logging, generic secret framework or
+memory-zeroization guarantee; callers must protect input and returned strings.
+
+The CLI deliberately keeps its original encoding adapters: APP credential
+hex failures retain their context/source chain, and CONFIG retains hex and
+`String::from_utf8` errors before calling the shared hash implementation.
+The old APP token helper **alone** still maps invalid hex to the empty key,
+silently, for legacy compatibility. Strict core decoding never does so.
+These legacy head errors, existing `TokenStore` Debug, request URLs and opt-in
+verbose transport logging are not made secret-safe by this extraction. Core
+redaction is not a claim that the entire existing authentication stack is safe
+to log.
+
+Only optional hmac/sha1/sha2/hex dependencies are enabled by `auth-hash`; default
+features remain empty. There is no network, JSON, filesystem, runtime, CLI or
+binding dependency in this module. Tests use original synthetic Python stdlib
+known answers and mocked CONFIG getkey2/getjwt exchanges, including the
+double-encoded challenge, algorithm fallback, permission8 and encoding errors.
+No upstream AGPL-only implementation or vector set was imported.
+
+APP gettoken/permission4, CONFIG getjwt/permission8, challenge extraction,
+AES/RSA, persistence, refresh and firmware/version/endpoint policy are unchanged.
+Token-version parity and Python/JVM authentication hashes remain **unsupported**.
+No native-device or cross-firmware authentication qualification is implied.
+Run `cargo test -p lox-core --features auth-hash authentication` and
+`cargo test -p lox-cli --bin lox auth_hash_` for these regressions.
+
 ## In-memory control resolution
 
 ```rust
@@ -401,10 +480,10 @@ qualification is implied.
 
 ## Not exposed yet
 
-XML parsing beyond room inventory/summary and monthly statistics, editing, runtime operations beyond this HTTP clock read, token/crypto/
-WebSocket authentication, subscriptions, and Python or Java/Kotlin native bindings
+XML parsing beyond room inventory/summary and monthly statistics, editing, runtime operations beyond this HTTP clock read,
+token acquisition/WebSocket authentication, subscriptions, and Python or Java/Kotlin native bindings
 are **not** exposed through `lox-core`. Existing CLI capabilities outside the
-archive, clock, room inventory/summary, monthly statistics and control-resolution families remain binary-private. No cross-head parity, native
+archive, clock, room inventory/summary, monthly statistics, authentication-hash and control-resolution families remain binary-private. No cross-head parity, native
 package availability or ABI stability is claimed. The approved generated UniFFI
 Python / one Java 22+ FFM API direction is unchanged; this stage adds no bindings.
 Archive byte guarantees and private deployment/sidecar policies are unchanged;
