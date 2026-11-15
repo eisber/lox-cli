@@ -21,6 +21,7 @@ tokio = { version = "1", features = ["rt", "sync", "time", "macros"], optional =
 [features]
 default = []
 configuration-xml = ["dep:quick-xml"]
+statistics-xml = ["dep:quick-xml"]
 runtime = ["dep:reqwest", "dep:serde_json", "dep:tokio"]
 runtime-blocking = ["runtime"]
 
@@ -31,3 +32,7 @@ tokio = { version = "1", features = ["rt", "sync", "time", "macros"] }
 [[test]]
 name = "room_inventory"
 required-features = ["configuration-xml"]
+
+[[test]]
+name = "statistics_series"
+required-features = ["statistics-xml"]

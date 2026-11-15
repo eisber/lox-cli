@@ -6,9 +6,8 @@
 
 use anyhow::{Context, Result, bail};
 use clap::Subcommand;
-use quick_xml::Reader;
+use lox_core::statistics::{StatSeries, StatisticsError, parse_series};
 use quick_xml::escape::unescape;
-use quick_xml::events::{BytesStart, Event};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
@@ -299,17 +298,6 @@ pub struct StatEntry {
     pub label: String,
 }
 
-/// The logged values of one statistic file (or several merged months).
-#[derive(Debug, Clone, PartialEq)]
-pub struct StatSeries {
-    pub name: String,
-    pub group: Option<u32>,
-    /// Output labels, from `Outputs="a,b"`
-    pub outputs: Vec<String>,
-    /// `(timestamp, values in output order)`
-    pub rows: Vec<(String, Vec<f64>)>,
-}
-
 /// Quote a CSV field when it contains a separator, quote or newline.
 fn csv_field(s: &str) -> String {
     if s.contains([',', '"', '\n', '\r']) {
@@ -335,7 +323,26 @@ fn fetch_series(lox: &LoxClient, entry: &StatEntry) -> Result<StatSeries> {
     let xml = lox
         .get_text(&format!("/stats/{}", entry.file))
         .with_context(|| format!("reading {}", entry.file))?;
-    parse_series(&xml).with_context(|| format!("parsing {}", entry.file))
+    parse_series(&xml)
+        .map_err(statistics_error)
+        .with_context(|| format!("parsing {}", entry.file))
+}
+
+fn statistics_error(error: StatisticsError) -> anyhow::Error {
+    let message = error.to_string();
+    match error {
+        StatisticsError::Xml { source } => anyhow::Error::new(source).context(message),
+        StatisticsError::MalformedAttribute { source, .. } => {
+            anyhow::Error::new(source).context(message)
+        }
+        StatisticsError::AttributeValue { source, .. } => source.into(),
+        StatisticsError::InvalidStatsGroup { source, .. }
+        | StatisticsError::InvalidNumOutputs { source, .. } => {
+            anyhow::Error::new(source).context(message)
+        }
+        StatisticsError::InvalidValue { source, .. } => anyhow::Error::new(source).context(message),
+        other => other.into(),
+    }
 }
 
 fn list(
@@ -721,107 +728,6 @@ fn strip_label_suffix(label: &str) -> &str {
     label
 }
 
-/// Read an attribute as an entity-decoded string.
-fn attr(e: &BytesStart, name: &[u8]) -> Result<Option<String>> {
-    for a in e.attributes() {
-        let a = a.context("malformed XML attribute")?;
-        if a.key.as_ref() == name {
-            return Ok(Some(a.unescape_value()?.into_owned()));
-        }
-    }
-    Ok(None)
-}
-
-/// Parse one statistics XML file (`<Statistics ...><S T=".." V=".." V2=".."/>`).
-pub fn parse_series(xml: &str) -> Result<StatSeries> {
-    let mut reader = Reader::from_str(xml);
-    let mut series: Option<StatSeries> = None;
-    let mut depth = 0usize;
-    // Attribute names holding the values, in output order: V, V2, V3, ...
-    let mut value_attrs: Vec<String> = Vec::new();
-    loop {
-        let event = reader.read_event().context("parsing statistics XML")?;
-        match &event {
-            Event::Start(_) => depth += 1,
-            Event::End(_) => {
-                depth = depth
-                    .checked_sub(1)
-                    .context("unexpected closing element in statistics XML")?;
-            }
-            Event::Eof if depth != 0 => bail!("truncated statistics XML: unclosed element"),
-            _ => {}
-        }
-        match event {
-            Event::Start(e) | Event::Empty(e) => match e.name().as_ref() {
-                b"Statistics" => {
-                    if series.is_some() {
-                        bail!("multiple <Statistics> elements in statistics file");
-                    }
-                    let name = attr(&e, b"Name")?.unwrap_or_default();
-                    let group = match attr(&e, b"StatsGroup")? {
-                        Some(g) => Some(
-                            g.trim()
-                                .parse::<u32>()
-                                .with_context(|| format!("invalid StatsGroup '{g}'"))?,
-                        ),
-                        None => None,
-                    };
-                    let mut outputs: Vec<String> = attr(&e, b"Outputs")?
-                        .map(|o| o.split(',').map(|s| s.trim().to_string()).collect())
-                        .unwrap_or_default();
-                    let num = match attr(&e, b"NumOutputs")? {
-                        Some(n) => n
-                            .trim()
-                            .parse::<usize>()
-                            .with_context(|| format!("invalid NumOutputs '{n}'"))?,
-                        None => outputs.len().max(1),
-                    };
-                    value_attrs = (1..=num)
-                        .map(|i| if i == 1 { "V".into() } else { format!("V{i}") })
-                        .collect();
-                    // Fall back to the attribute name for unlabelled outputs.
-                    outputs.resize(num, String::new());
-                    for (o, a) in outputs.iter_mut().zip(&value_attrs) {
-                        if o.is_empty() {
-                            *o = a.clone();
-                        }
-                    }
-                    series = Some(StatSeries {
-                        name,
-                        group,
-                        outputs,
-                        rows: Vec::new(),
-                    });
-                }
-                b"S" => {
-                    let Some(s) = series.as_mut() else {
-                        bail!("statistics row before <Statistics> element");
-                    };
-                    let t = attr(&e, b"T")?.context("statistics row without T attribute")?;
-                    let mut values = Vec::with_capacity(value_attrs.len());
-                    for a in &value_attrs {
-                        let raw = attr(&e, a.as_bytes())?
-                            .with_context(|| format!("row {t}: missing value {a}"))?;
-                        let v = raw
-                            .trim()
-                            .parse::<f64>()
-                            .with_context(|| format!("row {t}: {a}='{raw}' is not a number"))?;
-                        if !v.is_finite() {
-                            bail!("row {t}: {a}='{raw}' is not a finite number");
-                        }
-                        values.push(v);
-                    }
-                    s.rows.push((t, values));
-                }
-                _ => {}
-            },
-            Event::Eof => break,
-            _ => {}
-        }
-    }
-    series.context("no <Statistics> element in statistics file")
-}
-
 /// Concatenate month files (in month order) into one series.
 ///
 /// Each part is `(month, series)`. A month file can end with the first
@@ -976,6 +882,86 @@ mod tests {
     }
 
     // ── parse_series ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn monthly_decoder_preserves_defaults_entities_and_opaque_row_order() {
+        let s = parse_series(
+            "\u{feff}text<Wrapper><Statistics Name=\"Caf&#xE9; &amp; 気\" \
+             StatsGroup=\" +2 \" NumOutputs=\"3\" Outputs=\" A &amp; B, , discarded, extra\">\
+             <S T=\" later &amp; raw \" V3=\"3\" V2=\" 2e1 \" V=\"-0\"/>\
+             </Statistics><S T=\"\" V=\"1\" V2=\"2\" V3=\"3\"/>\
+             <S T=\"\" V=\"4\" V2=\"5\" V3=\"6\"/></Wrapper>trailing<Other/>",
+        )
+        .unwrap();
+        assert_eq!(s.name, "Café & 気");
+        assert_eq!(s.group, Some(2));
+        assert_eq!(s.outputs, ["A & B", "V2", "discarded"]);
+        assert_eq!(s.rows[0].0, " later & raw ");
+        assert_eq!(s.rows[0].1, [-0.0, 20.0, 3.0]);
+        assert!(s.rows[0].1[0].is_sign_negative());
+        assert_eq!(s.rows[1].0, "");
+        assert_eq!(s.rows[2].0, "");
+        for (xml, labels, rows) in [
+            ("<Statistics/>", vec!["V"], 0),
+            ("<Statistics Outputs=\"\"/>", vec!["V"], 0),
+            ("<Statistics Outputs=\" A, ,A \"/>", vec!["A", "V2", "A"], 0),
+            (
+                "<Statistics NumOutputs=\"0\"><S T=\"x\"/></Statistics>",
+                vec![],
+                1,
+            ),
+            (
+                "<Statistics Name=\"n\" StatsGroup=\"0\" Outputs=\"A\" NumOutputs=\"1\" broken/>",
+                vec!["A"],
+                0,
+            ),
+        ] {
+            let s = parse_series(xml).unwrap();
+            assert_eq!(s.outputs, labels, "{xml}");
+            assert_eq!(s.rows.len(), rows, "{xml}");
+        }
+    }
+
+    #[test]
+    fn monthly_decoder_preserves_validation_precedence_and_context() {
+        for (xml, expected) in [
+            ("", "no <Statistics> element in statistics file"),
+            ("not XML", "no <Statistics> element in statistics file"),
+            ("<S/>", "statistics row before <Statistics> element"),
+            (
+                "<Statistics/><Statistics StatsGroup=\"bad\"/>",
+                "multiple <Statistics> elements in statistics file",
+            ),
+            ("<Statistics>", "truncated statistics XML: unclosed element"),
+            ("<Statistics><S/>", "statistics row without T attribute"),
+            ("<Statistics><S T=\"x\"/>", "row x: missing value V"),
+            ("<Statistics StatsGroup=\"-1\"/>", "invalid StatsGroup '-1'"),
+            ("<Statistics NumOutputs=\"-1\"/>", "invalid NumOutputs '-1'"),
+            ("<Statistics broken/>", "malformed XML attribute"),
+            (
+                "<Statistics><S T=\"x\" V=\"oops\"/></Statistics>",
+                "row x: V='oops' is not a number",
+            ),
+            (
+                "<Statistics><S T=\"x\" V=\"1e9999\"/></Statistics>",
+                "row x: V='1e9999' is not a finite number",
+            ),
+        ] {
+            assert_eq!(
+                parse_series(xml).unwrap_err().to_string(),
+                expected,
+                "{xml}"
+            );
+        }
+        for xml in [
+            "</Statistics>",
+            "<Statistics></Other>",
+            "<Statistics Name=\"&unknown;\"/>",
+            "<Statistics Name=\"n\" Name=\"duplicate\"/>",
+        ] {
+            assert!(parse_series(xml).is_err(), "{xml}");
+        }
+    }
 
     #[test]
     fn series_with_one_output() {
@@ -1244,6 +1230,47 @@ mod tests {
              2026-10-01 00:00:00,21.25,49\n\
              2026-10-01 00:30:00,21,50.5\n"
         );
+    }
+
+    #[test]
+    fn get_monthly_decoder_failure_emits_no_partial_rows_and_keeps_error_chain() {
+        let server = MockServer::start();
+        let index = serve_index(&server);
+        let sep = serve_file(
+            &server,
+            &format!("{KITCHEN}.202609.xml"),
+            &kitchen_xml(&[("first", 21.5)]),
+        );
+        let oct = serve_file(
+            &server,
+            &format!("{KITCHEN}.202610.xml"),
+            r#"<Statistics><S T="second" V="warm"/></Statistics>"#,
+        );
+        let mut out = Vec::new();
+        let error = get(
+            &run_ctx(false, true),
+            &mock_client(&server),
+            "Kitchen",
+            None,
+            &MonthRange {
+                from: None,
+                to: None,
+            },
+            &mut out,
+        )
+        .unwrap_err();
+        assert!(out.is_empty());
+        assert_eq!(
+            error.chain().map(ToString::to_string).collect::<Vec<_>>(),
+            [
+                format!("parsing {KITCHEN}.202610.xml"),
+                "row second: V='warm' is not a number".into(),
+                "invalid float literal".into(),
+            ]
+        );
+        index.assert_hits(1);
+        sep.assert_hits(1);
+        oct.assert_hits(1);
     }
 
     #[test]
