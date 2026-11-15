@@ -14,13 +14,12 @@ use aes::cipher::{BlockDecryptMut, BlockEncryptMut, KeyIvInit, block_padding::Pk
 use anyhow::{Context, Result, bail};
 use base64::{Engine, engine::general_purpose::STANDARD as B64};
 use futures_util::{SinkExt, StreamExt};
-use hmac::{Hmac, Mac};
+use lox_core::authentication::{self, CredentialProfile, HashKey};
 use rand::RngCore;
 use rsa::pkcs1::DecodeRsaPublicKey;
 use rsa::pkcs8::DecodePublicKey;
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey};
 use serde::{Deserialize, Serialize};
-use sha2::Sha256;
 use tokio::time::timeout;
 use tokio_tungstenite::tungstenite::Message;
 use uuid::Uuid;
@@ -132,20 +131,22 @@ impl TokenStore {
 /// Compute HMAC-SHA256(`message`, `key`) and return the result as a
 /// lowercase hex string.  `key` is expected to be hex-encoded.
 pub fn hash_token(token: &str, key: &str) -> String {
+    // Legacy CLI compatibility only: malformed hex has always used an empty key.
     let key_bytes = hex::decode(key).unwrap_or_default();
-    let mut mac = Hmac::<Sha256>::new_from_slice(&key_bytes).expect("HMAC accepts any key length");
-    mac.update(token.as_bytes());
-    hex::encode(mac.finalize().into_bytes())
+    authentication::hash_app_token(token, &HashKey::from_bytes(&key_bytes)).to_hex()
 }
 
 /// Compute `HMAC-SHA256(user:password, key)` where `key` is hex-encoded.
 fn hash_credentials(user: &str, password: &str, key_hex: &str) -> Result<String> {
     let key_bytes =
         hex::decode(key_hex).context("Miniserver returned invalid hex key for hashing")?;
-    let mut mac = Hmac::<Sha256>::new_from_slice(&key_bytes).context("invalid HMAC key length")?;
-    let payload = format!("{user}:{password}");
-    mac.update(payload.as_bytes());
-    Ok(hex::encode(mac.finalize().into_bytes()))
+    Ok(authentication::hash_credentials(
+        CredentialProfile::AppRawPassword,
+        user,
+        password,
+        &HashKey::from_bytes(&key_bytes),
+    )
+    .to_hex())
 }
 
 // ---------------------------------------------------------------------------
@@ -479,6 +480,35 @@ mod tests {
     use std::time::{SystemTime, UNIX_EPOCH};
 
     // -- hash_token -------------------------------------------------------
+
+    #[test]
+    fn auth_hash_app_profile_and_legacy_empty_key() {
+        assert_eq!(
+            hash_credentials("us:ér", "päss:word", "001122aaccee").unwrap(),
+            "88bfb35cc1a3ce183b6fcd66b3b5fe3acbdaba620c3ce041d866ce6d055e2bb2"
+        );
+        assert_eq!(
+            hash_token("jwt:тøken", &hex::encode("clé:key")),
+            "4b59c58e38a81ab3dbe92b052651a678a6f5a175175ba01f1f1853849b25da89"
+        );
+        for key in ["", "z-secret", "a"] {
+            assert_eq!(
+                hash_token("tok", key),
+                "3d6cb1ab5aa9e075eeb3a608a885b15452f8f9c50a7d33aef07acfd8fdfdc6e1"
+            );
+        }
+        for (key, detail) in [
+            ("zz", "Invalid character 'z' at position 0"),
+            ("a", "Odd number of digits"),
+        ] {
+            let error = hash_credentials("fixture", "secret-password", key).unwrap_err();
+            assert!(error.is::<hex::FromHexError>());
+            assert_eq!(
+                error.chain().map(ToString::to_string).collect::<Vec<_>>(),
+                ["Miniserver returned invalid hex key for hashing", detail]
+            );
+        }
+    }
 
     #[test]
     fn hash_token_known_vector() {
