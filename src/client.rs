@@ -5,9 +5,9 @@ pub use lox_core::control::{Control, is_uuid};
 use lox_core::control::{
     ControlQuery, IdentifierError, PreparedControlQuery, ResolutionError, matches_text,
 };
+use lox_core::control_catalog::{ControlCatalog, ControlFilter};
 use reqwest::blocking::Client;
 use serde_json::Value;
-use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU8, Ordering};
@@ -399,86 +399,15 @@ impl LoxClient {
         favorites_only: bool,
     ) -> Result<Vec<Control>> {
         let structure = self.get_structure()?;
-        let mut rooms: HashMap<String, String> = HashMap::new();
-        if let Some(map) = structure.get("rooms").and_then(|r| r.as_object()) {
-            for (uuid, room) in map {
-                if let Some(name) = room.get("name").and_then(|n| n.as_str()) {
-                    rooms.insert(uuid.clone(), name.to_string());
-                }
-            }
-        }
-        let mut cats: HashMap<String, String> = HashMap::new();
-        if let Some(map) = structure.get("cats").and_then(|c| c.as_object()) {
-            for (uuid, cat) in map {
-                if let Some(name) = cat.get("name").and_then(|n| n.as_str()) {
-                    cats.insert(uuid.clone(), name.to_string());
-                }
-            }
-        }
-        let mut controls = Vec::new();
-        if let Some(ctrl_map) = structure.get("controls").and_then(|c| c.as_object()) {
-            for (uuid, ctrl) in ctrl_map {
-                let name = ctrl
-                    .get("name")
-                    .and_then(|n| n.as_str())
-                    .unwrap_or("?")
-                    .to_string();
-                let typ = ctrl
-                    .get("type")
-                    .and_then(|t| t.as_str())
-                    .unwrap_or("?")
-                    .to_string();
-                let room_uuid = ctrl
-                    .get("room")
-                    .and_then(|r| r.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                let cat_uuid = ctrl
-                    .get("cat")
-                    .and_then(|c| c.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                let room = rooms.get(&room_uuid).cloned();
-                let cat = cats.get(&cat_uuid).cloned();
-                let is_favorite = ctrl
-                    .get("isFavorite")
-                    .and_then(|f| f.as_bool())
-                    .unwrap_or(false);
-                let is_secured = ctrl
-                    .get("isSecured")
-                    .and_then(|f| f.as_bool())
-                    .unwrap_or(false);
-                if let Some(tf) = type_filter
-                    && !matches_text(&typ, tf)
-                {
-                    continue;
-                }
-                if let Some(rf) = room_filter
-                    && !matches_text(room.as_deref().unwrap_or(""), rf)
-                {
-                    continue;
-                }
-                if let Some(cf) = cat_filter
-                    && !matches_text(cat.as_deref().unwrap_or(""), cf)
-                {
-                    continue;
-                }
-                if favorites_only && !is_favorite {
-                    continue;
-                }
-                controls.push(Control {
-                    name,
-                    uuid: uuid.clone(),
-                    typ,
-                    room,
-                    cat,
-                    is_favorite,
-                    is_secured,
-                });
-            }
-        }
-        controls.sort_by(|a, b| a.name.cmp(&b.name));
-        Ok(controls)
+        // Keep the shared cache/raw JSON contract in the CLI; Core owns only
+        // the typed projection of this already-acquired snapshot.
+        let catalog = ControlCatalog::from_loxapp3_json(&serde_json::to_vec(structure)?)?;
+        Ok(catalog.select(&ControlFilter {
+            typ: type_filter.map(str::to_owned),
+            room: room_filter.map(str::to_owned),
+            category: cat_filter.map(str::to_owned),
+            favorites_only,
+        }))
     }
 
     pub fn list_categories(&mut self) -> Result<Vec<(String, String)>> {
@@ -693,6 +622,150 @@ mod tests {
     }
 
     // ── list_controls ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn catalog_permissive_shapes_and_empty_id_lookup() {
+        let server = MockServer::start();
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        for root in [
+            serde_json::json!(null),
+            serde_json::json!(false),
+            serde_json::json!(42),
+            serde_json::json!("text"),
+            serde_json::json!([]),
+            serde_json::json!({}),
+        ] {
+            client.structure = Some(root);
+            assert!(client.list_controls(None, None).unwrap().is_empty());
+        }
+        for value in [
+            serde_json::json!(null),
+            serde_json::json!(true),
+            serde_json::json!(42),
+            serde_json::json!("text"),
+            serde_json::json!([]),
+            serde_json::json!({}),
+        ] {
+            client.structure = Some(serde_json::json!({"controls": value}));
+            assert!(client.list_controls(None, None).unwrap().is_empty());
+            client.structure = Some(serde_json::json!({
+                "rooms": {"": {"name": "Empty room"}},
+                "cats": {"": {"name": "Empty category"}},
+                "controls": {"../ raw key ": {
+                    "name": value, "type": value, "room": value, "cat": value,
+                    "isFavorite": value, "isSecured": value
+                }, "scalar": value}
+            }));
+            let controls = client.list_controls(None, None).unwrap();
+            let offline = ControlCatalog::from_loxapp3_json(
+                &serde_json::to_vec(client.structure.as_ref().unwrap()).unwrap(),
+            )
+            .unwrap();
+            assert_eq!(offline.controls(), controls);
+            let raw = controls.iter().find(|c| c.uuid == "../ raw key ").unwrap();
+            assert_eq!(raw.name, value.as_str().unwrap_or("?"));
+            assert_eq!(raw.typ, value.as_str().unwrap_or("?"));
+            let empty_ref = value.as_str().is_none();
+            assert_eq!(raw.room.as_deref(), empty_ref.then_some("Empty room"));
+            assert_eq!(raw.cat.as_deref(), empty_ref.then_some("Empty category"));
+            assert_eq!(raw.is_favorite, value.as_bool().unwrap_or(false));
+            assert_eq!(raw.is_secured, value.as_bool().unwrap_or(false));
+            assert_eq!(
+                controls.iter().find(|c| c.uuid == "scalar").unwrap().name,
+                "?"
+            );
+        }
+        for maps in [
+            serde_json::json!(null),
+            serde_json::json!([]),
+            serde_json::json!(true),
+            serde_json::json!("x"),
+            serde_json::json!(7),
+        ] {
+            client.structure = Some(serde_json::json!({
+                "rooms": maps, "cats": maps, "controls": {"": {}}
+            }));
+            let controls = client
+                .list_controls_ext(None, Some(""), Some(""), false)
+                .unwrap();
+            assert_eq!(controls.len(), 1);
+            assert_eq!(controls[0].uuid, "");
+            assert_eq!(controls[0].room, None);
+            assert_eq!(controls[0].cat, None);
+        }
+    }
+
+    #[test]
+    fn catalog_loopback_projection_filters_sort_and_cache() {
+        let server = MockServer::start();
+        let mock = server.mock(|when, then| {
+            when.method(GET).path("/data/LoxApp3.json");
+            then.json_body(serde_json::json!({
+                "rooms": {"r": {"name": "KÜCHE"}, "bad": {"name": 1}},
+                "cats": {"c": {"name": "LÜFTUNG"}, "bad": {"name": false}},
+                "controls": {
+                    "raw / key": {"name": "z", "type": "Straße", "room": "r", "cat": "c", "isFavorite": true, "isSecured": true,
+                        "subControls": {"nested": {"name": "Must not appear"}}},
+                    "a": {"name": "a", "type": "Switch", "room": "missing", "isFavorite": "true"},
+                    "tie2": {"name": "A", "room": "bad", "cat": "bad", "isFavorite": 1},
+                    "tie1": {"name": "A", "isFavorite": false},
+                    "bad": {"name": null, "type": [], "isFavorite": null}
+                }
+            }));
+        });
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        let controls = client.list_controls(None, None).unwrap();
+        assert_eq!(
+            controls.iter().map(|c| c.name.as_str()).collect::<Vec<_>>(),
+            ["?", "A", "A", "a", "z"]
+        );
+        let mut ties = controls
+            .iter()
+            .filter(|c| c.name == "A")
+            .map(|c| c.uuid.as_str())
+            .collect::<Vec<_>>();
+        ties.sort();
+        assert_eq!(ties, ["tie1", "tie2"]);
+        let selected = client
+            .list_controls_ext(Some("STRAß"), Some("kü"), Some("lüft"), true)
+            .unwrap();
+        assert_eq!(selected.len(), 1);
+        assert_eq!(selected[0].uuid, "raw / key");
+        assert!(selected[0].is_secured);
+        assert!(
+            client
+                .list_controls(Some("STRASSE"), None)
+                .unwrap()
+                .is_empty()
+        );
+        assert!(
+            client
+                .list_controls(Some(" Straße "), None)
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(
+            client
+                .list_controls_ext(None, Some(""), Some(""), false)
+                .unwrap(),
+            controls
+        );
+        assert!(
+            client
+                .list_controls(None, Some("unknown"))
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(
+            client.list_controls_ext(None, None, None, true).unwrap(),
+            selected
+        );
+        assert_eq!(
+            client.list_controls(Some("?"), None).unwrap()[0].uuid,
+            "bad"
+        );
+        mock.assert_hits(1);
+    }
 
     #[test]
     fn test_list_controls_parses_structure() {

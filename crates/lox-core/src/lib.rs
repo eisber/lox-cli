@@ -5,12 +5,16 @@
 //! Optional `configuration-xml` adds typed room inventory, summaries and summary deltas.
 //! Optional `statistics-xml` decodes monthly statistics XML without I/O.
 //! Optional `auth-hash` provides explicit existing APP/CONFIG hash profiles.
+//! Optional `structure-json` projects typed top-level LoxApp3 control catalogs.
 //! The optional `runtime` feature provides an async typed clock operation;
 //! `runtime-blocking` adds an explicitly owned driver.
 //! No context selection, filesystem, terminal or language-binding API is provided.
 
 pub mod configuration;
 pub mod control;
+
+#[cfg(feature = "structure-json")]
+pub mod control_catalog;
 
 #[cfg(feature = "statistics-xml")]
 pub mod statistics;

@@ -55,12 +55,74 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   and CONFIG `/wsx` credential/token hash profiles. Both CLI producers use it;
   transport, JSON, endpoint/permission selection and compatibility errors stay
   in the binary.
+- Optional `structure-json`: `control_catalog::{ControlCatalog, ControlFilter,
+  CatalogDecodeError}` projects and selects top-level LoxApp3 controls using the
+  existing `control::Control`. The CLI `LoxClient::list_controls/list_controls_ext`
+  producer uses it; acquisition, cache, context and raw JSON stay in the CLI.
 
 The library does not read files, select a connection context, print, implicitly
 start a runtime or normalize XML. Arbitrary decoded archive bytes are
 preserved, including BOM, mixed line endings, duplicate attributes and non-UTF-8
 data. Default features are empty; archive-only consumers do not depend on
 reqwest/Tokio/serde_json through the library's normal dependencies.
+
+## Optional LoxApp3 control catalog
+
+```toml
+lox-core = { path = "path/to/lox-cli/crates/lox-core", features = ["structure-json"] }
+```
+
+```rust,ignore
+use lox_core::control_catalog::{CatalogDecodeError, ControlCatalog, ControlFilter};
+
+fn favorites(bytes: &[u8]) -> Result<Vec<lox_core::control::Control>, CatalogDecodeError> {
+    let catalog = ControlCatalog::from_loxapp3_json(bytes)?;
+    Ok(catalog.select(&ControlFilter {
+        favorites_only: true,
+        ..Default::default()
+    }))
+}
+```
+
+This feature adds only optional serde_json, independently of the clock runtime.
+Input is borrowed serialized LoxApp3 JSON; the owned snapshot contains only the
+existing seven-field `Control` values, exposed through `controls()` and owned
+`select()` results. It does not expose a raw document model or duplicate control
+resolution. `ControlQuery` can consume its control slice directly.
+
+All valid JSON root shapes remain accepted. Missing/null/non-object `controls`,
+`rooms` and `cats` maps are empty. Every top-level control key is eligible,
+including empty/opaque keys and scalar/null control values; no UUID normalization
+or recursive subcontrol enumeration occurs. Missing/non-string name and type
+become `?`. Missing/non-string room/category references look up the **empty ID**,
+not necessarily an unknown room/category. Only string `name` values in those maps
+participate, including empty names; unknown IDs yield `None`. Flags accept only
+JSON booleans, otherwise false. Invalid JSON/UTF-8 returns typed
+`CatalogDecodeError::InvalidJson { line, column }` without partial results or
+payload text. There is no stricter schema validation or added resource cap.
+
+Type, room and category filters reuse `control::matches_text`: Unicode lowercase
+substring matching, not full case folding or whitespace trimming. Missing names
+match as empty strings. The favorites flag is conjunctive with those filters.
+Results sort **only** by case-sensitive control name; equal-name order is
+unspecified. Filtering leaves the snapshot unchanged.
+
+The CLI deliberately serializes its already-acquired cached `serde_json::Value`
+for this narrow adapter, then calls the byte decoder and typed selection. This
+adds serialization/reparse allocation per producer call rather than changing the
+shared `get_structure`/cache/raw-consumer contract or freezing a public raw tree.
+HTTP/context/cache behavior and JSON output remain CLI-owned. Exact identifier
+and alias resolution still bypass catalog acquisition entirely. The existing
+`live get` name-resolution path exercises this producer; this is **not** a new
+end-to-end CLI operation or a complete CLI migration.
+
+Run `cargo test -p lox-core --features structure-json --test control_catalog`
+for public Rust behavior and `cargo test -p lox-cli --bin lox --test
+control_catalog_cli catalog_` for producer characterization plus actual executable
+loopback/bypass checks. No Python/JVM catalog binding, native artifact rebuild,
+real-device/firmware qualification or new platform support is claimed.
+XML control inventory, archive, clock, rooms, summaries, statistics and the
+unresolved `lox-n37w` shared-loader behavior are unchanged.
 
 ## Optional monthly statistics decoder
 
