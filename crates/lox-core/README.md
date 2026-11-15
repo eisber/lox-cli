@@ -21,6 +21,11 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- `message_header::{decode_message_header, MessageHeader, MessageType}`: typed,
+  lossless observation/encoding of exactly one eight-byte application header.
+  Raw unknown identifiers/flags/reserved bytes are retained, not certified.
+  This Rust-only primitive is not WebSocket framing, reassembly, payload
+  validation, a dispatcher, a migrated CLI command or a foreign binding.
 - `numeric_state::decode_value_state_payload`: typed, offline decoding of complete
   numeric value-state table payloads. This is a new Rust-only operation, not a
   migrated CLI producer or a WebSocket transport/subscription API.

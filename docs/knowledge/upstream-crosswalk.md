@@ -148,3 +148,74 @@ provenance remains in the existing catalog. All seven catalog entries,
 reviewed/latest-seen pins and ancestry findings are unchanged. Only the relevant
 source/model/tests/reference were inspected; no upstream integration or device
 was executed. Source evidence is not firmware/native qualification.
+
+## Application binary-message headers
+
+**Missing public capability at local base
+`3171a0c076f70bcf5909db8236e83407658752b9` → new Rust-only primitive.**
+`message_header::decode_message_header` observes exactly one already-separated
+eight-byte application header. `MessageHeader::to_wire_bytes` encodes its raw
+fields losslessly. This is not a WebSocket wire-frame parser, a transport
+reassembler or an event dispatcher. The committed Core had no equivalent;
+`src/ws.rs` contains connection/auth and distinct legacy `/wsx` operations,
+and there is no committed `src/stream.rs`. No removed module is restored.
+
+Focused static review uses the **unchanged** Smarteon/loxone-client-kotlin pin
+[`22fc2d9c1ec58065295fde384fb2cab79fa71d31`](https://github.com/Smarteon/loxone-client-kotlin/commit/22fc2d9c1ec58065295fde384fb2cab79fa71d31),
+BSD-3-Clause, Copyright (c) 2024, Smarteon Systems:
+
+| Reviewed file at that pin | Git blob | Raw SHA-256 |
+| --- | --- | --- |
+| [`Codec.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/Codec.kt#L54-L87) | `a8c1bc45118d6a9cd441ce252ef01826731893a6` | `cba71b6c8998cc30a441df5a2baee82bbe62317f7a6a8d017c81de571e6cee1d` |
+| [`message/MessageHeader.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/message/MessageHeader.kt) | `a6c7e2d33af00a12f0583f25dc32929e21c7426e` | `9d042d0a16a2d52be87209826fae8d6f666d7239c75f7b2a5f73119388f597cc` |
+| [`ktor/KtorWebsocketLoxoneClient.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/ktor/KtorWebsocketLoxoneClient.kt#L284-L374) | `7d2e6232b0e4aa887f872dc56e2220a71609eae6` | `033e21ccd51291d8de3c1c3f62ae7be7681ab1af07d740dc626fb4e937778b37` |
+| [`CodecTest.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonTest/kotlin/CodecTest.kt#L27-L40) | `0fb02e450904599ffa5b9ff6f22cbe71d995639c` | `2faf25682a9133b79621e73fa671a676774540762f94dd6ab83781b40f0ccdf8` |
+| [`LICENSE`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/LICENSE) | `554c419dbb41f2a8f8714b7d226bdb25044dab8b` | `52d33f64eade844ca653d984ae90dc746582192d0eadf9ae0f60960212d15e71` |
+
+`readHeader` requires length eight and magic `0x03`, uses enum ordinal for
+the second byte, tests only bit zero of byte three, ignores byte four, and
+reads an unsigned little-endian u32 at offset four into a `Long`.
+Its byte-zero read precedes its length test, so empty-input exception behavior
+is not adopted. Unknown type bytes are not supported by its enum indexing;
+signed byte indexing also precludes interpreting high identifiers as unsigned.
+`writeHeader` serializes the known ordinal, boolean estimate and size narrowed
+to `UInt`; it does not explicitly write the reserved byte. No allocator
+initialization behavior or out-of-range `Long` contract is inferred here.
+The model's ordinal order is text, file, value, text-state, daytimer,
+out-of-service, keepalive, weather (0–7). Tests cover text read/write and
+keepalive read, not estimates, unknowns, reserved fields or malformed headers.
+
+The **actual caller** `processFrame` consumes a pending binary header before
+interpreting another binary message as a header. It routes keepalive to a
+dedicated channel, text to a text-header channel, and all other known kinds to
+the next binary message. `processBinaryMessage` passes value/text/daytimer/weather
+data to their respective readers; file handling is unimplemented. It does not
+enforce declared length, act on the estimated flag or implement reassembly here.
+Those source facts do not justify importing its session assumptions.
+
+The existing local [protocol reference](../loxone-miniserver-protocol.txt#L650-L806)
+(blob `8f84fca03c987c5d4447f1179ee8adcaedac19e0`) independently specifies
+eight bytes: magic, unsigned identifier, info flags, reserved, unsigned LE32
+payload byte count. Bit zero denotes estimated size; other bits are reserved.
+It says an estimated header precedes an exact header, and type 5 has **no**
+following payload. That differs from the caller's queuing of type 5 and its
+lack of estimated-sequence handling. This primitive implements neither policy
+as an inferred transport state machine.
+
+**Explicit original observation policy:** reject any non-eight-byte input
+(including header plus payload), then reject bad magic, with typed atomic
+errors. Observe every unsigned type/flags/reserved/size combination unchanged;
+`known_type()` classifies only 0–7. Keeping unknown bytes is a lossless
+observation choice, **not forward protocol support** or evidence that peers
+accept them. Encoding writes every byte explicitly, including reserved data,
+with a `u32` size rather than a narrowing conversion. No size-based allocation,
+payload-size equality rule, type-specific zero-size restriction, authentication,
+sequence validation or automatic payload decoder selection is added.
+
+Original synthetic default-stack consumer tests cover unsigned extremes,
+uninterpreted bytes, estimates, malformed/excess input, known classification and
+explicit use with the existing numeric/text payload decoders. No upstream
+source or test vectors were copied. CLI/Python/Java/Kotlin remain unsupported
+for this new operation; there is no user-level migration or native/firmware
+qualification credit. Catalog entries, reviewed/latest-seen pins and ancestry
+findings stay unchanged; no upstream code, integration or device was executed.
