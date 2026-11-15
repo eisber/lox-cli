@@ -122,6 +122,20 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 - Optional `legacy-wsx`: `legacy_wsx::{Credentials, Nonce, encode_handshake}`
   encodes the complete existing 64-byte legacy handshake. Both CLI fast-reload
   transport paths use it through their time/randomness adapter.
+- The same optional `structure-json` feature exposes
+  `autopilot_catalog::{AutopilotCatalog, AutopilotRule, CatalogDecodeError}`.
+  `AutopilotCatalog::from_loxapp3_json(bytes)` projects the runtime `autopilot`
+  map into owned name/UUID/changed-state/history-state rows. The actual CLI
+  `LoxClient::list_autopilot_rules` delegates through its cached JSON snapshot.
+  All map keys remain eligible, including non-object placeholder rows; absent
+  or non-string names become `"?"`, state IDs independently default to `""`,
+  and explicit empty/raw strings survive unchanged. Case-sensitive name sorting
+  is stable, retaining serde_json map iteration order for ties (including when
+  a consumer enables `preserve_order`). Only JSON syntax/UTF-8 errors fail, with
+  the shared payload-free line/column error. Acquisition/cache/context, fuzzy
+  rule selection, UUID diagnostics and commands remain CLI-owned. This is not
+  XML Config Autopilot parsing, a rule/action/condition engine, CRUD, a new whole
+  CLI migration or a foreign-binding capability.
 
 The library does not read files, select a connection context, print or implicitly
 start a runtime. The optional editor canonicalizes XML; archive decoding does not.

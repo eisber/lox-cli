@@ -80,6 +80,10 @@ name = "control_catalog"
 required-features = ["structure-json"]
 
 [[test]]
+name = "autopilot_catalog"
+required-features = ["structure-json"]
+
+[[test]]
 name = "legacy_wsx"
 required-features = ["legacy-wsx"]
 

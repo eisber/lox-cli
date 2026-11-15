@@ -1,6 +1,8 @@
 //! Loxone HTTP client, control resolution, and structure cache
 
 use anyhow::{Context, Result, bail};
+use lox_core::autopilot_catalog::AutopilotCatalog;
+pub use lox_core::autopilot_catalog::AutopilotRule;
 pub use lox_core::control::{Control, is_uuid};
 use lox_core::control::{
     ControlQuery, IdentifierError, PreparedControlQuery, ResolutionError, matches_text,
@@ -103,16 +105,6 @@ impl std::error::Error for HttpStatusError {}
 use crate::config::Config;
 
 pub const USER_AGENT: &str = concat!("lox-cli/", env!("CARGO_PKG_VERSION"));
-
-// ── AutopilotRule ─────────────────────────────────────────────────────────────
-
-#[derive(Debug, Clone)]
-pub struct AutopilotRule {
-    pub name: String,
-    pub uuid: String,
-    pub state_changed: String,
-    pub state_history: String,
-}
 
 // ── LoxClient ─────────────────────────────────────────────────────────────────
 
@@ -486,36 +478,8 @@ impl LoxClient {
 
     pub fn list_autopilot_rules(&mut self) -> Result<Vec<AutopilotRule>> {
         let structure = self.get_structure()?;
-        let mut rules = Vec::new();
-        if let Some(map) = structure.get("autopilot").and_then(|a| a.as_object()) {
-            for (uuid, entry) in map {
-                let name = entry
-                    .get("name")
-                    .and_then(|n| n.as_str())
-                    .unwrap_or("?")
-                    .to_string();
-                let state_changed = entry
-                    .get("states")
-                    .and_then(|s| s.get("changed"))
-                    .and_then(|c| c.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                let state_history = entry
-                    .get("states")
-                    .and_then(|s| s.get("history"))
-                    .and_then(|h| h.as_str())
-                    .unwrap_or("")
-                    .to_string();
-                rules.push(AutopilotRule {
-                    name,
-                    uuid: uuid.clone(),
-                    state_changed,
-                    state_history,
-                });
-            }
-        }
-        rules.sort_by(|a, b| a.name.cmp(&b.name));
-        Ok(rules)
+        let catalog = AutopilotCatalog::from_loxapp3_json(&serde_json::to_vec(structure)?)?;
+        Ok(catalog.into_rules())
     }
 
     pub fn find_autopilot_rule(&mut self, name_or_uuid: &str) -> Result<AutopilotRule> {
@@ -604,6 +568,93 @@ mod tests {
             verify_ssl: Some(false),
             ..Default::default()
         }
+    }
+
+    #[test]
+    fn autopilot_catalog_cached_permissive_shapes() {
+        let server = MockServer::start();
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        for root in ["null", "true", "1", "\"x\"", "[]", "{}"] {
+            client.structure = Some(serde_json::from_str(root).unwrap());
+            assert!(client.list_autopilot_rules().unwrap().is_empty());
+        }
+        for value in serde_json::json!([null, false, 1, "", [], {}])
+            .as_array()
+            .unwrap()
+        {
+            client.structure = Some(serde_json::json!({"autopilot": value}));
+            assert!(client.list_autopilot_rules().unwrap().is_empty());
+            client.structure = Some(serde_json::json!({"autopilot": {
+                "scalar": value,
+                "fields": {"name": value, "states": {"changed": value, "history": value}},
+                "states": {"states": value}
+            }}));
+            let rules = client.list_autopilot_rules().unwrap();
+            assert_eq!(rules.len(), 3);
+            let fields = rules.iter().find(|r| r.uuid == "fields").unwrap();
+            assert_eq!(fields.name, value.as_str().unwrap_or("?"));
+            assert_eq!(fields.state_changed, value.as_str().unwrap_or(""));
+            assert_eq!(fields.state_history, value.as_str().unwrap_or(""));
+            for rule in rules.iter().filter(|r| r.uuid != "fields") {
+                assert_eq!(rule.name, "?");
+                assert_eq!(rule.state_changed, "");
+                assert_eq!(rule.state_history, "");
+            }
+        }
+    }
+
+    #[test]
+    fn autopilot_catalog_cached_raw_ownership_sort_and_stable_ties() {
+        let server = MockServer::start();
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        let structure: Value = serde_json::from_str(
+            r#"{"autopilot":{
+                "tie-z":{"name":"Same"},
+                "tie-a":{"name":"Same"},
+                "raw/\u0000e\u0301":{"name":"<C>Ü\u0000e\u0301","states":{"changed":"Changed/\u0000","history":"<History>"}},
+                "lower":{"name":"a","states":{"changed":"only"}},
+                "upper":{"name":"A","states":{"history":"only"}},
+                "empty":{"name":""},
+                "scalar":null
+            }}"#,
+        )
+        .unwrap();
+        let expected_ties: Vec<String> = structure["autopilot"]
+            .as_object()
+            .unwrap()
+            .iter()
+            .filter(|(_, entry)| entry["name"] == "Same")
+            .map(|(id, _)| id.clone())
+            .collect();
+        client.structure = Some(structure);
+        let mut rules = client.list_autopilot_rules().unwrap();
+        assert_eq!(
+            rules.iter().map(|r| r.name.as_str()).collect::<Vec<_>>(),
+            ["", "<C>Ü\0e\u{301}", "?", "A", "Same", "Same", "a"]
+        );
+        assert_eq!(
+            rules
+                .iter()
+                .filter(|r| r.name == "Same")
+                .map(|r| r.uuid.clone())
+                .collect::<Vec<_>>(),
+            expected_ties
+        );
+        let raw = &rules[1];
+        assert_eq!(raw.uuid, "raw/\0e\u{301}");
+        assert_eq!(raw.state_changed, "Changed/\0");
+        assert_eq!(raw.state_history, "<History>");
+        assert_eq!(rules[3].state_changed, "");
+        assert_eq!(rules[3].state_history, "only");
+        assert_eq!(rules[6].state_changed, "only");
+        assert_eq!(rules[6].state_history, "");
+        rules[1].name.clear();
+        assert_eq!(
+            client.list_autopilot_rules().unwrap()[1].name,
+            "<C>Ü\0e\u{301}"
+        );
+        client.structure = Some(Value::Null);
+        assert_eq!(rules[1].state_history, "<History>");
     }
 
     // ── list_controls ─────────────────────────────────────────────────────────
