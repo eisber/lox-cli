@@ -1,7 +1,9 @@
 //! Read-only projection of runtime LoxApp3 autopilot rules, without acquisition.
 
+use crate::control::{is_uuid, matches_text};
 pub use crate::control_catalog::CatalogDecodeError;
 use serde_json::Value;
+use std::fmt;
 
 /// Owned runtime rule identifiers, not a rule/action/condition model.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -10,6 +12,55 @@ pub struct AutopilotRule {
     pub uuid: String,
     pub state_changed: String,
     pub state_history: String,
+}
+
+/// Row-based resolution failures; candidate references retain caller order.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RuleResolutionError<'a> {
+    UuidNotFound,
+    NotFound,
+    Ambiguous { candidates: Vec<&'a AutopilotRule> },
+}
+
+impl fmt::Display for RuleResolutionError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::UuidNotFound => f.write_str("autopilot rule UUID not found"),
+            Self::NotFound => f.write_str("autopilot rule name matched no rules"),
+            Self::Ambiguous { candidates } => {
+                write!(f, "autopilot rule name matched {} rules", candidates.len())
+            }
+        }
+    }
+}
+
+impl std::error::Error for RuleResolutionError<'_> {}
+
+/// Resolve an existing snapshot without sorting, normalization or deduplication.
+///
+/// The legacy loose UUID detector chooses a raw, case-sensitive identity search;
+/// the first identical UUID wins. Otherwise only names are matched using Rust
+/// lowercase substring comparison. An exact name has no preference over another
+/// containing name, and duplicate rows still contribute to ambiguity.
+pub fn resolve_rule<'a>(
+    rules: &'a [AutopilotRule],
+    query: &str,
+) -> Result<&'a AutopilotRule, RuleResolutionError<'a>> {
+    if is_uuid(query) {
+        return rules
+            .iter()
+            .find(|rule| rule.uuid == query)
+            .ok_or(RuleResolutionError::UuidNotFound);
+    }
+    let candidates: Vec<_> = rules
+        .iter()
+        .filter(|rule| matches_text(&rule.name, query))
+        .collect();
+    match candidates.len() {
+        0 => Err(RuleResolutionError::NotFound),
+        1 => Ok(candidates[0]),
+        _ => Err(RuleResolutionError::Ambiguous { candidates }),
+    }
 }
 
 /// A permissive snapshot of the top-level LoxApp3 `autopilot` map.

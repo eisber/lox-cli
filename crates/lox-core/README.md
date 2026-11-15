@@ -149,8 +149,19 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   and explicit empty/raw strings survive unchanged. Case-sensitive name sorting
   is stable, retaining serde_json map iteration order for ties (including when
   a consumer enables `preserve_order`). Only JSON syntax/UTF-8 errors fail, with
-  the shared payload-free line/column error. Acquisition/cache/context, fuzzy
-  rule selection, UUID diagnostics and commands remain CLI-owned. This is not
+  the shared payload-free line/column error.
+  `autopilot_catalog::{resolve_rule, RuleResolutionError}` selects a borrowed
+  row from an existing rule slice. The shared legacy loose UUID detector chooses
+  a raw case-sensitive UUID search (first duplicate wins); otherwise Rust
+  lowercase substring matching applies to names only, with no exact-name
+  preference, aliases, room qualifiers, trimming or Unicode normalization.
+  Zero/one/many matching rows mean not found/success/ambiguity, including duplicate
+  identities; ambiguous candidates retain caller order without sorting.
+  The existing `LoxClient::find_autopilot_rule` delegates through its cached
+  catalog and retains ownership, candidate printing and original error
+  messages/categories. There is currently no whole-command caller of that
+  method. Acquisition/cache/context, UUID diagnostics and commands remain
+  CLI-owned. This is not
   XML Config Autopilot parsing, a rule/action/condition engine, CRUD, a new whole
   CLI migration or a foreign-binding capability.
 
