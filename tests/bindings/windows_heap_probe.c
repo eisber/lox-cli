@@ -45,3 +45,17 @@ __declspec(dllexport) DWORD lox_test_heap_status_count(ULONGLONG marker, SIZE_T 
     };
     return lox_test_heap_count((const unsigned char *)prefix, sizeof(prefix), sizeof(prefix), count);
 }
+
+/* UniFFI InvalidJson is a big-endian variant tag and two u64 positions.
+   Construct the exact small prefix on the stack, not in the measured heap. */
+__declspec(dllexport) DWORD lox_test_heap_catalog_error_count(
+    ULONGLONG line, ULONGLONG column, SIZE_T *count
+) {
+    unsigned char prefix[20] = {0, 0, 0, 1};
+    unsigned int i;
+    for (i = 0; i < 8; ++i) {
+        prefix[4 + i] = (unsigned char)(line >> ((7 - i) * 8));
+        prefix[12 + i] = (unsigned char)(column >> ((7 - i) * 8));
+    }
+    return lox_test_heap_count(prefix, sizeof(prefix), sizeof(prefix), count);
+}

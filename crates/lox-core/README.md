@@ -126,8 +126,13 @@ end-to-end CLI operation or a complete CLI migration.
 Run `cargo test -p lox-core --features structure-json --test control_catalog`
 for public Rust behavior and `cargo test -p lox-cli --bin lox --test
 control_catalog_cli catalog_` for producer characterization plus actual executable
-loopback/bypass checks. No Python/JVM catalog binding, native artifact rebuild,
-real-device/firmware qualification or new platform support is claimed.
+loopback/bypass checks. The separate [native facade](../../docs/toolkit-archive-bindings.md)
+also exposes stateless `select_loxapp3_controls` / Java
+`selectLoxapp3Controls`: caller-owned bytes and a typed filter return owned
+seven-field controls. Each call parses anew; it retains no catalog handle.
+Matching Python wheel and Java 22 FFM JAR/DLL (also called by Kotlin) require
+the documented Windows AMD64 artifact tests. This adds no acquisition/cache,
+control transport, real-device/firmware qualification or new platform support.
 XML control inventory, archive, clock, rooms, summaries, statistics and the
 unresolved `lox-n37w` shared-loader behavior are unchanged.
 

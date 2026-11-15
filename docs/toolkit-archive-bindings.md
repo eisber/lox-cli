@@ -1,8 +1,8 @@
 # Experimental native archive, configuration inspection, clock and control bindings
 
-This is a narrow **archive, XML control/room/summary inspection, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control` and the optional production
+facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, optional `control_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -28,7 +28,7 @@ No head invokes the CLI or runs another protocol stack.
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
-| LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | Unsupported | Unsupported |
+| LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | `select_loxapp3_controls(bytes, ControlFilter) -> list[Control]` | `LoxArchive.selectLoxapp3Controls(byte[], ControlFilter) -> List<Control>` |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
 | Full token acquisition, control transport and WebSocket events | Not extracted as complete shared operations | Existing binary-private behavior | Unsupported | Unsupported |
 | State subscriptions and event-stream backpressure | No shared event stream exists | No new behavior | Unsupported | Unsupported |
@@ -182,6 +182,72 @@ buffers without requesting GC. This is Windows AMD64-only artifact evidence, not
 an ABI, free-threaded Python, MSRV, global resource or other-platform qualification.
 The existing canonical `config_inspection.xml`, source-package checks, archive
 error-buffer and owned clock-thread status-arena proofs remain unchanged.
+
+## Stateless LoxApp3 catalog heads
+
+The facade enables Core's existing optional `structure-json` feature and calls
+`ControlCatalog::from_loxapp3_json` then `select`, converting through the **same**
+seven-field native `Control` used by the query API below. There is no language
+JSON parser, raw JSON result, HTTP/cache/protocol stack, CLI wrapper or retained
+native catalog handle. **Every call parses and allocates anew**; this API does
+not reuse a snapshot across calls. Callers own acquisition and I/O.
+
+```python
+import lox_archive as lox
+
+data = b'{"controls":{"opaque":{"name":"Light","type":"Switch","isFavorite":true}}}'
+filters = lox.ControlFilter(typ=None, room=None, category=None, favorites_only=True)
+controls = lox.select_loxapp3_controls(data, filters)
+assert controls[0].uuid == "opaque"
+```
+
+All four Python record constructor arguments are **required keyword-only**
+arguments; both function arguments are required too. Rust's `Default` does
+**not** create Python defaults. For no filtering pass
+`ControlFilter(typ=None, room=None, category=None, favorites_only=False)`.
+Java and Kotlin use `new ControlFilter(null, null, null, false)` /
+`ControlFilter(null, null, null, false)` and `LoxArchive.selectLoxapp3Controls`.
+The generated Java record accessors are `typ()`, `room()`, `category()` and
+`favoritesOnly()`. Results and filters are host-owned typed values; results
+remain usable after replacing input bytes or making further native calls.
+
+The Core compatibility contract is unchanged:
+
+* Every valid JSON root is accepted. Missing/null/non-object top-level maps
+  contribute nothing. Every key in the top-level `controls` object qualifies,
+  even empty/opaque IDs and scalar/null/array values. Subcontrols are ignored.
+  No UUID validation, trimming, schema checks or stricter resource cap is added.
+* Missing/non-string name and type become `"?"`. Missing/non-string room/category
+  references look up the **empty ID**. Only string map names qualify, including
+  empty names. Unknown references return `None` / Java `null`, distinct from an
+  existing empty name `""`. Only JSON booleans set the favorite/security flags.
+* Optional type/room/category filters are conjunctive Unicode-lowercase substring
+  matches, **not** full case folding or trimming; missing names match as empty
+  strings. `favorites_only` is also conjunctive. Results sort **only** by
+  case-sensitive name; equal-name order is unspecified.
+* Invalid JSON or UTF-8 raises Python `CatalogDecodeError.InvalidJson` or checked
+  Java `CatalogDecodeException.InvalidJson` (same exception in Kotlin), carrying
+  actual Core `line` and `column`, not payload text or parsed error strings.
+  Positions widen from `usize` to `u64` under a compile-time guard. Python gets
+  integers; Java gets boxed `Long` unsigned bits. No partial result is returned.
+
+`catalog_smoke.py`, compiled `CatalogSmoke.java` and `.kt` read the same
+crate-local `tests/fixtures/control_catalog.json` as Rust tests. They cover all
+fields, permissive shapes/default semantics, filters, exact error positions and
+host ownership. Reusing the existing Windows HeapWalk probe, each language
+calibrates a live then freed large success RustBuffer and the actual **20-byte**
+payload-free error RustBuffer. A stack-built by-value error prefix avoids the
+measurement creating matching heap storage. Each path then requires **64 public
+calls, zero retained matching buffers, no requested GC**. This measures result
+and error RustBuffers, not all allocations or deterministic caller-thread
+`Arena.ofAuto` status disposal: that remains a GC fallback.
+
+Only this catalog head is new in this slice. XML control inventory is already
+published separately and retains its Core-backed contract. Authentication, statistics,
+color, control transport, device/native Config qualification and other platforms
+remain unsupported by these heads unless published separately. Existing archive,
+clock, control-resolution and XML inspection tests and generator corrections remain
+mandatory. This experimental source is not itself a registry release or ABI claim.
 
 ## Pure control selection heads
 

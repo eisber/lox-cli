@@ -1,0 +1,16 @@
+{
+  "rooms": {"": {"name": "Default"}, "r": {"name": "KÜCHE"}, "empty": {"name": ""}, "bad": {"name": 4}},
+  "cats": {"": {"name": "Category"}, "c": {"name": "LÜFTUNG"}, "empty": {"name": ""}, "bad": {"name": false}},
+  "controls": {
+    "": null,
+    "scalar": true,
+    "array": [],
+    "number": 42,
+    "string": "ignored",
+    "wrong": {"name": 4, "type": false, "room": 3, "cat": null},
+    "opaque / key": {"name": "Zulu", "type": "Straße", "room": "r", "cat": "c", "isFavorite": true, "isSecured": true, "subControls": {"nested": {"name": "Excluded"}}},
+    "a": {"name": "Alpha", "type": "Switch", "room": "missing", "cat": "bad", "isFavorite": "true", "isSecured": 1},
+    "b": {"name": "Alpha", "type": "SWITCH", "room": "bad", "cat": "missing"},
+    "empty": {"name": "a", "type": "", "room": "empty", "cat": "empty"}
+  }
+}
