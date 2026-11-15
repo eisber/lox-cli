@@ -42,12 +42,91 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 - The same optional feature exposes `configuration::summary::{parse_config_summary,
   ConfigSummary, ControlEntry, ConfigSummaryError}`. The summary producer consumed
   by the existing `lox config diff` command uses it; comparison/output stay in CLI.
+- Optional `statistics-xml`: `statistics::{parse_series, StatSeries,
+  StatisticsError}` decodes monthly statistics XML. The existing `lox stats get`
+  producer uses it, while HTTP, selection, merging and formatting stay in the CLI.
 
 The library does not read files, select a connection context, print, implicitly
 start a runtime or normalize XML. Arbitrary decoded archive bytes are
 preserved, including BOM, mixed line endings, duplicate attributes and non-UTF-8
 data. Default features are empty; archive-only consumers do not depend on
 reqwest/Tokio/serde_json through the library's normal dependencies.
+
+## Optional monthly statistics decoder
+
+```toml
+lox-core = { path = "path/to/lox-cli/crates/lox-core", features = ["statistics-xml"] }
+```
+
+```rust,ignore
+use lox_core::statistics::{parse_series, StatisticsError};
+
+fn monthly(xml: &str) -> Result<(), StatisticsError> {
+    let series = parse_series(xml)?;
+    for (timestamp, values) in series.rows {
+        let _ = (timestamp, values);
+    }
+    Ok(())
+}
+```
+
+This is the decoder for the CLI's `/stats/<file>.xml` monthly route, extracted
+from this project's existing implementation. It reuses optional quick-xml 0.37,
+independently of `configuration-xml`; default features remain empty. There is no
+transport, context, filesystem, serde, terminal, clock runtime or binding
+dependency in this feature. Input is borrowed `&str` deliberately: the existing
+caller uses `LoxClient::get_text` and reqwest's response-text decoding. The core
+does not silently replace that policy with a new UTF-8 byte decoder.
+
+`Name`, `StatsGroup`, `Outputs`, `NumOutputs`, `T` and value attributes are
+entity-decoded, **not** raw configuration-room attributes. Header matching is
+case-sensitive at any nesting depth; a second `Statistics` header is rejected.
+Missing name is empty; group is optional, trimmed and parsed as `u32`.
+Output labels are split on commas and trimmed. Missing count defaults to the
+label count, at least one; explicit count is trimmed and parsed as a
+platform-sized `usize`, including zero. Labels are resized to that count
+(discarding excess labels); empty labels become `V`, `V2`, etc. No new resource
+cap is imposed, so this compatibility parser is not an untrusted-input resource
+limit policy.
+
+Rows require a `T` attribute (which may be empty) and one value per output,
+read in `V`, `V2`, ... order regardless of attribute order. Values use trimmed
+Rust `f64` parsing and must be finite; negative zero is retained. Row order,
+duplicate timestamps and duplicate labels are preserved. Timestamps are
+entity-decoded strings, otherwise unchanged: no epoch, calendar, timezone or
+V1/V2 conversion is inferred. The upstream crosswalk's statistics timestamp
+discrepancy remains unresolved, not fixed by this route-specific extraction.
+
+The original reader/depth/attribute validation order is retained: unclosed or
+mismatched elements, missing headers, rows before a header, and missing/invalid
+row values fail without returning a partial series. Earlier row/header errors
+can precede a later EOF/truncation error. This is not a general XML document
+validator: BOM/Unicode, unknown elements, text, multiple unrelated root elements,
+trailing text, and rows after the header's closing tag retain their existing
+acceptance. Attribute lookup stops at the requested key; malformed/duplicate
+attributes encountered before that key fail, while unused attributes and
+malformed trailing attributes beyond every requested key may remain unread.
+Unknown entities in a requested attribute fail; unrequested attributes are not
+entity-decoded. This deliberately does not adopt the room reader's permissive
+attribute-error handling.
+
+`StatisticsError` carries typed field/timestamp/value context and original
+XML/attribute/integer/float error sources. It never prints or logs input. Error
+values and series data can contain caller payloads; callers control disclosure.
+The CLI maps sources back to its original anyhow chain with no extra wrapper,
+retaining `reading <file>` / `parsing <file>` context, error envelope and exit
+behavior. All months are decoded and merged before output, so a failed later
+month emits no partial table/CSV or success-shaped JSON. HTTP/retry policy,
+HTML index, month filenames/ranges, name/group selection, multi-month merging,
+JSON duplicate-label rejection, output flags and raw downloads remain CLI-owned.
+
+Run `cargo test -p lox-core --features statistics-xml --test statistics_series`
+for typed consumers, and `cargo test -p lox-cli --bin lox --test
+statistics_series_cli monthly_` for before/after decoder characterization and
+the actual executable over loopback HTTP. This extraction adds no Python,
+Java/Kotlin or native statistics API, and qualifies no firmware, real device or
+new platform. Archive, clock, control, rooms and the unresolved `lox-n37w`
+shared-DOM-loader behavior are unchanged.
 
 ## Optional read-only room inventory
 
@@ -322,10 +401,10 @@ qualification is implied.
 
 ## Not exposed yet
 
-XML parsing beyond room inventory and summary, editing, runtime operations beyond this HTTP clock read, token/crypto/
+XML parsing beyond room inventory/summary and monthly statistics, editing, runtime operations beyond this HTTP clock read, token/crypto/
 WebSocket authentication, subscriptions, and Python or Java/Kotlin native bindings
 are **not** exposed through `lox-core`. Existing CLI capabilities outside the
-archive, clock, room inventory/summary and control-resolution families remain binary-private. No cross-head parity, native
+archive, clock, room inventory/summary, monthly statistics and control-resolution families remain binary-private. No cross-head parity, native
 package availability or ABI stability is claimed. The approved generated UniFFI
 Python / one Java 22+ FFM API direction is unchanged; this stage adds no bindings.
 Archive byte guarantees and private deployment/sidecar policies are unchanged;
