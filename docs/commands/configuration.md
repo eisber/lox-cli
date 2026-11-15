@@ -102,6 +102,19 @@ lox config devices file.Loxone --ports    # show all I/O ports with used/free st
 lox config diff old.Loxone new.Loxone     # compare two configs
 ```
 
+The default `config devices` table uses the shared Rust Core's optional
+`configuration-xml` legacy inventory. It lists exact Tree/Air/Network device
+types at any XML depth, retains raw entity spellings and encounter order within
+each displayed bus group, and applies one `--limit` budget across Tree, Air then
+Network. The total counts all inventoried devices.
+
+This is not the DOM physical-device identity inventory: JSON, `--summary` or any
+`--room` selects the existing DOM/editor discovery instead. `--ports` takes
+precedence and stays on the separate DOM port-listing path. These paths and the
+known `lox-n37w` loader quote/digit rewrite defect are unchanged. No file is
+rewritten by this read-only extraction. See the [Core device contract](../../crates/lox-core/README.md#optional-read-only-xml-device-inventory)
+for parser admission/defaulting limits; Python/JVM device inventory is unsupported.
+
 ### Describe & inspect
 
 ```bash

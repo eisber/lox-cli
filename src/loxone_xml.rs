@@ -15,23 +15,31 @@ pub struct LoxUser {
 
 // ── Devices ──
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "lowercase")]
-pub enum DeviceBus {
-    Tree,
-    Air,
-    Network,
-}
+pub use lox_core::configuration::devices::DeviceBus;
+#[cfg(test)]
+use lox_core::configuration::devices::subtype_label;
 
 #[derive(Debug, Serialize)]
 pub struct LoxDevice {
     pub name: String,
+    #[serde(serialize_with = "serialize_device_bus")]
     pub bus: DeviceBus,
     pub serial: Option<String>,
     pub sub_type: Option<u32>,
     pub type_label: String,
     pub mac: Option<String>,
     pub address: Option<String>,
+}
+
+fn serialize_device_bus<S: serde::Serializer>(
+    bus: &DeviceBus,
+    serializer: S,
+) -> std::result::Result<S::Ok, S::Error> {
+    serializer.serialize_str(match bus {
+        DeviceBus::Tree => "tree",
+        DeviceBus::Air => "air",
+        DeviceBus::Network => "network",
+    })
 }
 
 // ── Diff ──
@@ -59,37 +67,6 @@ fn attr_value(e: &BytesStart, name: &[u8]) -> Option<String> {
 
 fn attr_value_or(e: &BytesStart, name: &[u8], default: &str) -> String {
     attr_value(e, name).unwrap_or_else(|| default.to_string())
-}
-
-pub fn subtype_label(sub_type: u32) -> &'static str {
-    match sub_type {
-        7 => "Nano IO Air",
-        19 => "Smoke detector",
-        32 => "Water sensor",
-        37 => "Smartaktor",
-        48 => "Room climate sensor",
-        32780 => "Dimmer",
-        32784 => "Room climate sensor",
-        32794 => "Presence sensor",
-        32796 => "Code Touch keypad",
-        32797 => "LoxAIR Bridge",
-        32799 => "Flex connector",
-        _ => "",
-    }
-}
-
-fn device_type_label(sub_type: Option<u32>) -> String {
-    match sub_type {
-        Some(st) => {
-            let label = subtype_label(st);
-            if label.is_empty() {
-                format!("Unknown ({})", st)
-            } else {
-                label.to_string()
-            }
-        }
-        None => "Unknown".to_string(),
-    }
 }
 
 // ── Parsing ──
@@ -126,67 +103,132 @@ pub fn parse_users(xml: &[u8]) -> Result<Vec<LoxUser>> {
 }
 
 pub fn parse_devices(xml: &[u8]) -> Result<Vec<LoxDevice>> {
-    let mut reader = Reader::from_reader(xml);
-    reader.config_mut().trim_text(true);
-    let mut buf = Vec::new();
-    let mut devices = Vec::new();
-
-    loop {
-        match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(ref e) | Event::Empty(ref e)) if e.name().as_ref() == b"C" => {
-                let type_val = attr_value(e, b"Type");
-                match type_val.as_deref() {
-                    Some("TreeDevice") => {
-                        let sub = attr_value(e, b"SubType").and_then(|s| s.parse::<u32>().ok());
-                        devices.push(LoxDevice {
-                            name: attr_value_or(e, b"Title", ""),
-                            bus: DeviceBus::Tree,
-                            serial: attr_value(e, b"Serial"),
-                            sub_type: sub,
-                            type_label: device_type_label(sub),
-                            mac: None,
-                            address: None,
-                        });
-                    }
-                    Some("LoxAIRDevice") => {
-                        let sub = attr_value(e, b"SubType").and_then(|s| s.parse::<u32>().ok());
-                        devices.push(LoxDevice {
-                            name: attr_value_or(e, b"Title", ""),
-                            bus: DeviceBus::Air,
-                            serial: None,
-                            sub_type: sub,
-                            type_label: device_type_label(sub),
-                            mac: None,
-                            address: None,
-                        });
-                    }
-                    Some("NetworkDevice") => {
-                        devices.push(LoxDevice {
-                            name: attr_value_or(e, b"Title", ""),
-                            bus: DeviceBus::Network,
-                            serial: None,
-                            sub_type: attr_value(e, b"SubType").and_then(|s| s.parse::<u32>().ok()),
-                            type_label: "Network device".to_string(),
-                            mac: attr_value(e, b"MAC"),
-                            address: attr_value(e, b"Addr"),
-                        });
-                    }
-                    _ => {}
-                }
-            }
-            Ok(Event::Eof) => break,
-            Err(e) => return Err(e).context("Failed to parse XML"),
-            _ => {}
-        }
-        buf.clear();
-    }
-    Ok(devices)
+    let devices = lox_core::configuration::devices::parse_devices(xml)
+        .map_err(|lox_core::configuration::devices::DeviceInventoryError::Xml { source }| source)
+        .context("Failed to parse XML")?;
+    Ok(devices
+        .into_iter()
+        .map(|device| LoxDevice {
+            name: device.name,
+            bus: device.bus,
+            serial: device.serial,
+            sub_type: device.sub_type,
+            type_label: device.type_label,
+            mac: device.mac,
+            address: device.address,
+        })
+        .collect())
 }
 
 pub fn parse_config_summary(xml: &[u8]) -> Result<ConfigSummary> {
     lox_core::configuration::summary::parse_config_summary(xml)
         .map_err(|lox_core::configuration::summary::ConfigSummaryError::Xml { source }| source)
         .context("Failed to parse XML")
+}
+
+#[cfg(test)]
+mod device_inventory_characterization {
+    use super::*;
+
+    #[test]
+    fn device_inventory_adapter_preserves_serialized_shape() {
+        let rows = parse_devices(
+            br#"<C Type="TreeDevice" Title="T" Serial="" SubType="7"/><C Type="LoxAIRDevice"/><C Type="NetworkDevice" MAC="M" Addr="A"/>"#,
+        )
+        .unwrap();
+        let value = serde_json::to_value(rows).unwrap();
+        assert_eq!(
+            value,
+            serde_json::json!([
+                {"name":"T","bus":"tree","serial":"","sub_type":7,
+                 "type_label":"Nano IO Air","mac":null,"address":null},
+                {"name":"","bus":"air","serial":null,"sub_type":null,
+                 "type_label":"Unknown","mac":null,"address":null},
+                {"name":"","bus":"network","serial":null,"sub_type":null,
+                 "type_label":"Network device","mac":"M","address":"A"}
+            ])
+        );
+    }
+
+    #[test]
+    fn device_inventory_exact_types_raw_attributes_order_and_hierarchy() {
+        let xml = br#"<Root><C Type="NetworkDevice" Title="N" SubType="+7" MAC="" Addr="A&amp;B"/>
+<C Type="Page"><C Type="LoxAIRDevice" Title="Z" Serial="ignored" SubType="19">
+<C Type="TreeDevice" Title="A&amp;&#65;&custom;" Serial="S" SubType="32780"/>
+</C></C><C Type="TreeDevice" Title="First" Title="Second" SubType="4294967296"/>
+<C Type="treedevice"/><C Type="TreeAsensor"/><C Type="Tree&#68;evice"/>
+<Other Type="TreeDevice"/><C Type="TreeDevice"/><C Type="TreeDevice"/></Root>"#;
+        let devices = parse_devices(xml).unwrap();
+        assert_eq!(devices.len(), 6);
+        assert_eq!(
+            devices.iter().map(|d| d.name.as_str()).collect::<Vec<_>>(),
+            ["N", "Z", "A&amp;&#65;&custom;", "First", "", ""]
+        );
+        assert_eq!(devices[0].bus, DeviceBus::Network);
+        assert_eq!(devices[0].sub_type, Some(7));
+        assert_eq!(devices[0].type_label, "Network device");
+        assert_eq!(devices[0].mac.as_deref(), Some(""));
+        assert_eq!(devices[0].address.as_deref(), Some("A&amp;B"));
+        assert_eq!(devices[1].bus, DeviceBus::Air);
+        assert_eq!(devices[1].serial, None);
+        assert_eq!(devices[1].type_label, "Smoke detector");
+        assert_eq!(devices[2].bus, DeviceBus::Tree);
+        assert_eq!(devices[2].serial.as_deref(), Some("S"));
+        assert_eq!(devices[2].type_label, "Dimmer");
+        assert_eq!(devices[3].sub_type, None);
+        assert_eq!(devices[3].type_label, "Unknown");
+    }
+
+    #[test]
+    fn device_inventory_numeric_defaults_and_attribute_leniency() {
+        let mut xml = b"\xef\xbb\xbf<Root>\r\n".to_vec();
+        for value in ["", "-1", " 7", "7 ", "bad", "7&amp;", "4294967296"] {
+            xml.extend_from_slice(
+                format!("<C Type=\"TreeDevice\" SubType=\"{value}\"/>").as_bytes(),
+            );
+        }
+        xml.extend_from_slice(b"<C Type=\"TreeDevice\" SubType=\"0007\"/>");
+        xml.extend_from_slice(b"<C Type=\"LoxAIRDevice\" SubType=\"4294967295\"/>");
+        xml.extend_from_slice(
+            b"<C Type=\"TreeDevice\" Title=\"\xff\" Serial=\"\xff\" SubType=\"\xff\"/>",
+        );
+        xml.extend_from_slice(b"<C Type=\"NetworkDevice\" MAC=\"\xff\" Addr=\"\xff\"/>");
+        xml.extend_from_slice(b"<C Type=\"\xff\" Title=\"ignored\"/>");
+        xml.extend_from_slice(b"<C Type=\"TreeDevice\" broken Title=\"after malformed\"/>");
+        let before = xml.clone();
+        let devices = parse_devices(&xml).unwrap();
+        assert_eq!(devices.len(), 12);
+        assert!(devices[..7].iter().all(|d| d.sub_type.is_none()));
+        assert_eq!(devices[7].sub_type, Some(7));
+        assert_eq!(devices[7].type_label, "Nano IO Air");
+        assert_eq!(devices[8].type_label, "Unknown (4294967295)");
+        assert_eq!(devices[9].name, "");
+        assert_eq!(devices[9].serial, None);
+        assert_eq!(devices[9].sub_type, None);
+        assert_eq!(devices[10].mac, None);
+        assert_eq!(devices[10].address, None);
+        assert_eq!(devices[11].name, "after malformed");
+        assert_eq!(xml, before);
+    }
+
+    #[test]
+    fn device_inventory_incomplete_eof_and_no_partial_result_on_reader_error() {
+        for xml in [b"".as_slice(), b"not XML", b"<Root>"] {
+            assert!(parse_devices(xml).unwrap().is_empty());
+        }
+        assert_eq!(
+            parse_devices(b"<Root><C Type=\"TreeDevice\">")
+                .unwrap()
+                .len(),
+            1
+        );
+        let error = parse_devices(b"<Root><C Type=\"TreeDevice\"></Root>").unwrap_err();
+        assert_eq!(error.to_string(), "Failed to parse XML");
+        assert_eq!(
+            error.chain().last().unwrap().to_string(),
+            "expected `</C>`, but `</Root>` was found"
+        );
+    }
 }
 
 // ── Diff output ──
@@ -449,8 +491,11 @@ mod tests {
 
     #[test]
     fn test_device_type_label_unknown() {
-        assert_eq!(device_type_label(Some(99999)), "Unknown (99999)");
-        assert_eq!(device_type_label(None), "Unknown");
+        let devices =
+            parse_devices(br#"<C Type="TreeDevice" SubType="99999"/><C Type="LoxAIRDevice"/>"#)
+                .unwrap();
+        assert_eq!(devices[0].type_label, "Unknown (99999)");
+        assert_eq!(devices[1].type_label, "Unknown");
     }
 
     #[test]
