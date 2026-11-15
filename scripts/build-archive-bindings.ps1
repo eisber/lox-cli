@@ -54,7 +54,7 @@ New-Item -ItemType Directory -Force $CargoTargetDirectory, "$Output\temp", "$Out
 $env:CARGO_TARGET_DIR = Short-Path (Resolve-Path $CargoTargetDirectory).Path
 $env:TEMP = Short-Path "$Output\temp"
 $env:TMP = $env:TEMP
-$env:RUST_MIN_STACK = '16777216'
+Remove-Item Env:RUST_MIN_STACK -ErrorAction SilentlyContinue
 $env:CARGO_BUILD_JOBS = '2'
 $env:LOX_TELEMETRY = '0'
 $env:CARGO_NET_OFFLINE = 'true'
@@ -78,6 +78,7 @@ Step 'rust-version' 'rustc' @('-Vv')
 Step 'java-version' $Java @('-version')
 Step 'kotlin-version' $KotlinCompiler @('-version')
 Step 'python-version' $Python @('-c', 'import platform,sys,sysconfig; print(sys.version, platform.machine(), "GIL-disabled=", sysconfig.get_config_var("Py_GIL_DISABLED")); assert sys.platform == "win32" and platform.machine() == "AMD64" and not sysconfig.get_config_var("Py_GIL_DISABLED")')
+Step 'control-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'control_resolution', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
@@ -89,6 +90,7 @@ Step 'venv-create' $Python @('-m', 'venv', "$Output\venv")
 $VenvPython = "$Output\venv\Scripts\python.exe"
 Step 'wheel-install' $VenvPython @('-m', 'pip', '--disable-pip-version-check', 'install', '--no-index', '--no-deps', $Wheels[0].FullName)
 Step 'python-smoke' $VenvPython @('-I', 'tests\bindings\archive_smoke.py', '--fixtures', "$Output\fixtures")
+Step 'python-control-smoke' $VenvPython @('-I', '-B', 'tests\bindings\control_smoke.py')
 $InstalledDll = "$Output\venv\Lib\site-packages\lox_archive\lox_archive.dll"
 Step 'java-generate' $JavaGenerator @('generate', '--no-format', '--out-dir', "$Output\generated-java", $InstalledDll)
 Step 'java-correction-guards' $Python @('-I', '-B', 'tests\bindings\test_java_generator_correction.py', '--generated-dir', "$Output\generated-java", '--scratch', "$Output\correction-guard-tests")
@@ -113,9 +115,10 @@ Copy-Item -Force $InstalledDll "$Output\jvm\native\lox_archive.dll"
 if ((Get-FileHash $InstalledDll).Hash -ne (Get-FileHash "$Output\jvm\native\lox_archive.dll").Hash) {
     throw 'Python and JVM native artifacts differ.'
 }
-Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java', 'tests\bindings\NativeClockStatusProbe.java', 'tests\bindings\ClockTestSupport.java', 'tests\bindings\ClockSmoke.java')
+Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java', 'tests\bindings\NativeClockStatusProbe.java', 'tests\bindings\ClockTestSupport.java', 'tests\bindings\ClockSmoke.java', 'tests\bindings\ControlSmoke.java')
 $NativeAccess = @('--enable-native-access=ALL-UNNAMED', "-Djava.library.path=$Output\jvm\native")
 Step 'java-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveSmoke', "$Output\fixtures"))
+Step 'java-control-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ControlSmoke'))
 $VsWhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
 if (-not $VcVars) {
     if (-not (Test-Path $VsWhere)) { throw 'Pass -VcVars pointing to an existing vcvars64.bat.' }
@@ -133,6 +136,8 @@ $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
 Step 'java-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveAllocationSmoke', "$Output\fixtures"))
 Step 'kotlinc-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-smoke.jar", 'tests\bindings\ArchiveSmoke.kt')
 Step 'kotlin-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\kotlin-smoke.jar", 'ArchiveSmokeKt', "$Output\fixtures"))
+Step 'kotlinc-control-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-control-smoke.jar", 'tests\bindings\ControlSmoke.kt')
+Step 'kotlin-control-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\kotlin-control-smoke.jar", 'ControlSmokeKt'))
 Step 'jar-allocation-test-support' $Jar @('--create', '--file', "$Output\jvm\allocation-test-support.jar", '-C', "$Output\jvm\test-classes", '.')
 $KotlinArguments = @('-jvm-target', '22', '-classpath',
     ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
@@ -147,7 +152,6 @@ $ClockKotlinArguments = @('-jvm-target', '22', '-classpath',
     'tests\bindings\ClockSmoke.kt')
 [IO.File]::WriteAllLines("$Output\jvm\kotlin-clock.args", $ClockKotlinArguments, [Text.UTF8Encoding]::new($false))
 Step 'kotlinc-clock-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-clock.args")
-Remove-Item Env:RUST_MIN_STACK
 Step 'clock-head-smokes' $VenvPython @('-I', '-B', 'tests\bindings\clock_smoke.py', '--signals', "$Output\clock-signals",
     '--java', $Java, '--api-jar', $ApiJar, '--classes', "$Output\jvm\test-classes",
     '--kotlin-jar', "$Output\jvm\kotlin-clock-smoke.jar", '--native-dir', "$Output\jvm\native",
@@ -158,6 +162,7 @@ $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archiv
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
 $Artifacts += Get-Item "$Output\java-generator-correction.json"
 $Artifacts += Get-Item "$Output\CLOCK-PROOF.json", "$Output\clock-java.log", "$Output\clock-kotlin.log"
+$Artifacts += Get-Item "$Output\python-control-smoke.log", "$Output\java-control-smoke.log", "$Output\kotlin-control-smoke.log"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -169,7 +174,8 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive and strict production HTTP clock; current loopback cancellation/close only, no subscriptions/full-runtime/platform parity. Prerequisite composition remains publication-gated.'
+    contract = 'Archive, strict production HTTP clock, and pure typed control selection. Current loopback clock cancellation/close only; no control I/O, subscriptions/full-runtime/platform parity. Prerequisite composition remains publication-gated.'
+    native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest
     excluded = @('target', 'temp', 'venv except tested native DLL/generated module/async adapter')

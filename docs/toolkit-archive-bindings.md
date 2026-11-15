@@ -1,9 +1,9 @@
-# Experimental generated native archive and clock bindings
+# Experimental generated native archive, clock and control bindings
 
-This is a narrow **archive plus HTTP clock** shared-core binding slice, not a general
+This is a narrow **archive, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::archive` and the optional production
-`runtime::ClockDriver`; all codec, transport, retry and validation behavior
+facade over `lox_core::configuration::archive`, `control` and the optional production
+`runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
 No head invokes the CLI or runs another protocol stack.
@@ -19,7 +19,8 @@ No head invokes the CLI or runs another protocol stack.
 | XML parsing/editing, validation, deployment, sidecars/trust | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
-| In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver producer uses core; acquisition/formatting stay in CLI | Unsupported | Unsupported |
+| In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
+| Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
 | Token auth/crypto, control transport, WebSocket events | Not extracted | Existing binary-private behavior | Unsupported | Unsupported |
 | State subscriptions and event-stream backpressure | No shared event stream exists | No new behavior | Unsupported | Unsupported |
 
@@ -64,6 +65,85 @@ Archive calls are stateless and still prove **nothing** about runtime lifecycle.
 The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
+
+## Pure control selection heads
+
+The control entries above describe this source's experimental API, available in
+matching wheel/JAR/native artifacts **once published**, not an assertion that
+the candidate artifacts are a public release or that every CLI operation has parity.
+The package and Java namespace retain their existing `lox_archive` /
+`net.eisber.lox.archive` names for compatibility.
+
+`prepare_control_query(query, room_filter, aliases)` takes a string, optional
+room string and string-to-string dictionary. It calls shared
+`ControlQuery::prepare` **before catalog acquisition**. The typed result is
+Python `PreparedControlQuery.RESOLVED(control=ResolvedControl(uuid=...))` or
+`.CATALOG(query=..., room_filter=...)`. Only the latter needs caller-supplied
+catalog data. `resolve_control_query(prepared, controls)` returns a typed
+`ResolvedControl`; already resolved plans need only an empty list.
+Java/Kotlin use the same generated `PreparedControlQuery.Resolved` and
+`.Catalog` Java records, via `LoxArchive.prepareControlQuery` /
+`resolveControlQuery`.
+
+The Catalog variant owns the **original request**, not a separately parsed or
+normalized query. Completion reborrows that snapshot through the core parser
+with no aliases; resolved alias values are never parsed again. Prepared values
+are reusable owned data, not native object handles, and need no shutdown or
+explicit disposal. Caller-constructed Catalog variants are also interpreted
+by the core. There is no catalog download, cache/context selection, sorting,
+HTTP command or language-specific resolver.
+
+```python
+import lox_archive as lox
+
+prepared = lox.prepare_control_query("Light [Kitchen]", None, {})
+controls = []
+if isinstance(prepared, lox.PreparedControlQuery.CATALOG):
+    controls = [
+        lox.Control(name="Light", uuid="opaque-id", typ="Switch", room="Kitchen",
+                    cat=None, is_favorite=True, is_secured=False)
+    ]  # Supply the catalog from the caller's own source.
+selected = lox.resolve_control_query(prepared, controls)
+assert selected.uuid == "opaque-id"
+```
+
+`Control` has exactly the core's seven typed fields: `name`, `uuid`, `typ`,
+optional `room`, optional `cat`, `is_favorite`, `is_secured` (Java camelCase
+accessors). No arbitrary JSON is accepted or returned. Python raises
+`ControlResolutionError.NotFound(query)` or `.Ambiguous(query, candidates)`;
+Java throws checked `ControlResolutionException.NotFound` /
+`.Ambiguous`, and Kotlin catches those same Java types. Candidates are an
+ordered `list[Control]` / `List<Control>` retaining all seven fields, including
+null/empty distinctions, duplicates, favorites and security flags. Those flags
+are data, **not selection filters or authorization**. Identifier failures are
+typed `IdentifierError` / checked `IdentifierException` variants
+`InvalidLength`, `InvalidCharacters`, `NonHex`. Exhaustive adapters preserve
+all current shared-core variants; no error-message parsing is used.
+
+Compatibility is deliberately unusual and is not tightened by these bindings:
+
+* Identifier recognition runs **before** exact, case-sensitive aliases of the
+  raw input. Recognition means more than 20 **UTF-8 bytes**, at least one dash,
+  and only ASCII hex/dashes, with **no maximum**: 21 or 51 dashes are recognized.
+  Alias values are returned verbatim, may be empty/unsafe path values, and are
+  neither recursively resolved nor validated.
+* `validate_uuid` is a separate command-path check, **not** a canonical UUID
+  parser: 1–50 UTF-8 bytes, then reject `..`, `/`, `\`, `%`, then require ASCII
+  hex/dashes. Short `"a"` and `"-"` pass. 51 dashes are recognized by `is_uuid`
+  but fail validation. Length errors take precedence over character errors.
+* Only a query ending in `]` uses its **rightmost** `[` as an inline room
+  qualifier. Only that form's name is trimmed. The literal room is not trimmed
+  and overrides the room flag even when empty. Unqualified names retain spaces.
+* Name/room matching uses Unicode lowercase substring comparison, **not case
+  folding**, normalization or ranking. There is **no exact-name preference**.
+  Missing rooms match the empty string; empty queries/rooms are valid substring
+  filters. Ambiguity and candidate order are retained without deduplication.
+
+The actual installed-wheel, compiled Java and Kotlin `control_smoke` callers
+exercise typed success, zero-catalog identifier/alias paths, ordered full-record
+ambiguity, original-query NotFound, room/Unicode/empty/byte-length edges and
+typed validation failures. These pure functions introduce no runtime lifetime
+claim; all existing archive error-buffer and clock resource proofs remain required.
 
 ## Production-backed clock heads
 
@@ -220,8 +300,11 @@ pwsh -NoProfile -File scripts\build-archive-bindings.ps1 `
 Use a **fresh output directory** on each attempt; the script refuses reuse
 so failed logs survive. An optional `-CargoTargetDirectory` may reuse only
 your own target cache. The script sets process-local `TEMP`/`TMP` and short
-Windows paths for its own target/temp (MSVC long-path avoidance), stack size,
-two build jobs and `LOX_TELEMETRY=0`. It changes no global PATH, service or VM.
+Windows paths for its own target/temp (MSVC long-path avoidance), two build jobs
+and `LOX_TELEMETRY=0`. It explicitly unsets `RUST_MIN_STACK` for every actual
+native artifact/caller proof. Separate full-workspace Windows CLI test-harness
+gates may require the established 16 MiB Rust test-thread stack; that is not a
+native Python/JVM runtime claim. It changes no global PATH, service or VM.
 PowerShell 7+, Windows build tools and the listed compilers are prerequisites.
 The allocation regression also compiles a small **test-only** C helper using
 existing MSVC x64 tools (`vswhere`, or pass `-VcVars ...\vcvars64.bat`).
