@@ -189,8 +189,9 @@ output behavior is unchanged, not normalized to other commands.
 Run `cargo test -p lox-core --features configuration-xml --test room_inventory`
 for the typed consumer regressions and `cargo test -p lox-cli --bin lox
 --test config_integration room_inventory` for the characterized producer.
-Python/Java/Kotlin room inventory bindings, diff/editing and deployment
-validation are not part of this extraction.
+The separate [native facade](../../docs/toolkit-archive-bindings.md) exposes
+the same read-only inventory to Python and the shared Java/Kotlin API.
+Editing and deployment validation remain unsupported by these bindings.
 
 ## Optional read-only configuration summary
 
@@ -245,8 +246,9 @@ Read-only dry-run behavior is unchanged; the command has no summary limit flag.
 
 Run `cargo test -p lox-core --features configuration-xml --test config_summary`
 and `cargo test -p lox-cli --bin lox --test config_integration summary_` for typed
-and actual-producer regressions. Editing, strict validation and Python/Java/Kotlin
-summary bindings remain unsupported by this capability.
+and actual-producer regressions. The separate native facade exposes this
+read-only summary to Python and the shared Java/Kotlin API. Editing and strict
+validation remain unsupported by these bindings.
 
 ## Optional structural-summary comparison
 
@@ -417,7 +419,7 @@ The CLI still validates `send_cmd`/`get_all` at their original call sites.
 This Rust API is available with default features and adds no dependencies.
 The separate [generated binding facade](../../docs/toolkit-archive-bindings.md)
 exposes typed in-memory control resolution to Python and the shared Java/Kotlin
-API. Room inventory and configuration summary bindings remain unsupported. This
+API, as well as read-only room inventory and configuration summaries. This
 does not migrate all CLI commands, `find_control`'s distinct lookup contract,
 structure parsing, or another protocol stack, and establishes no stable FFI/ABI.
 

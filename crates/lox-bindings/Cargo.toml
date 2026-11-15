@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.91"
 license = "AGPL-3.0-or-later AND LicenseRef-Commercial"
-description = "Generated native archive, clock and control bindings for lox-core"
+description = "Generated native archive, configuration inspection, clock and control bindings for lox-core"
 repository = "https://github.com/eisber/lox-cli"
 publish = false
 
@@ -21,6 +21,6 @@ required-features = ["bindgen"]
 bindgen = ["uniffi/cli"]
 
 [dependencies]
-lox-core = { path = "../lox-core", version = "=0.1.0", features = ["runtime-blocking"] }
+lox-core = { path = "../lox-core", version = "=0.1.0", features = ["runtime-blocking", "configuration-xml"] }
 thiserror = "=2.0.18"
 uniffi = "=0.32.1"

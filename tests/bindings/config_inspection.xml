@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ControlList Version="old">
+  <IoData Pr="r"/>
+  <C Type="Document" Date="old"/>
+  <C Type="Place" U="r" Title="old"/>
+  <C Type="Place" U="r" Title="A&amp; Küche &#x41;"/>
+  <C Type="Place" U="z" Title="a"></C>
+  <C Type="Place" U="tie1" Title="same"/>
+  <C Type="Place" U="tie2" Title="same"/>
+  <C Type="Place" U="" Title=""/>
+  <C Type="Place" Title="missing-id"/>
+  <C Type="Place" U="missing-title"/>
+  <C Type="place" U="case" Title="Case matters"/>
+  <C Type="Category" U="cat" Title="old"/>
+  <C Type="Category" U="cat" Title="Raw &amp; &#65;"/>
+  <C Type="Category" U="" Title=""/>
+  <C Type="User" Title="Zoë"/>
+  <C Type="User" Title=""/>
+  <C Type="User" Title="Zoë"/>
+  <C Type="User"/>
+  <C Type="Switch" U="dup" Title="old"><IoData Pr="z"/></C>
+  <C Type="FutureBlock" U="dup" Title="Last &amp; raw">
+    <IoData Pr="z"/>
+    <Group><IoData Pr="nested-not-parent"/></Group>
+    <C Type="And" U="nested" Title="Nested"><IoData Pr="r"/></C>
+    <IoData Pr="r"/>
+    <IoData/>
+  </C>
+  <IoData Pr="outside-not-parent"/>
+  <C Type="" U="" Title="Empty type and ID"/>
+  <C Type="And" U="orphan" Title="No direct metadata">
+    <Group><IoData Pr="nested-not-parent"/></Group>
+  </C>
+  <C Type="And" U="empty-name" Title=""/>
+  <C Type="And" Title="missing-id"/>
+  <C U="missing-type" Title="missing-type"/>
+  <C Type="Place" U="invalid-attr" Title="Ignored" bad />
+  <C Type="Page" U="b00" Title="blacklisted"><IoData Pr="r"/></C>
+  <C Type="UserCaption" U="b01" Title="blacklisted"/>
+  <C Type="LoxCaption" U="b02" Title="blacklisted"/>
+  <C Type="TreeDevice" U="b03" Title="blacklisted"/>
+  <C Type="LoxAIRDevice" U="b04" Title="blacklisted"/>
+  <C Type="NetworkDevice" U="b05" Title="blacklisted"/>
+  <C Type="TreeAsensor" U="b06" Title="blacklisted"/>
+  <C Type="TreeDsensor" U="b07" Title="blacklisted"/>
+  <C Type="TreeAactuator" U="b08" Title="blacklisted"/>
+  <C Type="TreeDactuator" U="b09" Title="blacklisted"/>
+  <C Type="LoxAIRAsensor" U="b10" Title="blacklisted"/>
+  <C Type="LoxAIRDsensor" U="b11" Title="blacklisted"/>
+  <C Type="LoxAIRAactuator" U="b12" Title="blacklisted"/>
+  <C Type="LoxAIRDactuator" U="b13" Title="blacklisted"/>
+  <C Type="InputRef" U="b14" Title="blacklisted"/>
+  <C Type="OutputRef" U="b15" Title="blacklisted"/>
+  <C Type="Co" U="b16" Title="blacklisted"/>
+  <C Type="IoData" U="b17" Title="blacklisted"/>
+  <C Type="Display" U="b18" Title="blacklisted"/>
+  <C Type="HP" U="b19" Title="blacklisted"/>
+  <C Type="IoList" U="b20" Title="blacklisted"/>
+  <C Type="Const" U="b21" Title="blacklisted"/>
+  <C Type="Note" U="b22" Title="blacklisted"/>
+  <C Type="ControlList" U="b23" Title="blacklisted"/>
+  <C Type="SubGroup" U="b24" Title="blacklisted"/>
+  <C Type="VirtUserDevice" U="b25" Title="blacklisted"/>
+  <C Type="CentralDevice" U="b26" Title="blacklisted"/>
+  <C Type="Document" U="b27" Title="blacklisted" Date="2026&amp;raw"/>
+  <ControlList Version="16&amp;raw"/>
+  <IoData Pr="unknown"/>
+</ControlList>
