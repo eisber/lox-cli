@@ -26,6 +26,8 @@ include = [
     "/tests/ux/**",
     "/tests/eval/cases/**",
     "/tests/eval/fixture.Loxone",
+    "/tests/eval/golden/configs/Schedule-Based AC Control.Loxone",
+    "/tests/eval/golden/configs/Guest Room Door.Loxone",
     "/README.md",
     "/LICENSE",
     "/LICENSE-AGPL",

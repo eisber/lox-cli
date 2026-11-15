@@ -96,8 +96,12 @@ An interrupted run terminates only its own command process family.
 The root package explicitly includes source, embedded schemas, runtime
 documentation, contract files, Rust integration tests, UX fixtures, licenses,
 and the eval cases read by `lox blocks`. Historical eval reports, golden
-exports, task databases, local reverse-engineering assets, CI files, and
-development scripts are not application package inputs. The simulator package
+exports (except the two fixtures embedded by the DayTimer and input-inversion
+integration tests), task databases, local reverse-engineering assets, CI files,
+and development scripts are not application package inputs. The two explicitly
+included golden fixtures are `Schedule-Based AC Control.Loxone` and
+`Guest Room Door.Loxone`; keep literal embedded test inputs in the package
+allowlist when adding integration tests. The simulator package
 includes its sources, tests/fixtures, and benchmark target.
 The CLI preserves its original sanitized `tests\eval\fixture.Loxone`.
 The simulator ships one byte-identical 52,165-byte copy as
@@ -115,15 +119,15 @@ Verify **actual archives**, not just `cargo package --list`:
 $env:CARGO_TARGET_DIR = Join-Path (Get-Location) ".reverse-engineering\bench\target-package"
 $env:CARGO_BUILD_JOBS = "8"
 cargo package --workspace --locked
-python scripts\verify-packages.py `
-  .reverse-engineering\bench\target-package\package\lox-cli-0.14.2.crate `
-  .reverse-engineering\bench\target-package\package\lox-sim-0.1.0.crate
+$archives = Get-ChildItem "$env:CARGO_TARGET_DIR\package\*.crate"
+python scripts\verify-packages.py @($archives.FullName)
 ```
 
 `--allow-dirty` may be added for a deliberate uncommitted manifest experiment;
 do not use it for a release. On the tested Cargo 1.99.1,
-`cargo package --workspace` orders `lox-sim` before `lox-cli` and stages the
-local simulator archive in a temporary Cargo registry to build the CLI archive.
+`cargo package --workspace` orders local dependencies (`lox-core` and
+`lox-sim`) before their dependents and stages their archives in a temporary
+Cargo registry to build the CLI and bindings archives.
 The normalized CLI manifest correctly keeps the versioned registry dependency;
 it does not ship a working dependency on the repository's `lox-sim` directory.
 CI builds these archives and checks their inventory for private assets and
