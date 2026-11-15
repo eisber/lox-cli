@@ -1,7 +1,29 @@
-//! Owned inspection results; the two distinct XML contracts belong to core.
+//! Owned inspection results; the distinct XML contracts belong to core.
 
-use lox_core::configuration::{rooms, summary};
+use lox_core::configuration::{controls, rooms, summary};
 use std::collections::HashMap;
+
+/// Offline XML inventory, not runtime Control or summary ConfigControlEntry.
+#[derive(Clone, Debug, PartialEq, Eq, uniffi::Record)]
+pub struct XmlControlInfo {
+    pub control_type: String,
+    pub title: String,
+    pub uuid: String,
+    pub room: String,
+    pub category: String,
+}
+
+impl From<controls::ControlInfo> for XmlControlInfo {
+    fn from(value: controls::ControlInfo) -> Self {
+        Self {
+            control_type: value.control_type,
+            title: value.title,
+            uuid: value.uuid,
+            room: value.room,
+            category: value.category,
+        }
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, uniffi::Record)]
 pub struct RoomInfo {
@@ -92,6 +114,28 @@ impl From<summary::ConfigSummaryError> for ConfigurationError {
     }
 }
 
+impl From<controls::ControlInventoryError> for ConfigurationError {
+    fn from(value: controls::ControlInventoryError) -> Self {
+        match value {
+            controls::ControlInventoryError::Xml { source } => Self::Xml {
+                source_message: source.to_string(),
+            },
+        }
+    }
+}
+
+/// Read raw XML using core's pending-next-IoData inventory and filter admission.
+#[uniffi::export]
+pub fn parse_controls(
+    xml: Vec<u8>,
+    type_filter: Option<String>,
+    room_filter: Option<String>,
+) -> Result<Vec<XmlControlInfo>, ConfigurationError> {
+    controls::parse_controls(&xml, type_filter.as_deref(), room_filter.as_deref())
+        .map(|values| values.into_iter().map(Into::into).collect())
+        .map_err(Into::into)
+}
+
 /// Read raw XML bytes using core's permissive inventory, not archive detection.
 #[uniffi::export]
 pub fn parse_rooms(xml: Vec<u8>) -> Result<Vec<RoomInfo>, ConfigurationError> {
@@ -112,6 +156,80 @@ pub fn parse_config_summary(xml: Vec<u8>) -> Result<ConfigSummary, Configuration
 mod tests {
     use super::*;
     use std::error::Error;
+
+    #[test]
+    fn xml_controls_preserve_every_field_filter_admission_and_owned_results() {
+        let xml = include_bytes!("../tests/fixtures/xml_controls.xml").to_vec();
+        let before = xml.clone();
+        for typ in [None, Some("sWiTcH"), Some(""), Some("ä"), Some("Sw")] {
+            for room in [
+                None,
+                Some("küc"),
+                Some("raw&amp;"),
+                Some(""),
+                Some("absent"),
+            ] {
+                let expected: Vec<XmlControlInfo> = controls::parse_controls(&xml, typ, room)
+                    .unwrap()
+                    .into_iter()
+                    .map(Into::into)
+                    .collect();
+                assert_eq!(
+                    parse_controls(xml.clone(), typ.map(str::to_owned), room.map(str::to_owned))
+                        .unwrap(),
+                    expected
+                );
+            }
+        }
+        let rows = parse_controls(xml.clone(), None, None).unwrap();
+        assert_eq!(xml, before);
+        assert_eq!(rows.len(), 10);
+        assert_eq!(rows[0].uuid, "");
+        assert_eq!(rows[1].uuid, "inner");
+        assert_eq!(
+            rows.iter()
+                .filter(|r| r.title == "Same")
+                .map(|r| r.uuid.as_str())
+                .collect::<Vec<_>>(),
+            ["second", "first", "first"]
+        );
+        let filtered = parse_controls(xml, Some("SWITCH".into()), Some("küc".into())).unwrap();
+        assert!(filtered.iter().any(|r| r.uuid == "outer"));
+        assert!(!rows.iter().any(|r| r.uuid == "outer"));
+        assert_eq!(rows[1].category, "Raw &amp; &#65;");
+    }
+
+    #[test]
+    fn xml_controls_keep_permissive_bytes_and_exact_reader_failure() {
+        for xml in [
+            b"plain text".as_slice(),
+            b"",
+            b"<C Type=\"Switch\" U=\"c\" Title=\"Open\"><IoData Pr=\"r\">",
+            b"<C Type=\"Switch\" U=\"c\" Title=\"raw&amp;\" bad /><IoData/>",
+            b"<C Type=\"Switch\" U=\"c\" Title=\"\xff\"/><IoData/>",
+        ] {
+            assert_eq!(
+                parse_controls(xml.to_vec(), None, None).unwrap(),
+                controls::parse_controls(xml, None, None)
+                    .unwrap()
+                    .into_iter()
+                    .map(Into::into)
+                    .collect::<Vec<_>>()
+            );
+        }
+        let xml = b"<Root><C Type=\"Switch\" U=\"c\" Title=\"emitted\"/><IoData/><secret>not-an-error-payload</Root>";
+        let ConfigurationError::Xml { source_message } =
+            parse_controls(xml.to_vec(), None, None).unwrap_err();
+        assert_eq!(
+            source_message,
+            controls::parse_controls(xml, None, None)
+                .unwrap_err()
+                .source()
+                .unwrap()
+                .to_string()
+        );
+        assert!(!source_message.contains("not-an-error-payload"));
+    }
 
     #[test]
     fn every_owned_field_matches_core_without_changing_input_or_order() {

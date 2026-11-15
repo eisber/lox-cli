@@ -57,17 +57,17 @@ archive consumers need no networking feature. The clock API distinguishes wire
 observations, explicit envelope validation, and legacy CLI formatting, with
 cancellation and an explicitly owned blocking driver. Typed in-memory control
 resolution is shared with the CLI selector too. Optional `configuration-xml`
-provides typed byte-input room inventory and the summary producer consumed by
+provides typed byte-input XML control/room inventory and the summary producer consumed by
 `lox config diff`; comparison, formatting, XML editing and other
 CLI capabilities remain binary-private. See its README for capabilities and limits.
 
 An experimental, separate [generated binding facade](docs/toolkit-archive-bindings.md)
 provides native Python bytes and one Java 22+ FFM API also used by Kotlin.
-Archive operations, typed read-only raw-XML room/summary inspection, pure control
+Archive operations, typed read-only raw-XML control/room/summary inspection, pure control
 selection and production-backed strict clock reads have Windows AMD64 artifact
 tests, including actual I/O cancellation and explicit shutdown through
 Python asyncio and Java/Kotlin futures. Inspection does not expose comparison,
-statistics, validation or editing. Other runtime operations/subscriptions,
+statistics, authentication hashes, runtime catalog acquisition, validation or editing. Other runtime operations/subscriptions,
 cross-platform qualification and full CLI parity are not claimed. Prototype
 prerequisite compositions remain publication-gated until coherent review/integration.
 

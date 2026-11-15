@@ -262,8 +262,13 @@ adapter; this does not claim their whole-command migration.
 Run `cargo test -p lox-core --features configuration-xml --test control_inventory`
 for typed consumers and `cargo test -p lox-cli --bin lox --test config_integration
 control_inventory` for parser/error-adapter and actual CLI regressions.
-No Python/Java/Kotlin control-inventory bindings, native artifacts, firmware
-qualifications, editing, deployment validation or whole-SDK parity are added.
+The separate [native facade](../../docs/toolkit-archive-bindings.md) exposes the
+same Core operation as Python `parse_controls(xml, type_filter, room_filter)` and
+the shared Java/Kotlin `LoxArchive.parseControls(byte[], String, String)`.
+All five strings are retained in a distinct `XmlControlInfo` snapshot. Filters
+are required nullable arguments, not promised Python defaults. This adds only
+Windows AMD64 native XML control inventory; no firmware qualification, editing,
+deployment validation, runtime catalog API or whole-SDK parity is implied.
 
 ## Optional read-only configuration summary
 
@@ -491,7 +496,7 @@ The CLI still validates `send_cmd`/`get_all` at their original call sites.
 This Rust API is available with default features and adds no dependencies.
 The separate [generated binding facade](../../docs/toolkit-archive-bindings.md)
 exposes typed in-memory control resolution to Python and the shared Java/Kotlin
-API, as well as read-only room inventory and configuration summaries. This
+API, as well as read-only XML control/room inventories and configuration summaries. This
 does not migrate all CLI commands, `find_control`'s distinct lookup contract,
 structure parsing, or another protocol stack, and establishes no stable FFI/ABI.
 
@@ -608,12 +613,17 @@ qualification is implied.
 
 ## Not exposed yet
 
-XML parsing beyond room inventory/summary and monthly statistics, editing, runtime operations beyond this HTTP clock read,
-token acquisition/WebSocket authentication, subscriptions, and Python or Java/Kotlin native bindings
-are **not** exposed through `lox-core`. Existing CLI capabilities outside the
-archive, clock, room inventory/summary, monthly statistics, authentication-hash and control-resolution families remain binary-private. No cross-head parity, native
-package availability or ABI stability is claimed. The approved generated UniFFI
-Python / one Java 22+ FFM API direction is unchanged; this stage adds no bindings.
+XML parsing beyond XML control/room inventory, summary/comparison and monthly
+statistics, editing, runtime operations beyond this HTTP clock read,
+token acquisition/WebSocket authentication and subscriptions are **not** exposed
+through `lox-core`. Existing CLI capabilities outside the archive, clock,
+XML control/room inventory, summary/comparison, monthly statistics,
+authentication-hash and control-resolution families remain binary-private.
+The separate generated UniFFI Python / one Java 22+ FFM facade exposes only the
+capabilities in its [per-head matrix](../../docs/toolkit-archive-bindings.md).
+Comparison, statistics, authentication hashes, editing and runtime catalog
+acquisition remain unsupported there. No general cross-head parity, registry
+package availability or ABI stability is claimed.
 Archive byte guarantees and private deployment/sidecar policies are unchanged;
 shared-loader issue `lox-n37w` remains unresolved and is not broadened here.
 
