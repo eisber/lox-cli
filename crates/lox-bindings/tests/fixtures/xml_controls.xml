@@ -1,0 +1,21 @@
+﻿<Root>
+<C Type="Page" U="page" Title="Page"/><Other><IoData Pr="page-room"/></Other>
+<C Type="TreeDevice" U="device" Title="Device"><IoData/><IoData Pr="ignored"/></C>
+<C Type="Switch" U="outer" Title="Outer">
+  <C Type="Other" U="inner" Title="Inner"/><IoData Pr="r" Cr="c"/>
+  <IoData Pr="not-outer"/>
+</C>
+<C Type="Switch" U="pending" Title="Pending"/>
+<C Type="Place" U="r" Title="Old"/><C Type="Category" U="c" Title="Old"/>
+<C Type="Switch" Title="No ID"/><C Title="No Type"/><IoData Pr="r" Cr="c"/>
+<C Type="Switch" U="lost" Title="Lost"/><C Type="Switch" U="no-title"/><IoData/>
+<C Type="Switch" U="second" Title="Same"><IoData Pr="r" Cr="c"/></C>
+<C Type="Switch" U="first" U="ignored" Title="Same" Title="Ignored"><IoData Pr="r"/></C>
+<C Type="Switch" U="first" Title="Same"><IoData Pr="raw&amp;id" Cr="unknown"/></C>
+<C Type="" U="" Title=""><IoData/></C>
+<C Type="switch" U="lower" Title="Z"><IoData/></C>
+<C Type="Ä" U="室" Title=" A&amp;&#65;&custom; "><IoData/></C>
+<C Type="Place" U="r" Title="KÜCHE"/><C Type="Category" U="c" Title="Raw &amp; &#65;"/>
+<C Type="Place" U="" Title="Default"/><C Type="Category" U="" Title="Empty ID"/>
+<C Type="Place" U="page-room"/><C Type="Category" U="unknown"/>
+</Root>

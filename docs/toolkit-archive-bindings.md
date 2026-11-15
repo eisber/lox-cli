@@ -1,8 +1,8 @@
 # Experimental native archive, configuration inspection, clock and control bindings
 
-This is a narrow **archive, room/summary inspection, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML control/room/summary inspection, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, rooms, summary}`, `control` and the optional production
+facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -18,7 +18,7 @@ No head invokes the CLI or runs another protocol stack.
 | Filesystem/config context selection | No implicit operations | Existing CLI behavior | Unsupported; caller owns I/O | Unsupported; caller owns I/O |
 | Read-only room inventory from raw XML bytes | Optional `configuration::rooms::parse_rooms` (`configuration-xml`) | Existing shared parser; unchanged | `parse_rooms(bytes) -> list[RoomInfo]` | `LoxArchive.parseRooms(byte[]) -> List<RoomInfo>` |
 | Read-only structural summary from raw XML bytes | Optional `configuration::summary::parse_config_summary` (`configuration-xml`) | Existing shared producer for `config diff`; unchanged | `parse_config_summary(bytes) -> ConfigSummary` | `LoxArchive.parseConfigSummary(byte[]) -> ConfigSummary` |
-| Read-only control inventory from raw XML bytes | Optional `configuration::controls::parse_controls` (`configuration-xml`); existing filters and pending associations | `config controls` shares inventory; I/O, limits and presentation stay in CLI | Unsupported | Unsupported |
+| Read-only control inventory from raw XML bytes | Optional `configuration::controls::parse_controls` (`configuration-xml`); existing filters and pending associations | `config controls` shares inventory; I/O, limits and presentation stay in CLI | `parse_controls(bytes, type_filter, room_filter) -> list[XmlControlInfo]` | `LoxArchive.parseControls(byte[], String, String) -> List<XmlControlInfo>`; nullable filters |
 | XML editing, validation, deployment, sidecars/trust | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Unsupported | Unsupported |
 | Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); timestamps remain opaque | `stats get` shares decoding; acquisition, selection, merging and formatting stay in CLI | Unsupported | Unsupported |
@@ -77,11 +77,11 @@ until coherent prerequisite integration and independent review are complete.
 
 ## Read-only configuration inspection heads
 
-These are two thin, synchronous calls to the existing typed Core byte parsers,
+These are three thin, synchronous calls to the existing typed Core byte parsers,
 not the shared DOM loader (`lox-n37w`, still open). The binding crate enables
 Core's existing `configuration-xml` feature; default Core consumers, Core source,
 CLI behavior and parser implementations are unchanged. Caller code owns I/O and
-explicit archive decoding. Neither call detects ZIP/LoxCC, repairs XML, normalizes,
+explicit archive decoding. None detects ZIP/LoxCC, repairs XML, normalizes,
 edits, serializes, validates deployability, resolves names or interprets versions.
 
 ```python
@@ -113,7 +113,7 @@ subsequent calls. Maps have **unspecified iteration order**.
 
 The contracts are deliberately **distinct**:
 
-* Inventory recognizes exact-case `C Type="Place"` start/empty elements with
+* Room inventory recognizes exact-case `C Type="Place"` start/empty elements with
   readable ID/title, accepting empty strings. Last duplicate UUID title wins.
   Counts include **every** matching raw `IoData Pr` anywhere, even before room
   definitions, sensors/devices and blacklisted summary elements; unknown IDs
@@ -126,11 +126,31 @@ The contracts are deliberately **distinct**:
   types can qualify. A control's `room_uuid` comes only from its **direct**
   `IoData` children (last readable `Pr`), not inventory counts or nested/sibling
   metadata. Empty/missing room metadata remains an empty string.
-* Attributes in both are raw readable UTF-8: entity spellings are **not**
+* XML control inventory tracks eligible pending `C` candidates and consumes one
+  on the next start/empty `IoData` **anywhere**, even across end tags or siblings.
+  Nested eligible candidates overwrite without restoring parents. Missing or
+  filtered-out type/ID preserves the previous candidate; a missing title on an
+  admitted candidate invalidates emission. `Place`/`Category` definitions do not
+  clear it. Type filters are ASCII-case-insensitive **exact** matches during
+  tracking, so filtering can change which candidate consumes metadata.
+  Room filtering is Unicode-lowercase substring matching **after** late
+  definition lookup and raw ID fallback. Later definitions win, including empty
+  IDs/names; absent names leave raw fallback. Duplicate control IDs remain.
+  Results sort stably by case-sensitive type/title, preserving equal-key emission
+  order. This is neither summary's direct-parent rule nor rooms' all-`IoData` count.
+* Attributes in all three are raw readable UTF-8: entity spellings are **not**
   decoded. BOM/Unicode, ignored invalid attributes, plaintext and permissive
   EOF remain Core behavior. Success is not strict document validation.
   Input bytes are not mutated, but this is **not** a round-trip XML preservation
   or deployment-trust claim.
+
+`XmlControlInfo` has exactly five strings: `control_type`, `title`, `uuid`,
+`room`, `category` (Java `controlType()` and otherwise same-name accessors).
+It is distinct from runtime seven-field `Control` and summary three-field
+`ConfigControlEntry`. Returned lists/records are host-owned snapshots with no
+native handle or close obligation. The generated Python signature requires all
+three arguments: `parse_controls(xml, None, None)` is unfiltered; optional filters
+have no implicit Python defaults. Java/Kotlin pass `null` for absent filters.
 
 XML reader failures become Python `ConfigurationError.Xml(source_message)` /
 checked Java `ConfigurationException.Xml` (same exception in Kotlin).
@@ -151,6 +171,17 @@ GC. This covers nested record/maps/arrays releases; existing archive and clock
 calibrations and lifecycle proofs remain mandatory and unchanged. Caller-thread
 automatic status arenas are still GC fallbacks, **not** deterministic per-call
 or client-close disposal.
+
+The installed-wheel `xml_controls_smoke.py`, compiled `XmlControlsSmoke.java`
+and `.kt` read the same crate-local `xml_controls.xml` bytes. They cover all five
+raw fields, stable duplicates, filter admission changing association, late
+definitions/fallback, Unicode/BOM, permissive EOF, typed reader failure without
+partial success, and host ownership. Success/error RustBuffers are each calibrated
+live then freed; 64 public calls per path in each language must leave zero matching
+buffers without requesting GC. This is Windows AMD64-only artifact evidence, not
+an ABI, free-threaded Python, MSRV, global resource or other-platform qualification.
+The existing canonical `config_inspection.xml`, source-package checks, archive
+error-buffer and owned clock-thread status-arena proofs remain unchanged.
 
 ## Pure control selection heads
 
