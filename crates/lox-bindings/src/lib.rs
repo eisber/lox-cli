@@ -1,4 +1,4 @@
-//! Thin native archive, configuration inspection, clock and control adapters.
+//! Thin native archive, configuration inspection, clock, control and color adapters.
 //! All behavior lives in lox-core.
 //! Generated code and its native library must come from the same build.
 
@@ -6,6 +6,7 @@ use lox_core::configuration::archive;
 use std::error::Error;
 
 mod clock;
+mod color;
 mod configuration;
 mod control;
 mod control_catalog;

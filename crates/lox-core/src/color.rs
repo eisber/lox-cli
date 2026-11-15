@@ -20,6 +20,11 @@ impl Rgb {
     /// Parse floating channels, validate all three, then round to bytes.
     pub fn parse(spec: &str) -> Result<Self, ColorError> {
         let (r, g, b) = parse_triple(spec, Notation::Rgb)?;
+        Self::from_channels(r, g, b)
+    }
+
+    /// Validate floating channels, then round to bytes, just like [`Self::parse`].
+    pub fn from_channels(r: f64, g: f64, b: f64) -> Result<Self, ColorError> {
         for (channel, value) in [(Channel::Red, r), (Channel::Green, g), (Channel::Blue, b)] {
             if !(0.0..=255.0).contains(&value) {
                 return Err(ColorError::RgbChannel { channel, value });

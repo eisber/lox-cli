@@ -73,6 +73,10 @@ Catalog calls reparse caller-supplied bytes each time; they add no HTTP/cache or
 control transport. Other runtime operations/subscriptions,
 cross-platform qualification and full CLI parity are not claimed. Prototype
 prerequisite compositions remain publication-gated until coherent review/integration.
+The matching native color candidate adds typed offline RGB/HSV/temperature
+encoding and explicit legacy decode/raw-mood observations, available only when
+published with its same-build wheel/JAR/DLL; it adds no Lighting eligibility,
+device qualification, editing or transport parity.
 
 ## Quick Start
 

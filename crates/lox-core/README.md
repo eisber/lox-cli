@@ -239,6 +239,12 @@ fn dim_amber() -> Result<i64, ColorError> {
 ```
 
 This default-feature, pure-std family has no new dependencies. `Rgb` byte
+values can be constructed numerically with `Rgb::from_channels(r, g, b)`,
+which reuses the exact validation and rounding called by `Rgb::parse`.
+The thin [native facade](../../docs/toolkit-archive-bindings.md#offline-color-heads)
+maps owned typed inputs/results/errors; matching Python/Java/Kotlin color
+artifacts are candidate-only until published.
+`Rgb` byte
 channels pack as `R + G*1000 + B*1000000`; `MoodValue` instead packs rounded
 percent channels plus `0x60000000`. These are distinct result types, both with
 `i64` storage. RGB floating inputs round to bytes **before** optional brightness
@@ -267,7 +273,7 @@ mode-aware Lighting algorithms are unchanged.
 `ColorError` exposes typed parse notation, channel, value and profile context;
 legacy float parser errors have no source, as before. CLI selection/flag errors,
 legacy flag wording, human/JSON/hex rendering, filesystem/context and exit policy
-stay in the binary. No Python/JVM/native color head is provided or qualified.
+stay in the binary. Native color does not qualify native Config/device workflows.
 Run `cargo test -p lox-core --test color` and
 `cargo test -p lox-cli --bin lox --test color_codec_cli color_`.
 
