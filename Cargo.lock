@@ -1970,6 +1970,7 @@ dependencies = [
  "crc32fast",
  "httpmock",
  "lz4_flex",
+ "quick-xml",
  "reqwest",
  "serde_json",
  "tokio",

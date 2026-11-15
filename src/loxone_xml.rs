@@ -391,49 +391,16 @@ pub struct RoomInfo {
 
 /// Parse rooms from a .Loxone XML, counting items assigned to each room via IoData Pr=.
 pub fn parse_rooms(xml: &[u8]) -> Result<Vec<RoomInfo>> {
-    let mut reader = Reader::from_reader(xml);
-    reader.config_mut().trim_text(true);
-    let mut buf = Vec::new();
-
-    let mut rooms: HashMap<String, String> = HashMap::new();
-    let mut room_counts: HashMap<String, usize> = HashMap::new();
-
-    loop {
-        match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
-                let tag = e.name();
-                if tag.as_ref() == b"C" {
-                    if let Some(t) = attr_value(e, b"Type")
-                        && t == "Place"
-                        && let (Some(u), Some(name)) =
-                            (attr_value(e, b"U"), attr_value(e, b"Title"))
-                    {
-                        rooms.insert(u.clone(), name);
-                        room_counts.entry(u).or_insert(0);
-                    }
-                } else if tag.as_ref() == b"IoData"
-                    && let Some(pr) = attr_value(e, b"Pr")
-                {
-                    *room_counts.entry(pr).or_insert(0) += 1;
-                }
-            }
-            Ok(Event::Eof) => break,
-            Err(e) => return Err(e.into()),
-            _ => {}
-        }
-        buf.clear();
-    }
-
-    let mut result: Vec<RoomInfo> = rooms
+    let rooms = lox_core::configuration::rooms::parse_rooms(xml)
+        .map_err(|lox_core::configuration::rooms::RoomInventoryError::Xml { source }| source)?;
+    Ok(rooms
         .into_iter()
-        .map(|(uuid, name)| RoomInfo {
-            item_count: room_counts.get(&uuid).copied().unwrap_or(0),
-            uuid,
-            name,
+        .map(|room| RoomInfo {
+            uuid: room.uuid,
+            name: room.name,
+            item_count: room.item_count,
         })
-        .collect();
-    result.sort_by(|a, b| a.name.cmp(&b.name));
-    Ok(result)
+        .collect())
 }
 
 // ── Controls ──
@@ -887,6 +854,61 @@ mod tests {
         let xml = br#"<?xml version="1.0"?><ControlList/>"#;
         let rooms = parse_rooms(xml).unwrap();
         assert!(rooms.is_empty());
+    }
+
+    #[test]
+    fn room_inventory_raw_attributes_counts_and_permissive_input() {
+        let xml = br#"<ControlList>
+<IoData Pr="r&amp;1"/><IoData Pr="unknown"/>
+<C Type="Place" U="r&amp;1" Title="Old"/>
+<C Type="Page"><C Type="Place" U="r&amp;1" Title=" A&amp;&#65;&custom; "/></C>
+<IoData Pr="r&amp;1"></IoData><IoData Pr="r&#38;1"/>
+<C Type="Place" U="" Title=""/>
+<IoData Pr=""/><IoData/><Other Pr="r&amp;1"/>
+<C Type="Place" Title="Missing ID"/><C Type="Place" U="missing-title"/>
+<C Type="place" U="lower" Title="Ignored"/>
+<C Type="Pl&#97;ce" U="entity-type" Title="Ignored"/>
+<C Type="Place" U="duplicate" U="second" Title="Z" Title="Second"/>
+<C Type="Place" U="quoted" Title='has 12hTF="x"'/>
+</ControlList>"#;
+        let before = xml.to_vec();
+        let rooms = parse_rooms(xml).unwrap();
+        let actual: Vec<_> = rooms
+            .iter()
+            .map(|r| (r.uuid.as_str(), r.name.as_str(), r.item_count))
+            .collect();
+        assert_eq!(
+            actual,
+            [
+                ("", "", 1),
+                ("r&amp;1", " A&amp;&#65;&custom; ", 2),
+                ("duplicate", "Z", 0),
+                ("quoted", "has 12hTF=\"x\"", 0),
+            ]
+        );
+        assert_eq!(xml.as_slice(), before);
+        assert_eq!(
+            parse_rooms(br#"<C Type="Place" U="open" Title="Open">"#).unwrap()[0].uuid,
+            "open"
+        );
+        assert!(parse_rooms(b"not XML").unwrap().is_empty());
+        assert!(parse_rooms(b"<ControlList><C></ControlList>").is_err());
+    }
+
+    #[test]
+    fn room_inventory_bom_utf8_and_invalid_attribute_bytes() {
+        let mut xml = b"\xef\xbb\xbf<Root>\r\n".to_vec();
+        xml.extend_from_slice("<C Type=\"Place\" U=\"室\" Title=\"Grüße\"/>".as_bytes());
+        xml.extend_from_slice(
+            b"<C Type=\"Place\" U=\"bad\" Title=\"\xff\"/><C Type=\"Place\" U=\"valid\" Title=\"A\" Future=\"\xff\"/>",
+        );
+        xml.extend_from_slice(b"<C Type=\"Place\" U=\"\xff\" Title=\"Missing\"/></Root>");
+        let before = xml.clone();
+        let rooms = parse_rooms(&xml).unwrap();
+        assert_eq!(rooms.len(), 2);
+        assert_eq!((&*rooms[0].uuid, &*rooms[0].name), ("valid", "A"));
+        assert_eq!((&*rooms[1].uuid, &*rooms[1].name), ("室", "Grüße"));
+        assert_eq!(xml, before);
     }
 
     #[test]
