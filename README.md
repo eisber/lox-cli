@@ -55,15 +55,17 @@ byte codec used by `lox config extract` and `lox config compress`, plus an optio
 typed HTTP clock runtime used by `lox live time`. It requires Rust 1.91; offline
 archive consumers need no networking feature. The clock API distinguishes wire
 observations, explicit envelope validation, and legacy CLI formatting, with
-cancellation and an explicitly owned blocking driver. XML parsing/editing and
-other CLI capabilities remain binary-private. See its README for capabilities
-and limits.
+cancellation and an explicitly owned blocking driver. Typed in-memory control
+resolution is shared with the CLI selector too. XML parsing/editing and other
+CLI capabilities remain binary-private. See its README for capabilities and limits.
 
-An experimental, separate [generated archive binding facade](docs/toolkit-archive-bindings.md)
+An experimental, separate [generated binding facade](docs/toolkit-archive-bindings.md)
 provides native Python bytes and one Java 22+ FFM API also used by Kotlin.
-Only archive functions are exposed through these bindings; Windows AMD64
-artifact tests do not imply binding runtime/lifecycle support, cross-platform
-qualification, or full CLI parity.
+Archive operations and production-backed strict clock reads have Windows AMD64
+artifact tests, including actual I/O cancellation and explicit shutdown through
+Python asyncio and Java/Kotlin futures. Other runtime operations/subscriptions,
+cross-platform qualification and full CLI parity are not claimed. Prototype
+prerequisite compositions remain publication-gated until coherent review/integration.
 
 ## Quick Start
 

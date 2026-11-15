@@ -4,6 +4,8 @@
 use lox_core::configuration::archive;
 use std::error::Error;
 
+mod clock;
+
 uniffi::setup_scaffolding!();
 
 /// Language-native exceptions retain domain variants, context and source text.
