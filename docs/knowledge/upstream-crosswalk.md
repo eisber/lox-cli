@@ -203,6 +203,64 @@ attributes Copyright (c) 2024, Smarteon Systems. Catalog pins/ancestry and all
 other upstream scopes are unchanged. Static upstream evidence is not firmware
 or native Config qualification; no integration or device was executed.
 
+## Complete Weather-State payloads
+
+**Missing Core decoder at public local base
+`137c24f9848b717c4c3b2cc3de84d77264a1875c` → new Rust-only raw observation API.**
+`weather_state::decode_weather_state_payload` accepts a complete, unframed,
+already-identified table. The published header classifier's `WeatherStates = 7`
+is not a decoder. No existing CLI caller is migrated; the HTTP `weatheru.bin`
+108-byte records are a different format and are not reused.
+
+Relevant static review remains at Smarteon/loxone-client-kotlin
+[`22fc2d9c1ec58065295fde384fb2cab79fa71d31`](https://github.com/Smarteon/loxone-client-kotlin/commit/22fc2d9c1ec58065295fde384fb2cab79fa71d31),
+BSD-3-Clause, Copyright (c) 2024, Smarteon Systems:
+
+- [`ktor/KtorWebsocketLoxoneClient.kt:259–360`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/ktor/KtorWebsocketLoxoneClient.kt#L259-L360):
+  `ensureSession` installs `processFrame`; the pending application header selects
+  `processBinaryMessage`, whose `EVENT_WEATHER` branch calls
+  `processAndEmitEvents` with `Codec::readWeatherEvents`. That helper calls the
+  parser and `emitEvent` for each returned event; `tryEmit` may drop events.
+  These transport/emission policies are not imported.
+- [`Codec.kt:269–320`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/Codec.kt#L269-L320):
+  `readWeatherEvents` wraps a little-endian `PlatformBuffer`, uses `readUuid`
+  (lines 100–122), reads unsigned last-update then **narrows it to signed Int**,
+  reads a signed entry count, and checks count-times-68 using `Long` before
+  reading five signed ints and six doubles per entry. A short header, negative
+  count or short entry body returns the complete prefix rather than an error.
+  `readUuid` uses unsigned LE32/LE16/LE16 and eight ordered tail bytes, matching
+  the already-published Rust `StateUuid` native35 contract.
+- [`event/WeatherEvent.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/event/WeatherEvent.kt)
+  (blob `fb18d85bc2cc140c6c5a87ca9125152b5d976f4f`) defines `WeatherEvent`
+  (24-byte header) and `WeatherEntry` (68 bytes).
+  [`event/LoxoneEvent.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/event/LoxoneEvent.kt)
+  (blob `092dba9e0136ca134d787a523b6ddf9ab5197bc0`) supplies the UUID interface.
+  Model comments describe a 2009 UTC epoch, units and Weather-Abo availability;
+  those descriptions are **not** range/domain/eligibility validation or a
+  firmware guarantee, and are not adopted by this raw API.
+- [`event/WeatherEventTest.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonTest/kotlin/event/WeatherEventTest.kt)
+  (blob `73756c12daafccfbba8151feb3143b5bacf47bbd`) covers empty input, zero,
+  single and multiple entries, multiple states, and lenient short/negative
+  cases. It does not characterize unsigned-high update values or arbitrary
+  IEEE payload identity. None of its source or vectors is copied.
+- The existing [protocol reference](../loxone-miniserver-protocol.txt#L900-L952),
+  blob `8f84fca03c987c5d4447f1179ee8adcaedac19e0`, independently specifies the
+  unsigned update, signed count and five-signed-int/six-double layout.
+  Its `barometicPressure` spelling maps to `barometric_pressure_bits`.
+
+| Mapping | Result |
+| --- | --- |
+| Covered raw layout | UUID16, unsigned update LE32, nonnegative signed count LE32, 68-byte ordered entries, signed field preservation, zero entries and duplicate IDs. |
+| Explicit discrepancy | Preserve update as `u32`, unlike upstream's unsigned-to-signed `Int` narrowing. Entry timestamp stays `i32`; no inferred date conversion. |
+| Original local policy | Strict whole-input atomic errors rather than prefix success; checked conversion/multiplication and full-input bounds validation before any result allocation. All six IEEE fields retain authoritative raw `u64` bits, not bits reconstructed from a host float. |
+| Missing capabilities | Transport/framing/reassembly/dispatcher/subscriptions, CLI and Python/Java/Kotlin heads. Header classification alone does not establish these. |
+| Unknown/unqualified | Epoch conversion, units/domain classification, semantic ranges, subscription eligibility, firmware-version policy, HTTP108 equivalence and native/firmware behavior. |
+
+This is original std-only Rust and synthetic tests, not imported source, test
+vectors or a new dependency. No upstream integration, real device or native VM
+was run. Existing catalog pins, licenses, ancestry and public operation counts
+are unchanged. Source evidence and successful parsing are not native qualification.
+
 ## Application binary-message headers
 
 **Missing public capability at local base

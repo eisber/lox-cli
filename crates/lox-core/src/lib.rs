@@ -6,6 +6,7 @@
 //! [`numeric_state`] decodes complete numeric value-state table payloads, not frames.
 //! [`text_state`] decodes complete UTF-8 text-state table payloads, including icon IDs.
 //! [`daytimer_state`] observes complete runtime Daytimer-State payloads.
+//! [`weather_state`] observes complete Weather-State payloads without domain interpretation.
 //! [`message_header`] observes separate application headers without transport or reassembly.
 //! Optional `configuration-xml` adds typed room inventory, summaries and summary deltas.
 //! Optional `statistics-xml` decodes monthly statistics XML without I/O.
@@ -24,6 +25,7 @@ pub mod daytimer_state;
 pub mod message_header;
 pub mod numeric_state;
 pub mod text_state;
+pub mod weather_state;
 
 #[cfg(feature = "firmware-metadata")]
 pub mod firmware_metadata;
