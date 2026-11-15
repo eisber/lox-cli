@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Cargo's temporary registry must not reuse cached, same-version workspace sources.
-      CARGO_TARGET_DIR: ${{ runner.temp }}/lox-package-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+      CARGO_TARGET_DIR: ${{ github.workspace }}/.reverse-engineering/lox-package-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - uses: actions/checkout@v4
 
