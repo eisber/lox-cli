@@ -8,6 +8,7 @@ use std::error::Error;
 mod clock;
 mod color;
 mod configuration;
+mod configuration_diff;
 mod control;
 mod control_catalog;
 mod numeric_state;
