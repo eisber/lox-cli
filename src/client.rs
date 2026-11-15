@@ -6,6 +6,7 @@ use lox_core::control::{
     ControlQuery, IdentifierError, PreparedControlQuery, ResolutionError, matches_text,
 };
 use lox_core::control_catalog::{ControlCatalog, ControlFilter};
+use lox_core::structure_metadata::StructureMetadata;
 use reqwest::blocking::Client;
 use serde_json::Value;
 use std::fs;
@@ -412,16 +413,12 @@ impl LoxClient {
 
     pub fn list_categories(&mut self) -> Result<Vec<(String, String)>> {
         let structure = self.get_structure()?;
-        let mut result = Vec::new();
-        if let Some(map) = structure.get("cats").and_then(|c| c.as_object()) {
-            for (uuid, cat) in map {
-                if let Some(name) = cat.get("name").and_then(|n| n.as_str()) {
-                    result.push((uuid.clone(), name.to_string()));
-                }
-            }
-        }
-        result.sort_by(|a, b| a.1.cmp(&b.1));
-        Ok(result)
+        let metadata = StructureMetadata::from_loxapp3_json(&serde_json::to_vec(structure)?)?;
+        Ok(metadata
+            .categories()
+            .iter()
+            .map(|category| (category.uuid.clone(), category.name.clone()))
+            .collect())
     }
 
     pub fn resolve(&mut self, name_or_uuid: &str) -> Result<String> {
@@ -469,34 +466,22 @@ impl LoxClient {
 
     pub fn get_global_states(&mut self) -> Result<Vec<(String, String)>> {
         let structure = self.get_structure()?;
-        let mut result = Vec::new();
-        if let Some(map) = structure.get("globalStates").and_then(|g| g.as_object()) {
-            for (name, uuid_val) in map {
-                if let Some(uuid) = uuid_val.as_str() {
-                    result.push((name.clone(), uuid.to_string()));
-                }
-            }
-        }
-        result.sort_by(|a, b| a.0.cmp(&b.0));
-        Ok(result)
+        let metadata = StructureMetadata::from_loxapp3_json(&serde_json::to_vec(structure)?)?;
+        Ok(metadata
+            .global_states()
+            .iter()
+            .map(|state| (state.name.clone(), state.uuid.clone()))
+            .collect())
     }
 
     pub fn get_operating_modes(&mut self) -> Result<Vec<(String, String)>> {
         let structure = self.get_structure()?;
-        let mut result = Vec::new();
-        if let Some(map) = structure.get("operatingModes").and_then(|o| o.as_object()) {
-            for (id, name_val) in map {
-                if let Some(name) = name_val.as_str() {
-                    result.push((id.clone(), name.to_string()));
-                }
-            }
-        }
-        result.sort_by(|a, b| {
-            a.0.parse::<i32>()
-                .unwrap_or(0)
-                .cmp(&b.0.parse::<i32>().unwrap_or(0))
-        });
-        Ok(result)
+        let metadata = StructureMetadata::from_loxapp3_json(&serde_json::to_vec(structure)?)?;
+        Ok(metadata
+            .operating_modes()
+            .iter()
+            .map(|mode| (mode.raw_id.clone(), mode.name.clone()))
+            .collect())
     }
 
     pub fn list_autopilot_rules(&mut self) -> Result<Vec<AutopilotRule>> {
@@ -622,6 +607,132 @@ mod tests {
     }
 
     // ── list_controls ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn metadata_permissive_shapes() {
+        let server = MockServer::start();
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        for value in [
+            serde_json::json!(null),
+            serde_json::json!(false),
+            serde_json::json!(42),
+            serde_json::json!("text"),
+            serde_json::json!([]),
+            serde_json::json!({}),
+        ] {
+            for root in [
+                value.clone(),
+                serde_json::json!({
+                    "cats": value, "globalStates": value, "operatingModes": value
+                }),
+            ] {
+                client.structure = Some(root);
+                assert!(client.list_categories().unwrap().is_empty());
+                assert!(client.get_global_states().unwrap().is_empty());
+                assert!(client.get_operating_modes().unwrap().is_empty());
+            }
+        }
+        client.structure = Some(serde_json::json!({
+            "cats": {
+                "null": null, "bool": true, "number": 7, "array": [],
+                "string": "ignored", "missing": {}, "wrong": {"name": 7},
+                "../ raw uuid ": {"name": "", "extra": true}
+            },
+            "globalStates": {
+                "null": null, "bool": true, "number": 7, "array": [], "object": {},
+                "": "", " raw name ": "../ raw uuid "
+            },
+            "operatingModes": {
+                "null": null, "bool": true, "number": 7, "array": [], "object": {},
+                "": ""
+            }
+        }));
+        assert_eq!(
+            serde_json::to_value(client.list_categories().unwrap()).unwrap(),
+            serde_json::json!([["../ raw uuid ", ""]])
+        );
+        assert_eq!(
+            serde_json::to_value(client.get_global_states().unwrap()).unwrap(),
+            serde_json::json!([["", ""], [" raw name ", "../ raw uuid "]])
+        );
+        assert_eq!(
+            serde_json::to_value(client.get_operating_modes().unwrap()).unwrap(),
+            serde_json::json!([["", ""]])
+        );
+    }
+
+    #[test]
+    fn metadata_case_unicode_and_stable_category_ties() {
+        let server = MockServer::start();
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        let root = serde_json::json!({
+            "cats": {
+                "z": {"name": "same"}, "A": {"name": "same"},
+                "upper": {"name": "Z"}, "lower": {"name": "a"},
+                "unicode": {"name": "Ä"}
+            },
+            "globalStates": {"ä": "z", "z": "A", "A": "ä", "": "raw"}
+        });
+        let ties: Vec<_> = root["cats"]
+            .as_object()
+            .unwrap()
+            .keys()
+            .filter(|key| matches!(key.as_str(), "A" | "z"))
+            .cloned()
+            .collect();
+        client.structure = Some(root);
+        let cats = client.list_categories().unwrap();
+        assert_eq!(
+            cats.iter()
+                .map(|(_, name)| name.as_str())
+                .collect::<Vec<_>>(),
+            ["Z", "a", "same", "same", "Ä"]
+        );
+        assert_eq!(
+            cats[2..4]
+                .iter()
+                .map(|(id, _)| id.clone())
+                .collect::<Vec<_>>(),
+            ties
+        );
+        assert_eq!(
+            serde_json::to_value(client.get_global_states().unwrap()).unwrap(),
+            serde_json::json!([["", "raw"], ["A", "ä"], ["z", "A"], ["ä", "z"]])
+        );
+    }
+
+    #[test]
+    fn metadata_mode_raw_ids_and_stable_zero_ties() {
+        let server = MockServer::start();
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        let root = serde_json::json!({"operatingModes": {
+            "10": "ten", "-2": "negative", "2": "two", "+1": "plus one",
+            "": "", " 0": "space", "+0": "plus zero", "-0": "minus zero",
+            "00": "leading zero", "invalid": "invalid",
+            "2147483648": "overflow", "-2147483649": "underflow"
+        }});
+        let zero_ids: Vec<_> = root["operatingModes"]
+            .as_object()
+            .unwrap()
+            .keys()
+            .filter(|key| !matches!(key.as_str(), "10" | "-2" | "2" | "+1"))
+            .cloned()
+            .collect();
+        client.structure = Some(root);
+        let modes = client.get_operating_modes().unwrap();
+        assert_eq!(modes.first().unwrap(), &("-2".into(), "negative".into()));
+        assert_eq!(
+            modes[1..1 + zero_ids.len()]
+                .iter()
+                .map(|(id, _)| id.clone())
+                .collect::<Vec<_>>(),
+            zero_ids
+        );
+        assert_eq!(
+            serde_json::to_value(&modes[1 + zero_ids.len()..]).unwrap(),
+            serde_json::json!([["+1", "plus one"], ["2", "two"], ["10", "ten"]])
+        );
+    }
 
     #[test]
     fn catalog_permissive_shapes_and_empty_id_lookup() {

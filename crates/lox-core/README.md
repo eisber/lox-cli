@@ -95,6 +95,22 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   CatalogDecodeError}` projects and selects top-level LoxApp3 controls using the
   existing `control::Control`. The CLI `LoxClient::list_controls/list_controls_ext`
   producer uses it; acquisition, cache, context and raw JSON stay in the CLI.
+- The same optional `structure-json` feature exposes
+  `structure_metadata::{StructureMetadata, Category, GlobalState, OperatingMode,
+  MetadataDecodeError}`. `StructureMetadata::from_loxapp3_json(&bytes)` returns
+  owned typed slices through `categories()`, `global_states()` and
+  `operating_modes()`. The actual three `LoxClient` metadata methods use this
+  projection while keeping their original tuple results and acquisition path.
+  Any valid JSON root is accepted; absent/wrong-shaped maps and non-string
+  entries are omitted (categories require a string `name`). Empty strings and
+  raw IDs are retained. Category names and global-state names sort case
+  sensitively; modes sort by `raw_id.parse::<i32>().unwrap_or(0)`.
+  Stable ties retain serde_json's input-map iteration order across the cached
+  `Value` byte bridge. Unlike the catalog's lookup-only `named_entries`
+  HashMap helper, this projection traverses maps directly so ties cannot be
+  reordered. Syntax/encoding errors reuse the payload-free line/column catalog
+  error via `MetadataDecodeError`. This is not a full document/UUID/mode
+  validator, runtime state subscription, mode editor or new foreign API.
 - Optional `legacy-wsx`: `legacy_wsx::{Credentials, Nonce, encode_handshake}`
   encodes the complete existing 64-byte legacy handshake. Both CLI fast-reload
   transport paths use it through their time/randomness adapter.
