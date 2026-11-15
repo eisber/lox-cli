@@ -28,6 +28,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Other XML mutations, semantic validation, deployment, sidecars/trust | No further functional transaction beyond the rows above | Existing CLI behavior unchanged; other legacy editor and trust/deployment behavior remains head-owned | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
 | Monthly statistics XML decoding | Optional `statistics::{parse_series, resolve_identity}` (`statistics-xml`); typed identity errors, timestamps remain opaque | `stats get` shares identity selection and decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | Unsupported | Unsupported |
+| Read-only HTML statistics index catalog | Published optional `statistics::parse_index` (`statistics-xml`); infallible existing omissions, raw fields, order and duplicates | Existing index producer unchanged | Candidate `parse_statistics_index(str) -> list[StatEntry]` | Candidate `LoxArchive.parseStatisticsIndex(String) -> List<StatEntry>`; SAME generated Java API in Kotlin |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
 | Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
 | Legacy token AES bytes and deterministic command envelope | Optional `legacy_token_aes` (`legacy-token-aes`); explicit borrowed key/IV, AES-256-CBC/PKCS7 and data-free padding errors | Existing token getkey2/gettoken encrypted-command and encrypted-response producers share Core; complete authentication/session policy remains CLI-owned | Unsupported | Unsupported |
@@ -54,6 +55,39 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Read-only HTML statistics index candidate
+
+One String-input/list-output export delegates directly to the published infallible
+Core parser. Its owned `StatEntry` record retains `file`, `uuid`, optional `group`,
+`month`, `name` and `label`. Python represents `group` as `int | None`; generated
+Java uses nullable boxed `Integer` with the original unsigned-u32 bit pattern:
+`Integer.toUnsignedLong(group)` or Kotlin `group.toUInt()` recovers the numeric
+value, including `4294967295`. This is not a signed narrowing contract.
+
+Core alone recognizes case-sensitive `<li>` / `<a href="`, omits malformed rows
+and resynchronizes at the next `<li>`. Extra anchor attributes and missing closing
+`li` are accepted. Lowercase native35 filenames, optional ASCII decimal-u32 groups
+and six ASCII month digits are preserved without calendar validation. Entity
+failure preserves the **entire original** raw label, not a partially decoded
+prefix; existing month/room/group suffix stripping remains unchanged. Raw Unicode,
+combining characters, NUL and line breaks are retained wherever Core permits them.
+There is honestly no declared domain error branch; unexpected internal FFI status
+uses the existing generated conventions. Monthly XML errors are not bypassed.
+
+The focused installed Python and compiled Java22/Kotlin tests check values and
+ownership using the same final DLL. A legitimate long opaque label/name exercises
+the actual returned RustBuffer: unchanged 128-byte-prefix/minimum64000 matcher,
+positive-live1, explicit-free0, then64 public calls per language with retained0
+without requested GC. Calibration uses each generated **String** converter.
+No parser/policy/sort copy, allocation proxy, C probe or generator change is added.
+This publication-gated catalog is not monthly-series decoding, identity selection,
+merging, binary statistics, network acquisition or epoch/calendar policy, and
+does not qualify Config/firmware/UI parity or promise stable ABI. Platform scope
+remains WindowsAMD64 CPython3.13GIL, JDK22.0.2/Kotlin2.4 and
+UniFFI0.32.1/Javagen0.5.2. The required combined bundle is18 families plus Clock;
+CLI10/native17 published and two historical/zero new Config counts are unchanged
+until publication.
 
 ### Read-only LoxApp3 Autopilot catalog candidate
 
