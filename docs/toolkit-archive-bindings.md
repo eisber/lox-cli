@@ -1,9 +1,9 @@
-# Experimental native archive, configuration inspection, numeric/text, clock, control and color bindings
+# Experimental native archive, inspection, numeric/text, clock, control, color and hash bindings
 
-This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, numeric/text payload decoding, offline color, HTTP clock, pure control selection and explicit authentication hash** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
 facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` and the optional production
-`runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
+`runtime::ClockDriver` plus `authentication`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
 No head invokes the CLI or runs another protocol stack.
@@ -26,7 +26,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Unsupported | Unsupported |
 | Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); timestamps remain opaque | `stats get` shares decoding; acquisition, selection, merging and formatting stay in CLI | Unsupported | Unsupported |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
-| Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
+| Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Candidate explicit `hash_app_*` / `hash_wsx_*`; opaque `AuthenticationHash` | Candidate same generated Java API, also used by Kotlin; matching artifacts only |
 | Legacy WSX handshake packet codec | Optional `legacy_wsx` (`legacy-wsx`); typed nonce and complete legacy packet | Existing fast-reload callers share encoding; time, randomness and transport stay in CLI | Unsupported | Unsupported |
 | Complete numeric value-state table payload decoding | Default `numeric_state::decode_value_state_payload`; ordered typed records, raw UUID/native35 and exact f64 bits; strict atomic tail rejection | Unsupported; no existing numeric decoder/caller migrated or new command | `decode_value_state_payload(bytes) -> list[NumericState]` | `LoxArchive.decodeValueStatePayload(byte[]) -> List<NumericState>` |
 | Application binary-message header observation/encoding | Default `message_header`; exact eight-byte header, known-type classification and lossless raw fields, unsigned size and estimated bit; no transport, payload validation or dispatch | Unsupported; new Rust-only primitive, no migrated caller | Unsupported | Unsupported |
@@ -81,6 +81,69 @@ Archive calls are stateless and still prove **nothing** about runtime lifecycle.
 The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
+
+## Explicit authentication hash heads
+
+This publication-gated family enables existing Core `auth-hash`; it adds no
+authentication session, challenge, version negotiation, permissions, advertised
+algorithm selection, `getjwt`/`gettoken` policy or device/network operations.
+The eight synchronous functions are Python `hash_app_credentials`,
+`hash_app_credentials_hex`, `hash_wsx_credentials`,
+`hash_wsx_credentials_hex`, `hash_app_token`, `hash_app_token_hex`,
+`hash_wsx_autht` and `hash_wsx_autht_hex`. Java/Kotlin use the corresponding
+camel-case `LoxArchive` methods. No head implements cryptography.
+
+Credential functions take `user, password`, with CONFIG additionally taking
+`salt, WsxPasswordDigest`, then the key. Keys are raw `bytes` / `byte[]`
+(Kotlin `ByteArray`), or strictly hex-decoded strings for `_hex` / `Hex`.
+Raw bytes are not hex text: `b"ff"` differs from the decoded byte `0xff`.
+Empty keys are valid. Strings are UTF-8 verbatim, without trimming, case folding,
+colon escaping or normalization. Callers must supply language strings encodable
+as UTF-8; foreign-language type/encoding errors before the FFI are not Core errors.
+
+APP credential hashing is HMAC-SHA256 of `user:password`. CONFIG credential
+hashing uses the explicitly selected SHA1 or SHA256 inner digest of
+`password:salt`, uppercase inner hex, then **always HMAC-SHA256** of `user:HASH`.
+Both credential results are lowercase. APP token hashing is HMAC-SHA256 with
+lowercase output. CONFIG `autht` uses uppercase output and requires the decoded
+key to be UTF-8 (not merely ASCII). No automatic server-policy choice is implied.
+
+Results are opaque native `AuthenticationHash` objects, not generated records
+with plaintext `repr`/`toString` fields. Only `to_hex()` / `toHex()` reveals the
+secret. Core `Debug`, Python `repr` and Java/Kotlin `toString` do not reveal it.
+`dispose()` idempotently drops the Core value and subsequent revelation raises
+`Closed`. Java `close()` / try-with-resources and Kotlin `use` additionally
+release the generated handle; repeated close is harmless and later calls raise
+the generator's payload-free `IllegalStateException`. Python handle release is
+reference-counted on the tested CPython build; `dispose()` releases the secret
+even while the wrapper remains referenced. Do not manually call `__del__`.
+
+Python raises `AuthenticationHashError.InvalidHexKey`, `.NonUtf8WsxKey` or
+`.Closed`; Java/Kotlin use checked `AuthenticationHashException` subclasses.
+The `message` field (`message()` on JVM) contains only Core's fixed,
+payload-free diagnostic, or the fixed closed diagnostic. It never contains
+credentials, salts, encoded/decoded keys, tokens or hash results. Generated
+exception display formatting is not Core's `Display` spelling.
+
+No erasure guarantee is made for Rust allocations, FFI copies, immutable
+Python/JVM strings or revealed hex. Logical disposal is **not zeroization**.
+No new logger, import-started application worker or protocol runtime is added;
+the existing generator's shared JVM cleaner fallback is unchanged.
+Windows AMD64 proofs calibrate actual exported objects and success/error
+RustBuffers live=1/released=0, then 64 public calls with zero retained matching
+buffers/objects and no requested GC. Caller-thread status arenas retain the
+existing GC fallback; this is not deterministic disposal of every FFM arena.
+No ABI, registry, MSRV, other-platform, full SDK or native Config credit follows.
+
+```python
+import lox_archive as lox
+
+value = lox.hash_app_token_hex("synthetic-token", "001122")
+try:
+    wire_hex = value.to_hex()  # Secret: never log it.
+finally:
+    value.dispose()
+```
 
 ## Offline color heads
 

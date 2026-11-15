@@ -94,3 +94,26 @@ __declspec(dllexport) DWORD lox_test_heap_text_error_count(
     }
     return lox_test_heap_count(prefix, length, length, count);
 }
+
+/* Payload-free Core diagnostics, assembled outside the measured heap. */
+__declspec(dllexport) DWORD lox_test_heap_auth_error_count(DWORD variant, SIZE_T *count) {
+    const char *message;
+    unsigned char prefix[64] = {0};
+    SIZE_T length = 0;
+    SIZE_T i;
+    if (variant == 1) message = "invalid hex authentication key";
+    else if (variant == 2) message = "CONFIG wsx authentication key is not UTF-8";
+    else if (variant == 3) message = "authentication hash is closed";
+    else return ERROR_INVALID_PARAMETER;
+    while (message[length]) ++length;
+    prefix[3] = (unsigned char)variant;
+    prefix[7] = (unsigned char)length;
+    for (i = 0; i < length; ++i) prefix[8 + i] = (unsigned char)message[i];
+    return lox_test_heap_count(prefix, length + 8, length + 8, count);
+}
+
+__declspec(dllexport) DWORD lox_test_heap_auth_hex_count(SIZE_T *count) {
+    const unsigned char prefix[] =
+        "4b59c58e38a81ab3dbe92b052651a678a6f5a175175ba01f1f1853849b25da89";
+    return lox_test_heap_count(prefix, sizeof(prefix) - 1, sizeof(prefix) - 1, count);
+}

@@ -82,6 +82,7 @@ Step 'control-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'contr
 Step 'numeric-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'numeric_state_payload', '--locked', '--offline')
 Step 'text-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'text_state_payload', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
+Step 'auth-hash-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'auth-hash', 'authentication::', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
 Copy-Item -Force "$env:CARGO_TARGET_DIR\release\lox-uniffi-bindgen.exe" "$Output\tools\uniffi-bindgen.exe"
@@ -149,6 +150,9 @@ Step 'java-numeric-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Ou
 Step 'javac-text-state-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\TextStateSmoke.java', 'tests\bindings\NativeTextStateProbe.java')
 Step 'python-text-state-smoke' $VenvPython @('-I', '-B', 'tests\bindings\text_state_smoke.py', "$Probe.dll")
 Step 'java-text-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'TextStateSmoke'))
+Step 'javac-auth-hash-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\AuthHashSmoke.java')
+Step 'python-auth-hash-smoke' $VenvPython @('-I', '-B', 'tests\bindings\auth_hash_smoke.py', "$Probe.dll")
+Step 'java-auth-hash-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.AuthHashSmoke'))
 Step 'java-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveAllocationSmoke', "$Output\fixtures"))
 Step 'java-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ConfigInspectionSmoke', 'crates\lox-bindings\tests\fixtures\config_inspection.xml'))
 Step 'kotlinc-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-smoke.jar", 'tests\bindings\ArchiveSmoke.kt')
@@ -198,6 +202,13 @@ $TextKotlinArguments = @('-jvm-target', '22', '-classpath',
 [IO.File]::WriteAllLines("$Output\jvm\kotlin-text-state.args", $TextKotlinArguments, [Text.UTF8Encoding]::new($false))
 Step 'kotlinc-text-state-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-text-state.args")
 Step 'kotlin-text-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-text-state-smoke.jar", 'TextStateSmokeKt'))
+$AuthKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-auth-hash-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\AuthHashSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-auth-hash.args", $AuthKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-auth-hash-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-auth-hash.args")
+Step 'kotlin-auth-hash-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-auth-hash-smoke.jar", 'AuthHashSmokeKt'))
 $KotlinArguments = @('-jvm-target', '22', '-classpath',
     ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
     '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-allocation-smoke.jar".Replace('\', '\\') + '"'),
@@ -228,6 +239,7 @@ $Artifacts += Get-Item "$Output\python-catalog-smoke.log", "$Output\java-catalog
 $Artifacts += Get-Item "$Output\python-color-smoke.log", "$Output\java-color-smoke.log", "$Output\kotlin-color-smoke.log"
 $Artifacts += Get-Item "$Output\python-numeric-state-smoke.log", "$Output\java-numeric-state-smoke.log", "$Output\kotlin-numeric-state-smoke.log"
 $Artifacts += Get-Item "$Output\python-text-state-smoke.log", "$Output\java-text-state-smoke.log", "$Output\kotlin-text-state-smoke.log"
+$Artifacts += Get-Item "$Output\python-auth-hash-smoke.log", "$Output\java-auth-hash-smoke.log", "$Output\kotlin-auth-hash-smoke.log"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -239,7 +251,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, framing/diff/editor/auth/control I/O/statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric/text state decoding, strict production HTTP clock, pure typed control selection, offline typed color, and explicit existing APP/CONFIG WSX authentication hash profiles with opaque disposable results. No authentication session/version/challenge/permission policy, Lighting eligibility, framing/diff/editor/control I/O/statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest

@@ -21,6 +21,6 @@ required-features = ["bindgen"]
 bindgen = ["uniffi/cli"]
 
 [dependencies]
-lox-core = { path = "../lox-core", version = "=0.1.0", features = ["runtime-blocking", "configuration-xml", "structure-json"] }
+lox-core = { path = "../lox-core", version = "=0.1.0", features = ["runtime-blocking", "configuration-xml", "structure-json", "auth-hash"] }
 thiserror = "=2.0.18"
 uniffi = "=0.32.1"

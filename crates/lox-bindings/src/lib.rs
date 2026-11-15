@@ -5,6 +5,7 @@
 use lox_core::configuration::archive;
 use std::error::Error;
 
+mod authentication;
 mod clock;
 mod color;
 mod configuration;
