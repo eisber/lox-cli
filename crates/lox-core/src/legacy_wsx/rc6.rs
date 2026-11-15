@@ -15,13 +15,13 @@ const P32: u32 = 0xB7E1_5163;
 const Q32: u32 = 0x9E37_79B9;
 
 /// Expanded key schedule (36 × u32).
-pub struct Rc6Key {
+pub(super) struct Rc6Key {
     s: [u32; NUM_SUBKEYS],
 }
 
 impl Rc6Key {
     /// Derive an RC6 key schedule from a single 32-bit timestamp.
-    pub fn from_timestamp(ts: u32) -> Self {
+    pub(super) fn from_timestamp(ts: u32) -> Self {
         let mut s = [0u32; NUM_SUBKEYS];
         s[0] = P32;
         for i in 1..NUM_SUBKEYS {
@@ -48,6 +48,7 @@ impl Rc6Key {
     }
 
     /// RC6 encryption of a single 16-byte block (in-place).
+    #[cfg(test)]
     fn encrypt_block(&self, block: &mut [u8; 16]) {
         let [mut a, mut b, mut c, mut d] = read_u32x4(block);
 
@@ -98,7 +99,8 @@ impl Rc6Key {
     }
 
     /// Encrypt `data` in-place (ECB mode, must be multiple of 16 bytes).
-    pub fn encrypt(&self, data: &mut [u8]) {
+    #[cfg(test)]
+    pub(super) fn encrypt(&self, data: &mut [u8]) {
         assert!(
             data.len().is_multiple_of(16),
             "data must be a multiple of 16 bytes"
@@ -109,7 +111,7 @@ impl Rc6Key {
     }
 
     /// Decrypt `data` in-place (ECB mode, must be multiple of 16 bytes).
-    pub fn decrypt(&self, data: &mut [u8]) {
+    pub(super) fn decrypt(&self, data: &mut [u8]) {
         assert!(
             data.len().is_multiple_of(16),
             "data must be a multiple of 16 bytes"
@@ -138,6 +140,8 @@ fn write_u32x4(b: &mut [u8; 16], vals: [u32; 4]) {
 
 #[cfg(test)]
 mod tests {
+    use super::super::Nonce;
+    use super::super::tests::decode;
     use super::*;
 
     /// Validate RC6 encrypt/decrypt with known test vectors.
@@ -180,7 +184,7 @@ mod tests {
 
         for (name, ts, tail_hex) in samples {
             let key = Rc6Key::from_timestamp(*ts);
-            let mut tail = hex::decode(tail_hex).unwrap();
+            let mut tail = decode::<32>(tail_hex);
             assert_eq!(tail.len(), 32);
 
             // Client did decrypt → we encrypt to recover plaintext
@@ -209,16 +213,8 @@ mod tests {
     #[test]
     fn extract_timestamp_from_nonce() {
         // HS1 nonce (16 bytes)
-        let nonce = hex::decode("29000034a4be18846ce6e14ad62cfdae").unwrap();
-        let ts = nonce_to_timestamp(&nonce);
+        let nonce = decode::<16>("29000034a4be18846ce6e14ad62cfdae");
+        let ts = Nonce::from_bytes(nonce).timestamp();
         assert_eq!(ts, 0x34FDE6A4);
-    }
-
-    fn nonce_to_timestamp(nonce: &[u8]) -> u32 {
-        let t0 = nonce[4] as u32;
-        let t1 = nonce[9] as u32;
-        let t2 = nonce[14] as u32;
-        let t3 = nonce[3] as u32;
-        t0 | (t1 << 8) | (t2 << 16) | (t3 << 24)
     }
 }

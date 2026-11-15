@@ -24,6 +24,7 @@ hex = { version = "0.4", optional = true }
 
 [features]
 default = []
+legacy-wsx = []
 auth-hash = ["dep:hmac", "dep:sha1", "dep:sha2", "dep:hex"]
 configuration-xml = ["dep:quick-xml"]
 statistics-xml = ["dep:quick-xml"]
@@ -58,3 +59,7 @@ required-features = ["configuration-xml"]
 [[test]]
 name = "control_catalog"
 required-features = ["structure-json"]
+
+[[test]]
+name = "legacy_wsx"
+required-features = ["legacy-wsx"]
