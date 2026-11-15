@@ -7,7 +7,6 @@
 use anyhow::{Context, Result, bail};
 use clap::Subcommand;
 use lox_core::statistics::{StatSeries, StatisticsError, parse_series};
-use quick_xml::escape::unescape;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
@@ -613,119 +612,19 @@ fn write_series(ctx: &RunContext, series: &StatSeries, out: &mut dyn Write) -> R
     Ok(())
 }
 
-/// Split a stats file name into `(uuid, group, "YYYY-MM")`.
-///
-/// Accepts `<uuid>.<YYYYMM>.xml` and `<uuid>_<group>.<YYYYMM>.xml`, where the
-/// uuid is the Loxone form `8-4-4-16` lowercase hex. Parsed by hand so no
-/// regex dependency is needed.
-fn parse_file_name(file: &str) -> Option<(String, Option<u32>, String)> {
-    let stem = file.strip_suffix(".xml")?;
-    let (stem, month) = stem.rsplit_once('.')?;
-    if month.len() != 6 || !month.bytes().all(|b| b.is_ascii_digit()) {
-        return None;
-    }
-    let (uuid, group) = match stem.split_once('_') {
-        Some((uuid, group)) => {
-            if group.is_empty() || !group.bytes().all(|b| b.is_ascii_digit()) {
-                return None;
-            }
-            (uuid, Some(group.parse::<u32>().ok()?))
-        }
-        None => (stem, None),
-    };
-    let parts: Vec<&str> = uuid.split('-').collect();
-    let lens: Vec<usize> = parts.iter().map(|p| p.len()).collect();
-    if lens != [8, 4, 4, 16]
-        || !parts
-            .iter()
-            .all(|p| p.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')))
-    {
-        return None;
-    }
-    Some((
-        uuid.to_string(),
-        group,
-        format!("{}-{}", &month[..4], &month[4..]),
-    ))
-}
-
-/// Parse the HTML index served at `/stats/`.
-///
-/// Only `<li><a href="...">label</a></li>` entries whose href is a stats file
-/// name are returned; anything else (stylesheet, foreign files) is skipped.
+/// Map the shared index producer into the CLI's existing serialized record.
 pub fn parse_index(html: &str) -> Vec<StatEntry> {
-    let mut entries = Vec::new();
-    let mut rest = html;
-    while let Some(pos) = rest.find("<li>") {
-        rest = &rest[pos + 4..];
-        // Parse within this entry only, so a malformed entry is skipped
-        // without consuming the next one.
-        let item = rest.find("<li>").map_or(rest, |end| &rest[..end]);
-        let Some(after) = item.trim_start().strip_prefix("<a href=\"") else {
-            continue;
-        };
-        let Some((href, after)) = after.split_once('"') else {
-            continue;
-        };
-        let Some(gt) = after.find('>') else {
-            continue;
-        };
-        let after = &after[gt + 1..];
-        let Some((raw_label, _)) = after.split_once("</a>") else {
-            continue;
-        };
-        let Some((uuid, group, month)) = parse_file_name(href) else {
-            continue;
-        };
-        let decoded = unescape(raw_label)
-            .map(|c| c.into_owned())
-            .unwrap_or_else(|_| raw_label.to_string());
-        let yyyymm = month.replace('-', "");
-        let label = decoded
-            .trim()
-            .strip_suffix(yyyymm.as_str())
-            .unwrap_or(decoded.trim())
-            .trim_end()
-            .to_string();
-        let name = strip_label_suffix(&label);
-        let name = group
-            .and_then(|g| name.strip_suffix(&format!(" (Statistic Group: {g})")))
-            .unwrap_or(name)
-            .trim()
-            .to_string();
-        entries.push(StatEntry {
-            file: href.to_string(),
-            uuid,
-            group,
-            month,
-            name,
-            label,
-        });
-    }
-    entries
-}
-
-fn strip_label_suffix(label: &str) -> &str {
-    if !label.ends_with(')') {
-        return label;
-    }
-    let mut depth = 0usize;
-    for (i, c) in label.char_indices().rev() {
-        match c {
-            ')' => depth += 1,
-            '(' => {
-                let Some(next) = depth.checked_sub(1) else {
-                    return label;
-                };
-                depth = next;
-                if depth == 0 {
-                    return label[..i].strip_suffix(' ').unwrap_or(label);
-                }
-            }
-            _ => {}
-        }
-    }
-    label
+    lox_core::statistics::parse_index(html)
+        .into_iter()
+        .map(|entry| StatEntry {
+            file: entry.file,
+            uuid: entry.uuid,
+            group: entry.group,
+            month: entry.month,
+            name: entry.name,
+            label: entry.label,
+        })
+        .collect()
 }
 
 /// Concatenate month files (in month order) into one series.
@@ -786,6 +685,115 @@ mod tests {
 </ul></body></html>"#;
 
     // ── parse_index ──────────────────────────────────────────────────────────
+
+    #[test]
+    fn index_characterization_preserves_exact_markup_and_entry_boundaries() {
+        let file = format!("{UUID_A}.202610.xml");
+        let html = format!(
+            "<LI><a href=\"{file}\">upper li</a></LI>\
+             <li class=\"x\"><a href=\"{file}\">li attribute</a></li>\
+             <li><A href=\"{file}\">upper a</A></li>\
+             <li><a href='{file}'>single quote</a></li>\
+             <li><a class=\"x\" href=\"{file}\">attribute order</a></li>\
+             <li><a href=\"{file}\">unfinished\
+             <li><a href=\"{file}\">first</a>\
+             <li> \n<a href=\"{file}\" ignored=\"yes\">second</a>\
+             <li><a href=\"{file}\">first</a>"
+        );
+        let entries = parse_index(&html);
+        assert_eq!(
+            entries.iter().map(|e| e.name.as_str()).collect::<Vec<_>>(),
+            ["first", "second", "first"]
+        );
+        assert_eq!(entries[0], entries[2]);
+    }
+
+    #[test]
+    fn index_characterization_preserves_filename_limits_without_calendar_validation() {
+        let accepted = [
+            (format!("{UUID_A}.000000.xml"), None, "0000-00"),
+            (format!("{UUID_A}_000.202613.xml"), Some(0), "2026-13"),
+            (
+                format!("{UUID_A}_4294967295.999999.xml"),
+                Some(u32::MAX),
+                "9999-99",
+            ),
+        ];
+        let mut html = String::new();
+        for (file, _, _) in &accepted {
+            html.push_str(&li(file, "accepted"));
+        }
+        for file in [
+            format!("{}.202610.xml", UUID_A.to_uppercase()),
+            "1a2b3c4d-0001-0002-ffff-0123456789ab.202610.xml".into(),
+            format!("{UUID_A}_4294967296.202610.xml"),
+            format!("{UUID_A}_+1.202610.xml"),
+            format!("{UUID_A}_-1.202610.xml"),
+            format!("{UUID_A}_ 1.202610.xml"),
+            format!("{UUID_A}_1 .202610.xml"),
+            format!("{UUID_A}_.202610.xml"),
+            format!("{UUID_A}.20261.xml"),
+            format!("{UUID_A}.2026100.xml"),
+            format!("{UUID_A}.２０２６１０.xml"),
+            format!("{UUID_A}.202610.XML"),
+        ] {
+            html.push_str(&li(&file, "rejected"));
+        }
+        let entries = parse_index(&html);
+        assert_eq!(entries.len(), accepted.len());
+        for (entry, (file, group, month)) in entries.iter().zip(accepted) {
+            assert_eq!(entry.file, file);
+            assert_eq!(entry.group, group);
+            assert_eq!(entry.month, month);
+        }
+    }
+
+    #[test]
+    fn index_characterization_preserves_raw_entity_fallback_and_suffix_rules() {
+        let file = format!("{UUID_A}_2.202610.xml");
+        let cases = [
+            (
+                " \tCaf&#xE9; &amp; 気 (Grid) (Statistic Group: 2) (Room (North)) 202610 \n",
+                "Café & 気 (Grid)",
+                "Café & 気 (Grid) (Statistic Group: 2) (Room (North))",
+            ),
+            (
+                " A &amp; B &unknown; (Room) 202610 ",
+                "A &amp; B &unknown;",
+                "A &amp; B &unknown; (Room)",
+            ),
+            ("Name(Room) 202610", "Name(Room)", "Name(Room)"),
+            (
+                "Name (unbalanced 202610",
+                "Name (unbalanced",
+                "Name (unbalanced",
+            ),
+            ("Name (Room)) 202610", "Name (Room))", "Name (Room))"),
+            (
+                "Name (Room) 202611",
+                "Name (Room) 202611",
+                "Name (Room) 202611",
+            ),
+            (
+                "Name (Statistic Group: 3) (Room) 202610",
+                "Name (Statistic Group: 3)",
+                "Name (Statistic Group: 3) (Room)",
+            ),
+        ];
+        for (raw, name, label) in cases {
+            let entries = parse_index(&li(&file, raw));
+            assert_eq!(entries[0].name, name, "{raw}");
+            assert_eq!(entries[0].label, label, "{raw}");
+        }
+        let entry = parse_index(&li(&file, "Name (Room) 202610")).remove(0);
+        assert_eq!(
+            serde_json::to_value(entry).unwrap(),
+            serde_json::json!({
+                "file": file, "uuid": UUID_A, "group": 2, "month": "2026-10",
+                "name": "Name", "label": "Name (Room)"
+            })
+        );
+    }
 
     #[test]
     fn index_parses_grouped_ungrouped_and_encoded_labels() {

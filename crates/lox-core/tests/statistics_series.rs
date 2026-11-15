@@ -1,5 +1,25 @@
-use lox_core::statistics::{StatSeries, StatisticsError, parse_series};
+use lox_core::statistics::{StatEntry, StatSeries, StatisticsError, parse_index, parse_series};
 use std::error::Error;
+
+#[test]
+fn index_consumer_preserves_owned_order_duplicates_and_permissive_raw_fallback() {
+    let html = String::from(
+        "<li><a href=\"1a2b3c4d-0001-0002-ffff0123456789ab_4294967295.202613.xml\">\
+         A &amp; B &unknown; (Room (North)) 202613</a>\
+         <li><a href=\"broken.xml\">ignored</a>\
+         <li><a href=\"1a2b3c4d-0001-0002-ffff0123456789ab_4294967295.202613.xml\">\
+         A &amp; B &unknown; (Room (North)) 202613</a>",
+    );
+    let entries: Vec<StatEntry> = parse_index(&html);
+    drop(html);
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0], entries[1]);
+    assert_eq!(entries[0].group, Some(u32::MAX));
+    assert_eq!(entries[0].month, "2026-13");
+    assert_eq!(entries[0].name, "A &amp; B &unknown;");
+    assert_eq!(entries[0].label, "A &amp; B &unknown; (Room (North))");
+    assert!(parse_index("<LI>not a matching entry</LI>").is_empty());
+}
 
 #[test]
 fn monthly_consumer_gets_decoded_labels_and_ordered_finite_values_without_time_conversion() {

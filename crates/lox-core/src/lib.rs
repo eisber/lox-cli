@@ -8,7 +8,7 @@
 //! [`daytimer_state`] observes complete runtime Daytimer-State payloads.
 //! [`message_header`] observes separate application headers without transport or reassembly.
 //! Optional `configuration-xml` adds typed room inventory, summaries and summary deltas.
-//! Optional `statistics-xml` decodes monthly statistics XML without I/O.
+//! Optional `statistics-xml` parses statistics indexes and monthly XML without I/O.
 //! Optional `firmware-metadata` observes update XML and assesses numeric versions offline.
 //! Optional `auth-hash` provides explicit existing APP/CONFIG hash profiles.
 //! Optional `structure-json` projects typed top-level LoxApp3 control catalogs.
