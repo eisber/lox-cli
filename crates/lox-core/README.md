@@ -47,6 +47,18 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   This adds no dependency, whole-command qualification or foreign binding:
   Python and JVM are unsupported. It is not FTP transport, path/file-type
   validation, custom-overlay listing or archive decoding.
+- Default `configuration::custom_listing::{parse_custom_listing, ListingError}`
+  strictly interprets an already successful `/sys/custom` FTP listing into
+  sorted owned raw names, retaining duplicates. Every row must have a last
+  whitespace token; ASCII-case-insensitive `.loxcc` selects names without UUID
+  validation. Only selected raw lowercase `d`/`l` rows or slash-containing names
+  fail. Leading whitespace, uppercase type letters and raw spelling retain the
+  existing quirks. Errors are atomic, typed, payload-free and carry a zero-based
+  row index. The actual CLI `ftp::list_custom_changes` acquisition producer uses
+  this operation inside its existing retry closure, preserving static-str versus
+  String error payloads and quit timing. FTP failures never become empty lists.
+  This is distinct from permissive backup parsing and strict fragment filenames;
+  transport, acquisition/deployment policy and Python/JVM support are not added.
 - Optional `legacy-token-aes`: `legacy_token_aes::{encrypt, decrypt,
   encrypt_command, DecryptError}` extracts the existing CLI token AES-256-CBC/
   PKCS7 byte codec and deterministic `jdev/sys/enc/` envelope. Keys and IVs are
