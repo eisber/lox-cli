@@ -1,8 +1,8 @@
-# Experimental native archive, configuration inspection, clock and control bindings
+# Experimental native archive, configuration inspection, numeric, clock and control bindings
 
-This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, numeric payload decoding, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, optional `control_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, `numeric_state`, optional `control_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -25,7 +25,7 @@ No head invokes the CLI or runs another protocol stack.
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core | Unsupported | Unsupported |
 | Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
 | Legacy WSX handshake packet codec | Optional `legacy_wsx` (`legacy-wsx`); typed nonce and complete legacy packet | Existing fast-reload callers share encoding; time, randomness and transport stay in CLI | Unsupported | Unsupported |
-| Complete numeric value-state table payload decoding | Default `numeric_state::decode_value_state_payload`; ordered typed records, raw UUID/native35 and exact f64 bits; strict atomic tail rejection | Unsupported; no existing numeric decoder/caller migrated or new command | Unsupported | Unsupported |
+| Complete numeric value-state table payload decoding | Default `numeric_state::decode_value_state_payload`; ordered typed records, raw UUID/native35 and exact f64 bits; strict atomic tail rejection | Unsupported; no existing numeric decoder/caller migrated or new command | `decode_value_state_payload(bytes) -> list[NumericState]` | `LoxArchive.decodeValueStatePayload(byte[]) -> List<NumericState>` |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
@@ -75,6 +75,60 @@ Archive calls are stateless and still prove **nothing** about runtime lifecycle.
 The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
+
+## Payload-only numeric state heads
+
+The synchronous adapter calls the existing default, pure-std Core decoder;
+it contains no second parser. The **caller** identifies and assembles the numeric
+value-state table and strips all headers. Matching length cannot identify type.
+Each 24-byte record contains 16 UUID bytes (u32/u16/u16 little-endian fields,
+then eight bytes in wire order), followed by little-endian IEEE 754 f64 bits.
+Empty input is valid. Order and duplicate identifiers are retained. A length not
+divisible by 24 rejects **the entire payload**, even with a complete prefix.
+This strict Core API policy intentionally differs from the pinned upstream
+Kotlin prefix reader, which ignores an incomplete tail. It is not an upstream
+bugfix or a firmware/native behavior claim; Core provenance remains unchanged.
+
+Python calls `decode_value_state_payload(payload)`; Java and Kotlin call
+`LoxArchive.decodeValueStatePayload(payload)`. The owned `NumericState` record
+has Python fields `uuid_wire_bytes: bytes`, `uuid_native35: str`, `value: float`
+and `value_bits: int`. Java has `uuidWireBytes(): byte[]`,
+`uuidNative35(): String`, `value(): double`, `valueBits(): long`;
+Kotlin uses those same Java accessors and `ByteArray`/`Double`/`Long`.
+For wire bytes `00 01 ... 0f`, native35 is
+`03020100-0504-0706-08090a0b0c0d0e0f`, not RFC36. No UUID validation,
+normalization or identifier policy in another API changes.
+
+**`value_bits` / `valueBits()` is the authoritative exact representation.**
+It retains all 64 bits, including NaN sign/payload/signaling, signed zero,
+subnormals and bit 63. Python's generated u64 converter returns a nonnegative
+integer in `[0, 2**64 - 1]`. Java's generated u64 converter returns a signed
+primitive `long` with the **same bit pattern**, not the same unsigned numeric value:
+use `Long.toUnsignedString(bits)` or Kotlin `bits.toULong()` for unsigned
+interpretation. `value` is a convenient host floating interpretation; do not
+reconstruct authoritative bits from a float because host ABIs/operations may
+quiet or canonicalize NaNs. Floating equality cannot distinguish these cases.
+Host record equality is likewise not a bit-identity contract. Returned bytes
+and records are owned snapshots, with no native handle/close obligation.
+Generated snapshots are mutable; caller edits can make their fields inconsistent.
+
+Malformed input raises Python `NumericStatePayloadError.InvalidLength` or
+checked Java `NumericStatePayloadException.InvalidLength` (the same Java
+exception in Kotlin), with `actual` and `trailing` lengths widened from Core
+`usize` to u64 under a compile-time guard. No payload or prefix result is exposed.
+There is no framing, authentication, network, callback, subscription,
+statistics/text/weather decoding or CLI migration in this operation.
+
+`numeric_state_smoke.py` and compiled `NumericStateSmoke.java` / `.kt`
+exercise the installed wheel and same-DLL JAR: empty input, known wire/native35
+UUIDs, duplicates/order, all malformed lengths through 72, failure then success,
+host-owned values and exact normal/subnormal/negative-zero/infinity/NaN/high-bit
+patterns. The existing Windows HeapWalk probe calibrates a live/freed large
+success RustBuffer and the actual 20-byte two-u64 error buffer, then checks
+64 public calls per path/language with no requested GC. This proves those
+serialized buffers are released, not global zero-allocation behavior or
+deterministic disposal of automatic caller-thread status arenas. Existing
+generator corrections and all previous family proofs remain unchanged.
 
 ## Read-only configuration inspection heads
 
@@ -243,8 +297,8 @@ calls, zero retained matching buffers, no requested GC**. This measures result
 and error RustBuffers, not all allocations or deterministic caller-thread
 `Arena.ofAuto` status disposal: that remains a GC fallback.
 
-Only this catalog head is new in this slice. XML control inventory is already
-published separately and retains its Core-backed contract. Authentication, statistics,
+The catalog and numeric payload heads retain distinct Core-backed contracts.
+XML control inventory is already published separately. Authentication, statistics,
 color, control transport, device/native Config qualification and other platforms
 remain unsupported by these heads unless published separately. Existing archive,
 clock, control-resolution and XML inspection tests and generator corrections remain

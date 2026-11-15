@@ -1,4 +1,4 @@
-//! Thin native archive, configuration inspection, clock and control adapters.
+//! Thin native archive, configuration inspection, numeric, clock and control adapters.
 //! All behavior lives in lox-core.
 //! Generated code and its native library must come from the same build.
 
@@ -9,6 +9,7 @@ mod clock;
 mod configuration;
 mod control;
 mod control_catalog;
+mod numeric_state;
 
 uniffi::setup_scaffolding!();
 
