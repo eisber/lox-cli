@@ -1,5 +1,43 @@
-use lox_core::statistics::{StatSeries, StatisticsError, parse_series};
+use lox_core::statistics::{
+    MergeMonthsError, StatSeries, StatisticsError, merge_months, parse_series,
+};
 use std::error::Error;
+
+#[test]
+fn merge_consumer_gets_typed_output_mismatch_after_an_empty_part() {
+    let first = StatSeries {
+        name: "first".into(),
+        group: None,
+        outputs: vec!["A".into(), "B".into()],
+        rows: vec![("opaque".into(), vec![])],
+    };
+    let mut empty = first.clone();
+    empty.name = "ignored".into();
+    empty.rows.clear();
+    let mut mismatch = empty.clone();
+    mismatch.outputs.reverse();
+    let error = merge_months(vec![
+        ("z".into(), first),
+        ("empty".into(), empty),
+        ("a".into(), mismatch),
+    ])
+    .unwrap_err();
+    assert_eq!(
+        error,
+        MergeMonthsError {
+            name: "first".into(),
+            previous_month: "empty".into(),
+            month: "a".into(),
+            previous_outputs: vec!["A".into(), "B".into()],
+            outputs: vec!["B".into(), "A".into()],
+        }
+    );
+    assert!(error.source().is_none());
+    assert_eq!(
+        error.to_string(),
+        "Statistic 'first' has different outputs in empty (A, B) and a (B, A); use --from/--to to select months with the same outputs"
+    );
+}
 
 #[test]
 fn monthly_consumer_gets_decoded_labels_and_ordered_finite_values_without_time_conversion() {

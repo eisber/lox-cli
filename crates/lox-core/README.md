@@ -79,8 +79,16 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   existing `lox config users` raw inventory producer only. Its independent DOM
   direct-permission enrichment, fallback, limits and presentation stay in CLI.
 - Optional `statistics-xml`: `statistics::{parse_series, StatSeries,
-  StatisticsError}` decodes monthly statistics XML. The existing `lox stats get`
-  producer uses it, while HTTP, selection, merging and formatting stay in the CLI.
+  StatisticsError}` decodes monthly statistics XML. `statistics::merge_months`
+  concatenates those shared series with typed `MergeMonthsError` output-label
+  mismatches. The actual `lox stats get` parser and merge producers use these;
+  HTTP, month selection, index parsing and formatting stay in the CLI.
+  Merge consumes caller order without date/value validation or sorting, retains
+  first-part metadata and all within-part duplicate timestamps, and drops only
+  exact opaque timestamps present in earlier parts. Values keep their f64 bits.
+  Mismatch diagnostics use the immediately previous part's month (even empty),
+  with the first series' name/labels; the CLI preserves its single-message chain.
+  This adds no Python/JVM/FFI surface or whole-command migration claim.
 - Optional `auth-hash`: `authentication` provides the distinct existing APP
   and CONFIG `/wsx` credential/token hash profiles. Both CLI producers use it;
   transport, JSON, endpoint/permission selection and compatibility errors stay
