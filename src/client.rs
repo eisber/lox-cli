@@ -19,7 +19,7 @@ const HTTP_TIMEOUT_SECS: u64 = 10;
 const RETRY_DELAYS_MS: [u64; 3] = [200, 400, 800];
 const CACHE_TTL_SECS: u64 = 86400;
 /// Loxone epoch: 2009-01-01T00:00:00Z as Unix timestamp.
-pub const LOXONE_EPOCH_SECS: u64 = 1_230_768_000;
+pub use lox_core::LOXONE_EPOCH_SECS;
 
 // ── Global verbosity ─────────────────────────────────────────────────────────
 

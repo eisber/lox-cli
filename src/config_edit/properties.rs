@@ -82,33 +82,9 @@ impl ConfigEditor {
 
     /// Set a parameter (Def value) on a connector of a block.
     pub fn set_param(&mut self, selector: &str, param: &str, value: &str) -> Result<()> {
-        let path = self.require_one(selector)?;
-        let elem = self.get_element_mut(&path);
-        for child in &mut elem.children {
-            if let Some(co) = child.as_mut_element()
-                && co.name == "Co"
-                && co.attributes.get("K").map(|k| k == param).unwrap_or(false)
-            {
-                co.attributes.insert("Def".to_string(), value.to_string());
-                return Ok(());
-            }
-        }
-        // No matching connector. Some "parameters" are element attributes rather
-        // than `<Co>` connectors — notably the analog range/behaviour of a
-        // `VirtualIn` (`MaxVal`/`MinVal`/`MinChange`/`MinTime`/`Step`). Allow
-        // `set-param <vi> MaxVal 1100` to target those so a too-low `MaxVal`
-        // (which silently clamps, e.g. a pressure VI reading 0) can be fixed
-        // without raw-XML edits.
-        const ATTR_PARAMS: &[&str] = &["MaxVal", "MinVal", "MinChange", "MinTime", "Step"];
-        if ATTR_PARAMS.contains(&param) {
-            elem.attributes.insert(param.to_string(), value.to_string());
-            return Ok(());
-        }
-        bail!(
-            "'{param}' is neither a connector nor a settable attribute on this block \
-             (attribute params: {})",
-            ATTR_PARAMS.join(", ")
-        )
+        self.kernel
+            .set_param_legacy(selector, param, value)
+            .map_err(super::editor_error)
     }
 
     /// Describe an element: type, title, UUID, properties, connectors, children.

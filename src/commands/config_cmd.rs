@@ -3592,69 +3592,47 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             save_as,
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            let mut editor = ConfigEditor::load(&data)?;
-
-            let path = editor.require_one(&selector)?;
-            let elem = editor.get_element_mut(&path);
-            let title = elem.attributes.get("Title").cloned().unwrap_or_default();
-            let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
-
-            // Find the connector with matching K value
-            let mut found = false;
-            for child in &mut elem.children {
-                if let Some(co) = child.as_mut_element()
-                    && co.name == "Co"
-                    && co.attributes.get("K").map(|k| k == &param).unwrap_or(false)
-                {
-                    let old = co
-                        .attributes
-                        .get("Def")
-                        .cloned()
-                        .unwrap_or_else(|| "(none)".to_string());
-                    co.attributes.insert("Def".to_string(), value.clone());
-                    // Validate it's a Parameter connector
-                    if let Some(io) = ConfigEditor::connector_io_type(&block_type, &param)
-                        && io != "P"
-                    {
-                        eprintln!(
-                            "⚠ {}.{} is an {} connector, not a Parameter",
-                            title,
-                            param,
-                            match io.as_str() {
-                                "I" => "Input",
-                                "O" => "Output",
-                                _ => &io,
-                            }
-                        );
-                    }
-                    if ctx.json {
-                        emit_json(
-                            ctx,
-                            serde_json::json!({
-                                "ok": true,
-                                "block": title,
-                                "type": block_type,
-                                "param": param,
-                                "old": old,
-                                "new": value,
-                            }),
-                        );
-                    } else {
-                        println!("✓ Set {}.{}: {} → {}", title, param, old, value);
-                    }
-                    found = true;
-                    break;
-                }
-            }
-            if !found {
-                bail!(
-                    "Parameter '{}' not found on '{}' ({})",
-                    param,
+            let outcome = lox_core::configuration::editor::set_param(
+                &data,
+                &selector,
+                &param,
+                &value,
+                &chrono::Local::now().fixed_offset(),
+            )
+            .map_err(crate::config_edit::editor_error)?;
+            let title = &outcome.change.element.title;
+            let block_type = &outcome.change.element.block_type;
+            let old = outcome.change.old_value.as_deref().unwrap_or("(none)");
+            if let Some(io) = ConfigEditor::connector_io_type(block_type, &param)
+                && io != "P"
+            {
+                eprintln!(
+                    "⚠ {}.{} is an {} connector, not a Parameter",
                     title,
-                    block_type
+                    param,
+                    match io.as_str() {
+                        "I" => "Input",
+                        "O" => "Output",
+                        _ => &io,
+                    }
                 );
             }
-            save_edited(&mut editor, &file, save_as.as_deref())?;
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "block": title,
+                        "type": block_type,
+                        "param": param,
+                        "old": old,
+                        "new": value,
+                    }),
+                );
+            } else {
+                println!("✓ Set {}.{}: {} → {}", title, param, old, value);
+            }
+            write_edited_bytes(&outcome.bytes, &file, save_as.as_deref(), false)?;
         }
         ConfigCmd::Connectors { file, selector } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;

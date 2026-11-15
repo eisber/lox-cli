@@ -62,6 +62,10 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   RoomInventoryError}` inventories rooms directly from borrowed bytes. The
   existing `lox config rooms` producer uses it through a CLI-owned serialization
   and error adapter.
+- Optional `configuration-editor`: `configuration::editor::set_param` performs
+  the existing CLI's connector-only byte transaction with explicit save time,
+  typed outcomes/errors and the shared legacy loader/selector/serializer.
+  See [the editing contract](#optional-legacy-compatible-configuration-editing).
 - The same optional feature exposes `configuration::summary::{parse_config_summary,
   ConfigSummary, ControlEntry, ConfigSummaryError}`. The summary producer consumed
   by the existing `lox config diff` command uses it.
@@ -93,11 +97,70 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   encodes the complete existing 64-byte legacy handshake. Both CLI fast-reload
   transport paths use it through their time/randomness adapter.
 
-The library does not read files, select a connection context, print, implicitly
-start a runtime or normalize XML. Arbitrary decoded archive bytes are
+The library does not read files, select a connection context, print or implicitly
+start a runtime. The optional editor canonicalizes XML; archive decoding does not.
+Arbitrary decoded archive bytes are
 preserved, including BOM, mixed line endings, duplicate attributes and non-UTF-8
 data. Default features are empty; archive-only consumers do not depend on
 reqwest/Tokio/serde_json through the library's normal dependencies.
+
+## Optional legacy-compatible configuration editing
+
+Enable only `configuration-editor` for the supported, representation-independent
+Rust byte API:
+
+```rust
+# #[cfg(feature = "configuration-editor")]
+# fn example() -> Result<(), lox_core::configuration::editor::EditError> {
+use chrono::DateTime;
+use lox_core::configuration::editor::set_param;
+
+let input = br#"<C Type="And" U="gate" Title="Gate"><Co K="I1" Def="0"/></C>"#;
+let now = DateTime::parse_from_rfc3339("2026-10-12T07:55:33+01:00").unwrap();
+let edited = set_param(input, "uuid:gate", "I1", "1", &now)?;
+assert_eq!(edited.change.old_value.as_deref(), Some("0"));
+assert!(edited.content_changed);
+# Ok(())
+# }
+```
+
+The actual `lox config set-param` handler uses this transaction. Files/context,
+connector-direction warnings, output/error rendering, unsupported dry-run policy,
+save-as and exclusive atomic staging remain CLI-owned. It still updates the first
+matching `Co` only, accepts non-Parameter connectors with the same warning, and
+refuses missing connectors. In particular it **does not** acquire the internal
+editor helper's five-name attribute whitelist.
+
+`EditError` distinguishes load, serialization, selection and parameter refusal;
+underlying load/emitter causes are retained without exposing their types as the
+normal public contract. Selection retains title/type/UUID/gid/room behavior,
+including de-duplication of UUID mirrors. `ParameterChange` distinguishes an
+absent old `Def` from an empty one. The caller supplies `DateTime<FixedOffset>`;
+no clock is read. A changed canonical program stamps a root/immediate Document,
+using local `Date`, UTC Loxone-epoch `DateS` and previous+1 monotonic advancement.
+Canonical no-ops do not stamp, but may still normalize the raw input.
+
+BOM, detected document EOL, literal attribute LF, digit-name restoration,
+value-identical duplicate collapse, quote/empty-tag normalization, ordered
+children and unrelated subtree behavior are the **existing** loader/serializer's
+contract, not a generic byte-identical XML guarantee. Conflicting duplicates
+still fail. The known digit-name/quoted-text rewrite limitation `lox-n37w`
+remains unchanged, including collateral it can cause; this API neither repairs
+nor rejects previously accepted input to hide it. No native Config validation,
+permission/inheritance/version semantics, Python/JVM editor API or ABI promise
+is added.
+
+The binary's other editor methods temporarily use
+`unstable-legacy-cli-editor`, an explicitly **UNSTABLE**, doc-hidden, opt-in
+legacy state adapter. Core owns the DOM and preservation metadata once; the
+head-owned wrapper delegates load/select/serialize and retains the other legacy
+impl modules. The normal editor API has no public mutable DOM. Do not enable
+the adapter in consumers or bindings.
+
+Focused proofs: `cargo test -p lox-core --no-default-features --features
+configuration-editor --test configuration_editor`, and
+`cargo test --test config_integration editor_kernel_set_param_legacy_boundaries`.
+The original serializer/stamp tests now live next to their shared Core code.
 
 ## Complete numeric value-state payloads
 

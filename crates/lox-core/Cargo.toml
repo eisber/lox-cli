@@ -21,9 +21,14 @@ hmac = { version = "0.12", optional = true }
 sha1 = { version = "0.10", optional = true }
 sha2 = { version = "0.10", optional = true }
 hex = { version = "0.4", optional = true }
+xmltree = { version = "0.12.0", features = ["attribute-order"], optional = true }
+chrono = { version = "0.4", features = ["clock"], optional = true }
 
 [features]
 default = []
+configuration-editor = ["dep:xmltree", "dep:chrono"]
+# UNSTABLE, doc-hidden migration adapter for the legacy binary, never foreign API.
+unstable-legacy-cli-editor = ["configuration-editor"]
 legacy-wsx = []
 auth-hash = ["dep:hmac", "dep:sha1", "dep:sha2", "dep:hex"]
 configuration-xml = ["dep:quick-xml"]
@@ -37,6 +42,10 @@ runtime-blocking = ["runtime"]
 httpmock = "0.7"
 reqwest = { version = "0.12", default-features = false, features = ["blocking"] }
 tokio = { version = "1", features = ["rt", "sync", "time", "macros"] }
+
+[[test]]
+name = "configuration_editor"
+required-features = ["configuration-editor"]
 
 [[test]]
 name = "user_inventory"
