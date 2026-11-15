@@ -24,6 +24,8 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 - `numeric_state::decode_value_state_payload`: typed, offline decoding of complete
   numeric value-state table payloads. This is a new Rust-only operation, not a
   migrated CLI producer or a WebSocket transport/subscription API.
+- `text_state::decode_text_state_payload`: complete UTF-8 text-state payloads,
+  retaining state/icon UUIDs and exact text with strict atomic errors.
 - `color`: offline typed RGB/HSV/temperature encoding, distinct actor composites
   and LightsceneC percent mood values, and explicit existing-profile
   `decode_legacy` / `parse_mood_legacy` observations. The actual CLI color
@@ -115,6 +117,42 @@ The [source mapping and policy comparison](../../docs/knowledge/upstream-crosswa
 cite pinned implementation/tests and the existing protocol reference. In
 particular, strict rejection is an original API choice, not an upstream bugfix
 or firmware/native qualification.
+
+## Complete text-state payloads
+
+Default-feature `text_state::{decode_text_state_payload, TextState,
+TextStatePayloadError}` is pure std and adds no dependencies. Supply an
+already-classified, fully assembled payload with all framing/headers removed.
+Each record is state UUID16, icon UUID16, unsigned little-endian u32 text-byte
+length, exactly that many UTF-8 bytes, then `(4 - length % 4) % 4` ignored
+padding bytes. Padding must exist but need not be zero. Empty input/text is valid.
+
+Owned records preserve order, duplicate identifiers, embedded **and trailing**
+in-length NULs, and Unicode bytes without normalization. `uuid()` and
+`icon_uuid()` reuse `numeric_state::StateUuid` (raw wire bytes and mixed-endian
+native35); neither identifier is restricted to RFC UUID variants.
+`text_byte_len()` retains the declared u32 byte count, not a character count;
+`text()` borrows the exact valid UTF-8 string.
+
+Any truncated header, text, padding, unrepresentable length or invalid UTF-8
+returns a payload-free structured error, never a partial vector. Errors carry
+the record's byte offset and counts; UTF-8 `valid_up_to` is relative to that
+record's text, with `error_len: None` for an incomplete final sequence.
+Checked slice consumption avoids offset/length addition overflow, and text
+allocation follows bounds/UTF-8 checks. There are no arbitrary size caps.
+
+Strict whole-input rejection, invalid-UTF-8 rejection and preserving trailing
+NULs are **original API choices**: the pinned upstream reader returns complete
+prefixes, replaces malformed UTF-8 and trims trailing NULs. They are not credited
+as upstream defect fixes. See the [original source/provenance comparison](../../docs/knowledge/upstream-crosswalk.md#complete-text-state-payloads).
+`cargo test -p lox-core --test text_state_payload` exercises this public Rust API
+with original synthetic records, every padding extent, nonzero padding,
+multibyte text, both mixed-endian identifiers, duplicates/NULs and atomic errors.
+Existing numeric contracts/tests are unchanged.
+
+This adds no CLI command, Python/JVM operation, frame classifier/reassembler,
+network runtime, subscription, backpressure, timestamp interpretation or
+firmware/native Config qualification.
 
 ## Optional LoxApp3 control catalog
 
@@ -941,7 +979,7 @@ XML control/room inventory, summary/comparison, monthly statistics,
 authentication-hash and control-resolution families remain binary-private.
 The separate generated UniFFI Python / one Java 22+ FFM facade exposes only the
 capabilities in its [per-head matrix](../../docs/toolkit-archive-bindings.md).
-Numeric value-state payloads, comparison, statistics, authentication hashes, editing and runtime catalog
+Numeric and text-state payloads, comparison, statistics, authentication hashes, editing and runtime catalog
 acquisition remain unsupported there. No general cross-head parity, registry
 package availability or ABI stability is claimed.
 Archive byte guarantees and private deployment/sidecar policies are unchanged;
@@ -953,10 +991,10 @@ validated on Windows AMD64; other platforms are not newly qualified by it.
 
 ## License and provenance
 
-The archive family extracts this project's own code. The numeric value-state
-payload family is an original implementation of documented wire facts, with
+The archive family extracts this project's own code. The numeric and text-state
+payload families are original implementations of documented wire facts, with
 original synthetic tests; no upstream code or test vectors were imported.
-Neither imports an upstream client/config crate. Licensing and attribution are unchanged:
+None imports an upstream client/config crate. Licensing and attribution are unchanged:
 see the repository [LICENSE](../../LICENSE), [LICENSE-AGPL](../../LICENSE-AGPL),
 [LICENSE-COMMERCIAL](../../LICENSE-COMMERCIAL) and [NOTICE](../../NOTICE).
 The package retains `AGPL-3.0-or-later AND LicenseRef-Commercial` metadata.

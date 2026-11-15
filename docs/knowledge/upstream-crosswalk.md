@@ -98,3 +98,53 @@ outside this operation. CLI, Python and Java/Kotlin decoding are unsupported;
 see the [per-head matrix](../toolkit-archive-bindings.md).
 The seven-repository catalog, reviewed/latest-seen pins and ancestry findings
 are unchanged; this focused source comparison does not advance any pin.
+
+## Complete text-state payloads
+
+**Missing public capability at local base
+`6461952a3345b31d4d156c7cb5e1430642b11521` → supported Rust payload branch.**
+The default-feature `lox_core::text_state::decode_text_state_payload` adds typed
+owned records and payload-free errors. A pinned Rust search for
+`text_state`/`TextState`/`TextEvent` found only an unrelated configuration type,
+not a decoder/caller to migrate. This is new source-recovered wire semantics,
+not a feature flag, preview, invented CLI operation or extraction of an existing
+local parser.
+
+Focused static evidence at the **unchanged reviewed pin**
+Smarteon/loxone-client-kotlin
+[`22fc2d9c1ec58065295fde384fb2cab79fa71d31`](https://github.com/Smarteon/loxone-client-kotlin/commit/22fc2d9c1ec58065295fde384fb2cab79fa71d31):
+
+- [`Codec.kt::readTextEvents`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/Codec.kt#L150-L181)
+  reads state UUID16, icon UUID16, unsigned LE32 length, that many text **bytes**
+  and `(4 - length % 4) % 4` padding bytes. Admission requires the full text
+  and padding. Padding contents are skipped, not validated as zero.
+  `decodeToString()` interprets UTF-8 with replacement by default
+  ([Kotlin standard-library contract, since 1.4](https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.text/decode-to-string.html)),
+  then `trimEnd(NUL)` removes trailing in-length NULs.
+- [`event/TextEvent.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/event/TextEvent.kt)
+  establishes the icon field and 36-byte header; the icon is used by Status.
+  [`event/TextEventTest.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonTest/kotlin/event/TextEventTest.kt)
+  covers empty input/text, multiple events, padding extents, short header/text
+  leniency and trailing-NUL removal. It does not characterize malformed UTF-8,
+  nonzero padding or unsigned lengths above signed `Int` range.
+- The existing local [text-event reference](../loxone-miniserver-protocol.txt#L844-L869),
+  blob `8f84fca03c987c5d4447f1179ee8adcaedac19e0`, independently confirms
+  UUID/icon/LE32 fields and ignored padding to four-byte boundaries.
+- Both identifiers reuse the established numeric `StateUuid` contract and
+  `readUuid` evidence above, including the implementation/comment discrepancy.
+  No formatter is duplicated or identifier policy changed.
+
+| Mapping | Result |
+| --- | --- |
+| Covered wire semantics | Complete records, byte lengths, UTF-8 interpretation, all padding extents/content ignored, empty text, state/icon identifiers, order and duplicates. Original Rust consumer tests cover multibyte bytes, nonzero padding and lossless raw/native35 IDs. |
+| Deliberate new policy differences | Atomically reject every incomplete input (even after valid records), reject malformed UTF-8 rather than replacing it, preserve embedded/trailing NULs rather than trimming. No partial-prefix fallback and no upstream bugfix credit. |
+| Length handling | Original checked conversion, bounds and slice consumption before text allocation; no signed narrowing, unchecked offset addition or arbitrary cap. Upstream unsigned-to-`Int` behavior at very large lengths is not adopted or certified. |
+| Missing capabilities | Frame classification/reassembly (including upstream type 3 header handling), runtime/network acquisition, subscriptions/backpressure, CLI and Python/Java/Kotlin heads. |
+| Unknown/unqualified | Actual firmware/native Config behavior and universal device encoding guarantees; strict UTF-8 is this API's explicit policy, not native proof. Other event-table formats and timestamps are outside this slice. |
+
+This is original implementation and original synthetic tests, **not copied code
+or upstream vectors**. [BSD-3-Clause / Smarteon Systems](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/LICENSE)
+provenance remains in the existing catalog. All seven catalog entries,
+reviewed/latest-seen pins and ancestry findings are unchanged. Only the relevant
+source/model/tests/reference were inspected; no upstream integration or device
+was executed. Source evidence is not firmware/native qualification.
