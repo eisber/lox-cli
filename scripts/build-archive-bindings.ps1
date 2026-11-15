@@ -139,6 +139,23 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-autopilot-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\autopilot_catalog_smoke.py', "$Probe.dll")
+Step 'javac-autopilot-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\AutopilotCatalogSmoke.java', 'tests\bindings\NativeAutopilotProbe.java')
+Step 'java-autopilot-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'AutopilotCatalogSmoke'))
+$AutopilotKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-autopilot-catalog-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\AutopilotCatalogSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-autopilot-catalog.args", $AutopilotKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-autopilot-catalog-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-autopilot-catalog.args")
+Step 'kotlin-autopilot-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-autopilot-catalog-smoke.jar", 'AutopilotCatalogSmokeKt'))
+@{
+    original_receipt_utc = '2026-11-15T19:32:55.067Z'
+    original_deadline_utc = '2026-11-15T19:52:55.067Z'
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual Autopilot export success/error RustBuffers live1/free0,64 public calls per branch per language retained0; Python + compiledJava22 + compiledKotlin SAME API'
+} | ConvertTo-Json | Set-Content "$Output\AUTOPILOT-MECHANISM.json" -Encoding utf8
 Step 'python-structure-metadata-smoke' $VenvPython @('-I', '-B', 'tests\bindings\structure_metadata_smoke.py', "$Probe.dll")
 Step 'javac-structure-metadata-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\StructureMetadataSmoke.java', 'tests\bindings\NativeMetadataProbe.java')
 Step 'java-structure-metadata-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'StructureMetadataSmoke'))
@@ -280,6 +297,7 @@ $Artifacts += Get-Item "$Output\python-devices-smoke.log", "$Output\java-devices
 $Artifacts += Get-Item "$Output\python-users-smoke.log", "$Output\java-users-smoke.log", "$Output\kotlin-users-smoke.log"
 $Artifacts += Get-Item "$Output\python-config-diff-smoke.log", "$Output\java-config-diff-smoke.log", "$Output\kotlin-config-diff-smoke.log"
 $Artifacts += Get-Item "$Output\python-structure-metadata-smoke.log", "$Output\java-structure-metadata-smoke.log", "$Output\kotlin-structure-metadata-smoke.log", "$Output\METADATA-MECHANISM.json"
+$Artifacts += Get-Item "$Output\python-autopilot-catalog-smoke.log", "$Output\java-autopilot-catalog-smoke.log", "$Output\kotlin-autopilot-catalog-smoke.log", "$Output\AUTOPILOT-MECHANISM.json"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)

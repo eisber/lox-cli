@@ -1,0 +1,12 @@
+{
+  "autopilot": {
+    "z": {"name": "Same", "states": {"changed": 4, "history": "history"}},
+    "empty": {"name": "", "states": {"changed": "", "history": ""}},
+    "01234567-89ab-cdef-0123456789abcdef": {"name": "A", "states": {"changed": "changed"}},
+    "raw\u0000ID": {"name": "é é\r\n<xml>", "states": {"changed": "raw\u0000state", "history": "<xml>\r\n"}},
+    "a": {"name": "Same", "states": {"changed": "changed", "history": false}},
+    "": null,
+    "bad": {"name": 5, "states": false},
+    "12345678-1234-1234-1234-123456789abc": {"name": "a", "states": {"history": "history"}}
+  }
+}

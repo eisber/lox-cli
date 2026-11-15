@@ -2,7 +2,7 @@
 
 This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog/metadata, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` / `structure_metadata` and the optional production
+facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` / `structure_metadata` / `autopilot_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -41,7 +41,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Unsupported | Unsupported |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
 | LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | `select_loxapp3_controls(bytes, ControlFilter) -> list[Control]` | `LoxArchive.selectLoxapp3Controls(byte[], ControlFilter) -> List<Control>` |
-| Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | Unsupported | Unsupported |
+| Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | Candidate `list_loxapp3_autopilot_rules(bytes) -> list[AutopilotRule]` | Candidate `LoxArchive.listLoxapp3AutopilotRules(byte[]) -> List<AutopilotRule>`; SAME generated Java API in Kotlin |
 | LoxApp3 metadata snapshot | Optional `structure_metadata` (`structure-json`); typed owned projections | Existing three metadata producers share Core; acquisition/presentation unchanged | Candidate `parse_loxapp3_structure_metadata(bytes) -> StructureMetadata` | Candidate `LoxArchive.parseLoxapp3StructureMetadata(byte[]) -> StructureMetadata`; SAME Java API in Kotlin |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
 | Full token acquisition, control writes and WebSocket events | Not extracted as complete shared operations | Existing binary-private behavior | Unsupported | Unsupported |
@@ -51,6 +51,42 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Read-only LoxApp3 Autopilot catalog candidate
+
+One thin list-returning operation delegates directly to the published
+`AutopilotCatalog::from_loxapp3_json` and consumes `into_rules`. Owned
+`AutopilotRule` records contain `name`, `uuid`, `state_changed` and
+`state_history` (`stateChanged()` / `stateHistory()` in Java).
+Every map key contributes a row, including non-object entries. Missing or
+non-string names become `"?"`; explicit empty names remain empty. Changed and
+history strings default independently to empty. All IDs and text remain opaque,
+including empty, unusual UUID spellings, NUL, combining characters and line breaks.
+Core's stable case-sensitive name sort and enabled serde map tie order are
+preserved without another parser, validator, normalization or sort.
+
+Valid JSON with a missing/non-object Autopilot map yields an empty list.
+Malformed JSON fails atomically through the SAME payload-free
+`CatalogDecodeError.InvalidJson(line, column)` / checked Java
+`CatalogDecodeException.InvalidJson`; Kotlin consumes that Java API.
+These are host-owned values, independent of input storage, not borrowed handles.
+There is no selector, alias/filter API, rule editing, conditions/actions,
+state acquisition, authentication/permissions, subscription or Config UI parity.
+
+The focused Python, Java22 and Kotlin consumers exercise actual exports,
+typed values/errors, ownership, permissive shapes, raw/default fields and stable
+ties. The unchanged C probe checks the actual returned success RustBuffer with
+the established 128-byte prefix/minimum64000 match, and the actual 20-byte
+InvalidJson at line258/column65540 with the existing catalog-error matcher.
+Both branches require live1, explicit-free0, then64 public calls per language
+retaining0 without requested GC. No helper allocation substitutes for this export.
+Qualification is limited to WindowsAMD64 CPython3.13GIL, JDK22.0.2 and Kotlin2.4,
+UniFFI0.32.1/Javagen0.5.2; no stable ABI, MSRV or other-platform claim.
+The actual combined same-DLL Python/Java/Kotlin bundle passed all sixteen prior
+native families plus this one (seventeen total), and the existing Clock lifecycle
+and resource checks. This is one new native family, not broader CLI parity.
+Native Config remains two historical qualifications and zero new qualifications;
+the ten whole-CLI migration count is unchanged. Publication remains review-gated.
 
 ### Read-only LoxApp3 metadata snapshot candidate
 
@@ -86,7 +122,7 @@ the unchanged generic C heap probe reads an actual 128-byte success prefix with
 minimum 64000 bytes; the unchanged catalog-error primitive matches the actual
 20-byte InvalidJson error at line258/column65540. Each branch requires live1,
 explicit-free0 and 64 public calls per language retaining0 without requested GC.
-All fourteen existing native families and Clock lifecycle remain in the builder.
+Existing native regression families and Clock lifecycle remain in the builder.
 This adds no network, authentication, permissions, state values, mode editing,
 subscriptions, UI parity, ABI/MSRV/platform or native Config qualification.
 
