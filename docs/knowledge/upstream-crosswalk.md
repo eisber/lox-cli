@@ -219,3 +219,11 @@ source or test vectors were copied. CLI/Python/Java/Kotlin remain unsupported
 for this new operation; there is no user-level migration or native/firmware
 qualification credit. Catalog entries, reviewed/latest-seen pins and ancestry
 findings stay unchanged; no upstream code, integration or device was executed.
+## Offline firmware metadata follow-up
+
+The bounded [firmware metadata recovery](firmware-metadata.md) follows the actual
+`discostu105/lox` update caller at a separately pinned drift commit. It adds a
+strict, typed, optional Rust-only observation API, not an updater, a CLI migration
+or firmware qualification. The catalog's global reviewed/latest-seen pins and
+ancestry statements remain unchanged; the focused source manifest records the
+exact additional commit/blobs and deliberate differences.

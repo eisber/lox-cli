@@ -28,6 +28,7 @@ legacy-wsx = []
 auth-hash = ["dep:hmac", "dep:sha1", "dep:sha2", "dep:hex"]
 configuration-xml = ["dep:quick-xml"]
 statistics-xml = ["dep:quick-xml"]
+firmware-metadata = ["dep:quick-xml"]
 structure-json = ["dep:serde_json"]
 runtime = ["dep:reqwest", "dep:serde_json", "dep:tokio"]
 runtime-blocking = ["runtime"]
@@ -68,3 +69,7 @@ required-features = ["structure-json"]
 [[test]]
 name = "legacy_wsx"
 required-features = ["legacy-wsx"]
+
+[[test]]
+name = "firmware_metadata"
+required-features = ["firmware-metadata"]

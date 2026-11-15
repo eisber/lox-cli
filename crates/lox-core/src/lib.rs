@@ -8,6 +8,7 @@
 //! [`message_header`] observes separate application headers without transport or reassembly.
 //! Optional `configuration-xml` adds typed room inventory, summaries and summary deltas.
 //! Optional `statistics-xml` decodes monthly statistics XML without I/O.
+//! Optional `firmware-metadata` observes update XML and assesses numeric versions offline.
 //! Optional `auth-hash` provides explicit existing APP/CONFIG hash profiles.
 //! Optional `structure-json` projects typed top-level LoxApp3 control catalogs.
 //! Optional `legacy-wsx` encodes the existing deterministic legacy handshake.
@@ -21,6 +22,9 @@ pub mod control;
 pub mod message_header;
 pub mod numeric_state;
 pub mod text_state;
+
+#[cfg(feature = "firmware-metadata")]
+pub mod firmware_metadata;
 
 #[cfg(feature = "structure-json")]
 pub mod control_catalog;

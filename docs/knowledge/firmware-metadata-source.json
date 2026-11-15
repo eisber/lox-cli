@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "scope": "Focused static firmware metadata caller/helper/tests/docs review only; not a global catalog pin advancement.",
+  "repository": "https://github.com/discostu105/lox",
+  "commit": "70f33122df14e46bafbde3e124b53d6b1902386b",
+  "catalog_reviewed_commit_unchanged": "7c6c952eab17d23f2906f62d5ccb374749dcee44",
+  "compare": "https://github.com/discostu105/lox/compare/7c6c952eab17d23f2906f62d5ccb374749dcee44...70f33122df14e46bafbde3e124b53d6b1902386b",
+  "review_date_utc": "2026-11-15",
+  "license": "Apache-2.0",
+  "attribution": "Christoph Neumuller / discostu105 and contributors",
+  "license_blob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+  "license_sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+  "license_url": "https://github.com/discostu105/lox/blob/70f33122df14e46bafbde3e124b53d6b1902386b/LICENSE",
+  "ancestry": "Reuse existing upstreams.json ancestry entries and limitations; no new ancestry or independent-origin claim.",
+  "sources": [
+    {
+      "path": "src/main.rs",
+      "blob": "a0ffbe3bf66531bd4c0a4e5bec2f516a9c25dc0d",
+      "lines": "565-568, 974",
+      "role": "CLI update command declaration and actual dispatch"
+    },
+    {
+      "path": "src/commands/system.rs",
+      "blob": "ac785bc2d7e80755383bd09aaf1b3f9269d6d8c4",
+      "lines": "790-1136, 1288-1443",
+      "role": "Actual caller, parser, numeric comparison, note predicates, result formatting, install separation and static tests"
+    },
+    {
+      "path": "src/util.rs",
+      "blob": "261860da1b7f701c88829ebd21b251a70e5e0226",
+      "lines": "6-39",
+      "role": "Actual attribute substring helper; not an XML or schema validator"
+    },
+    {
+      "path": "COMMANDS.md",
+      "blob": "1cc467578f4ddc61817f2763e6f1c6f882d84300",
+      "lines": "1178-1199",
+      "role": "Upstream documented update/check/install/program compatibility claims"
+    }
+  ],
+  "reuse": "Original summaries, implementation and synthetic tests; no upstream code or test vectors imported. Static public source only; fetched code and integrations not executed.",
+  "qualification": "No native or firmware truth claim; historical native qualifications unchanged, new credit zero."
+}
