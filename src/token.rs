@@ -173,25 +173,13 @@ fn ws_url(cfg: &Config) -> String {
 ///
 /// Returns `(code, value)`.
 fn parse_ll_response(text: &str) -> Result<(u32, String)> {
-    let v: serde_json::Value = serde_json::from_str(text).context("response is not valid JSON")?;
-    let ll = v.get("LL").context("response missing 'LL' envelope")?;
-    let code = ll
-        .get("code")
-        .and_then(|c| {
-            c.as_str()
-                .or_else(|| c.as_u64().map(|_| ""))
-                .and_then(|s| s.parse().ok())
-                .or_else(|| c.as_u64().map(|n| n as u32))
-        })
-        .unwrap_or(0);
-    let value = ll
-        .get("value")
-        .map(|v| match v {
-            serde_json::Value::String(s) => s.clone(),
-            other => other.to_string(),
-        })
-        .unwrap_or_default();
-    Ok((code, value))
+    match lox_core::legacy_token_reply::parse(text) {
+        Ok(reply) => Ok((reply.code, reply.value)),
+        Err(error) => match error.into_json_error() {
+            Some(source) => Err(source).context("response is not valid JSON"),
+            None => anyhow::bail!("response missing 'LL' envelope"),
+        },
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -766,6 +754,29 @@ mod tests {
         let json = r#"{"LL":{"control":"test","value":"denied","code":"401"}}"#;
         let (code, _) = parse_ll_response(json).unwrap();
         assert_eq!(code, 401);
+    }
+
+    #[test]
+    fn parse_ll_response_preserves_legacy_error_chain() {
+        let text = "{\n\"LL\":{\"value\":\"opaque\",\"code\":?}}";
+        let original = serde_json::from_str::<serde_json::Value>(text).unwrap_err();
+        let error = parse_ll_response(text).unwrap_err();
+        assert_eq!(error.to_string(), "response is not valid JSON");
+        assert_eq!(
+            error.chain().map(ToString::to_string).collect::<Vec<_>>(),
+            ["response is not valid JSON", &original.to_string()]
+        );
+        let source = error.downcast_ref::<serde_json::Error>().unwrap();
+        assert_eq!(source.classify(), original.classify());
+        assert_eq!(
+            (source.line(), source.column()),
+            (original.line(), original.column())
+        );
+        assert_eq!(error.root_cause().to_string(), original.to_string());
+        let missing = parse_ll_response("null").unwrap_err();
+        assert_eq!(missing.to_string(), "response missing 'LL' envelope");
+        assert_eq!(missing.chain().count(), 1);
+        assert!(missing.downcast_ref::<serde_json::Error>().is_none());
     }
 
     // -- extract_key_from_response ----------------------------------------
