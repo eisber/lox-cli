@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.91"
 authors = ["Markus Cozowicz <markus@cozowicz.com>"]
-description = "Headless Loxone toolkit — archive codecs, room inventory and optional clock runtime"
+description = "Headless Loxone toolkit — archive codecs, configuration inventory and optional clock runtime"
 repository = "https://github.com/eisber/lox-cli"
 license = "AGPL-3.0-or-later AND LicenseRef-Commercial"
 readme = "README.md"
@@ -30,4 +30,8 @@ tokio = { version = "1", features = ["rt", "sync", "time", "macros"] }
 
 [[test]]
 name = "room_inventory"
+required-features = ["configuration-xml"]
+
+[[test]]
+name = "config_summary"
 required-features = ["configuration-xml"]

@@ -56,7 +56,9 @@ typed HTTP clock runtime used by `lox live time`. It requires Rust 1.91; offline
 archive consumers need no networking feature. The clock API distinguishes wire
 observations, explicit envelope validation, and legacy CLI formatting, with
 cancellation and an explicitly owned blocking driver. Typed in-memory control
-resolution is shared with the CLI selector too. XML parsing/editing and other
+resolution is shared with the CLI selector too. Optional `configuration-xml`
+provides typed byte-input room inventory and the summary producer consumed by
+`lox config diff`; comparison, formatting, XML editing and other
 CLI capabilities remain binary-private. See its README for capabilities and limits.
 
 An experimental, separate [generated binding facade](docs/toolkit-archive-bindings.md)

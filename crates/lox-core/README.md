@@ -39,6 +39,9 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   RoomInventoryError}` inventories rooms directly from borrowed bytes. The
   existing `lox config rooms` producer uses it through a CLI-owned serialization
   and error adapter.
+- The same optional feature exposes `configuration::summary::{parse_config_summary,
+  ConfigSummary, ControlEntry, ConfigSummaryError}`. The summary producer consumed
+  by the existing `lox config diff` command uses it; comparison/output stay in CLI.
 
 The library does not read files, select a connection context, print, implicitly
 start a runtime or normalize XML. Arbitrary decoded archive bytes are
@@ -101,8 +104,64 @@ output behavior is unchanged, not normalized to other commands.
 Run `cargo test -p lox-core --features configuration-xml --test room_inventory`
 for the typed consumer regressions and `cargo test -p lox-cli --bin lox
 --test config_integration room_inventory` for the characterized producer.
-Python/Java/Kotlin room inventory bindings, summary/diff/editing and deployment
+Python/Java/Kotlin room inventory bindings, diff/editing and deployment
 validation are not part of this extraction.
+
+## Optional read-only configuration summary
+
+```rust,ignore
+use lox_core::configuration::summary::{parse_config_summary, ConfigSummaryError};
+
+fn inspect(bytes: &[u8]) -> Result<(), ConfigSummaryError> {
+    let summary = parse_config_summary(bytes)?;
+    for (uuid, control) in summary.controls {
+        let room_title = summary.rooms.get(&control.room_uuid);
+        let _ = (uuid, control.name, control.control_type, room_title);
+    }
+    Ok(())
+}
+```
+
+Enable the existing `configuration-xml` feature, as for rooms. This summarizes
+version/date, control records keyed by ID with room relationships, room/category
+ID-to-title maps, and user titles in document order. It is not a names-only list
+or a strict schema model. Control candidates use the original infrastructure
+blacklist: unknown types remain included, not certified function blocks.
+Controls require readable `U`/`Title` and a nonempty title; empty IDs are accepted.
+Rooms/categories require both attributes but accept empty values. Later matching
+IDs replace map entries, including resetting a replacement control's room.
+Missing/empty control titles do not replace earlier controls. Users require only
+a readable title, retaining empty titles and duplicates.
+
+Each start/empty `IoData` assigns its readable raw `Pr` only to a **direct parent**
+control candidate. Nested wrappers, excluded structural/device nodes, and orphan
+`IoData` do not assign a room. Later readable assignments replace earlier ones;
+missing/invalid `Pr` leaves the previous value. This differs deliberately from
+room inventory's all-`IoData` item counts. Repeated `ControlList` and
+`C Type="Document"` elements supply the last version/date; a missing attribute
+resets that field to empty. Hash-map iteration order remains unspecified, not
+sorted; no grouping, counts or comparison output is invented by the core.
+
+The original quick-xml reader/configuration and exact raw-attribute helper are
+reused. Attribute values are not entity-decoded; first matching readable
+attributes, ignored attribute-iterator errors, BOM/Unicode handling and permissive
+EOF behavior match the existing producer. Required invalid-UTF-8 values can omit
+an entry. Input is borrowed, never rewritten. `ConfigSummaryError::Xml` carries
+the original reader error. CLI unwraps it before restoring its existing
+`Failed to parse XML` context, preserving the original error chain.
+
+The actual command is `lox config diff FILE1 FILE2`, **not** a new summary command.
+Its chain remains `main::load_config_xml` → raw `fs::read` → lowercase `.zip`
+archive extraction when applicable → CLI summary adapter → core summary →
+unchanged CLI comparison/human/JSON/error formatting. Uppercase `.ZIP` continues
+to be treated as raw XML. This does not call `ConfigEditor::load`, so
+`lox-n37w`'s quoted-text digit-name rewrite is bypassed, neither adopted nor fixed.
+Read-only dry-run behavior is unchanged; the command has no summary limit flag.
+
+Run `cargo test -p lox-core --features configuration-xml --test config_summary`
+and `cargo test -p lox-cli --bin lox --test config_integration summary_` for typed
+and actual-producer regressions. Comparison/diff APIs, editing, strict validation,
+and Python/Java/Kotlin summary bindings remain unsupported by this capability.
 
 ## In-memory control resolution
 
@@ -262,10 +321,10 @@ qualification is implied.
 
 ## Not exposed yet
 
-XML parsing beyond room inventory, editing, runtime operations beyond this HTTP clock read, token/crypto/
+XML parsing beyond room inventory and summary, editing, runtime operations beyond this HTTP clock read, token/crypto/
 WebSocket authentication, subscriptions, and Python or Java/Kotlin native bindings
 are **not** exposed through `lox-core`. Existing CLI capabilities outside the
-archive, clock, room inventory and control-resolution families remain binary-private. No cross-head parity, native
+archive, clock, room inventory/summary and control-resolution families remain binary-private. No cross-head parity, native
 package availability or ABI stability is claimed. The approved generated UniFFI
 Python / one Java 22+ FFM API direction is unchanged; this stage adds no bindings.
 Archive byte guarantees and private deployment/sidecar policies are unchanged;
