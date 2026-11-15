@@ -139,6 +139,23 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-statistics-index-smoke' $VenvPython @('-I', '-B', 'tests\bindings\statistics_index_smoke.py', "$Probe.dll")
+Step 'javac-statistics-index-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\StatisticsIndexSmoke.java', 'tests\bindings\NativeStatisticsIndexProbe.java')
+Step 'java-statistics-index-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'StatisticsIndexSmoke'))
+$StatisticsIndexKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-statistics-index-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\StatisticsIndexSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-statistics-index.args", $StatisticsIndexKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-statistics-index-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-statistics-index.args")
+Step 'kotlin-statistics-index-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-statistics-index-smoke.jar", 'StatisticsIndexSmokeKt'))
+@{
+    original_receipt_utc = '2026-11-15T21:11:59.512Z'
+    original_deadline_utc = '2026-11-15T21:31:59.512Z'
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual infallible statistics index result RustBuffer live1/free0,64 public calls per language retained0 without requested GC; generated String lowering; Python and compiledJava22/Kotlin SAME API'
+} | ConvertTo-Json | Set-Content "$Output\STATISTICS-INDEX-MECHANISM.json" -Encoding utf8
 Step 'python-autopilot-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\autopilot_catalog_smoke.py', "$Probe.dll")
 Step 'javac-autopilot-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\AutopilotCatalogSmoke.java', 'tests\bindings\NativeAutopilotProbe.java')
 Step 'java-autopilot-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'AutopilotCatalogSmoke'))
@@ -298,6 +315,7 @@ $Artifacts += Get-Item "$Output\python-users-smoke.log", "$Output\java-users-smo
 $Artifacts += Get-Item "$Output\python-config-diff-smoke.log", "$Output\java-config-diff-smoke.log", "$Output\kotlin-config-diff-smoke.log"
 $Artifacts += Get-Item "$Output\python-structure-metadata-smoke.log", "$Output\java-structure-metadata-smoke.log", "$Output\kotlin-structure-metadata-smoke.log", "$Output\METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-autopilot-catalog-smoke.log", "$Output\java-autopilot-catalog-smoke.log", "$Output\kotlin-autopilot-catalog-smoke.log", "$Output\AUTOPILOT-MECHANISM.json"
+$Artifacts += Get-Item "$Output\python-statistics-index-smoke.log", "$Output\java-statistics-index-smoke.log", "$Output\kotlin-statistics-index-smoke.log", "$Output\STATISTICS-INDEX-MECHANISM.json"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -309,7 +327,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML user/device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. User inventory is raw owned fields only, never credentials/permissions/authentication. Current loopback clock cancellation/close only; no Lighting eligibility, framing, full XML/semantic diff, editor/auth/control I/O/statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML user/device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, infallible HTML statistics index catalog delegated to Core, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. User inventory is raw owned fields only, never credentials/permissions/authentication. Current loopback clock cancellation/close only; no Lighting eligibility, framing, full XML/semantic diff, editor/auth/control I/O/monthly-series or binary statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest
