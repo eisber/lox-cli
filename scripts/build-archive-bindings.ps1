@@ -80,6 +80,7 @@ Step 'kotlin-version' $KotlinCompiler @('-version')
 Step 'python-version' $Python @('-c', 'import platform,sys,sysconfig; print(sys.version, platform.machine(), "GIL-disabled=", sysconfig.get_config_var("Py_GIL_DISABLED")); assert sys.platform == "win32" and platform.machine() == "AMD64" and not sysconfig.get_config_var("Py_GIL_DISABLED")')
 Step 'control-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'control_resolution', '--locked', '--offline')
 Step 'numeric-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'numeric_state_payload', '--locked', '--offline')
+Step 'device-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'device_inventory', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
@@ -140,6 +141,9 @@ Step 'python-xml-controls-smoke' $VenvPython @('-I', '-B', 'tests\bindings\xml_c
 Step 'java-xml-controls-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'XmlControlsSmoke', 'crates\lox-bindings\tests\fixtures\xml_controls.xml'))
 Step 'python-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\catalog_smoke.py', "$Probe.dll")
 Step 'java-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'CatalogSmoke', 'crates\lox-bindings\tests\fixtures\control_catalog.json'))
+Step 'python-devices-smoke' $VenvPython @('-I', '-B', 'tests\bindings\devices_smoke.py', "$Probe.dll")
+Step 'javac-devices-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\DevicesSmoke.java', 'tests\bindings\NativeDeviceProbe.java')
+Step 'java-devices-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'DevicesSmoke', 'crates\lox-bindings\tests\fixtures\xml_devices.xml'))
 Step 'python-color-smoke' $VenvPython @('-I', '-B', 'tests\bindings\color_smoke.py', "$Probe.dll", 'crates\lox-bindings\tests\fixtures\color_profiles.tsv')
 Step 'java-color-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.ColorSmoke', 'crates\lox-bindings\tests\fixtures\color_profiles.tsv'))
 Step 'javac-numeric-state-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\NumericStateSmoke.java', 'tests\bindings\NativeNumericStateProbe.java')
@@ -152,6 +156,13 @@ Step 'kotlin-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\kotlin-
 Step 'kotlinc-control-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-control-smoke.jar", 'tests\bindings\ControlSmoke.kt')
 Step 'kotlin-control-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\kotlin-control-smoke.jar", 'ControlSmokeKt'))
 Step 'jar-allocation-test-support' $Jar @('--create', '--file', "$Output\jvm\allocation-test-support.jar", '-C', "$Output\jvm\test-classes", '.')
+$DeviceKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-devices-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\DevicesSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-devices.args", $DeviceKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-devices-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-devices.args")
+Step 'kotlin-devices-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-devices-smoke.jar", 'DevicesSmokeKt', 'crates\lox-bindings\tests\fixtures\xml_devices.xml'))
 $ColorKotlinArguments = @('-jvm-target', '22', '-classpath',
     ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
     '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-color-smoke.jar".Replace('\', '\\') + '"'),
@@ -216,6 +227,7 @@ $Artifacts += Get-Item "$Output\python-xml-controls-smoke.log", "$Output\java-xm
 $Artifacts += Get-Item "$Output\python-catalog-smoke.log", "$Output\java-catalog-smoke.log", "$Output\kotlin-catalog-smoke.log"
 $Artifacts += Get-Item "$Output\python-color-smoke.log", "$Output\java-color-smoke.log", "$Output\kotlin-color-smoke.log"
 $Artifacts += Get-Item "$Output\python-numeric-state-smoke.log", "$Output\java-numeric-state-smoke.log", "$Output\kotlin-numeric-state-smoke.log"
+$Artifacts += Get-Item "$Output\python-devices-smoke.log", "$Output\java-devices-smoke.log", "$Output\kotlin-devices-smoke.log"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -227,7 +239,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric state decoding with exact UUID/IEEE bits, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, framing/diff/editor/auth/control I/O/statistics/text payloads/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML device/control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric state decoding with exact UUID/IEEE bits, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, framing/diff/editor/auth/control I/O/statistics/text payloads/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest
