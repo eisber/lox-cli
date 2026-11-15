@@ -11,8 +11,6 @@ mod ftp;
 mod gitops;
 mod loxcc;
 mod loxone_xml;
-#[allow(dead_code)]
-mod rc6;
 mod telemetry;
 #[allow(dead_code)]
 mod token;

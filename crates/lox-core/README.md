@@ -51,12 +51,64 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   and CONFIG `/wsx` credential/token hash profiles. Both CLI producers use it;
   transport, JSON, endpoint/permission selection and compatibility errors stay
   in the binary.
+- Optional `legacy-wsx`: `legacy_wsx::{Credentials, Nonce, encode_handshake}`
+  encodes the complete existing 64-byte legacy handshake. Both CLI fast-reload
+  transport paths use it through their time/randomness adapter.
 
 The library does not read files, select a connection context, print, implicitly
 start a runtime or normalize XML. Arbitrary decoded archive bytes are
 preserved, including BOM, mixed line endings, duplicate attributes and non-UTF-8
 data. Default features are empty; archive-only consumers do not depend on
 reqwest/Tokio/serde_json through the library's normal dependencies.
+
+## Optional legacy WSX handshake codec
+
+```toml
+lox-core = { path = "path/to/lox-cli/crates/lox-core", features = ["legacy-wsx"] }
+```
+
+```rust,ignore
+use lox_core::legacy_wsx::{Credentials, Nonce, encode_handshake};
+
+// The caller obtains these inputs; the codec has no clock, RNG or I/O.
+let random_bytes = [0x42; 16]; // synthetic example, not a random source
+let timestamp_ms = 0x34fde6a4;
+let nonce = Nonce::from_random_bytes(timestamp_ms, random_bytes);
+let packet: [u8; 64] =
+    encode_handshake(&Credentials::new("fixture", "password", "ENU"), &nonce);
+assert_eq!(nonce.timestamp(), timestamp_ms);
+```
+
+This dependency-free feature reuses the repository's existing timestamp-derived
+16-round RC6 compatibility implementation, not a generic cipher API. The client
+applies the **decryption** direction before transmission; the inverse recovers
+the payload. It preserves the exact nonce layout (timestamp bytes 3, 0, 1, 2 at
+positions 3, 4, 9, 14), little-endian type 1/length 32/sequence 0/magic FEEDBEEF
+header and `username\0password\0locale\0` payload. Concatenation is byte-based:
+embedded NULs are retained, the first 32 bytes are used even when that splits
+UTF-8 or drops later separators/fields, and short input is zero-padded.
+
+`Nonce::from_bytes([u8; 16])` reuses a captured nonce without modification;
+`encode_handshake` derives the transform timestamp from that nonce, avoiding
+mismatched independent key/nonce inputs. Short nonce slices are not part of this
+API. All UTF-8 field strings, including empty and oversized ones, are accepted;
+legacy truncation is intentional, so no new runtime input-error policy is added.
+Debug output for credentials and nonce omits all fields. Returned packet bytes
+contain recoverable credentials: there is no zeroization or global logging
+redaction guarantee.
+
+The CLI still owns randomness (one 16-byte fill), timestamp/uptime acquisition,
+HTTP upgrade/start framing, TLS records, network options, auth hashes, JWT verbs,
+permissions and reload policy. Its existing wall-clock helper and unchecked
+head-only nonce accessor are unchanged. This is local legacy compatibility,
+not modern `/ws/rfc6455` framing, binary state/event support, firmware
+qualification or a security endorsement. Default features and normal direct
+dependencies remain unchanged.
+
+Run `cargo test -p lox-core --features legacy-wsx --locked --offline` for the
+typed consumer, fixed captured vectors, truncation/recovery and fixed-size API
+tests; `cargo test -p lox-cli --bin lox --locked --offline legacy_wsx` exercises
+the actual head adapter against packets recorded before extraction.
 
 ## Optional monthly statistics decoder
 
