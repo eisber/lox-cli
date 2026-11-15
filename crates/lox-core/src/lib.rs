@@ -13,7 +13,7 @@
 //! Optional `statistics-xml` parses statistics indexes and monthly XML without I/O.
 //! Optional `firmware-metadata` observes update XML and assesses numeric versions offline.
 //! Optional `auth-hash` provides explicit existing APP/CONFIG hash profiles.
-//! Optional `structure-json` projects typed top-level LoxApp3 control catalogs.
+//! Optional `structure-json` projects typed LoxApp3 control catalogs and metadata.
 //! Optional `legacy-wsx` encodes the existing deterministic legacy handshake.
 //! The optional `runtime` feature provides an async typed clock operation;
 //! `runtime-blocking` adds an explicitly owned driver.
@@ -33,6 +33,9 @@ pub mod firmware_metadata;
 
 #[cfg(feature = "structure-json")]
 pub mod control_catalog;
+
+#[cfg(feature = "structure-json")]
+pub mod structure_metadata;
 
 #[cfg(feature = "statistics-xml")]
 pub mod statistics;
