@@ -1497,6 +1497,164 @@ fn config_room_add() {
 // ── config diff ─────────────────────────────────────────────────────────────
 
 #[test]
+fn config_diff_comparison_contract_human_and_json() {
+    let dir = tempfile::Builder::new()
+        .prefix(".diff-contract-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let before = br#"<ControlList Version="1">
+      <C Type="Document" Date="old"/>
+      <C Type="Place" U="r" Title="Before"/>
+      <C Type="Category" U="c" Title="Lights"/>
+      <C Type="Switch" U="same" Title="Old"><IoData Pr="r"/></C>
+      <C Type="Switch" U="gone" Title="Twin"/>
+      <C Type="User" Title="Keep"/><C Type="User" Title="Keep"/>
+      <C Type="User" Title="Gone"/><C Type="User" Title="Gone"/>
+    </ControlList>"#;
+    let after = br#"<ControlList Version="2">
+      <C Type="Document" Date="new"/>
+      <C Type="Place" U="r" Title="After"/>
+      <C Type="Category" U="c" Title="Lighting"/>
+      <C Type="Dimmer" U="same" Title="New"><IoData Pr="unknown"/></C>
+      <C Type="Switch" U="added" Title="Twin"/>
+      <C Type="User" Title="Keep"/>
+      <C Type="User" Title="Added"/><C Type="User" Title="Added"/>
+    </ControlList>"#;
+    fs::write(dir.path().join("old.Loxone"), before).unwrap();
+    fs::write(dir.path().join("new.Loxone"), after).unwrap();
+    let command = || {
+        let mut cmd = lox();
+        cmd.current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .env("LOX_HOME", dir.path().join("home"));
+        cmd
+    };
+    let output = command()
+        .args(["--json", "config", "diff", "old.Loxone", "new.Loxone"])
+        .assert()
+        .success()
+        .stderr("")
+        .get_output()
+        .clone();
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&output.stdout).unwrap(),
+        serde_json::json!({
+            "version_old":"1", "version_new":"2", "date_old":"old", "date_new":"new",
+            "controls_added":[{"name":"Twin", "control_type":"Switch"}],
+            "controls_removed":[{"name":"Twin", "control_type":"Switch"}],
+            "controls_changed":[
+                {"name":"New", "field":"name", "old_value":"Old", "new_value":"New"},
+                {"name":"New", "field":"type", "old_value":"Switch", "new_value":"Dimmer"},
+                {"name":"New", "field":"room", "old_value":"Before", "new_value":"unknown"}
+            ],
+            "rooms_added":[], "rooms_removed":[],
+            "rooms_renamed":[{"old":"Before", "new":"After"}],
+            "categories_added":[], "categories_removed":[],
+            "categories_renamed":[{"old":"Lights", "new":"Lighting"}],
+            "users_added":["Added"], "users_removed":["Gone"]
+        })
+    );
+    command()
+        .args(["config", "diff", "old.Loxone", "new.Loxone"])
+        .assert()
+        .success()
+        .stderr("")
+        .stdout(concat!(
+            "Config version: 1 → 2\nModified: old → new\n\nControls:\n",
+            "  + Added: \"Twin\" (Switch)\n",
+            "  ~ Changed: \"New\" — name \"Old\" → \"New\"\n",
+            "  ~ Changed: \"New\" — type \"Switch\" → \"Dimmer\"\n",
+            "  ~ Changed: \"New\" — room \"Before\" → \"unknown\"\n",
+            "  - Removed: \"Twin\" (Switch)\n\nRooms:\n",
+            "  ~ Renamed: \"Before\" → \"After\"\n\nCategories:\n",
+            "  ~ Renamed: \"Lights\" → \"Lighting\"\n\nUsers:\n",
+            "  + Added: \"Added\"\n  - Removed: \"Gone\"\n\n9 changes total\n"
+        ));
+    assert_eq!(fs::read(dir.path().join("old.Loxone")).unwrap(), before);
+    assert_eq!(fs::read(dir.path().join("new.Loxone")).unwrap(), after);
+}
+
+#[test]
+fn config_diff_metadata_and_ignored_xml_are_not_structural_changes() {
+    let dir = tempfile::Builder::new()
+        .prefix(".diff-ignored-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let before = br#"<ControlList Version="1"><C Type="Document" Date="old"/>
+      <C Type="Place" U="r" Title="Before"/>
+      <C Type="Switch" U="a" Title="Stable" X="1"><IoData Pr="r"/><P V="1"/></C>
+      <C Type="User" Title="Keep"/><C Type="User" Title="Keep"/>
+    </ControlList>"#;
+    let after = br#"<ControlList Version="2"><C Type="Document" Date="new"/>
+      <C Type="Place" U="r" Title="Before"/>
+      <C Type="Switch" U="a" Title="Stable" X="99"><IoData Pr="r"/><P V="9"/></C>
+      <C Type="User" Title="Keep"/>
+    </ControlList>"#;
+    fs::write(dir.path().join("old.Loxone"), before).unwrap();
+    fs::write(dir.path().join("new.Loxone"), after).unwrap();
+    let mut command = lox();
+    command
+        .current_dir(dir.path())
+        .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+        .env("LOX_HOME", dir.path().join("home"))
+        .args(["config", "diff", "old.Loxone", "new.Loxone"])
+        .assert()
+        .success()
+        .stderr("")
+        .stdout("Config version: 1 → 2\nModified: old → new\n\nNo structural changes.\n");
+}
+
+#[test]
+fn config_diff_room_reference_presentation() {
+    let dir = tempfile::Builder::new()
+        .prefix(".diff-room-labels-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    for (old_uuid, old_room, new_uuid, new_room, old_label, new_label) in [
+        ("", "", "unknown", "", "(none)", "unknown"),
+        ("unknown", "", "", "", "unknown", "(none)"),
+        (
+            "",
+            r#"<C Type="Place" U="" Title="Empty ID"/>"#,
+            "r",
+            r#"<C Type="Place" U="r" Title=""/>"#,
+            "Empty ID",
+            "",
+        ),
+    ] {
+        for (file, uuid, room) in [
+            ("old.Loxone", old_uuid, old_room),
+            ("new.Loxone", new_uuid, new_room),
+        ] {
+            fs::write(
+                dir.path().join(file),
+                format!(
+                    r#"<Root>{room}<C Type="Switch" U="a" Title="Stable"><IoData Pr="{uuid}"/></C></Root>"#
+                ),
+            )
+            .unwrap();
+        }
+        let output = lox()
+            .current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .env("LOX_HOME", dir.path().join("home"))
+            .args(["--json", "config", "diff", "old.Loxone", "new.Loxone"])
+            .assert()
+            .success()
+            .stderr("")
+            .get_output()
+            .clone();
+        let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(
+            value["controls_changed"],
+            serde_json::json!([{
+                "name":"Stable", "field":"room", "old_value":old_label, "new_value":new_label
+            }])
+        );
+    }
+}
+
+#[test]
 fn summary_producer_cli_raw_loader_output_and_zip_dispatch() {
     let dir = tempfile::Builder::new()
         .prefix(".summary-producer-")

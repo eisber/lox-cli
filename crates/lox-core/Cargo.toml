@@ -35,3 +35,7 @@ required-features = ["configuration-xml"]
 [[test]]
 name = "config_summary"
 required-features = ["configuration-xml"]
+
+[[test]]
+name = "config_diff"
+required-features = ["configuration-xml"]

@@ -41,7 +41,9 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   and error adapter.
 - The same optional feature exposes `configuration::summary::{parse_config_summary,
   ConfigSummary, ControlEntry, ConfigSummaryError}`. The summary producer consumed
-  by the existing `lox config diff` command uses it; comparison/output stay in CLI.
+  by the existing `lox config diff` command uses it.
+- `configuration::diff::diff_configs` compares those typed summaries. The actual
+  `lox config diff` comparison uses it; serialization and human output stay in CLI.
 
 The library does not read files, select a connection context, print, implicitly
 start a runtime or normalize XML. Arbitrary decoded archive bytes are
@@ -152,16 +154,68 @@ the original reader error. CLI unwraps it before restoring its existing
 
 The actual command is `lox config diff FILE1 FILE2`, **not** a new summary command.
 Its chain remains `main::load_config_xml` → raw `fs::read` → lowercase `.zip`
-archive extraction when applicable → CLI summary adapter → core summary →
-unchanged CLI comparison/human/JSON/error formatting. Uppercase `.ZIP` continues
+archive extraction when applicable → CLI error adapter → core summary →
+core summary comparison → unchanged CLI human/JSON/error formatting. Uppercase `.ZIP` continues
 to be treated as raw XML. This does not call `ConfigEditor::load`, so
 `lox-n37w`'s quoted-text digit-name rewrite is bypassed, neither adopted nor fixed.
 Read-only dry-run behavior is unchanged; the command has no summary limit flag.
 
 Run `cargo test -p lox-core --features configuration-xml --test config_summary`
 and `cargo test -p lox-cli --bin lox --test config_integration summary_` for typed
-and actual-producer regressions. Comparison/diff APIs, editing, strict validation,
-and Python/Java/Kotlin summary bindings remain unsupported by this capability.
+and actual-producer regressions. Editing, strict validation and Python/Java/Kotlin
+summary bindings remain unsupported by this capability.
+
+## Optional structural-summary comparison
+
+```rust,ignore
+use lox_core::configuration::{
+    diff::{diff_configs, ControlFieldChange},
+    summary::{parse_config_summary, ConfigSummaryError},
+};
+
+fn compare(old: &[u8], new: &[u8]) -> Result<(), ConfigSummaryError> {
+    let diff = diff_configs(&parse_config_summary(old)?, &parse_config_summary(new)?);
+    for change in diff.controls_changed {
+        if let ControlFieldChange::Room { old, new } = change.field {
+            let _ = (change.uuid, change.name, old.uuid, old.name, new.uuid, new.name);
+        }
+    }
+    Ok(())
+}
+```
+
+`configuration-xml` also enables `configuration::diff::{ConfigDiff, ControlRecord,
+ControlChange, ControlFieldChange, RoomReference, NamedEntry, NameChange}`. The
+in-memory comparator borrows existing summaries; it performs no file access,
+parsing, normalization, printing or serialization. Added/removed control records,
+room/category entries and renames retain their raw UUIDs even though the legacy
+CLI output omits them. Control changes carry the new control name and typed
+old/new name, type or room values. Room references retain both the raw UUID
+(including empty strings) and an optional title from the corresponding summary.
+No display placeholders or terminal field labels are stored in Core.
+
+This preserves the existing **summary** comparison only: controls, rooms and
+categories match by raw, case-sensitive UUID; duplicate titles remain distinct.
+Controls compare name, type and room UUID, in that field order per control.
+A room title change alone is a room rename, not a control move; different room
+UUIDs still count as a move even when their titles match. Users compare by title
+set membership, ignoring duplicate counts and ordering. Metadata is retained
+but version/date differences alone do not make `has_changes()` true. Map/set
+iteration order is unspecified; no new sorting is introduced. XML parameters,
+wiring, layout and other fields absent from the summary are not compared.
+
+The CLI wrapper only maps typed results into its existing serialization models
+and resolves room display labels (title, raw unknown UUID, or `(none)`). Existing
+output fields, totals, errors, loader/archive selection and read-only behavior
+are unchanged. Both parsing and the actual comparison of `lox config diff`
+now use Core; this is not a new command, full XML semantic diff, editing API,
+or Python/Java/Kotlin diff binding. The `lox-n37w` DOM-loader issue remains open
+and bypassed by this raw/archive caller.
+
+Run `cargo test -p lox-core --features configuration-xml --test config_diff`
+and `cargo test -p lox-cli --bin lox --test config_integration config_diff`
+for typed-consumer and actual human/JSON CLI comparison regressions. Existing
+`summary_` CLI tests also cover the unchanged raw/archive and error paths.
 
 ## In-memory control resolution
 
