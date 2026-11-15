@@ -20,6 +20,7 @@
 //! `runtime-blocking` adds an explicitly owned driver.
 //! No context selection, filesystem, terminal or language-binding API is provided.
 
+pub mod backup_catalog;
 pub mod color;
 pub mod configuration;
 pub mod control;
