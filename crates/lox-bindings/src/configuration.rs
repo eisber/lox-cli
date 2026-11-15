@@ -1,7 +1,27 @@
 //! Owned inspection results; the distinct XML contracts belong to core.
 
-use lox_core::configuration::{controls, devices, rooms, summary};
+use lox_core::configuration::{controls, devices, rooms, summary, users};
 use std::collections::HashMap;
+
+/// Raw user inventory only, not credentials or permission evaluation.
+#[derive(Clone, Debug, PartialEq, Eq, uniffi::Record)]
+pub struct XmlUserInfo {
+    pub name: String,
+    pub uuid: String,
+    pub nfc: bool,
+    pub description: String,
+}
+
+impl From<users::UserInfo> for XmlUserInfo {
+    fn from(value: users::UserInfo) -> Self {
+        Self {
+            name: value.name,
+            uuid: value.uuid,
+            nfc: value.nfc,
+            description: value.description,
+        }
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, uniffi::Enum)]
 pub enum XmlDeviceBus {
@@ -172,6 +192,24 @@ impl From<devices::DeviceInventoryError> for ConfigurationError {
     }
 }
 
+impl From<users::UserInventoryError> for ConfigurationError {
+    fn from(value: users::UserInventoryError) -> Self {
+        match value {
+            users::UserInventoryError::Xml { source } => Self::Xml {
+                source_message: source.to_string(),
+            },
+        }
+    }
+}
+
+/// Preserve core's raw user fields, independent defaults and encounter order.
+#[uniffi::export]
+pub fn parse_users(xml: Vec<u8>) -> Result<Vec<XmlUserInfo>, ConfigurationError> {
+    users::parse_users(&xml)
+        .map(|values| values.into_iter().map(Into::into).collect())
+        .map_err(Into::into)
+}
+
 /// Preserve core's raw-byte, document-order device inventory without enrichment.
 #[uniffi::export]
 pub fn parse_devices(xml: Vec<u8>) -> Result<Vec<XmlDeviceInfo>, ConfigurationError> {
@@ -212,6 +250,99 @@ pub fn parse_config_summary(xml: Vec<u8>) -> Result<ConfigSummary, Configuration
 mod tests {
     use super::*;
     use std::error::Error;
+
+    #[test]
+    fn users_preserve_raw_fields_first_attributes_order_and_independent_defaults() {
+        let xml = include_bytes!("../tests/fixtures/xml_users.xml").to_vec();
+        let before = xml.clone();
+        let values = parse_users(xml.clone()).unwrap();
+        assert_eq!(xml, before);
+        assert_eq!(values.len(), 6);
+        assert_eq!(
+            values[0],
+            XmlUserInfo {
+                name: " raw&amp;&#65;&custom; ".into(),
+                uuid: "not_a_uuid".into(),
+                nfc: true,
+                description: "one  two &#95; &amp;".into(),
+            }
+        );
+        assert_eq!(values[1].name, "");
+        assert_eq!(values[1].uuid, "");
+        assert_eq!(values[1].description, "");
+        assert!(!values[1].nfc);
+        assert_eq!(values[2], values[3]);
+        assert_eq!(values[2].description, " ");
+        assert!(!values[2].nfc);
+        assert_eq!(values[4].name, "first");
+        assert!(values[4].nfc);
+        assert_eq!(values[5].name, "Grün");
+        assert_eq!(values[5].description, "Grüße 世界");
+        assert_eq!(
+            values,
+            users::parse_users(&xml)
+                .unwrap()
+                .into_iter()
+                .map(Into::into)
+                .collect::<Vec<_>>()
+        );
+        let invalid = parse_users(
+            b"<C Type=\"User\" Title=\"\xff\" U=\"valid_raw\" Desc=\"ok_value\" NFCArr=\"x\"/>\
+              <C Type=\"User\" Title=\"valid\" U=\"\xff\" Desc=\"\xff\" NFCArr=\"\xff\"/>\
+              <C Type=\"\xff\" Title=\"excluded\"/>"
+                .to_vec(),
+        )
+        .unwrap();
+        assert_eq!(
+            invalid,
+            vec![
+                XmlUserInfo {
+                    name: "".into(),
+                    uuid: "valid_raw".into(),
+                    nfc: true,
+                    description: "ok value".into(),
+                },
+                XmlUserInfo {
+                    name: "valid".into(),
+                    uuid: "".into(),
+                    nfc: false,
+                    description: "".into(),
+                }
+            ]
+        );
+    }
+
+    #[test]
+    fn users_keep_permissive_attributes_eof_and_atomic_original_reader_error() {
+        for xml in [
+            b"plain text".as_slice(),
+            b"",
+            b"<C Type=\"User\" Title=\"open\">",
+            b"<C Type=\"User\" Title=\"before-bad\" bad />",
+            b"<C Type=\"User\" Title=\"\xff\" Title=\"not-a-fallback\"/>",
+        ] {
+            assert_eq!(
+                parse_users(xml.to_vec()).unwrap(),
+                users::parse_users(xml)
+                    .unwrap()
+                    .into_iter()
+                    .map(Into::into)
+                    .collect::<Vec<_>>()
+            );
+        }
+        let xml =
+            b"<Root><C Type=\"User\" Title=\"not partial\"/><secret>not-an-error-payload</Root>";
+        let ConfigurationError::Xml { source_message } = parse_users(xml.to_vec()).unwrap_err();
+        assert_eq!(
+            source_message,
+            users::parse_users(xml)
+                .unwrap_err()
+                .source()
+                .unwrap()
+                .to_string()
+        );
+        assert!(!source_message.contains("not-an-error-payload"));
+    }
 
     #[test]
     fn devices_preserve_raw_branch_fields_defaults_order_and_unsigned_subtypes() {
