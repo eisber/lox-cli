@@ -1,6 +1,4 @@
 use anyhow::{Context, Result};
-use quick_xml::Reader;
-use quick_xml::events::{BytesStart, Event};
 use serde::Serialize;
 
 // ── Users ──
@@ -54,52 +52,21 @@ pub struct ControlEntry {
     pub room_uuid: String,
 }
 
-// ── Helpers ──
-
-fn attr_value(e: &BytesStart, name: &[u8]) -> Option<String> {
-    for attr in e.attributes().flatten() {
-        if attr.key.as_ref() == name {
-            return String::from_utf8(attr.value.to_vec()).ok();
-        }
-    }
-    None
-}
-
-fn attr_value_or(e: &BytesStart, name: &[u8], default: &str) -> String {
-    attr_value(e, name).unwrap_or_else(|| default.to_string())
-}
-
 // ── Parsing ──
 
 pub fn parse_users(xml: &[u8]) -> Result<Vec<LoxUser>> {
-    let mut reader = Reader::from_reader(xml);
-    reader.config_mut().trim_text(true);
-    let mut buf = Vec::new();
-    let mut users = Vec::new();
-
-    loop {
-        match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(ref e) | Event::Empty(ref e))
-                if e.name().as_ref() == b"C"
-                    && attr_value(e, b"Type").as_deref() == Some("User") =>
-            {
-                let name = attr_value_or(e, b"Title", "");
-                let nfc_arr = attr_value_or(e, b"NFCArr", "");
-                let desc = attr_value_or(e, b"Desc", "").replace('_', " ");
-                users.push(LoxUser {
-                    name,
-                    uuid: attr_value_or(e, b"U", ""),
-                    nfc: !nfc_arr.is_empty(),
-                    description: desc,
-                });
-            }
-            Ok(Event::Eof) => break,
-            Err(e) => return Err(e).context("Failed to parse XML"),
-            _ => {}
-        }
-        buf.clear();
-    }
-    Ok(users)
+    let users = lox_core::configuration::users::parse_users(xml)
+        .map_err(|lox_core::configuration::users::UserInventoryError::Xml { source }| source)
+        .context("Failed to parse XML")?;
+    Ok(users
+        .into_iter()
+        .map(|user| LoxUser {
+            name: user.name,
+            uuid: user.uuid,
+            nfc: user.nfc,
+            description: user.description,
+        })
+        .collect())
 }
 
 pub fn parse_devices(xml: &[u8]) -> Result<Vec<LoxDevice>> {
@@ -124,6 +91,70 @@ pub fn parse_config_summary(xml: &[u8]) -> Result<ConfigSummary> {
     lox_core::configuration::summary::parse_config_summary(xml)
         .map_err(|lox_core::configuration::summary::ConfigSummaryError::Xml { source }| source)
         .context("Failed to parse XML")
+}
+
+#[cfg(test)]
+mod user_inventory_characterization {
+    use super::*;
+
+    #[test]
+    fn user_inventory_raw_fields_defaults_duplicates_and_order() {
+        let xml = br#"<Root><C Type="User" Title="Z&amp;&#65;&custom;" U="same" NFCArr=" " Desc="_A__&foo_bar;"/>
+<C Type="Page"><C Type="User" Title="First" Title="Second" U="same" NFCArr="0">
+<C Type="User"/></C></C><C Type="User"/>
+<C Type="user"/><C Type="UserGroup"/><C Type="Us&#101;r"/><Other Type="User"/></Root>"#;
+        let before = xml.to_vec();
+        let users = parse_users(xml).unwrap();
+        assert_eq!(
+            serde_json::to_value(users).unwrap(),
+            serde_json::json!([
+                {"name":"Z&amp;&#65;&custom;","uuid":"same","nfc":true,"description":" A  &foo bar;"},
+                {"name":"First","uuid":"same","nfc":true,"description":""},
+                {"name":"","uuid":"","nfc":false,"description":""},
+                {"name":"","uuid":"","nfc":false,"description":""}
+            ])
+        );
+        assert_eq!(xml.as_slice(), before);
+    }
+
+    #[test]
+    fn user_inventory_utf8_attribute_errors_and_no_dom_repair() {
+        let mut xml = b"\xef\xbb\xbf<Root>\r\n".to_vec();
+        xml.extend_from_slice(
+            "<C Type=\"User\" Title=\"Jörg_東京\" Desc=\"Grüße_世界\"/>".as_bytes(),
+        );
+        xml.extend_from_slice(b"<C Type=\"User\" Title=\"\xff\" Title=\"fallback\" U=\"\xff\" NFCArr=\"\xff\" Desc=\"\xff\"/>");
+        xml.extend_from_slice(b"<C Type=\"\xff\" Type=\"User\"/>");
+        xml.extend_from_slice(b"<C Type=\"User\" broken Title=\"after malformed\"/>");
+        xml.extend_from_slice(br#"<C Type="User" Title='has 12hTF="x"' 12hTF="true"/></Root>"#);
+        let before = xml.clone();
+        let users = parse_users(&xml).unwrap();
+        assert_eq!(users.len(), 4);
+        assert_eq!(users[0].name, "Jörg_東京");
+        assert_eq!(users[0].description, "Grüße 世界");
+        assert_eq!(users[1].name, "");
+        assert_eq!(users[1].uuid, "");
+        assert!(!users[1].nfc);
+        assert_eq!(users[1].description, "");
+        assert_eq!(users[2].name, "after malformed");
+        assert_eq!(users[3].name, "has 12hTF=\"x\"");
+        assert_eq!(xml, before);
+    }
+
+    #[test]
+    fn user_inventory_permissive_eof_and_original_error_chain() {
+        for xml in [b"".as_slice(), b"not XML", b"<Root>"] {
+            assert!(parse_users(xml).unwrap().is_empty());
+        }
+        assert_eq!(parse_users(b"<Root><C Type=\"User\">").unwrap().len(), 1);
+        let error = parse_users(b"<Root><C Type=\"User\"></Root>").unwrap_err();
+        assert_eq!(error.to_string(), "Failed to parse XML");
+        assert!(error.downcast_ref::<quick_xml::Error>().is_some());
+        assert_eq!(
+            format!("{error:#}"),
+            "Failed to parse XML: ill-formed document: expected `</C>`, but `</Root>` was found: expected `</C>`, but `</Root>` was found"
+        );
+    }
 }
 
 #[cfg(test)]

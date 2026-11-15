@@ -65,6 +65,9 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   DeviceInventoryError}` shares the existing default `lox config devices` table
   producer. `--ports`, JSON, `--summary` and `--room` still use the separate
   DOM/editor discovery paths, not this legacy inventory.
+- `configuration::users::{parse_users, UserInfo, UserInventoryError}` shares the
+  existing `lox config users` raw inventory producer only. Its independent DOM
+  direct-permission enrichment, fallback, limits and presentation stay in CLI.
 - Optional `statistics-xml`: `statistics::{parse_series, StatSeries,
   StatisticsError}` decodes monthly statistics XML. The existing `lox stats get`
   producer uses it, while HTTP, selection, merging and formatting stay in the CLI.
@@ -157,6 +160,33 @@ Existing numeric contracts/tests are unchanged.
 This adds no CLI command, Python/JVM operation, frame classifier/reassembler,
 network runtime, subscription, backpressure, timestamp interpretation or
 firmware/native Config qualification.
+
+## Optional read-only XML user inventory
+
+Enable `configuration-xml` and call
+`configuration::users::parse_users(&[u8]) -> Result<Vec<UserInfo>, UserInventoryError>`.
+This extracts existing repository semantics, not new native or authentication
+facts. Exact `C Type="User"` start/empty elements at any depth are inventoried
+in encounter order, with duplicate identities retained and no filtering.
+
+`name`/`uuid` are raw `Title`/`U`; `description` is raw `Desc` with every literal
+underscore replaced by a space. Missing/unreadable fields become empty. `nfc`
+only means raw `NFCArr` is nonempty (even whitespace or `0`), not a validated
+credential. First matching attributes win; invalid UTF-8 defaults independently,
+attribute iterator errors are ignored, and entities are not decoded. Input
+bytes are borrowed and unchanged. Empty/text-only XML and incomplete EOF can
+succeed; reader failures return typed `Xml { source }`, never a partial list.
+
+The CLI unwraps that source before its existing error context, preserving the
+full rendered error chain. It still independently loads the DOM for direct
+permissions, falling back to no permissions if that load fails. Duplicate UUID
+map behavior and raw-SAX versus decoded-DOM UUID differences are unchanged.
+This is producer reuse, not a whole-command migration, permission evaluation,
+XML validation or repair. The `lox-n37w` DOM quote/digit rewrite defect remains
+explicit and untouched. No Python/JVM user API is exposed.
+
+Focused proofs: `cargo test -p lox-core --features configuration-xml --test
+user_inventory` and `cargo test -p lox-cli --test user_inventory_cli`.
 
 ## Optional read-only XML device inventory
 
