@@ -1,8 +1,8 @@
-# Experimental native archive, configuration inspection, numeric, clock, control and color bindings
+# Experimental native archive, configuration inspection, numeric/text, clock, control and color bindings
 
-This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, numeric payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, `numeric_state`, `color`, optional `control_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -29,8 +29,8 @@ all validation, codec math and wire rendering also remain in Core.
 | Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
 | Legacy WSX handshake packet codec | Optional `legacy_wsx` (`legacy-wsx`); typed nonce and complete legacy packet | Existing fast-reload callers share encoding; time, randomness and transport stay in CLI | Unsupported | Unsupported |
 | Complete numeric value-state table payload decoding | Default `numeric_state::decode_value_state_payload`; ordered typed records, raw UUID/native35 and exact f64 bits; strict atomic tail rejection | Unsupported; no existing numeric decoder/caller migrated or new command | `decode_value_state_payload(bytes) -> list[NumericState]` | `LoxArchive.decodeValueStatePayload(byte[]) -> List<NumericState>` |
-| Complete text-state table payload decoding | Default `text_state::decode_text_state_payload`; state/icon `StateUuid`, byte count and exact UTF-8 text; strict atomic bounds/UTF-8 errors, ignored four-byte-alignment padding | Unsupported; no existing decoder/caller migrated or new command | Unsupported | Unsupported |
 | Application binary-message header observation/encoding | Default `message_header`; exact eight-byte header, known-type classification and lossless raw fields, unsigned size and estimated bit; no transport, payload validation or dispatch | Unsupported; new Rust-only primitive, no migrated caller | Unsupported | Unsupported |
+| Complete text-state table payload decoding | Default `text_state::decode_text_state_payload`; state/icon `StateUuid`, byte count and exact UTF-8 text; strict atomic bounds/UTF-8 errors, ignored four-byte-alignment padding | Unsupported; no existing decoder/caller migrated or new command | Candidate `decode_text_state_payload(bytes) -> list[TextState]`; only with matching published artifacts | Candidate `LoxArchive.decodeTextStatePayload(byte[]) -> List<TextState>`; Kotlin uses the same Java API |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
 | Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Unsupported | Unsupported |
@@ -210,7 +210,7 @@ checked Java `NumericStatePayloadException.InvalidLength` (the same Java
 exception in Kotlin), with `actual` and `trailing` lengths widened from Core
 `usize` to u64 under a compile-time guard. No payload or prefix result is exposed.
 There is no framing, authentication, network, callback, subscription,
-statistics/text/weather decoding or CLI migration in this operation.
+statistics/text/weather decoding or CLI migration in this numeric operation.
 
 `numeric_state_smoke.py` and compiled `NumericStateSmoke.java` / `.kt`
 exercise the installed wheel and same-DLL JAR: empty input, known wire/native35
@@ -222,6 +222,79 @@ success RustBuffer and the actual 20-byte two-u64 error buffer, then checks
 serialized buffers are released, not global zero-allocation behavior or
 deterministic disposal of automatic caller-thread status arenas. Existing
 generator corrections and all previous family proofs remain unchanged.
+
+## Payload-only text state heads
+
+This additional native family delegates directly to the **already published**
+`lox_core::text_state::decode_text_state_payload`; no parser, UUID implementation,
+transport, framing, reassembly, type detection or subscription is added to a head.
+The caller supplies an identified, assembled payload with headers removed.
+Core and CLI behavior are unchanged. This candidate requires independent review
+and serialized publication before it is a published package capability.
+
+Python calls `decode_text_state_payload(bytes) -> list[TextState]`; Java and
+Kotlin call `LoxArchive.decodeTextStatePayload(byte[]) -> List<TextState>`.
+Each flat owned record contains:
+
+| Python field | Java accessor (also Kotlin) | Meaning |
+|---|---|---|
+| `uuid_wire_bytes: bytes` | `uuidWireBytes(): byte[]` | All 16 state UUID wire bytes |
+| `uuid_native35: str` | `uuidNative35(): String` | Core's mixed-endian native35 spelling |
+| `icon_uuid_wire_bytes: bytes` | `iconUuidWireBytes(): byte[]` | All 16 icon UUID wire bytes |
+| `icon_uuid_native35: str` | `iconUuidNative35(): String` | Same shared UUID contract |
+| `text_byte_len: int` | `textByteLen(): int` | Declared unsigned u32 **UTF-8 byte** count; Java uses `Integer.toUnsignedLong`, Kotlin `toUInt()` if needed |
+| `text: str` | `text(): String` | Exact valid UTF-8 decoded text |
+
+For `00 01 ... 0f`, native35 is `03020100-0504-0706-08090a0b0c0d0e0f`,
+not RFC36. Empty payload and empty text are valid. Order, duplicates, decomposed
+Unicode, non-BMP characters, and **every in-length embedded/trailing NUL** survive.
+No Unicode normalization, NUL trimming or lossy replacement occurs. A record is
+36 header bytes (state UUID16, icon UUID16, u32 little-endian byte length), text,
+then `(4 - length % 4) % 4` ignored padding bytes; nonzero padding is valid,
+but missing padding is not. Any invalid suffix rejects the **whole payload**,
+never returning a valid prefix. Strict atomicity, strict UTF-8 and NUL retention
+are original Core policies, not upstream bug fixes or firmware qualifications.
+
+Python raises `TextStatePayloadError` variants; Java throws checked
+`TextStatePayloadException` nested subclasses, also caught by Kotlin:
+`TruncatedHeader(record_offset, available)`,
+`LengthOverflow(record_offset, declared)`,
+`TruncatedText(record_offset, declared, available)`,
+`TruncatedPadding(record_offset, expected, available)`,
+`InvalidUtf8(record_offset, valid_up_to, error_len)`.
+Java fields use camelCase accessors. Positions/counts from Core `usize` widen
+to u64 under the existing compile-time platform guard; `declared` stays u32.
+`error_len` is optional (`None` / nullable `Long`); absence means an incomplete
+final UTF-8 sequence. `valid_up_to` is relative to that record's text, while
+`record_offset` is a payload byte offset. Errors expose no payload, text or
+partial records. Branch on typed variants/fields, not diagnostic spelling.
+On the qualified 64-bit platform a u32 declaration cannot cause `LengthOverflow`;
+its exhaustive mapping is Rust-tested, not claimed as a reachable native path.
+
+The snapshots do not retain native handles or require `close`. Host records
+and Java byte arrays are caller-owned, not immutable consistency guarantees.
+Compare UUID bytes and exact UTF-8 bytes explicitly; host container/record
+equality is not an authoritative byte/bit-identity test.
+
+The native builder additively retains all eleven prior families and Clock
+lifecycle proofs. New installed-wheel and compiled JAR/Kotlin tests check empty
+and multi-record input, duplicates, nonzero padding, both complete UUIDs,
+byte-versus-character length, non-BMP/decomposed Unicode, embedded/trailing NUL,
+all reachable typed failures after a valid prefix, and recovery. Each language
+calibrates one live/freed large success RustBuffer and every reachable error
+serialization (including both UTF-8 option cases), then runs 64 public calls
+per path without requesting GC and requires zero retained matching buffers.
+The stack-built test-only error signatures avoid measurement-created matches.
+This is path-specific serialized-buffer ownership, **not global zero allocation**
+or deterministic caller-thread automatic-arena disposal. Existing snapshot-free
+and owned Clock worker Arena-close generator corrections remain unchanged.
+
+Build with the existing `scripts/build-archive-bindings.ps1` command below and
+a **fresh** output directory; its manifest now includes the three text proof logs.
+Qualification remains Windows AMD64, Python 3.13 GIL, JDK22, Kotlin2.4 and the
+same native DLL only. No registry upload, MSRV/other-platform/stable-ABI claim,
+CLI migration, native Config or firmware credit is added (two historical
+native Config qualifications, zero new).
 
 ## Read-only configuration inspection heads
 
