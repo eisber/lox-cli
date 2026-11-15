@@ -1,8 +1,8 @@
 //! Loxone HTTP client, control resolution, and structure cache
 
 use anyhow::{Context, Result, bail};
-use lox_core::autopilot_catalog::AutopilotCatalog;
 pub use lox_core::autopilot_catalog::AutopilotRule;
+use lox_core::autopilot_catalog::{AutopilotCatalog, RuleResolutionError, resolve_rule};
 pub use lox_core::control::{Control, is_uuid};
 use lox_core::control::{
     ControlQuery, IdentifierError, PreparedControlQuery, ResolutionError, matches_text,
@@ -484,21 +484,16 @@ impl LoxClient {
 
     pub fn find_autopilot_rule(&mut self, name_or_uuid: &str) -> Result<AutopilotRule> {
         let rules = self.list_autopilot_rules()?;
-        if is_uuid(name_or_uuid) {
-            return rules
-                .into_iter()
-                .find(|r| r.uuid == name_or_uuid)
-                .context("Autopilot rule UUID not found");
-        }
-        let matches: Vec<AutopilotRule> = rules
-            .into_iter()
-            .filter(|r| matches_text(&r.name, name_or_uuid))
-            .collect();
-        match matches.len() {
-            0 => bail!("No autopilot rule matching '{}'", name_or_uuid),
-            1 => Ok(matches.into_iter().next().unwrap()),
-            _ => {
-                for r in &matches {
+        match resolve_rule(&rules, name_or_uuid) {
+            Ok(rule) => Ok(rule.clone()),
+            Err(RuleResolutionError::UuidNotFound) => {
+                None::<AutopilotRule>.context("Autopilot rule UUID not found")
+            }
+            Err(RuleResolutionError::NotFound) => {
+                bail!("No autopilot rule matching '{}'", name_or_uuid)
+            }
+            Err(RuleResolutionError::Ambiguous { candidates }) => {
+                for r in candidates {
                     eprintln!("  {}", r.name);
                 }
                 bail!("Ambiguous: '{}'", name_or_uuid)
@@ -567,6 +562,144 @@ mod tests {
             pass: "test".into(),
             verify_ssl: Some(false),
             ..Default::default()
+        }
+    }
+
+    #[test]
+    fn autopilot_selector_cached_characterization() {
+        let server = MockServer::start();
+        let unexpected = server.mock(|when, then| {
+            when.any_request();
+            then.status(500);
+        });
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        client.structure = Some(serde_json::json!({"autopilot": {
+            "abcdef01-2345-6789-abcdef0123456789": {"name":"Native","states":{"changed":"raw/\0","history":"<H>" }},
+            "abcdef01-2345-6789-abcd-ef0123456789": {"name":"RFC"},
+            "---------------------": {"name":"Loose"},
+            "empty": {"name":""},
+            "exact": {"name":"Kitchen"},
+            "contains": {"name":"Kitchen Extra"},
+            "unicode": {"name":"Ünicode İ Σ Straße é"},
+            "placeholder": false
+        }}));
+        for (query, expected) in [
+            ("abcdef01-2345-6789-abcdef0123456789", "Native"),
+            ("abcdef01-2345-6789-abcd-ef0123456789", "RFC"),
+            ("---------------------", "Loose"),
+            ("üni", "Ünicode İ Σ Straße é"),
+            ("i\u{307}", "Ünicode İ Σ Straße é"),
+            ("?", "?"),
+        ] {
+            assert_eq!(client.find_autopilot_rule(query).unwrap().name, expected);
+        }
+        let native = client.find_autopilot_rule("Native").unwrap();
+        assert_eq!(native.state_changed, "raw/\0");
+        assert_eq!(native.state_history, "<H>");
+        for (query, message, category) in [
+            ("Kitchen", "Ambiguous: 'Kitchen'", "ambiguous_control"),
+            ("", "Ambiguous: ''", "ambiguous_control"),
+            ("missing", "No autopilot rule matching 'missing'", "error"),
+            (" Kitchen", "No autopilot rule matching ' Kitchen'", "error"),
+            (
+                "Kitchen [Room]",
+                "No autopilot rule matching 'Kitchen [Room]'",
+                "error",
+            ),
+            ("STRASSE", "No autopilot rule matching 'STRASSE'", "error"),
+            ("e\u{301}", "No autopilot rule matching 'e\u{301}'", "error"),
+            ("Ａ", "No autopilot rule matching 'Ａ'", "error"),
+            (
+                "ABCDEF01-2345-6789-ABCDEF0123456789",
+                "Autopilot rule UUID not found",
+                "error",
+            ),
+        ] {
+            let error = client.find_autopilot_rule(query).unwrap_err();
+            assert_eq!(error.to_string(), message);
+            assert_eq!(format!("{error:#}"), message);
+            assert_eq!(error.root_cause().to_string(), message);
+            assert_eq!(error.chain().count(), 1);
+            assert_eq!(crate::categorize_error(&error), category);
+        }
+        client.structure = Some(serde_json::json!({"autopilot":{"only":{"name":""}}}));
+        assert_eq!(client.find_autopilot_rule("").unwrap().uuid, "only");
+        unexpected.assert_hits(0);
+    }
+
+    #[test]
+    fn autopilot_selector_diagnostic_child() {
+        let Ok(query) = std::env::var("LOX_TEST_AUTOPILOT_QUERY") else {
+            return;
+        };
+        let server = MockServer::start();
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        client.structure = Some(serde_json::json!({"autopilot":{
+            "z":{"name":"Same"},
+            "b":{"name":"Same Extra"},
+            "a":{"name":"Same"}
+        }}));
+        let error = client.find_autopilot_rule(&query).unwrap_err();
+        let message = format!("{error:#}");
+        assert_eq!(message, error.to_string());
+        assert_eq!(error.chain().count(), 1);
+        assert_eq!(error.root_cause().to_string(), message);
+        println!("SIMPLE={error}");
+        println!("RICH={message}");
+        println!(
+            "ENVELOPE={}",
+            crate::errors::error_envelope(crate::categorize_error(&error), &message)
+        );
+    }
+
+    #[test]
+    fn autopilot_selector_diagnostics_preserve_lines_and_categories() {
+        for (query, names, message, category) in [
+            (
+                "Same",
+                "  Same\n  Same\n  Same Extra\n",
+                "Ambiguous: 'Same'",
+                "ambiguous_control",
+            ),
+            (
+                "missing",
+                "",
+                "No autopilot rule matching 'missing'",
+                "error",
+            ),
+            (
+                "---------------------",
+                "",
+                "Autopilot rule UUID not found",
+                "error",
+            ),
+        ] {
+            let output = std::process::Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "client::tests::autopilot_selector_diagnostic_child",
+                    "--nocapture",
+                ])
+                .env("LOX_TEST_AUTOPILOT_QUERY", query)
+                .output()
+                .unwrap();
+            assert!(output.status.success(), "{output:?}");
+            assert_eq!(
+                String::from_utf8(output.stderr)
+                    .unwrap()
+                    .replace("\r\n", "\n"),
+                names
+            );
+            let stdout = String::from_utf8(output.stdout).unwrap();
+            assert!(stdout.contains(&format!("SIMPLE={message}")), "{stdout}");
+            assert!(stdout.contains(&format!("RICH={message}")), "{stdout}");
+            let envelope = stdout
+                .lines()
+                .find_map(|line| line.strip_prefix("ENVELOPE="))
+                .unwrap();
+            let envelope: Value = serde_json::from_str(envelope).unwrap();
+            assert_eq!(envelope["error"], category);
+            assert_eq!(envelope["message"], message);
         }
     }
 

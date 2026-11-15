@@ -1,4 +1,6 @@
-use lox_core::autopilot_catalog::{AutopilotCatalog, AutopilotRule, CatalogDecodeError};
+use lox_core::autopilot_catalog::{
+    AutopilotCatalog, AutopilotRule, CatalogDecodeError, RuleResolutionError, resolve_rule,
+};
 use serde_json::{Value, json};
 
 #[test]
@@ -143,4 +145,131 @@ fn invalid_syntax_and_utf8_have_shared_payload_free_coordinates() {
         );
         let _: &dyn std::error::Error = &error;
     }
+}
+fn rule(uuid: &str, name: &str) -> AutopilotRule {
+    AutopilotRule {
+        uuid: uuid.into(),
+        name: name.into(),
+        state_changed: "raw/\0".into(),
+        state_history: "<history>".into(),
+    }
+}
+
+#[test]
+fn selector_uuid_branch_is_loose_raw_and_first_row_wins() {
+    for uuid in [
+        "abcdef01-2345-6789-abcdef0123456789",
+        "abcdef01-2345-6789-abcd-ef0123456789",
+        "---------------------",
+        "a----------------------------------------------",
+    ] {
+        let rows = [
+            rule(uuid, "first"),
+            rule(uuid, "second"),
+            rule("other", uuid),
+        ];
+        assert!(std::ptr::eq(resolve_rule(&rows, uuid).unwrap(), &rows[0]));
+    }
+    let lower = "abcdef01-2345-6789-abcdef0123456789";
+    let upper = lower.to_uppercase();
+    let rows = [rule(lower, &upper)];
+    assert_eq!(
+        resolve_rule(&rows, &upper),
+        Err(RuleResolutionError::UuidNotFound)
+    );
+    for length in [0, 1, 19, 20, 21, 22, 35, 36, 80] {
+        let query = "-".repeat(length);
+        let rows = [rule("opaque", &query)];
+        if length > 20 {
+            assert_eq!(
+                resolve_rule(&rows, &query),
+                Err(RuleResolutionError::UuidNotFound)
+            );
+        } else {
+            assert_eq!(resolve_rule(&rows, &query), Ok(&rows[0]));
+        }
+    }
+    for query in [
+        "gggggggg-gggg-gggg-gggggggggggggggg",
+        "abcdef0123456789abcdef0123456789",
+    ] {
+        let rows = [rule("opaque", query)];
+        assert_eq!(resolve_rule(&rows, query), Ok(&rows[0]));
+    }
+}
+
+#[test]
+fn selector_names_are_substrings_not_identity_ranking_or_distinct_ids() {
+    let rows = [
+        rule("same", "Kitchen Extra"),
+        rule("same", "Kitchen"),
+        rule("third", "Kitchen"),
+        rule("Kitchen", "Unrelated"),
+    ];
+    assert_eq!(
+        resolve_rule(&rows, "Kitchen"),
+        Err(RuleResolutionError::Ambiguous {
+            candidates: vec![&rows[0], &rows[1], &rows[2]]
+        })
+    );
+    assert_eq!(
+        resolve_rule(&rows, "Kitchen [Room]"),
+        Err(RuleResolutionError::NotFound)
+    );
+    assert_eq!(
+        resolve_rule(&rows, "same"),
+        Err(RuleResolutionError::NotFound)
+    );
+    assert_eq!(
+        resolve_rule(&rows, " Kitchen"),
+        Err(RuleResolutionError::NotFound)
+    );
+    let reversed = [rows[2].clone(), rows[1].clone(), rows[0].clone()];
+    assert_eq!(
+        resolve_rule(&reversed, "Kitchen"),
+        Err(RuleResolutionError::Ambiguous {
+            candidates: reversed.iter().collect()
+        })
+    );
+}
+
+#[test]
+fn selector_empty_placeholders_and_unicode_retain_lowercase_only_semantics() {
+    assert_eq!(resolve_rule(&[], ""), Err(RuleResolutionError::NotFound));
+    let rows = [
+        rule("raw/\0", ""),
+        rule("?", "?"),
+        rule("unicode", "Ü İ Σ Straße é"),
+    ];
+    assert_eq!(resolve_rule(&rows[..1], ""), Ok(&rows[0]));
+    assert_eq!(
+        resolve_rule(&rows, ""),
+        Err(RuleResolutionError::Ambiguous {
+            candidates: rows.iter().collect()
+        })
+    );
+    assert_eq!(resolve_rule(&rows, "?"), Ok(&rows[1]));
+    for query in ["ü", "i\u{307}", "σ", "straße", "é"] {
+        assert_eq!(resolve_rule(&rows, query), Ok(&rows[2]));
+    }
+    for query in ["STRASSE", "e\u{301}", "Ｕ", " ü", "ς"] {
+        assert_eq!(
+            resolve_rule(&rows, query),
+            Err(RuleResolutionError::NotFound)
+        );
+    }
+}
+
+#[test]
+fn selector_catalog_stable_ties_are_not_reordered_by_selection() {
+    let bytes =
+        br#"{"autopilot":{"z":{"name":"Same"},"a":{"name":"Same"},"m":{"name":"Same extra"}}}"#;
+    let catalog = AutopilotCatalog::from_loxapp3_json(bytes).unwrap();
+    let RuleResolutionError::Ambiguous { candidates } =
+        resolve_rule(catalog.rules(), "Same").unwrap_err()
+    else {
+        panic!("exact names must not override containing names");
+    };
+    assert_eq!(candidates, catalog.rules().iter().collect::<Vec<_>>());
+    assert!(std::error::Error::source(&RuleResolutionError::NotFound).is_none());
 }
