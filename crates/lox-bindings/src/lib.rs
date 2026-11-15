@@ -12,6 +12,7 @@ mod configuration_diff;
 mod control;
 mod control_catalog;
 mod numeric_state;
+mod structure_metadata;
 mod text_state;
 
 uniffi::setup_scaffolding!();

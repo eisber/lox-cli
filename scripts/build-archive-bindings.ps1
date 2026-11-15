@@ -139,6 +139,21 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-structure-metadata-smoke' $VenvPython @('-I', '-B', 'tests\bindings\structure_metadata_smoke.py', "$Probe.dll")
+Step 'javac-structure-metadata-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\StructureMetadataSmoke.java', 'tests\bindings\NativeMetadataProbe.java')
+Step 'java-structure-metadata-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'StructureMetadataSmoke'))
+$MetadataKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-structure-metadata-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\StructureMetadataSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-structure-metadata.args", $MetadataKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-structure-metadata-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-structure-metadata.args")
+Step 'kotlin-structure-metadata-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-structure-metadata-smoke.jar", 'StructureMetadataSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual new metadata export success/error RustBuffers live1/free0,64 public calls per branch per language retained0; Python + compiledJava22 + compiledKotlin same API'
+} | ConvertTo-Json | Set-Content "$Output\METADATA-MECHANISM.json" -Encoding utf8
 Step 'python-xml-controls-smoke' $VenvPython @('-I', '-B', 'tests\bindings\xml_controls_smoke.py', "$Probe.dll")
 Step 'java-xml-controls-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'XmlControlsSmoke', 'crates\lox-bindings\tests\fixtures\xml_controls.xml'))
 Step 'python-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\catalog_smoke.py', "$Probe.dll")
@@ -264,6 +279,7 @@ $Artifacts += Get-Item "$Output\python-text-state-smoke.log", "$Output\java-text
 $Artifacts += Get-Item "$Output\python-devices-smoke.log", "$Output\java-devices-smoke.log", "$Output\kotlin-devices-smoke.log"
 $Artifacts += Get-Item "$Output\python-users-smoke.log", "$Output\java-users-smoke.log", "$Output\kotlin-users-smoke.log"
 $Artifacts += Get-Item "$Output\python-config-diff-smoke.log", "$Output\java-config-diff-smoke.log", "$Output\kotlin-config-diff-smoke.log"
+$Artifacts += Get-Item "$Output\python-structure-metadata-smoke.log", "$Output\java-structure-metadata-smoke.log", "$Output\kotlin-structure-metadata-smoke.log", "$Output\METADATA-MECHANISM.json"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)

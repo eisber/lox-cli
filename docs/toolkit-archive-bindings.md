@@ -1,8 +1,8 @@
 # Experimental native archive, configuration inspection, numeric/text, clock, control and color bindings
 
-This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog/metadata, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` / `structure_metadata` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -41,6 +41,7 @@ all validation, codec math and wire rendering also remain in Core.
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
 | LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | `select_loxapp3_controls(bytes, ControlFilter) -> list[Control]` | `LoxArchive.selectLoxapp3Controls(byte[], ControlFilter) -> List<Control>` |
 | Runtime LoxApp3 autopilot rule catalog | Optional `autopilot_catalog` (`structure-json`); owned four-field rows, permissive defaults, stable name ordering and shared JSON decode error | Existing cached `list_autopilot_rules` producer delegates; acquisition, rule selection/diagnostics and commands remain head-owned; no whole-command count increase | Unsupported | Unsupported |
+| LoxApp3 metadata snapshot | Optional `structure_metadata` (`structure-json`); typed owned projections | Existing three metadata producers share Core; acquisition/presentation unchanged | Candidate `parse_loxapp3_structure_metadata(bytes) -> StructureMetadata` | Candidate `LoxArchive.parseLoxapp3StructureMetadata(byte[]) -> StructureMetadata`; SAME Java API in Kotlin |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
 | Full token acquisition, control writes and WebSocket events | Not extracted as complete shared operations | Existing binary-private behavior | Unsupported | Unsupported |
 | State subscriptions and event-stream backpressure | No shared event stream exists | No new behavior | Unsupported | Unsupported |
@@ -49,6 +50,44 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Read-only LoxApp3 metadata snapshot candidate
+
+This publication-gated family adds one parse/projection operation over the
+already published Core `StructureMetadata::from_loxapp3_json`. Its plain owned
+`StructureMetadata` record contains collections of `Category(uuid, name)`,
+`GlobalState(name, uuid)` and `OperatingMode(raw_id, name)` records
+(`globalStates`, `operatingModes`, `rawId` in Java). There are no opaque handles,
+three competing parse APIs, full-document model or additional dependencies.
+
+Core alone parses, omits and sorts. Any valid JSON root is accepted: absent or
+non-object maps contribute no entries. Categories require string `name` values;
+global states and modes require string values. Empty/raw identifiers and strings,
+NUL, combining characters, non-ASCII, CRLF and XML-looking text remain unchanged.
+Categories use case-sensitive name order, global states raw state-name order;
+mode ordering uses Rust `i32` parsing with failures as zero, retaining raw IDs.
+Stable ties retain Core's input-map iteration order, which depends on the Core
+serde_json feature set. Bindings do not validate UUIDs, ranges or mode syntax,
+normalize strings or sort again.
+
+Malformed JSON and UTF-8 use the existing Python
+`CatalogDecodeError.InvalidJson(line, column)` / checked Java
+`CatalogDecodeException.InvalidJson` with exact Core positions and no input
+payload. The same Java API is consumed by Kotlin. Collections and strings are
+host-owned and independent of input storage; no credential erasure or immutable
+string disposal guarantee is implied.
+
+`structure_metadata_smoke.py`, compiled `StructureMetadataSmoke.java` and
+`.kt` cover typed values, permissive shapes, raw/empty/Unicode fields, mode
+fallback/tie ordering, existing typed errors and input independence. The actual
+new metadata export is calibrated through its returned success/error RustBuffers:
+the unchanged generic C heap probe reads an actual 128-byte success prefix with
+minimum 64000 bytes; the unchanged catalog-error primitive matches the actual
+20-byte InvalidJson error at line258/column65540. Each branch requires live1,
+explicit-free0 and 64 public calls per language retaining0 without requested GC.
+All fourteen existing native families and Clock lifecycle remain in the builder.
+This adds no network, authentication, permissions, state values, mode editing,
+subscriptions, UI parity, ABI/MSRV/platform or native Config qualification.
 
 ### Read-only user inventory candidate
 
