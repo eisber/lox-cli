@@ -1,8 +1,8 @@
-# Experimental generated native archive, clock and control bindings
+# Experimental native archive, configuration inspection, clock and control bindings
 
-This is a narrow **archive, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, room/summary inspection, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::archive`, `control` and the optional production
+facade over `lox_core::configuration::{archive, rooms, summary}`, `control` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -16,7 +16,9 @@ No head invokes the CLI or runs another protocol stack.
 | Decode raw LoxCC | `decompress_loxcc` | Existing archive extraction | `decompress_loxcc(bytes) -> bytes` | `LoxArchive.decompressLoxcc(byte[]) -> byte[]` |
 | Decode raw LoxCC or select ZIP member | `extract_and_decompress` | Existing backup extraction | `extract_and_decompress(bytes) -> bytes` | `LoxArchive.extractAndDecompress(byte[]) -> byte[]` |
 | Filesystem/config context selection | No implicit operations | Existing CLI behavior | Unsupported; caller owns I/O | Unsupported; caller owns I/O |
-| XML parsing/editing, validation, deployment, sidecars/trust | Optional read-only `configuration::rooms` and `configuration::summary` (`configuration-xml`); remaining capabilities not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
+| Read-only room inventory from raw XML bytes | Optional `configuration::rooms::parse_rooms` (`configuration-xml`) | Existing shared parser; unchanged | `parse_rooms(bytes) -> list[RoomInfo]` | `LoxArchive.parseRooms(byte[]) -> List<RoomInfo>` |
+| Read-only structural summary from raw XML bytes | Optional `configuration::summary::parse_config_summary` (`configuration-xml`) | Existing shared producer for `config diff`; unchanged | `parse_config_summary(bytes) -> ConfigSummary` | `LoxArchive.parseConfigSummary(byte[]) -> ConfigSummary` |
+| Summary comparison/diff, statistics, XML editing, validation, deployment, sidecars/trust | Not exposed by this facade | Existing CLI behavior unchanged | Unsupported | Unsupported |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
@@ -65,6 +67,83 @@ Archive calls are stateless and still prove **nothing** about runtime lifecycle.
 The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
+
+## Read-only configuration inspection heads
+
+These are two thin, synchronous calls to the existing typed Core byte parsers,
+not the shared DOM loader (`lox-n37w`, still open). The binding crate enables
+Core's existing `configuration-xml` feature; default Core consumers, Core source,
+CLI behavior and parser implementations are unchanged. Caller code owns I/O and
+explicit archive decoding. Neither call detects ZIP/LoxCC, repairs XML, normalizes,
+edits, serializes, validates deployability, resolves names or interprets versions.
+
+```python
+import lox_archive as lox
+
+xml = b'<C Type="Place" U="r" Title="Kitchen"><IoData Pr="r"/></C>'
+room = lox.parse_rooms(xml)[0]
+assert (room.uuid, room.name, room.item_count) == ("r", "Kitchen", 1)
+summary = lox.parse_config_summary(xml)
+assert summary.rooms == {"r": "Kitchen"}
+```
+
+Java/Kotlin call `LoxArchive.parseRooms(byte[])` and
+`LoxArchive.parseConfigSummary(byte[])` on the same generated Java API.
+`RoomInfo` has `uuid`, `name`, `item_count` (Java `itemCount()`).
+The native count is an unsigned `u64`, widened from Core `usize` under a
+compile-time width guard. Python receives an arbitrary-precision `int`;
+Java receives a boxed `Long` carrying unsigned bits (use unsigned helpers if
+needed, not signed overflow assumptions). No count narrows to a 32-bit integer.
+
+`ConfigSummary` has **all** Core fields: `version`, `date`,
+`controls: dict[str, ConfigControlEntry]`, `rooms: dict[str, str]`,
+`categories: dict[str, str]`, and `users: list[str]`. Java uses typed
+`Map<String, ConfigControlEntry>`, `Map<String, String>`, `List<String>` and
+records, not JSON. `ConfigControlEntry` has `name`, `control_type`, `room_uuid`
+(Java `controlType()` / `roomUuid()`). All values are host-owned snapshots,
+not retained native handles, and remain usable after input replacement and
+subsequent calls. Maps have **unspecified iteration order**.
+
+The contracts are deliberately **distinct**:
+
+* Inventory recognizes exact-case `C Type="Place"` start/empty elements with
+  readable ID/title, accepting empty strings. Last duplicate UUID title wins.
+  Counts include **every** matching raw `IoData Pr` anywhere, even before room
+  definitions, sensors/devices and blacklisted summary elements; unknown IDs
+  produce no room. Results retain Core's case-sensitive name sort; ties are
+  unordered.
+* Summary retains last duplicate map keys, ordered users including duplicate
+  and empty names, and last version/date (missing attributes reset to empty).
+  Control candidates require readable ID/nonempty title and use Core's exact
+  blacklist, not a facade-maintained whitelist: unknown/empty/case-different
+  types can qualify. A control's `room_uuid` comes only from its **direct**
+  `IoData` children (last readable `Pr`), not inventory counts or nested/sibling
+  metadata. Empty/missing room metadata remains an empty string.
+* Attributes in both are raw readable UTF-8: entity spellings are **not**
+  decoded. BOM/Unicode, ignored invalid attributes, plaintext and permissive
+  EOF remain Core behavior. Success is not strict document validation.
+  Input bytes are not mutated, but this is **not** a round-trip XML preservation
+  or deployment-trust claim.
+
+XML reader failures become Python `ConfigurationError.Xml(source_message)` /
+checked Java `ConfigurationException.Xml` (same exception in Kotlin).
+The exhaustive mappings preserve the underlying reader's text and meaningful
+XML category without error-string parsing, invented positions or added
+validation. No document is logged or attached as an error payload; reader
+diagnostics may contain offending tag names, so callers should still treat
+source text as untrusted. There is no strict-validation/fallback mode.
+
+`config_inspection_smoke.py`, compiled `ConfigInspectionSmoke.java` and `.kt`
+test the installed wheel and same-DLL JAR against one synthetic BOM/Unicode/raw
+entity fixture, every result field, exact blacklist/unknown types, duplicate
+keys, users/order, distinct inventory/direct-parent rules, permissive inputs,
+invalid attributes and typed XML failures. The new Windows heap probe calibrates
+actual serialized success **and** error RustBuffers for each new function.
+After 64 public calls per path/language, none may remain live, without requesting
+GC. This covers nested record/maps/arrays releases; existing archive and clock
+calibrations and lifecycle proofs remain mandatory and unchanged. Caller-thread
+automatic status arenas are still GC fallbacks, **not** deterministic per-call
+or client-close disposal.
 
 ## Pure control selection heads
 

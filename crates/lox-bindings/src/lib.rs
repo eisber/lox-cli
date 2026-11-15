@@ -1,10 +1,12 @@
-//! Thin native archive, clock and control adapters; behavior lives in lox-core.
+//! Thin native archive, configuration inspection, clock and control adapters.
+//! All behavior lives in lox-core.
 //! Generated code and its native library must come from the same build.
 
 use lox_core::configuration::archive;
 use std::error::Error;
 
 mod clock;
+mod configuration;
 mod control;
 
 uniffi::setup_scaffolding!();
