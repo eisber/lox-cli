@@ -70,6 +70,10 @@ Python asyncio and Java/Kotlin futures. Inspection does not expose comparison,
 statistics, validation or editing. Other runtime operations/subscriptions,
 cross-platform qualification and full CLI parity are not claimed. Prototype
 prerequisite compositions remain publication-gated until coherent review/integration.
+The matching native color candidate adds typed offline RGB/HSV/temperature
+encoding and explicit legacy decode/raw-mood observations, available only when
+published with its same-build wheel/JAR/DLL; it adds no Lighting eligibility,
+device qualification, editing or transport parity.
 
 ## Quick Start
 

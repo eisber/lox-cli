@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "lox-archive"
 version = "0.1.0"
-description = "Generated native lox-core archive, strict clock and pure control operations (experimental)"
+description = "Generated native lox-core archive, inspection, strict clock, control and color operations (experimental)"
 requires-python = ">=3.10"
 license = "AGPL-3.0-or-later AND LicenseRef-Commercial"
 license-files = [

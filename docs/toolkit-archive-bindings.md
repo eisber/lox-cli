@@ -1,4 +1,4 @@
-# Experimental native archive, configuration inspection, clock and control bindings
+# Experimental native archive, configuration inspection, clock, control and color bindings
 
 This is a narrow **archive, room/summary inspection, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
@@ -7,6 +7,8 @@ facade over `lox_core::configuration::{archive, rooms, summary}`, `control` and 
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
 No head invokes the CLI or runs another protocol stack.
+The additional offline `color` candidate below remains publication-gated;
+all validation, codec math and wire rendering also remain in Core.
 
 ## Actually exposed capabilities
 
@@ -22,7 +24,7 @@ No head invokes the CLI or runs another protocol stack.
 | XML editing, validation, deployment, sidecars/trust | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Unsupported | Unsupported |
 | Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); timestamps remain opaque | `stats get` shares decoding; acquisition, selection, merging and formatting stay in CLI | Unsupported | Unsupported |
-| Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core | Unsupported | Unsupported |
+| Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
 | Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
 | Legacy WSX handshake packet codec | Optional `legacy_wsx` (`legacy-wsx`); typed nonce and complete legacy packet | Existing fast-reload callers share encoding; time, randomness and transport stay in CLI | Unsupported | Unsupported |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
@@ -74,6 +76,93 @@ Archive calls are stateless and still prove **nothing** about runtime lifecycle.
 The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
+
+## Offline color heads
+
+This additional candidate family is available **only when published** in matching
+wheel/JAR/DLL artifacts, not by mixing it with older native packages. It is
+offline color data, not a new Lighting mode, native Config qualification,
+transport API or whole SDK. Existing raw `set-mood-color`, eligibility, statistics,
+timezone, authentication and protocol behavior are unchanged.
+
+The public calls are synchronous owned-value operations. Python uses
+`encode_color(input, brightness)`; brightness is a **required argument** accepting
+`None` (there is no generated default). `None` delegates to Core: no extra RGB/HSV
+scaling, or temperature brightness 100. Java/Kotlin call
+`LoxArchive.encodeColor(ColorEncodeInput, Double)` with `null` for that option.
+Inputs are `ColorEncodeInput.RGB(red, green, blue)`, `.HSV(ColorHsv(...))`,
+`.TEMPERATURE(kelvin)` in Python; generated Java nested records are `.Rgb`,
+`.Hsv`, `.Temperature`. RGB input channels are floating-point, validated then
+rounded by the same Core factory as text parsing. HSV is degrees/percent.
+Generated Python records are keyword-only, e.g.
+`ColorHsv(hue=120.0, saturation=100.0, value=50.0)`; enum payload constructors
+also accept positional arguments as shown below. Java uses record constructors.
+
+```python
+import lox_archive as lox
+
+result = lox.encode_color(lox.ColorEncodeInput.RGB(255.0, 100.0, 0.0), 50.0)
+assert isinstance(result, lox.ColorEncoded.RGB)
+actor_integer = result.actor.value
+mood_integer = result.mood.value  # Different profile, never interchangeable.
+temperature = lox.encode_color(lox.ColorEncodeInput.TEMPERATURE(2700), None)
+assert temperature.command == "temp(100,2700)"
+```
+
+`ColorEncoded.RGB` / Java `.Rgb` retains `rgb`, `actor`, `mood`, `hsv`,
+`hsv_command` (`hsvCommand()`). Temperature retains `kelvin`, `brightness`,
+`command`; no integer temperature encoding exists. All derived values/command
+rendering come directly from Core, including RGB parse-round then brightness-round,
+hue wrapping, mood percent projection and number spelling.
+
+`ColorRgb` contains signed 32-bit `red/green/blue` outputs (0..255);
+`ColorPercentRgb` is a distinct 32-bit percent-channel record (0..100).
+`ColorHsv` has three doubles `hue/saturation/value`. `ColorActor` retains
+`value: i64` and `rgb`; `ColorMood` retains `value: i64`, `percent`,
+`approximate_rgb` (`approximateRgb()`). Java receives `Integer`, `Long` and
+`Double`, not signed bytes or unsigned-32 packed colors. Kelvin input is signed
+`i64`: checked `u32` representation conversion precedes Core validation.
+Out-of-representation values raise the separate `KelvinRepresentation(value)`;
+representable values still use Core `Kelvin(value)` with 1000..15000 limits.
+There is no truncation of channels, kelvin or raw mood high digits.
+
+Python `decode_color_legacy(spec)` / Java `decodeColorLegacy(String)` returns
+`ColorDecoded.HSV(hsv, rgb)`, `.TEMPERATURE(brightness, kelvin)`, `.RGB(actor)`,
+or `.MOOD(mood)` (Java `.Hsv/.Temperature/.Rgb/.Mood`). These are **observations**:
+HSV and temperature floats may be out of range, NaN, infinities or negative zero.
+They remain actual host doubles, never JSON null or normalized strings.
+`parse_mood_color_legacy(spec)` / `parseMoodColorLegacy(String)` returns
+`ColorMood`; `observe_actor_color_legacy(value)` /
+`observeActorColorLegacy(Long)` returns `ColorActor`. Raw actor modulo validation
+admits some negative/high values rejected by bounded numeric decode. Mood prefix
+classification and percent validation preserve the entire original signed i64,
+including ignored high digits. Strict encoding does not adopt these permissive
+legacy profiles. `color_format_number(value)` / `colorFormatNumber(Double)`
+explicitly calls Core's existing command-number formatter.
+
+Python raises `ColorError` nested variants; Java throws checked `ColorException`
+with the same nested subclasses, also used by Kotlin. Exhaustive field mappings:
+`Arity(value, notation, expected)`, `Number(value, notation)`,
+`RgbChannel(channel, value)`, `HsvRange(value: ColorHsv)`, `Brightness(value)`,
+`Kelvin(value)`, `ActorChannel(value, channel, channel_value)`,
+`MoodChannel(value, channel, channel_value)`, `InvalidValue(value, profile)`,
+`ActorRange(value)`, plus the representation error above. Channel, notation and
+integer-profile fields are typed enums, not parsed diagnostic strings.
+Error float fields preserve nonfinite host values too. Messages are facade
+diagnostics, not a promise of identical Core `Display` spelling.
+
+Installed Python and compiled Java/Kotlin tests use the same binding-crate
+`tests/fixtures/color_profiles.tsv` and exercise typed branches/error
+fields, profile differences, full i64s and nonfinite/negative-zero ownership.
+Every new success/error return path has positive live/released RustBuffer
+calibration and 64 public calls per language with zero retained matching
+buffers, without requesting GC. This is serialized result/error-buffer
+ownership, not deterministic per-call status-arena disposal:
+caller-thread `Arena.ofAuto` remains a GC fallback.
+Existing generator checksum/fail-closed correction, archive/clock/control and
+room/summary tests remain required. Qualification is Windows AMD64, Python 3.13
+GIL, JDK 22 and Kotlin 2.4 only; no new MSRV, ABI, platform, registry or native
+Config credit. Historical native UI qualifications remain two; new credit zero.
 
 ## Read-only configuration inspection heads
 
