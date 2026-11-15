@@ -1898,6 +1898,204 @@ fn config_add_preserves_original() {
 // ── config rooms JSON output ────────────────────────────────────────────────
 
 #[test]
+fn control_inventory_cli_filters_limits_formats_and_raw_loader_boundary() {
+    let dir = tempfile::Builder::new()
+        .prefix(".control-inventory-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let path = dir.path().join("controls.Loxone");
+    let mut bytes = b"\xef\xbb\xbf".to_vec();
+    bytes.extend_from_slice(
+        r#"<Root>
+<C Type="Switch" U="b" Title="Z"><IoData Pr="r" Cr="c"/></C>
+<C Type="Page" U="p" Title='has 12hTF="x"'/><Other><IoData Pr="raw&amp;id"/></Other>
+<C Type="Switch" U="a" Title="A&amp;&#65;"><IoData Pr="r"/></C>
+<C Type="Place" U="r" Title="Old"/><C Type="Place" U="r" Title="KÜCHE"/>
+<C Type="Category" U="c" Title="Light"/>
+</Root>"#
+            .as_bytes(),
+    );
+    fs::write(&path, &bytes).unwrap();
+    let command = || {
+        let mut cmd = lox();
+        cmd.current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .env("LOX_HOME", dir.path().join("home"))
+            .args(["--quiet", "--trace-id", "control-inventory"]);
+        cmd
+    };
+    let all = serde_json::json!([
+        {"control_type":"Page","title":"has 12hTF=\"x\"","uuid":"p","room":"raw&amp;id","category":""},
+        {"control_type":"Switch","title":"A&amp;&#65;","uuid":"a","room":"KÜCHE","category":""},
+        {"control_type":"Switch","title":"Z","uuid":"b","room":"KÜCHE","category":"Light"}
+    ]);
+    for (filters, selected) in [
+        (vec![], all.clone()),
+        (
+            vec!["--type", "sWiTcH", "--room", "küc"],
+            serde_json::json!(&all.as_array().unwrap()[1..]),
+        ),
+        (vec!["--type", ""], serde_json::json!([])),
+        (vec!["--room", "absent"], serde_json::json!([])),
+    ] {
+        for limit in [None, Some(0), Some(1), Some(3), Some(8)] {
+            let mut cmd = command();
+            cmd.args([
+                "--json",
+                "--dry-run",
+                "config",
+                "controls",
+                "controls.Loxone",
+            ])
+            .args(&filters);
+            if let Some(limit) = limit {
+                cmd.args(["--limit", &limit.to_string()]);
+            }
+            let output = cmd.assert().success().get_output().clone();
+            let total = selected.as_array().unwrap().len();
+            let shown = limit.unwrap_or(100).min(total);
+            let expected = if shown < total {
+                serde_json::json!({
+                    "controls": &selected.as_array().unwrap()[..shown],
+                    "truncated": true, "total": total, "shown": shown
+                })
+            } else {
+                selected.clone()
+            };
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&output.stdout).unwrap(),
+                expected
+            );
+            assert_eq!(
+                String::from_utf8(output.stderr).unwrap(),
+                if shown < total {
+                    format!(
+                        "Showing {shown} of {total}. Use --limit to see more or --type/--room to filter.\n"
+                    )
+                } else {
+                    String::new()
+                }
+            );
+        }
+    }
+    let expected = format!(
+        "  {:<20} {:<30} {:<20} {:<20} UUID\n  {:<20} {:<30} {:<20} {:<20} {}\n  {:<20} {:<30} {:<20} {:<20} p\n\n3 controls\n",
+        "Type",
+        "Title",
+        "Room",
+        "Category",
+        "─".repeat(20),
+        "─".repeat(30),
+        "─".repeat(20),
+        "─".repeat(20),
+        "─".repeat(36),
+        "Page",
+        "has 12hTF=\"x\"",
+        "raw&amp;id",
+        ""
+    );
+    for format in ["table", "csv"] {
+        command()
+            .args([
+                "-o",
+                format,
+                "--no-header",
+                "config",
+                "controls",
+                "controls.Loxone",
+                "--limit",
+                "1",
+            ])
+            .assert()
+            .success()
+            .stdout(expected.clone())
+            .stderr("Showing 1 of 3. Use --limit to see more or --type/--room to filter.\n");
+    }
+    assert_eq!(fs::read(path).unwrap(), bytes);
+    assert!(!dir.path().join("home").exists());
+}
+
+#[test]
+fn control_inventory_cli_reader_file_errors_and_permissive_eof() {
+    let dir = tempfile::Builder::new()
+        .prefix(".control-inventory-errors-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let command = || {
+        let mut cmd = lox();
+        cmd.current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .env("LOX_HOME", dir.path().join("home"))
+            .args(["--quiet", "--dry-run"]);
+        cmd
+    };
+    fs::write(
+        dir.path().join("mismatch.Loxone"),
+        "<ControlList><C></ControlList>",
+    )
+    .unwrap();
+    for (file, message) in [
+        (
+            "absent.zip",
+            "Expected a .Loxone XML file. Run `lox config extract absent.zip` first.",
+        ),
+        ("absent.ZIP", "Cannot read absent.ZIP: "),
+        (
+            "mismatch.Loxone",
+            "ill-formed document: expected `</C>`, but `</ControlList>` was found: expected `</C>`, but `</ControlList>` was found",
+        ),
+    ] {
+        let output = command()
+            .args(["--json", "config", "controls", file])
+            .assert()
+            .code(1)
+            .stderr("")
+            .get_output()
+            .clone();
+        let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+        assert_eq!(value["ok"], false);
+        assert_eq!(value["error"], "error");
+        let actual = value["message"].as_str().unwrap();
+        if file == "absent.ZIP" {
+            assert!(actual.starts_with(message), "{actual}");
+        } else {
+            assert_eq!(actual, message);
+        }
+        command()
+            .args(["config", "controls", file])
+            .assert()
+            .code(1)
+            .stdout("")
+            .stderr(format!(
+                "Error: {actual}\n\n{}\n",
+                value["report_hint"].as_str().unwrap()
+            ));
+    }
+    for (file, xml, expected) in [
+        ("text.Loxone", "not XML", serde_json::json!([])),
+        (
+            "open.ZIP",
+            r#"<C Type="Switch" U="u" Title=""><IoData/>"#,
+            serde_json::json!([{"control_type":"Switch","title":"","uuid":"u","room":"","category":""}]),
+        ),
+    ] {
+        fs::write(dir.path().join(file), xml).unwrap();
+        let output = command()
+            .args(["--json", "config", "controls", file])
+            .assert()
+            .success()
+            .stderr("")
+            .get_output()
+            .stdout
+            .clone();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&output).unwrap(),
+            expected
+        );
+    }
+}
+
+#[test]
 fn room_inventory_cli_formats_limits_dry_run_and_raw_loader_boundary() {
     let dir = tempfile::Builder::new()
         .prefix(".room-inventory-")

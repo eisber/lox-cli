@@ -110,8 +110,22 @@ lox config describe file.Loxone --room "Küche"  # single room
 lox config rooms file.Loxone                    # list rooms with item counts
 lox config controls file.Loxone                 # list controls with type/room
 lox config controls file.Loxone -t WeatherData  # filter by type
+lox config controls file.Loxone --room Küche --limit 20
 lox config validate file.Loxone                 # check UUIDs, wiring, orphans
 ```
+
+`config controls` reads the XML file directly using the shared Rust Core's
+optional `configuration-xml` inventory. Type filtering is an ASCII-case-insensitive
+exact match; room filtering is a Unicode-lowercase substring match after name
+resolution. Results sort by type then title before the display limit (default
+100). Missing room/category definitions retain their raw IDs. Lowercase `.zip`
+paths must be extracted first.
+
+This read-only legacy inventory is not XML validation or the online control
+resolver: raw entity spellings are retained, and candidates use the next
+`IoData`, not necessarily a direct child. It does not use or repair the DOM
+editor's loader. See the [Core inventory contract](../../crates/lox-core/README.md#optional-read-only-xml-control-inventory)
+for admission and hierarchy limits.
 
 ### Add blocks & templates
 
