@@ -55,6 +55,8 @@ enum Kind {
     EnergyManager,
     LightController,
     IntercomDevice,
+    /// Camera hardware referenced by an existing compiled intercom controller.
+    ReferencedIntercomCamera,
     /// Any other control that already has a compiled catalogue entry.
     Catalogued,
 }
@@ -69,7 +71,7 @@ impl Kind {
             Kind::Intercom => Some("Intercom"),
             Kind::EnergyManager => Some("EFM"),
             Kind::LightController => Some("LightControllerV2"),
-            Kind::IntercomDevice | Kind::Catalogued => None,
+            Kind::IntercomDevice | Kind::ReferencedIntercomCamera | Kind::Catalogued => None,
         }
     }
 
@@ -102,6 +104,7 @@ impl Kind {
                 ],
                 &[],
             ),
+            Kind::ReferencedIntercomCamera => (&["IntAlertImage", "IntVideoUrl"], &[]),
             Kind::EnergyManager => (&[], &["root"]),
         }
     }
@@ -255,10 +258,11 @@ struct Project<'a> {
     managers: BTreeSet<&'a str>,
     /// Block identities with a compiled catalogue entry.
     catalogued: BTreeSet<String>,
+    intercom_cameras: BTreeSet<&'a str>,
 }
 
 impl<'a> Project<'a> {
-    fn new(root: &'a Element, catalogued: BTreeSet<String>) -> Self {
+    fn new(root: &'a Element, controls: &Map<String, Value>) -> Self {
         let mut blocks = Vec::new();
         descendants(root, "C", &mut blocks);
         let objects = blocks
@@ -270,11 +274,29 @@ impl<'a> Project<'a> {
             .filter(|block| attribute(block, "Type") == Some("EFM"))
             .filter_map(|block| attribute(block, "U"))
             .collect();
+        let catalogued = controls
+            .keys()
+            .map(|key| key.strip_prefix("U:").unwrap_or(key).to_string())
+            .collect();
+        // Hardware can lack its own catalogue entry. Its camera URLs are runtime
+        // details of the compiled Doorcontroller that references it through Ref.
+        let intercom_cameras = blocks
+            .iter()
+            .filter(|block| attribute(block, "Type") == Some("Doorcontroller"))
+            .filter(|block| {
+                entry(controls, block).ok().is_some_and(|entry| {
+                    entry.get("type").and_then(Value::as_str) == Some("Intercom")
+                        && entry.get("uuidAction").and_then(Value::as_str) == attribute(block, "U")
+                })
+            })
+            .filter_map(|block| attribute(block, "Ref"))
+            .collect();
         Self {
             blocks,
             objects,
             managers,
             catalogued,
+            intercom_cameras,
         }
     }
 
@@ -295,6 +317,12 @@ impl<'a> Project<'a> {
                 if attribute(block, "U").is_some_and(|uuid| self.catalogued.contains(uuid)) =>
             {
                 Some(Kind::IntercomDevice)
+            }
+            "IntercomDevice"
+                if attribute(block, "U")
+                    .is_some_and(|uuid| self.intercom_cameras.contains(uuid)) =>
+            {
+                Some(Kind::ReferencedIntercomCamera)
             }
             _ if attribute(block, "U").is_some_and(|uuid| self.catalogued.contains(uuid)) => {
                 Some(Kind::Catalogued)
@@ -447,11 +475,7 @@ pub(super) fn compile(
     permissions: Option<&[u8]>,
 ) -> Result<super::Sidecars> {
     let mut data: Value = serde_json::from_slice(app).context("invalid LoxAPP3.json")?;
-    let catalogued = catalogue(&data)?
-        .keys()
-        .map(|key| key.strip_prefix("U:").unwrap_or(key).to_string())
-        .collect();
-    let project = Project::new(after, catalogued);
+    let project = Project::new(after, catalogue(&data)?);
     let (edits, relinked, removed) = classify(&project, changes)?;
 
     let original = data.clone();
