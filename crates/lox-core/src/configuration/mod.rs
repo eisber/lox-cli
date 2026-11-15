@@ -18,4 +18,7 @@ pub mod rooms;
 pub mod summary;
 
 #[cfg(feature = "configuration-xml")]
+pub mod users;
+
+#[cfg(feature = "configuration-xml")]
 mod xml;

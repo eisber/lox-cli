@@ -39,6 +39,10 @@ reqwest = { version = "0.12", default-features = false, features = ["blocking"] 
 tokio = { version = "1", features = ["rt", "sync", "time", "macros"] }
 
 [[test]]
+name = "user_inventory"
+required-features = ["configuration-xml"]
+
+[[test]]
 name = "device_inventory"
 required-features = ["configuration-xml"]
 
