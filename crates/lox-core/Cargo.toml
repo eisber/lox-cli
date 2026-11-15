@@ -33,6 +33,7 @@ configuration-editor = ["dep:xmltree", "dep:chrono"]
 # UNSTABLE, doc-hidden migration adapter for the legacy binary, never foreign API.
 unstable-legacy-cli-editor = ["configuration-editor"]
 legacy-wsx = []
+legacy-token-reply = ["dep:serde_json"]
 legacy-token-aes = ["dep:aes", "dep:cbc", "dep:base64"]
 auth-hash = ["dep:hmac", "dep:sha1", "dep:sha2", "dep:hex"]
 configuration-xml = ["dep:quick-xml"]
@@ -98,6 +99,10 @@ required-features = ["legacy-wsx"]
 [[test]]
 name = "firmware_metadata"
 required-features = ["firmware-metadata"]
+
+[[test]]
+name = "legacy_token_reply"
+required-features = ["legacy-token-reply"]
 
 [[test]]
 name = "legacy_token_aes"

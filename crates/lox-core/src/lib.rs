@@ -51,6 +51,9 @@ pub mod authentication;
 #[cfg(feature = "legacy-wsx")]
 pub mod legacy_wsx;
 
+#[cfg(feature = "legacy-token-reply")]
+pub mod legacy_token_reply;
+
 #[cfg(feature = "legacy-token-aes")]
 pub mod legacy_token_aes;
 

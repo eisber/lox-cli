@@ -21,6 +21,22 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `legacy-token-reply`: `legacy_token_reply::{parse, Reply, ReplyError,
+  ReplyErrorKind}` is the exact existing token WebSocket LL projection, now used
+  by the CLI's plaintext, key-exchange and encrypted receive helpers through
+  their shared adapter. Only lowercase `code` is read; strings use Rust `u32`
+  parsing, JSON unsigned integers narrow modulo 2^32, and other forms default
+  to zero. A missing `LL` fails; a present non-object `LL` projects zero/empty.
+  Missing values are empty, string values decode unchanged, and other present
+  values use compact serde_json with its enabled object ordering (including
+  `preserve_order`). No success/authentication policy is imposed. Reply Debug
+  redacts the value; errors expose only kind/location by default. Explicit
+  `into_json_error` opts into the original potentially payload-bearing serde
+  diagnostic for legacy CLI error-chain compatibility. This is not the runtime
+  clock/control-read envelope policy, a new secret owner/zeroization guarantee,
+  a whole-command migration or a Python/JVM capability. The feature adds only
+  optional serde_json; default Core dependencies remain unchanged.
+
 - Optional `legacy-token-aes`: `legacy_token_aes::{encrypt, decrypt,
   encrypt_command, DecryptError}` extracts the existing CLI token AES-256-CBC/
   PKCS7 byte codec and deterministic `jdev/sys/enc/` envelope. Keys and IVs are

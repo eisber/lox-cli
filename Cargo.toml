@@ -75,7 +75,7 @@ quick-xml = "0.37"
 crc32fast = "1.5.0"
 xmltree = { version = "0.12.0", features = ["attribute-order"] }
 lox-sim = { path = "lox-sim", version = "0.1.0" }
-lox-core = { path = "crates/lox-core", version = "0.1.0", features = ["runtime-blocking", "configuration-xml", "statistics-xml", "auth-hash", "structure-json", "legacy-wsx", "legacy-token-aes", "unstable-legacy-cli-editor"] }
+lox-core = { path = "crates/lox-core", version = "0.1.0", features = ["runtime-blocking", "configuration-xml", "statistics-xml", "auth-hash", "structure-json", "legacy-wsx", "legacy-token-aes", "legacy-token-reply", "unstable-legacy-cli-editor"] }
 
 [target.'cfg(not(windows))'.dependencies]
 openssl = "0.10"
