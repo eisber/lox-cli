@@ -135,7 +135,7 @@ $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT 
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
 Step 'java-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveAllocationSmoke', "$Output\fixtures"))
-Step 'java-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ConfigInspectionSmoke', 'tests\bindings\config_inspection.xml'))
+Step 'java-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ConfigInspectionSmoke', 'crates\lox-bindings\tests\fixtures\config_inspection.xml'))
 Step 'kotlinc-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-smoke.jar", 'tests\bindings\ArchiveSmoke.kt')
 Step 'kotlin-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\kotlin-smoke.jar", 'ArchiveSmokeKt', "$Output\fixtures"))
 Step 'kotlinc-control-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-control-smoke.jar", 'tests\bindings\ControlSmoke.kt')
@@ -147,7 +147,7 @@ $ConfigKotlinArguments = @('-jvm-target', '22', '-classpath',
     'tests\bindings\ConfigInspectionSmoke.kt')
 [IO.File]::WriteAllLines("$Output\jvm\kotlin-config-inspection.args", $ConfigKotlinArguments, [Text.UTF8Encoding]::new($false))
 Step 'kotlinc-config-inspection-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-config-inspection.args")
-Step 'kotlin-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-config-inspection-smoke.jar", 'ConfigInspectionSmokeKt', 'tests\bindings\config_inspection.xml'))
+Step 'kotlin-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-config-inspection-smoke.jar", 'ConfigInspectionSmokeKt', 'crates\lox-bindings\tests\fixtures\config_inspection.xml'))
 $KotlinArguments = @('-jvm-target', '22', '-classpath',
     ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
     '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-allocation-smoke.jar".Replace('\', '\\') + '"'),

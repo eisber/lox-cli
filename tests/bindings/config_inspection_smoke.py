@@ -7,7 +7,10 @@ import lox_archive as lox
 
 
 assert "RUST_MIN_STACK" not in os.environ
-xml = Path(__file__).with_name("config_inspection.xml").read_bytes()
+xml = (
+    Path(__file__).resolve().parents[2]
+    / "crates" / "lox-bindings" / "tests" / "fixtures" / "config_inspection.xml"
+).read_bytes()
 before = bytes(xml)
 rooms = lox.parse_rooms(xml)
 summary = lox.parse_config_summary(xml)

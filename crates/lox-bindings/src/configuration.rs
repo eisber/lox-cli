@@ -115,7 +115,7 @@ mod tests {
 
     #[test]
     fn every_owned_field_matches_core_without_changing_input_or_order() {
-        let xml = include_bytes!("../../../tests/bindings/config_inspection.xml").to_vec();
+        let xml = include_bytes!("../tests/fixtures/config_inspection.xml").to_vec();
         let before = xml.clone();
         let expected_rooms: Vec<RoomInfo> = rooms::parse_rooms(&xml)
             .unwrap()
