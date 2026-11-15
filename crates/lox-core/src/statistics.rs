@@ -26,6 +26,86 @@ pub struct StatEntry {
     pub label: String,
 }
 
+/// Borrowed identity fields of an index row, independent of its presentation DTO.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct StatisticIdentity<'a> {
+    pub name: &'a str,
+    pub group: Option<u32>,
+    pub uuid: &'a str,
+}
+
+/// Selection failure data; callers own suggestions, context and presentation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StatisticResolutionError<'a> {
+    /// Case-sensitive, sorted and deduplicated inventory of all row names.
+    NotFound { names: Vec<&'a str> },
+    /// Matching identities sorted/deduplicated by `(name, group, uuid)`.
+    Ambiguous {
+        distinct_uuids: usize,
+        candidates: Vec<StatisticIdentity<'a>>,
+    },
+}
+
+impl fmt::Display for StatisticResolutionError<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::NotFound { .. } => f.write_str("no matching statistic identity"),
+            Self::Ambiguous { distinct_uuids, .. } => {
+                write!(f, "query matches {distinct_uuids} statistic identities")
+            }
+        }
+    }
+}
+
+impl std::error::Error for StatisticResolutionError<'_> {}
+
+/// Select one statistic UUID using the existing statistics-index contract.
+///
+/// Only the query is lowercased for the first, raw UUID comparison. Without a
+/// UUID match, Unicode-lowercased names are tried exactly, then by substring.
+/// There is no trimming, UUID validation, normalization, alias or room handling.
+/// Empty queries use this same priority, including empty UUIDs/names. Ambiguity
+/// counts distinct raw UUIDs, not rows, groups or months.
+///
+/// On success callers must select **all** original rows with the returned UUID,
+/// including other names/groups/months, retaining encounter order and duplicates.
+pub fn resolve_identity<'a>(
+    entries: &[StatisticIdentity<'a>],
+    query: &str,
+) -> std::result::Result<&'a str, StatisticResolutionError<'a>> {
+    let q = query.to_lowercase();
+    let mut matches: Vec<_> = entries.iter().filter(|e| e.uuid == q).collect();
+    if matches.is_empty() {
+        matches = entries
+            .iter()
+            .filter(|e| e.name.to_lowercase() == q)
+            .collect();
+    }
+    if matches.is_empty() {
+        matches = entries
+            .iter()
+            .filter(|e| e.name.to_lowercase().contains(&q))
+            .collect();
+    }
+    if matches.is_empty() {
+        let mut names: Vec<_> = entries.iter().map(|e| e.name).collect();
+        names.sort();
+        names.dedup();
+        return Err(StatisticResolutionError::NotFound { names });
+    }
+    let uuids: HashSet<_> = matches.iter().map(|e| e.uuid).collect();
+    if uuids.len() > 1 {
+        let mut candidates: Vec<_> = matches.iter().map(|e| **e).collect();
+        candidates.sort();
+        candidates.dedup();
+        return Err(StatisticResolutionError::Ambiguous {
+            distinct_uuids: uuids.len(),
+            candidates,
+        });
+    }
+    Ok(matches[0].uuid)
+}
+
 /// Parse the Miniserver's existing `/stats/` HTML index grammar without I/O.
 ///
 /// Matching is case-sensitive: exact `<li>` followed by optional whitespace and

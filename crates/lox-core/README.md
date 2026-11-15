@@ -88,7 +88,9 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   StatSeries, StatisticsError, merge_months, MergeMonthsError}` parses the HTML
   index and monthly XML, and concatenates shared series with typed output-label
   mismatches. The actual `lox stats` index, series and merge producers use these;
-  HTTP, month selection and formatting stay in the CLI.
+  `resolve_identity` selects a raw UUID over borrowed `StatisticIdentity` views;
+  `StatisticResolutionError` carries sorted candidate data. HTTP, group/month
+  selection, suggestions and formatting stay in the CLI.
   Merge consumes caller order without date/value validation or sorting, retains
   first-part metadata and all within-part duplicate timestamps, and drops only
   exact opaque timestamps present in earlier parts. Values keep their f64 bits.
@@ -739,6 +741,25 @@ room suffix and then a matching `(Statistic Group: N)` suffix are stripped
 from the name as before. Index parsing is infallible and returns no error for
 omitted entries. The monthly decoder's separate typed errors are unchanged.
 
+`resolve_identity(&[StatisticIdentity], query)` returns a borrowed winning UUID,
+not a filtered row set. The caller must map it back to **all original rows**
+with that UUID, preserving source order and duplicates, even when other names,
+groups or months did not match the query. The CLI keeps its separate serialized
+`StatEntry` DTO and borrows only its name/group/UUID fields for this operation.
+The query alone is Unicode-lowercased: raw stored UUID equality wins, then
+lowercased exact name, then lowercased substring. No trimming, UUID detection,
+canonical normalization, aliases or room qualifiers are applied. Empty queries
+use the same priority, including empty UUIDs/names before substring matching.
+Ambiguity counts distinct raw UUIDs, not rows or groups.
+`StatisticResolutionError` exposes a case-sensitive sorted/deduplicated name
+inventory on no match, or candidate identities sorted/deduplicated by
+`(name, Option<u32> group, uuid)` on ambiguity (`None` before `Some`).
+The CLI still owns its original fuzzy suggestions, help, ambiguity text and
+anyhow context/source chain; it does not display the Core error generically.
+Group ambiguity still fetches newest monthly output labels in the head.
+This is a producer migration only: no additional whole-CLI, native or binding
+workflow qualification is claimed.
+
 This is the decoder for the CLI's `/stats/<file>.xml` monthly route, extracted
 from this project's existing implementation. It reuses optional quick-xml 0.37,
 independently of `configuration-xml`; default features remain empty. There is no
@@ -786,7 +807,7 @@ The CLI maps sources back to its original anyhow chain with no extra wrapper,
 retaining `reading <file>` / `parsing <file>` context, error envelope and exit
 behavior. All months are decoded and merged before output, so a failed later
 month emits no partial table/CSV or success-shaped JSON. HTTP/retry policy,
-Index acquisition/serialization, month range validation, name/group selection, multi-month merging,
+Index acquisition/serialization, month range validation, group selection,
 JSON duplicate-label rejection, output flags and raw downloads remain CLI-owned.
 
 Run `cargo test -p lox-core --features statistics-xml --test statistics_series`

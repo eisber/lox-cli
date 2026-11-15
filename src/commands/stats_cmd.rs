@@ -6,7 +6,10 @@
 
 use anyhow::{Context, Result, bail};
 use clap::Subcommand;
-use lox_core::statistics::{StatSeries, StatisticsError, parse_series};
+use lox_core::statistics::{
+    StatSeries, StatisticIdentity, StatisticResolutionError, StatisticsError, parse_series,
+    resolve_identity,
+};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
@@ -421,50 +424,34 @@ fn list(
 
 /// Resolve a name or uuid to the index entries of exactly one statistic uuid.
 fn resolve<'a>(entries: &'a [StatEntry], query: &str) -> Result<Vec<&'a StatEntry>> {
-    let q = query.to_lowercase();
-    let mut matches: Vec<&StatEntry> = entries.iter().filter(|e| e.uuid == q).collect();
-    if matches.is_empty() {
-        matches = entries
-            .iter()
-            .filter(|e| e.name.to_lowercase() == q)
-            .collect();
-    }
-    if matches.is_empty() {
-        matches = entries
-            .iter()
-            .filter(|e| e.name.to_lowercase().contains(&q))
-            .collect();
-    }
-    if matches.is_empty() {
-        let mut names: Vec<String> = entries.iter().map(|e| e.name.clone()).collect();
-        names.sort();
-        names.dedup();
-        return Err(crate::errors::not_found_error(
-            "Statistic",
-            query,
-            &names,
-            "lox stats ls",
-        ));
-    }
-    let uuids: HashSet<&str> = matches.iter().map(|e| e.uuid.as_str()).collect();
-    if uuids.len() > 1 {
-        let mut candidates: Vec<(&str, Option<u32>, &str)> = matches
-            .iter()
-            .map(|e| (e.name.as_str(), e.group, e.uuid.as_str()))
-            .collect();
-        candidates.sort();
-        candidates.dedup();
-        let lines: Vec<String> = candidates
-            .iter()
-            .map(|(name, group, uuid)| format!("  {name}  group {}  {uuid}", group_label(*group)))
-            .collect();
-        bail!(
-            "Ambiguous: '{query}' matches {} statistics; pass the uuid instead:\n{}",
-            uuids.len(),
-            lines.join("\n")
-        );
-    }
-    let uuid = matches[0].uuid.as_str();
+    let identities: Vec<_> = entries
+        .iter()
+        .map(|e| StatisticIdentity {
+            name: &e.name,
+            group: e.group,
+            uuid: &e.uuid,
+        })
+        .collect();
+    let uuid = resolve_identity(&identities, query).map_err(|error| match error {
+        StatisticResolutionError::NotFound { names } => {
+            let names: Vec<String> = names.into_iter().map(str::to_owned).collect();
+            crate::errors::not_found_error("Statistic", query, &names, "lox stats ls")
+        }
+        StatisticResolutionError::Ambiguous {
+            distinct_uuids,
+            candidates,
+        } => {
+            let lines: Vec<String> = candidates
+                .iter()
+                .map(|e| format!("  {}  group {}  {}", e.name, group_label(e.group), e.uuid))
+                .collect();
+            anyhow::anyhow!(
+                "Ambiguous: '{query}' matches {} statistics; pass the uuid instead:\n{}",
+                distinct_uuids,
+                lines.join("\n")
+            )
+        }
+    })?;
     Ok(entries.iter().filter(|e| e.uuid == uuid).collect())
 }
 
@@ -638,6 +625,97 @@ mod tests {
 
     const UUID_A: &str = "1a2b3c4d-0001-0002-ffff0123456789ab";
     const UUID_B: &str = "1a2b3c4d-0003-0004-ffffabcdef012345";
+
+    fn identity_entry(uuid: &str, name: &str, group: Option<u32>, month: &str) -> StatEntry {
+        StatEntry {
+            file: format!("{uuid}.{month}.xml"),
+            uuid: uuid.into(),
+            group,
+            month: month.into(),
+            name: name.into(),
+            label: name.into(),
+        }
+    }
+
+    #[test]
+    fn identity_characterization_priority_and_original_all_rows() {
+        let entries = vec![
+            identity_entry("winner", "Renamed", Some(8), "2026-12"),
+            identity_entry("other", "winner", None, "2026-11"),
+            identity_entry("winner", "Heat", None, "2026-10"),
+            identity_entry("third", "Heat Pump", None, "2026-09"),
+            identity_entry("winner", "Heat", Some(2), "2026-08"),
+            identity_entry("winner", "Heat", Some(2), "2026-08"),
+        ];
+        for query in ["WINNER", "hEaT", "renam"] {
+            let selected = resolve(&entries, query).unwrap();
+            assert_eq!(selected.len(), 4);
+            for (row, index) in selected.iter().zip([0, 2, 4, 5]) {
+                assert!(std::ptr::eq(*row, &entries[index]));
+            }
+        }
+    }
+
+    #[test]
+    fn identity_characterization_distinct_uuid_and_exact_ambiguity_chain() {
+        let entries = vec![
+            identity_entry("z", "Same", Some(2), "2026-12"),
+            identity_entry("z", "Same", None, "2026-11"),
+            identity_entry("a", "Same", Some(1), "2026-10"),
+            identity_entry("z", "Same", Some(2), "2026-09"),
+            identity_entry("a", "same", None, "2026-08"),
+        ];
+        let expected = "Ambiguous: 'sAmE' matches 2 statistics; pass the uuid instead:\n  Same  group -  z\n  Same  group 1  a\n  Same  group 2  z\n  same  group -  a";
+        let error = resolve(&entries, "sAmE").unwrap_err();
+        assert_eq!(error.to_string(), expected);
+        assert_eq!(error.chain().count(), 1);
+        let error = error.context("caller context");
+        assert_eq!(format!("{error:#}"), format!("caller context: {expected}"));
+        assert_eq!(error.chain().count(), 2);
+        assert_eq!(resolve(&entries[..2], "").unwrap().len(), 2);
+        assert!(resolve(&entries, "").is_err());
+    }
+
+    #[test]
+    fn identity_characterization_raw_unicode_uuid_case_and_not_found_help() {
+        let entries = vec![
+            identity_entry("ABC", "Upper", None, "1"),
+            identity_entry("lower", "İSTANBUL", None, "2"),
+            identity_entry("accent", "Café", None, "3"),
+        ];
+        assert_eq!(resolve(&entries, "İstanbul").unwrap()[0].uuid, "lower");
+        for query in ["ABC", " Cafe\u{301}", "Café ", "Istanbul", "cafe\u{301}"] {
+            assert!(resolve(&entries, query).is_err(), "{query}");
+        }
+        let rows = vec![
+            identity_entry("a", "Heat Pump", None, "1"),
+            identity_entry("a", "Heat Pump", Some(1), "2"),
+            identity_entry("b", "Kitchen", None, "1"),
+        ];
+        let expected = "Statistic 'Heat Pum' not found. Did you mean: Heat Pump?\n  Available: Heat Pump, Kitchen";
+        let error = resolve(&rows, "Heat Pum ").unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            expected.replace("'Heat Pum'", "'Heat Pum '")
+        );
+        assert_eq!(error.chain().count(), 1);
+        let expected = error.to_string();
+        assert_eq!(
+            format!("{:#}", error.context("reading selection")),
+            format!("reading selection: {expected}")
+        );
+        let names: Vec<_> = (0..21)
+            .map(|i| identity_entry(&format!("{i}"), &format!("Name{i:02}"), None, "1"))
+            .collect();
+        assert_eq!(
+            resolve(&names, "zzzzzzzzzz").unwrap_err().to_string(),
+            "Statistic 'zzzzzzzzzz' not found.\n  21 options available. Run: lox stats ls"
+        );
+        assert_eq!(
+            resolve(&[], "Original QUERY").unwrap_err().to_string(),
+            "Statistic 'Original QUERY' not found.\n  Available: "
+        );
+    }
 
     const INDEX: &str = r#"<html><head><title>Statistics</title><link href="styles.css" rel="stylesheet"></head><body><ul>
 <li><a href="1a2b3c4d-0001-0002-ffff0123456789ab_2.202609.xml">Heat Pump (Statistic Group: 2) (Energy, Utility Room) 202609</a></li>
