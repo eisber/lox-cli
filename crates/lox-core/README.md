@@ -21,6 +21,10 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- `color`: offline typed RGB/HSV/temperature encoding, distinct actor composites
+  and LightsceneC percent mood values, and explicit existing-profile
+  `decode_legacy` / `parse_mood_legacy` observations. The actual CLI color
+  encode/decode producers and raw configuration mood parser use this family.
 - `configuration::archive::{compress_loxcc, decompress_loxcc,
   extract_and_decompress}`: in-memory LoxCC/LxRes and backup ZIP byte codecs.
 - Typed `ArchiveError`/`Result`, including header/back-reference fields and
@@ -57,6 +61,53 @@ start a runtime or normalize XML. Arbitrary decoded archive bytes are
 preserved, including BOM, mixed line endings, duplicate attributes and non-UTF-8
 data. Default features are empty; archive-only consumers do not depend on
 reqwest/Tokio/serde_json through the library's normal dependencies.
+
+## Offline color codecs
+
+```rust
+use lox_core::color::{encode, EncodeInput, EncodedColor, Rgb, ColorError};
+
+fn dim_amber() -> Result<i64, ColorError> {
+    let input = EncodeInput::Rgb(Rgb::parse("255,100,0")?);
+    match encode(input, Some(50.0))? {
+        EncodedColor::Rgb(rgb) => Ok(rgb.actor_composite().value()),
+        EncodedColor::Temperature(_) => unreachable!(),
+    }
+}
+```
+
+This default-feature, pure-std family has no new dependencies. `Rgb` byte
+channels pack as `R + G*1000 + B*1000000`; `MoodValue` instead packs rounded
+percent channels plus `0x60000000`. These are distinct result types, both with
+`i64` storage. RGB floating inputs round to bytes **before** optional brightness
+scaling and its second rounding. `Hsv` uses degrees and percent; `encode`
+validates H 0..360, S/V and brightness 0..100. Temperature encoding validates
+brightness first and kelvin 1000..15000, and produces only a `temp(...)` string.
+The CLI retains its old approximate 2700..6500 error hint.
+
+`decode_legacy` and `parse_mood_legacy` deliberately preserve the old,
+asymmetric observations: HSV conversion wraps hue and saturates float-to-byte
+casts without encode validation, including NaN/infinities. Temperature/lumitech
+decode parses floats without range/finite validation; negative zero is retained.
+Function names are ASCII-case-insensitive with outer whitespace trimmed, but
+whitespace before `(` is not accepted. `format_number` retains the existing
+wire spelling (including its near-integer and negative-zero behavior).
+
+Numeric decode checks the mood prefix first, then the bounded actor range
+0..255255255. Raw mood parsing instead checks modulo actor channels without that
+global range limit, including some negative integers. Moods validate percent
+channels modulo 1000 but preserve the complete original `i64`, including ignored
+high digits; neither path narrows to `u32`. These compatibility profiles are
+not generalized native/device color validity or Lighting mode eligibility.
+The raw `config set-mood-color` and `add-mood` contract stays raw; the separate
+mode-aware Lighting algorithms are unchanged.
+
+`ColorError` exposes typed parse notation, channel, value and profile context;
+legacy float parser errors have no source, as before. CLI selection/flag errors,
+legacy flag wording, human/JSON/hex rendering, filesystem/context and exit policy
+stay in the binary. No Python/JVM/native color head is provided or qualified.
+Run `cargo test -p lox-core --test color` and
+`cargo test -p lox-cli --bin lox --test color_codec_cli color_`.
 
 ## Optional monthly statistics decoder
 
