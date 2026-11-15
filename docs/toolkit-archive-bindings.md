@@ -18,7 +18,8 @@ No head invokes the CLI or runs another protocol stack.
 | XML parsing/editing, validation, deployment, sidecars/trust | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
 | HTTP clock observation and validation | Optional `ClockClient` / `ClockDriver` | `live time` uses shared runtime with explicit legacy compatibility | Unsupported | Unsupported |
 | Clock cancellation and runtime close | Caller-owned async client or explicitly owned blocking driver | Per-command owned driver; no new cancellation command | Unsupported/unproved | Unsupported/unproved |
-| Token auth/crypto, controls, WebSocket events | Not extracted | Existing binary-private behavior | Unsupported | Unsupported |
+| In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver producer uses core; acquisition/formatting stay in CLI | Unsupported | Unsupported |
+| Token auth/crypto, control transport, WebSocket events | Not extracted | Existing binary-private behavior | Unsupported | Unsupported |
 | State subscriptions and event-stream backpressure | Not extracted | No new behavior | Unsupported/unproved | Unsupported/unproved |
 
 Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns

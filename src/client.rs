@@ -1,6 +1,10 @@
 //! Loxone HTTP client, control resolution, and structure cache
 
 use anyhow::{Context, Result, bail};
+pub use lox_core::control::{Control, is_uuid};
+use lox_core::control::{
+    ControlQuery, IdentifierError, PreparedControlQuery, ResolutionError, matches_text,
+};
 use reqwest::blocking::Client;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -107,19 +111,6 @@ pub struct AutopilotRule {
     pub uuid: String,
     pub state_changed: String,
     pub state_history: String,
-}
-
-// ── Control ───────────────────────────────────────────────────────────────────
-
-#[derive(Debug, Clone)]
-pub struct Control {
-    pub name: String,
-    pub uuid: String,
-    pub typ: String,
-    pub room: Option<String>,
-    pub cat: Option<String>,
-    pub is_favorite: bool,
-    pub is_secured: bool,
 }
 
 // ── LoxClient ─────────────────────────────────────────────────────────────────
@@ -458,25 +449,17 @@ impl LoxClient {
                     .and_then(|f| f.as_bool())
                     .unwrap_or(false);
                 if let Some(tf) = type_filter
-                    && !typ.to_lowercase().contains(&tf.to_lowercase())
+                    && !matches_text(&typ, tf)
                 {
                     continue;
                 }
                 if let Some(rf) = room_filter
-                    && !room
-                        .as_deref()
-                        .unwrap_or("")
-                        .to_lowercase()
-                        .contains(&rf.to_lowercase())
+                    && !matches_text(room.as_deref().unwrap_or(""), rf)
                 {
                     continue;
                 }
                 if let Some(cf) = cat_filter
-                    && !cat
-                        .as_deref()
-                        .unwrap_or("")
-                        .to_lowercase()
-                        .contains(&cf.to_lowercase())
+                    && !matches_text(cat.as_deref().unwrap_or(""), cf)
                 {
                     continue;
                 }
@@ -521,45 +504,16 @@ impl LoxClient {
         name_or_uuid: &str,
         room_filter: Option<&str>,
     ) -> Result<String> {
-        if is_uuid(name_or_uuid) {
-            return Ok(name_or_uuid.to_string());
-        }
-        if let Some(uuid) = self.cfg.aliases.get(name_or_uuid) {
-            return Ok(uuid.clone());
-        }
-        let (name_part, room_part) = if let Some(idx) = name_or_uuid.rfind('[') {
-            if name_or_uuid.ends_with(']') {
-                let name = name_or_uuid[..idx].trim();
-                let room = &name_or_uuid[idx + 1..name_or_uuid.len() - 1];
-                (name, Some(room))
-            } else {
-                (name_or_uuid, None)
-            }
-        } else {
-            (name_or_uuid, None)
+        let query = match ControlQuery::prepare(name_or_uuid, room_filter, &self.cfg.aliases) {
+            PreparedControlQuery::Resolved(control) => return Ok(control.uuid),
+            PreparedControlQuery::Catalog(query) => query,
         };
-        let effective_room = room_part.or(room_filter);
         let controls = self.list_controls(None, None)?;
-        let matches: Vec<&Control> = controls
-            .iter()
-            .filter(|c| c.name.to_lowercase().contains(&name_part.to_lowercase()))
-            .filter(|c| {
-                if let Some(rf) = effective_room {
-                    c.room
-                        .as_deref()
-                        .unwrap_or("")
-                        .to_lowercase()
-                        .contains(&rf.to_lowercase())
-                } else {
-                    true
-                }
-            })
-            .collect();
-        match matches.len() {
-            0 => bail!("No control matching '{}'", name_or_uuid),
-            1 => Ok(matches[0].uuid.clone()),
-            _ => {
-                for c in &matches {
+        match query.resolve(&controls) {
+            Ok(control) => Ok(control.uuid),
+            Err(ResolutionError::NotFound { query }) => bail!("No control matching '{}'", query),
+            Err(ResolutionError::Ambiguous { query, candidates }) => {
+                for c in &candidates {
                     eprintln!(
                         "  {:40} [{}]  {}",
                         c.name,
@@ -569,7 +523,7 @@ impl LoxClient {
                 }
                 bail!(
                     "Ambiguous: '{}'. Use [Room] qualifier or --room flag.",
-                    name_or_uuid
+                    query
                 )
             }
         }
@@ -660,7 +614,7 @@ impl LoxClient {
         }
         let matches: Vec<AutopilotRule> = rules
             .into_iter()
-            .filter(|r| r.name.to_lowercase().contains(&name_or_uuid.to_lowercase()))
+            .filter(|r| matches_text(&r.name, name_or_uuid))
             .collect();
         match matches.len() {
             0 => bail!("No autopilot rule matching '{}'", name_or_uuid),
@@ -697,7 +651,7 @@ impl LoxClient {
         }
         let matches: Vec<Control> = controls
             .into_iter()
-            .filter(|c| c.name.to_lowercase().contains(&name_or_uuid.to_lowercase()))
+            .filter(|c| matches_text(&c.name, name_or_uuid))
             .collect();
         match matches.len() {
             0 => bail!("No control matching '{}'", name_or_uuid),
@@ -712,23 +666,15 @@ impl LoxClient {
     }
 }
 
-pub fn is_uuid(s: &str) -> bool {
-    s.len() > 20 && s.contains('-') && s.chars().all(|c| c.is_ascii_hexdigit() || c == '-')
-}
-
 /// Validate that a UUID is safe to embed in a URL path.
 /// Rejects path traversal attempts and non-hex characters.
 pub fn validate_uuid(uuid: &str) -> Result<()> {
-    if uuid.is_empty() || uuid.len() > 50 {
-        bail!("Invalid UUID length: '{}'", uuid);
+    match lox_core::control::validate_uuid(uuid) {
+        Ok(()) => Ok(()),
+        Err(IdentifierError::InvalidLength) => bail!("Invalid UUID length: '{}'", uuid),
+        Err(IdentifierError::InvalidCharacters) => bail!("Invalid characters in UUID: '{}'", uuid),
+        Err(IdentifierError::NonHex) => bail!("UUID contains non-hex characters: '{}'", uuid),
     }
-    if uuid.contains("..") || uuid.contains('/') || uuid.contains('\\') || uuid.contains('%') {
-        bail!("Invalid characters in UUID: '{}'", uuid);
-    }
-    if !uuid.chars().all(|c| c.is_ascii_hexdigit() || c == '-') {
-        bail!("UUID contains non-hex characters: '{}'", uuid);
-    }
-    Ok(())
 }
 
 #[cfg(test)]
@@ -851,6 +797,78 @@ mod tests {
     }
 
     // ── resolve_with_room ─────────────────────────────────────────────────────
+
+    #[test]
+    fn test_resolve_priority_bypasses_structure() {
+        let server = MockServer::start();
+        let structure = server.mock(|when, then| {
+            when.method(GET).path("/data/LoxApp3.json");
+            then.status(500);
+        });
+        let mut cfg = mock_config(&server);
+        let native = "1fbc668c-005c-7471-ffffed57184a04d2";
+        let rfc = "1fbc668c-005c-7471-ffff-ed57184a04d2";
+        let permissive = "---------------------";
+        for id in [native, rfc, permissive] {
+            cfg.aliases.insert(id.into(), "must-not-win".into());
+        }
+        cfg.aliases
+            .insert("Light [Room]".into(), "../opaque".into());
+        let mut client = LoxClient::new(cfg).unwrap();
+        for id in [native, rfc, permissive] {
+            assert_eq!(client.resolve_with_room(id, Some("ignored")).unwrap(), id);
+        }
+        assert_eq!(
+            client
+                .resolve_with_room("Light [Room]", Some("ignored"))
+                .unwrap(),
+            "../opaque"
+        );
+        assert!(client.structure.is_none());
+        structure.assert_hits(0);
+    }
+
+    #[test]
+    fn test_resolve_substring_empty_and_literal_room_semantics() {
+        let server = MockServer::start();
+        let mut client = LoxClient::new(mock_config(&server)).unwrap();
+        client.structure = Some(serde_json::json!({
+            "rooms": { "r1": { "name": "KÜCHE" }, "r2": { "name": " Küche " } },
+            "controls": {
+                "u1": { "name": "Licht", "room": "r1" },
+                "u2": { "name": "Licht Extra", "room": "r2" },
+                "u3": { "name": "Other" },
+                "u4": { "name": "Panel [West]", "room": "r1" }
+            }
+        }));
+        client
+            .cfg
+            .aliases
+            .insert("LICHT".into(), "alias-only".into());
+        assert_eq!(client.resolve("LICHT").unwrap(), "alias-only");
+        assert_eq!(
+            client.resolve("Licht").unwrap_err().to_string(),
+            "Ambiguous: 'Licht'. Use [Room] qualifier or --room flag."
+        );
+        assert_eq!(
+            client
+                .resolve_with_room(" Licht [ küche ]", Some("missing"))
+                .unwrap(),
+            "u2"
+        );
+        assert_eq!(client.resolve("Panel [West] [küche]").unwrap(), "u4");
+        assert_eq!(client.resolve_with_room("", Some(" küche ")).unwrap(), "u2");
+        assert_eq!(
+            client
+                .resolve_with_room("Other []", Some("missing"))
+                .unwrap(),
+            "u3"
+        );
+        assert_eq!(
+            client.resolve(" Licht ").unwrap_err().to_string(),
+            "No control matching ' Licht '"
+        );
+    }
 
     #[test]
     fn test_resolve_exact_match() {

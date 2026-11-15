@@ -7,6 +7,98 @@ fn lox() -> Command {
     command
 }
 
+#[test]
+fn control_resolution_preserves_cli_errors_and_candidate_order() {
+    use httpmock::{Method::GET, MockServer};
+    use serde_json::{Value, json};
+    use std::fs;
+
+    let dir = tempfile::Builder::new()
+        .prefix(".control-resolution-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let server = MockServer::start();
+    fs::create_dir(dir.path().join("home")).unwrap();
+    let config = dir.path().join("config.yaml");
+    fs::write(
+        &config,
+        format!(
+            "host: {}\nuser: test\npass: synthetic-only\nverify_ssl: true\ntelemetry: false\n",
+            server.base_url()
+        ),
+    )
+    .unwrap();
+    let structure = server.mock(|when, then| {
+        when.method(GET).path("/data/LoxApp3.json");
+        then.json_body(json!({
+            "rooms": {"r": {"name": "Room"}},
+            "controls": {
+                "first-key": {"name": "Light Extra", "room": "r"},
+                "last-key": {"name": "Light"}
+            }
+        }));
+    });
+    for (query, category, message, candidates) in [
+        (
+            "Light",
+            "ambiguous_control",
+            "Ambiguous: 'Light'. Use [Room] qualifier or --room flag.",
+            format!(
+                "  {:40} [-]  last-key\n  {:40} [Room]  first-key\n",
+                "Light", "Light Extra"
+            ),
+        ),
+        (
+            "Missing",
+            "control_not_found",
+            "No control matching 'Missing'",
+            String::new(),
+        ),
+    ] {
+        for json_output in [false, true] {
+            let mut command = lox();
+            command
+                .current_dir(dir.path())
+                .env("LOX_CONFIG", &config)
+                .env("LOX_HOME", dir.path().join("home"))
+                .env("HOME", dir.path().join("home"))
+                .env("USERPROFILE", dir.path().join("home"))
+                .env_remove("HOMEDRIVE")
+                .env_remove("HOMEPATH")
+                .env_remove("LOX_HOST")
+                .env_remove("LOX_USER")
+                .env_remove("LOX_PASS")
+                .env_remove("LOX_SERIAL")
+                .env("HTTP_PROXY", server.base_url())
+                .env("HTTPS_PROXY", server.base_url())
+                .env("ALL_PROXY", server.base_url())
+                .env("NO_PROXY", "127.0.0.1,localhost")
+                .timeout(std::time::Duration::from_secs(15))
+                .args(["--quiet", "--no-color", "live", "get", query]);
+            if json_output {
+                command.arg("--json");
+            }
+            let assertion = command.assert().code(1);
+            let output = assertion.get_output();
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            assert!(stderr.starts_with(&candidates), "{stderr}");
+            if json_output {
+                let envelope: Value = serde_json::from_slice(&output.stdout).unwrap();
+                assert_eq!(envelope["error"], category);
+                assert_eq!(envelope["message"], message);
+                assert_eq!(stderr, candidates);
+            } else {
+                assert!(output.stdout.is_empty());
+                assert!(
+                    stderr[candidates.len()..].starts_with(&format!("Error: {message}\n")),
+                    "{stderr}"
+                );
+            }
+        }
+    }
+    structure.assert_hits(4);
+}
+
 // ── Top-level --help and --version ─────────────────────────────────────────
 
 #[test]

@@ -32,12 +32,60 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   explicit validation, cancellation, HTTP errors and bounded close.
 - Optional `runtime-blocking` feature: `ClockDriver`, the explicitly owned
   blocking facade used by `lox live time`.
+- `control`: typed in-memory query preparation, catalog resolution and identifier
+  validation. The existing CLI `LoxClient::resolve`/`resolve_with_room` producer
+  uses this core, including `lox live get` and write-gated `lox live set`.
 
 The library does not read files, select a connection context, print, implicitly
 start a runtime or parse/normalize XML. Arbitrary decoded archive bytes are
 preserved, including BOM, mixed line endings, duplicate attributes and non-UTF-8
 data. Default features are empty; archive-only consumers do not depend on
 reqwest/Tokio/serde_json through the library's normal dependencies.
+
+## In-memory control resolution
+
+```rust
+use std::collections::HashMap;
+use lox_core::control::{Control, ControlQuery, PreparedControlQuery, ResolutionError};
+
+fn resolve(
+    raw: &str,
+    room: Option<&str>,
+    aliases: &HashMap<String, String>,
+    load_catalog: impl FnOnce() -> Vec<Control>,
+) -> Result<String, ResolutionError> {
+    match ControlQuery::prepare(raw, room, aliases) {
+        PreparedControlQuery::Resolved(control) => Ok(control.uuid),
+        PreparedControlQuery::Catalog(query) => {
+            query.resolve(&load_catalog()).map(|control| control.uuid)
+        }
+    }
+}
+```
+
+Preparation performs no I/O: legacy identifier detection wins **before** exact,
+case-sensitive raw alias lookup. Both bypass catalog loading; alias values are
+returned verbatim, not recursively resolved or validated. Only afterward does a
+trailing `]` enable the rightmost `[` qualifier: the name is trimmed, the room is
+not, and the inline room overrides the separate room filter, even when empty.
+Names and rooms use Unicode `to_lowercase()` substring comparison, not ranking
+or Unicode case folding. An exact full name can therefore still be ambiguous.
+Empty queries/rooms remain accepted; a missing room is an empty string for matching.
+
+The caller supplies typed `Control` records and their order. The CLI retains JSON
+structure mapping, name sorting, cache/context selection and all candidate/error
+formatting. Core ambiguity errors carry ordered candidate records, without
+printing. Catalog and alias IDs remain opaque; `is_uuid` intentionally retains
+the permissive legacy hex/dash detector (not a UUID parser). Separate
+`validate_uuid` preserves the command URL-path guard, including its distinct
+length/character rules. It is not automatically applied to aliases/catalog IDs.
+The CLI still validates `send_cmd`/`get_all` at their original call sites.
+
+This Rust API is available with default features and adds no dependencies.
+Python and the shared Java/Kotlin API do **not** expose control resolution yet;
+that requires actual generated native bindings and their own validation. This
+does not migrate all CLI commands, `find_control`'s distinct lookup contract,
+structure parsing, or another protocol stack, and establishes no stable FFI/ABI.
 
 ## Compatibility, not strict validation
 
@@ -155,13 +203,13 @@ qualification is implied.
 XML parsing/editing, runtime operations beyond this HTTP clock read, token/crypto/
 WebSocket authentication, subscriptions, and Python or Java/Kotlin native bindings
 are **not** exposed through `lox-core`. Existing CLI capabilities outside the
-archive and clock verticals remain binary-private. No cross-head parity, native
+archive, clock and this control-resolution family remain binary-private. No cross-head parity, native
 package availability or ABI stability is claimed. The approved generated UniFFI
 Python / one Java 22+ FFM API direction is unchanged; this stage adds no bindings.
 Archive byte guarantees and private deployment/sidecar policies are unchanged;
 shared-loader issue `lox-n37w` remains unresolved and is not broadened here.
 
-Run `cargo test -p lox-core` for offline codecs, or
+Run `cargo test -p lox-core` for offline codecs and in-memory resolution, or
 `cargo test -p lox-core --all-features` for the clock tests too. This stage is
 validated on Windows AMD64; other platforms are not newly qualified by it.
 
