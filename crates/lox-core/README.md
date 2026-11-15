@@ -203,8 +203,9 @@ length/character rules. It is not automatically applied to aliases/catalog IDs.
 The CLI still validates `send_cmd`/`get_all` at their original call sites.
 
 This Rust API is available with default features and adds no dependencies.
-Python and the shared Java/Kotlin API do **not** expose control resolution yet;
-that requires actual generated native bindings and their own validation. This
+The separate [generated binding facade](../../docs/toolkit-archive-bindings.md)
+exposes typed in-memory control resolution to Python and the shared Java/Kotlin
+API. Room inventory and configuration summary bindings remain unsupported. This
 does not migrate all CLI commands, `find_control`'s distinct lookup contract,
 structure parsing, or another protocol stack, and establishes no stable FFI/ABI.
 
