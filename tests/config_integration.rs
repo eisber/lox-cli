@@ -38,6 +38,73 @@ fn lox() -> Command {
     command
 }
 
+#[test]
+fn editor_kernel_set_param_legacy_boundaries() {
+    let dir = tempfile::Builder::new()
+        .prefix(".editor-kernel-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let source = dir.path().join("source.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let xml = "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+<ControlList>\r\n\
+\t<C Type=\"VirtualIn\" U=\"a\" Title=\"Control\" Title='Control' 12hTF=\"true\" NTXT=\"first\nsecond\">\r\n\
+\t\t<Co K=\"I1\" Def=\"1\"/>\r\n\
+\t\t<IoData></IoData>\r\n\
+\t\t<Co K=\"Q\" U=\"wire\"><In Input=\"first\"/><In Input=\"second\" FLG=\"2\"/></Co>\r\n\
+\t</C>\r\n\
+\t<C Type=\"Future\" U=\"untouched\" Title=\"Collateral\" Value=\"&quot; &amp; &lt;\"/>\r\n\
+</ControlList>\r\n";
+    fs::write(&source, xml).unwrap();
+    lox()
+        .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+        .args(["--json", "config", "set-param"])
+        .arg(&source)
+        .args(["uuid:a", "I1", "42", "--save-as"])
+        .arg(&output)
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("\"old\":\"1\""))
+        .stdout(predicate::str::contains("\"new\":\"42\""));
+    assert_eq!(fs::read(&source).unwrap(), xml.as_bytes());
+    let revised = fs::read_to_string(&output).unwrap();
+    assert!(revised.starts_with('\u{feff}'));
+    assert!(revised.contains("12hTF=\"true\""));
+    assert!(revised.contains("NTXT=\"first\nsecond\""));
+    assert!(revised.contains("<IoData></IoData>"));
+    assert!(revised.contains("Input=\"first\""));
+    assert!(revised.find("Input=\"first\"").unwrap() < revised.find("Input=\"second\"").unwrap());
+    assert!(revised.contains("Value=\"&quot; &amp; &lt;\""));
+    assert_eq!(revised.matches("Title=\"Control\"").count(), 1);
+    for (selector, param, expected) in [
+        ("uuid:a", "MaxVal", "Parameter 'MaxVal' not found"),
+        ("Missing", "I1", "Element 'Missing' not found."),
+        ("", "I1", "matches 2 elements (expected 1)"),
+    ] {
+        fs::write(&output, b"sentinel").unwrap();
+        lox()
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .args(["config", "set-param"])
+            .arg(&source)
+            .args([selector, param, "9", "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(expected));
+        assert_eq!(fs::read(&output).unwrap(), b"sentinel");
+        assert_eq!(fs::read(&source).unwrap(), xml.as_bytes());
+    }
+    lox()
+        .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+        .args(["--dry-run", "config", "set-param"])
+        .arg(&source)
+        .args(["uuid:a", "I1", "42"])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("dry-run not supported"));
+    assert_eq!(fs::read(&source).unwrap(), xml.as_bytes());
+}
+
 /// Write the fixture XML to a temp dir and return (dir_handle, path).
 fn write_fixture(dir: &TempDir) -> String {
     let path = dir.path().join("test.Loxone");

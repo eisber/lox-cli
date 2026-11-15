@@ -9,6 +9,7 @@
 //! [`weather_state`] observes complete Weather-State payloads without domain interpretation.
 //! [`message_header`] observes separate application headers without transport or reassembly.
 //! Optional `configuration-xml` adds typed room inventory, summaries and summary deltas.
+//! Optional `configuration-editor` adds a legacy-compatible set-param byte transaction.
 //! Optional `statistics-xml` decodes monthly statistics XML without I/O.
 //! Optional `firmware-metadata` observes update XML and assesses numeric versions offline.
 //! Optional `auth-hash` provides explicit existing APP/CONFIG hash profiles.
@@ -44,3 +45,5 @@ pub mod legacy_wsx;
 
 #[cfg(feature = "runtime")]
 pub mod runtime;
+/// Unix timestamp of 2009-01-01 00:00:00 UTC, the Loxone timestamp epoch.
+pub const LOXONE_EPOCH_SECS: u64 = 1_230_768_000;

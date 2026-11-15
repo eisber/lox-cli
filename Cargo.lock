@@ -1967,6 +1967,7 @@ dependencies = [
 name = "lox-core"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "crc32fast",
  "hex",
  "hmac",
@@ -1978,6 +1979,7 @@ dependencies = [
  "sha1",
  "sha2",
  "tokio",
+ "xmltree 0.12.0",
  "zip",
 ]
 

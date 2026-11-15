@@ -2,6 +2,9 @@
 
 pub mod archive;
 
+#[cfg(feature = "configuration-editor")]
+pub mod editor;
+
 #[cfg(feature = "configuration-xml")]
 pub mod controls;
 
