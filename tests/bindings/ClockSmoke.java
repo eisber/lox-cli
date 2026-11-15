@@ -112,6 +112,22 @@ public final class ClockSmoke {
             release.countDown();
             callbackClient.close();
         }
+        NativeClockStatusProbe allocations = new NativeClockStatusProbe();
+        for (int i = 0; i < 16; i++) {
+            String scenario = "java-status/" + i + "/callback";
+            ClockClient connection = client(host, scenario);
+            try {
+                var read = connection.readClock();
+                ClockTestSupport.waitSignal(signals, scenario, "entered");
+                var captured = read.thenRun(allocations::capture);
+                Files.writeString(ClockTestSupport.signal(signals, scenario, "release"), "release");
+                captured.get(5, TimeUnit.SECONDS);
+            } finally {
+                connection.close();
+            }
+            allocations.afterClose();
+        }
+        allocations.verify("Java");
         System.out.println("Java actual clock handles/futures/explicit disposal: PASS");
     }
 }

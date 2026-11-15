@@ -27,15 +27,20 @@ wheel and JVM sources jar; upstream generator sources for the exact versions
 above are available from the linked crates.io releases and repositories.
 Java generator 0.5.2 has a reproduced native error-buffer cleanup alias bug.
 This project applies the local MPL-2.0 correction
-lox-archive-java-0.5.2-rustbuffer-free-1, specified in
+lox-archive-java-0.5.2-rustbuffer-free-owned-status-2, specified in
 patches/uniffi-bindgen-java-0.5.2-rustbuffer-free.json, after generation.
 It copies a RustBuffer descriptor before nested cleanup resets reusable
-call status. Generator version, complete input/companion/output source
-SHA256s and exactly one method match are mandatory; mismatches stop builds.
+call status. It also gives each ClockClient owned wait dispatch a confined
+call-status arena closed before the dispatch returns, including exceptional exit. Other
+caller threads use GC-managed automatic arenas: reclamation there is eventual,
+not deterministic before GC. Nested owned scopes restore the outer status;
+the slab allocator for returned FFM views is unchanged.
+Generator version, complete input/output SHA256s for BOTH changed helpers,
+and exact reviewed fragment counts are mandatory; mismatches stop builds.
 The source jar contains the corrected helper, and both JVM jars carry the
 patch specification and application receipt in META-INF/lox-build.
 Do not substitute unpatched generator output. Native ABI checks remain on.
-No other generated helper source is changed. These MPL notices do not claim
+Only RustBuffer.java and UniffiHelpers.java are changed. These MPL notices do not claim
 ownership of upstream code or relicense this repository's own source.
 
 The project-authored lox_archive_async.py and Java ClockClient /

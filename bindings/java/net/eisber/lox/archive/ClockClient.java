@@ -49,7 +49,7 @@ public final class ClockClient implements AutoCloseable {
             };
             reading = true;
             try {
-                executor.execute(() -> {
+                executor.execute(() -> UniffiHelpers.uniffiRunWithOwnedStatus(() -> {
                     ClockReading value = null;
                     Throwable failure = null;
                     try {
@@ -71,7 +71,7 @@ public final class ClockClient implements AutoCloseable {
                     // Release admission before publishing completion/inline caller continuations.
                     if (failure == null) result.complete(value);
                     else result.completeExceptionally(failure);
-                });
+                }));
             } catch (RuntimeException error) {
                 reading = false;
                 synchronized (cancellation) {

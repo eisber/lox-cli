@@ -4,6 +4,8 @@ import net.eisber.lox.archive.ClockClient
 import net.eisber.lox.archive.ClockEndpoint
 import net.eisber.lox.archive.ClockRuntimeException
 import net.eisber.lox.archive.ClockValidationIssue
+import net.eisber.lox.archive.NativeClockStatusProbe
+import java.nio.file.Files
 
 fun main(args: Array<String>) {
     val host = args[0]
@@ -68,5 +70,21 @@ fun main(args: Array<String>) {
         ClockTestSupport.expect(ClockRuntimeException.Closed::class.java, connection.readClock())
         println("Kotlin shared shutdown/socket EOF/idempotence: $mode")
     }
+    val allocations = NativeClockStatusProbe()
+    for (i in 0 until 16) {
+        val scenario = "kotlin-status/$i/callback"
+        ClockClient(
+            "$host/$scenario", ClockTestSupport.USER, ClockTestSupport.PASSWORD,
+            ClockTestSupport.settings(false),
+        ).use {
+            val read = it.readClock()
+            ClockTestSupport.waitSignal(signals, scenario, "entered")
+            val captured = read.thenRun { allocations.capture() }
+            Files.writeString(ClockTestSupport.signal(signals, scenario, "release"), "release")
+            captured.get(5, TimeUnit.SECONDS)
+        }
+        allocations.afterClose()
+    }
+    allocations.verify("Kotlin")
     println("Kotlin same Java clock API/futures/explicit disposal: PASS")
 }

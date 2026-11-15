@@ -130,6 +130,17 @@ Use nonblocking/appropriately dispatched continuations. Interrupting close may
 also require a retry to finish head cleanup. Java host drain milliseconds must
 fit a nonnegative signed `long`.
 
+Each owned wait dispatch owns a confined generated call-status arena, closed
+before the dispatch returns (and before the executor can report termination).
+Successful `close()` joins that executor and observes deterministic release
+of its 32-byte status, without requiring GC. Nested scoped calls restore the
+enclosing status, and exceptional dispatch exits also close the arena.
+Generated calls on other caller
+threads use automatic arenas: those statuses are reclaimed only after their
+thread-local references become unreachable and GC processes them, not at each
+client close. Returned FFM descriptor views still use the unchanged slab
+allocator; closing the status arena does not invalidate returned values.
+
 Reads after close fail Closed. Generated object destruction/Cleaners and
 Python GC are **fallbacks, not the shutdown contract**. Direct native-handle
 users must call `shutdown()` before releasing the generated object; simply
@@ -158,6 +169,18 @@ thresholds or language-only lifecycle assertions. Forced native-core timeout,
 real devices, TLS, DNS termination, calendar meaning, event subscriptions and
 other targets remain unqualified. Existing archive/error and both 64-error
 allocation regressions remain mandatory.
+
+Both Java and Kotlin additionally create/read/explicitly close 16 clients on
+16 owned wait lanes. A gated normal response captures each live 32-byte status
+on its actual lane and marks it only after that dispatch's last FFI call.
+The calibrated Windows heap probe searches busy allocations for that unique
+32-byte marker immediately after close, before requesting GC; all 16 must be
+released and all captured scopes closed. No freed bytes are read. The original
+runtime-head jar retains all 16 and fails this same check.
+An address-only `HeapValidate` check is insufficient here: another allocation
+may already have reused the freed address. Expected marker bytes are passed
+by value and assembled on the C stack, so the matcher cannot count its own
+heap-allocated search prefix.
 
 The runtime composition is private/reversible until both prerequisite source
 changes are actually published and parent-serialized reconciliation receives
@@ -248,19 +271,21 @@ The generated error descriptor aliases thread-local reusable call status.
 before native free reads the descriptor. Exception fields can look correct
 while the allocation remains live.
 
-The builder therefore applies **lox-archive-java-0.5.2-rustbuffer-free-1**:
+The builder therefore applies **lox-archive-java-0.5.2-rustbuffer-free-owned-status-2**:
 copy the descriptor into a confined arena **before** the nested call, then
 free the unchanged Rust allocation using that independent descriptor. No
 Rust/core code, FFI signature, ABI checksum or error representation changes.
 The patch is a maintained, explicit local correction, not an upstream fix.
 Its MPL-2.0 specification lives in `crates\lox-bindings\patches`. The patcher
 requires the exact generator version, complete `RustBuffer.java` and
-`UniffiHelpers.java` input SHA256s, one exact method match, and the complete
-corrected output SHA256. Unknown/changed/already-patched output fails closed;
+`UniffiHelpers.java` input SHA256s, exact reviewed fragment counts, and both
+complete corrected output SHA256s. The helper also replaces permanent global
+call-status storage with the owned/automatic lifetimes described above.
+Unknown/changed/already-patched output fails closed;
 upgrades require a new review, never automatic hash updates or silent fallback.
 Guard regressions run before the actual correction. Both JVM jars include
 the specification/application receipt; the sources jar includes the
-corrected helper. Distributors must use this corrected build, not raw 0.5.2
+corrected helpers. Distributors must use this corrected build, not raw 0.5.2
 output. All other generated source remains untouched.
 
 `ArchiveAllocationSmoke.java` and `.kt` perform **64 actual public native
@@ -281,7 +306,8 @@ allocation accounting on the verified Windows AMD64 host, **not an RSS
 threshold**, a mocked allocator or a portable-memory qualification. Probe
 classes/DLL and Kotlin support jars are test artifacts, not part of the API
 jar/native runtime pair. These checks prove this archive error-buffer release
-path only: **no runtime close/cancel/subscription/lifecycle credit** follows.
+path only: runtime close/status-allocation evidence comes from the separate
+clock checks, and **no subscription or native-device qualification** follows.
 
 Before any commit/publication, stage the intended source and run all four
 repository gates on that exact tree:
