@@ -39,6 +39,10 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   explicit validation, cancellation, HTTP errors and bounded close.
 - Optional `runtime-blocking` feature: `ClockDriver`, the explicitly owned
   blocking facade used by `lox live time`.
+- The same runtime features expose `ControlReadClient::read_control` and
+  `ControlReadDriver`, used for the actual `lox live get` HTTP read, not only
+  response decoding. Typed observations, validation, errors, cancellation and
+  bounded close share the clock's private transport/lifetime implementation.
 - `control`: typed in-memory query preparation, catalog resolution and identifier
   validation. The existing CLI `LoxClient::resolve`/`resolve_with_room` producer
   uses this core, including `lox live get` and write-gated `lox live set`.
@@ -276,6 +280,107 @@ legacy flag wording, human/JSON/hex rendering, filesystem/context and exit polic
 stay in the binary. Native color does not qualify native Config/device workflows.
 Run `cargo test -p lox-core --test color` and
 `cargo test -p lox-cli --bin lox --test color_codec_cli color_`.
+
+## Optional read-only control-state runtime
+
+```toml
+lox-core = { path = "path/to/lox-cli/crates/lox-core", features = ["runtime"] }
+```
+
+```rust,ignore
+use lox_core::runtime::{Cancellation, ControlReadClient, ControlReadOptions};
+
+async fn state(host: &str, user: &str, password: &str, resolved_id: &str)
+    -> Result<(), Box<dyn std::error::Error>>
+{
+    let client = ControlReadClient::new(ControlReadOptions::new(host, user, password))?;
+    let result = client.read_control(resolved_id, &Cancellation::new()).await;
+    let closed = client.close().await;
+    let observation = result?;
+    closed?;
+    let state = observation.validate()?;
+    // The caller owns output; an empty state is legitimate.
+    let _ = state.value;
+    Ok(())
+}
+```
+
+This performs **one actual GET** to `/jdev/sps/io/{resolved_target}` using the
+shared async reqwest transport, HTTP Basic credentials (including empty ones),
+configured user agent/TLS/proxy settings, 10-second per-attempt timeout and
+200/400/800ms retry delays. It retries transport/body/JSON/5xx failures, never
+4xx. Status is evaluated before reading/decoding a successful body. The inherited
+redirect check compares hosts only, not ports/schemes; reqwest's cross-origin
+credential stripping remains in force. Hosts are concatenated literally with
+`/` and the path, preserving trailing/double slashes and prefixes. No new body
+size, JSON-depth, redirect-count or overall operation deadline policy is added.
+
+The client uses a caller-owned Tokio executor; clones share admission accounting
+and close state. Sticky `Cancellation`, dropping a read future, or shutdown aborts
+in-flight HTTP and retry waits. `request_close` marks closed immediately; `close`
+cancels and drains within `shutdown_timeout` (default one second). As with clock,
+a caller retaining an unpolled pending future can prevent drain and receives a
+typed timeout, not a false resource-release claim. The optional
+`runtime-blocking` facade owns one current-thread worker, admits one concurrent
+operation (`Busy` otherwise), and joins it on successful close; Drop is bounded
+best effort. There is no subscription, callback bridge, or event-stream API.
+Diagnostic/body observers run synchronously outside state locks and must not
+block or panic; blocking observers can prevent timely cancellation/drain.
+
+`ControlObservation` uses the clock's equivalent **LL wire decoder**, never its
+nonempty-value validator. It preserves envelope presence/type, text/f64 values,
+and both typed code fields. Default response decoding rejects malformed/non-UTF8
+JSON; all valid JSON shapes remain observable without claiming valid state.
+`validate()` requires an LL object, successful uppercase code (or lowercase only
+if uppercase is missing) and text/finite numeric value, **including empty text**.
+`legacy_text()` is explicitly permissive: unsupported/missing values become empty;
+code precedence is uppercase string → lowercase string → uppercase i64, not the
+strict validator's precedence. Lowercase numeric codes are not projected.
+Protocol failure codes do not automatically become HTTP errors.
+
+Default options validate HTTP(S) hosts and the existing command-path identifier
+contract. The CLI explicitly selects `ControlReadCompatibility::LegacyCli`,
+retaining its deferred host errors and **opaque** alias/catalog targets without
+new path validation or URL encoding. This explicit profile also preserves the
+old blocking client's **separate** timeout budgets: up to `timeout` waiting for
+headers, then a fresh `timeout` for the complete JSON/text body. It does not
+install reqwest's async total-timeout body wrapper, preserving the original
+backend source chain on truncated transfers. Strict control and Clock retain
+their existing total request deadlines.
+
+Resolution, cached/raw structure acquisition,
+config/context choice, error envelopes/categories, quiet/JSON/human formatting and
+template notes remain in the head. It still constructs the original `LoxClient`
+before resolution, retaining its original build/warning/error order and catalog
+client. The actual state request runs through Core, then explicitly closes before
+rendering. `live set`, other HTTP commands and bindings are not migrated.
+
+New options, observations, results and errors redact payloads/credentials in
+Debug; ordinary diagnostics contain only event/status/size. Error Display and
+automatic source chains are sanitized. `ControlReadError::kind` is typed;
+`into_source()` is an **explicit disclosure opt-in** for the CLI's original
+reqwest/serde error-source chain, which may contain URLs/credentials/backend
+details. An expired legacy phase budget instead supplies a genuine typed
+`ControlReadPhaseTimeout` (with `Headers`/`Body` phase), not a fabricated
+`reqwest::Error`: reqwest's constructors for its blocking timeout errors are
+private. Existing backend errors retain their reqwest/serde downcasts; phase
+budget expiry has this distinct downcast. Its Display/Debug contain no URL;
+`request_url()` is a separate explicit disclosure for the head's header-error
+context. The CLI's typed adapter preserves the old rendered timeout chain and
+category without inspecting or rewriting backend error strings.
+The CLI uses it to preserve inherited errors/categories, not to promise
+global secret removal. `LegacyCliVerbose` separately enables replacement-decoded
+response text and a caller-owned raw-body observer, preserving `-vv` behavior
+(including malformed-body logging). Neither opt-in is automatic for library
+consumers; data buffers/credentials are not promised zeroized.
+
+`control_read_runtime` tests cover production async/owned clients, loopback auth,
+paths, redirects, LL policy, sources, retries, cancellation and actual socket
+release. `live_control_read_cli` characterizes actual executable behavior before
+and after extraction; existing clock/runtime/catalog regressions remain gates.
+Python and Java/Kotlin **control-read transport are unsupported**; no native
+artifact, firmware/real-device, platform, registry or Config-parity credit is
+earned by this Rust/CLI slice.
 
 ## Optional monthly statistics decoder
 

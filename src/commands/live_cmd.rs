@@ -14,7 +14,10 @@
 use anyhow::{Context, Result, bail};
 use clap::Subcommand;
 use lox_core::runtime::{
-    Cancellation, ClockDriver, ClockError, ClockOptions, ClockResponsePolicy, Diagnostic,
+    Cancellation, ClockDriver, ClockError, ClockOptions, ClockResponsePolicy,
+    ControlReadCompatibility, ControlReadDiagnostic, ControlReadDriver, ControlReadError,
+    ControlReadFailure, ControlReadOptions, ControlReadPhase, ControlReadPhaseTimeout,
+    ControlReadResponsePolicy, Diagnostic,
 };
 use serde_json::{Value, json};
 use std::sync::Arc;
@@ -73,10 +76,43 @@ fn parse_ll(v: &Value) -> (String, Option<String>) {
 
 fn get(ctx: &RunContext, lox: &mut LoxClient, name_or_uuid: &str) -> Result<()> {
     let uuid = lox.resolve(name_or_uuid)?;
-    let resp = lox
-        .get_json(&format!("/jdev/sps/io/{}", uuid))
-        .with_context(|| format!("reading state of {uuid}"))?;
-    let (value, code) = parse_ll(&resp);
+    let path = format!("/jdev/sps/io/{uuid}");
+    let cfg = &lox.cfg;
+    let mut options = ControlReadOptions::new(&cfg.host, &cfg.user, &cfg.pass);
+    options.compatibility = ControlReadCompatibility::LegacyCli;
+    options.verify_tls = cfg.verify_ssl.unwrap_or(false);
+    options.user_agent = client::USER_AGENT.into();
+    let verbosity = client::verbose();
+    if verbosity >= 2 {
+        options.response_policy = ControlReadResponsePolicy::LegacyCliVerbose {
+            body_observer: Arc::new(client::log_body),
+        };
+    }
+    if verbosity >= 1 {
+        let url = client::redact_url(&format!("{}/{}", cfg.host, path.trim_start_matches('/')));
+        options.diagnostics = Some(Arc::new(move |event| match event {
+            ControlReadDiagnostic::Request => eprintln!("GET {url}"),
+            ControlReadDiagnostic::Response { status } => {
+                let reason = reqwest::StatusCode::from_u16(status)
+                    .ok()
+                    .and_then(|status| status.canonical_reason())
+                    .unwrap_or("");
+                eprintln!("  → {status} {reason}");
+            }
+            _ => {}
+        }));
+    }
+    let read = || -> Result<_> {
+        let driver =
+            ControlReadDriver::new(options).map_err(|error| control_read_error(error, &path))?;
+        let result = driver.read_control(&uuid, &Cancellation::new());
+        let closed = driver.close();
+        let observation = result.map_err(|error| control_read_error(error, &path))?;
+        closed?;
+        Ok(observation.legacy_text())
+    };
+    let state = read().with_context(|| format!("reading state of {uuid}"))?;
+    let (value, code) = (state.value, state.code);
     if ctx.json {
         println!("{}", json!({ "uuid": uuid, "value": value, "code": code }));
     } else {
@@ -89,6 +125,40 @@ fn get(ctx: &RunContext, lox: &mut LoxClient, name_or_uuid: &str) -> Result<()> 
         }
     }
     Ok(())
+}
+
+fn control_read_error(error: ControlReadError, path: &str) -> anyhow::Error {
+    if let ControlReadFailure::Http { status } = error.kind {
+        return HttpStatusError {
+            status,
+            path: path.into(),
+        }
+        .into();
+    }
+    // Explicit legacy adapter: preserve the old reqwest/serde source chain and
+    // category. Core's normal Debug/Display never disclose these backend details.
+    let message = error.to_string();
+    match error.into_source() {
+        Some(source) => match source.downcast::<reqwest::Error>() {
+            Ok(source) => anyhow::Error::new(*source),
+            Err(source) => match source.downcast::<serde_json::Error>() {
+                Ok(source) => anyhow::Error::new(*source),
+                Err(source) => match source.downcast::<ControlReadPhaseTimeout>() {
+                    Ok(source) => {
+                        let context = match source.phase() {
+                            ControlReadPhase::Headers => {
+                                format!("error sending request for url ({})", source.request_url())
+                            }
+                            ControlReadPhase::Body => "error decoding response body".into(),
+                        };
+                        anyhow::Error::new(*source).context(context)
+                    }
+                    Err(source) => anyhow::Error::from_boxed(source),
+                },
+            },
+        },
+        None => anyhow::anyhow!("{message}"),
+    }
 }
 
 fn set(
@@ -190,6 +260,136 @@ mod tests {
     use super::*;
     use httpmock::{Method::GET, MockServer};
     use std::time::Duration;
+
+    #[test]
+    fn legacy_phase_timeouts_preserve_actual_blocking_messages_and_categories() {
+        use std::io::{Read, Write};
+        use std::net::TcpListener;
+        use std::thread;
+
+        for body_phase in [false, true] {
+            for verbose in [false, true] {
+                let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+                let host = format!("http://{}", listener.local_addr().unwrap());
+                let worker = thread::spawn(move || {
+                    let mut responses = Vec::new();
+                    for _ in 0..2 {
+                        let (mut socket, _) = listener.accept().unwrap();
+                        responses.push(thread::spawn(move || {
+                            socket
+                                .set_read_timeout(Some(Duration::from_secs(3)))
+                                .unwrap();
+                            let mut request = Vec::new();
+                            while !request.ends_with(b"\r\n\r\n") {
+                                let mut byte = [0];
+                                socket.read_exact(&mut byte).unwrap();
+                                request.push(byte[0]);
+                            }
+                            if body_phase {
+                                socket
+                                    .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 100\r\n\r\n{")
+                                    .unwrap();
+                            }
+                            thread::sleep(Duration::from_millis(150));
+                        }));
+                    }
+                    for response in responses {
+                        response.join().unwrap();
+                    }
+                });
+                let path = "/jdev/sps/io/abcdef";
+                let legacy = reqwest::blocking::Client::builder()
+                    .no_proxy()
+                    .timeout(Duration::from_millis(80))
+                    .build()
+                    .unwrap();
+                let reference = (|| -> Result<Value> {
+                    let response = legacy.get(format!("{host}{path}")).send()?;
+                    if verbose {
+                        Ok(serde_json::from_str(&response.text()?)?)
+                    } else {
+                        Ok(response.json()?)
+                    }
+                })()
+                .unwrap_err();
+                let mut options = ControlReadOptions::new(&host, "", "");
+                options.compatibility = ControlReadCompatibility::LegacyCli;
+                options.use_system_proxy = false;
+                options.timeout = Duration::from_millis(80);
+                options.retry_delays.clear();
+                if verbose {
+                    options.response_policy = ControlReadResponsePolicy::LegacyCliVerbose {
+                        body_observer: Arc::new(|_| panic!("No complete body on timeout")),
+                    };
+                }
+                let driver = ControlReadDriver::new(options).unwrap();
+                let actual = control_read_error(
+                    driver
+                        .read_control("abcdef", &Cancellation::new())
+                        .unwrap_err(),
+                    path,
+                );
+                driver.close().unwrap();
+                assert_eq!(format!("{actual:#}"), format!("{reference:#}"));
+                assert_eq!(
+                    crate::categorize_error(&actual),
+                    crate::categorize_error(&reference)
+                );
+                assert!(
+                    reference
+                        .downcast_ref::<reqwest::Error>()
+                        .unwrap()
+                        .is_timeout()
+                );
+                assert!(actual.downcast_ref::<ControlReadPhaseTimeout>().is_some());
+                worker.join().unwrap();
+            }
+        }
+    }
+
+    #[test]
+    fn control_read_adapter_preserves_actual_legacy_http_and_decode_sources() {
+        let server = MockServer::start();
+        let path = "/jdev/sps/io/abcdef";
+        for (status, body, attempts) in [(401, "{", 1), (503, "{", 4), (200, "{", 4)] {
+            let mut response = server.mock(|when, then| {
+                when.method(GET).path(path);
+                then.status(status).body(body);
+            });
+            let legacy = LoxClient::new(Config {
+                host: server.base_url(),
+                user: "read-test".into(),
+                pass: "synthetic-only".into(),
+                ..Config::default()
+            })
+            .unwrap();
+            let expected = legacy.get_json(path).unwrap_err();
+            let mut options =
+                ControlReadOptions::new(server.base_url(), "read-test", "synthetic-only");
+            options.use_system_proxy = false;
+            options.retry_delays = vec![Duration::from_millis(1); 3];
+            let driver = ControlReadDriver::new(options).unwrap();
+            let actual = control_read_error(
+                driver
+                    .read_control("abcdef", &Cancellation::new())
+                    .unwrap_err(),
+                path,
+            );
+            driver.close().unwrap();
+            assert_eq!(format!("{actual:#}"), format!("{expected:#}"));
+            assert_eq!(
+                crate::categorize_error(&actual),
+                crate::categorize_error(&expected)
+            );
+            if status == 200 {
+                assert!(actual.downcast_ref::<reqwest::Error>().is_some());
+            } else {
+                assert!(actual.downcast_ref::<HttpStatusError>().is_some());
+            }
+            response.assert_hits(attempts * 2);
+            response.delete();
+        }
+    }
 
     #[test]
     fn clock_timeout_category_matches_legacy_transport() {
