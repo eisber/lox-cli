@@ -198,6 +198,42 @@ explicit and untouched. No Python/JVM user API is exposed.
 Focused proofs: `cargo test -p lox-core --features configuration-xml --test
 user_inventory` and `cargo test -p lox-cli --test user_inventory_cli`.
 
+## Complete runtime Daytimer-State payloads
+
+Default-feature `daytimer_state::{decode_daytimer_state_payload, DaytimerState,
+DaytimerEntry, DaytimerStatePayloadError}` observes already-identified, assembled
+payload bytes. It adds no dependencies. This is **runtime state**, not Config
+DayTimer entry editing, schedule validation or extraction of an existing local
+decoder/caller.
+
+Each state is UUID16, default IEEE f64 LE8 and signed entry count LE4, followed
+by that many 24-byte entries: signed LE32 mode/from/to/activation word and IEEE
+f64 LE8. `uuid()` reuses `numeric_state::StateUuid` unchanged. Defaults and entry
+values retain authoritative `u64` bits (`default_value_bits()`/`value_bits()`);
+f64 accessors only interpret them. Equality is bitwise, preserving signed zero
+and NaN payload identity. All IEEE patterns are accepted.
+
+`mode()`, `from_minutes()`, `to_minutes()` and `activation_word()` retain signed
+observations without range checks, sorting or normalization. The convenience
+`needs_activation()` means only `activation_word() != 0`; it never replaces
+the raw word. No mode UUID lookup, digital/analog schedule inference or
+activation validator is provided. States/entries retain order and duplicates;
+empty input and zero-entry states are valid.
+
+Negative counts, unrepresentable count/byte extents, incomplete entries/headers
+and trailing fragments produce payload-free structured errors with record byte
+offsets and counts, never partial success. Count conversion/multiplication and
+input bounds are checked before entry allocation. There is no arbitrary cap.
+Atomic rejection is an **original local policy**: upstream returns its parsed
+prefix on negative counts/truncation. It is not firmware-equivalence evidence.
+
+The caller owns message classification and complete-payload assembly/removal of
+headers. The separate eight-byte type-4 application header is **not** accepted
+as framing by this API; matching payload shape alone cannot identify bytes.
+No session, subscription, CLI command or Python/JVM API is added.
+`cargo test -p lox-core --test daytimer_state_payload` runs original synthetic
+public API cases. See the [pinned caller/model/test mapping](../../docs/knowledge/upstream-crosswalk.md#complete-runtime-daytimer-state-payloads).
+
 ## Optional read-only XML device inventory
 
 Enable `configuration-xml` and supply borrowed XML bytes:
