@@ -21,6 +21,21 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `legacy-token-aes`: `legacy_token_aes::{encrypt, decrypt,
+  encrypt_command, DecryptError}` extracts the existing CLI token AES-256-CBC/
+  PKCS7 byte codec and deterministic `jdev/sys/enc/` envelope. Keys and IVs are
+  explicit borrowed `&[u8; 32]` / `&[u8; 16]`; plaintext/ciphertext are borrowed
+  bytes and outputs are owned bytes. The command helper encrypts UTF-8 bytes and
+  uses STANDARD padded Base64 without percent encoding or salt. Invalid
+  ciphertext length/padding returns a data-free typed error and no partial
+  plaintext. CBC is unauthenticated: success proves neither authenticity nor
+  UTF-8 validity. There is no retained key owner or zeroization guarantee.
+  The feature adds only the existing RustCrypto `aes`/`cbc` and `base64`
+  dependencies; the feature-off direct dependency graph remains three.
+  CLI response Base64/UTF-8 contexts, token flow, RSA, randomness and `ws.rs`
+  remain unchanged. This evidenced legacy profile is **not** modern salted
+  session/challenge authentication, full token acquisition or a foreign binding.
+  No new native/CLIwhole qualification, MSRV or other-platform claim is made.
 - `message_header::{decode_message_header, MessageHeader, MessageType}`: typed,
   lossless observation/encoding of exactly one eight-byte application header.
   Raw unknown identifiers/flags/reserved bytes are retained, not certified.

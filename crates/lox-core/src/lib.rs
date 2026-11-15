@@ -15,6 +15,7 @@
 //! Optional `auth-hash` provides explicit existing APP/CONFIG hash profiles.
 //! Optional `structure-json` projects typed LoxApp3 control/autopilot catalogs and metadata.
 //! Optional `legacy-wsx` encodes the existing deterministic legacy handshake.
+//! Optional `legacy-token-aes` encodes the existing CLI's legacy AES command bytes.
 //! The optional `runtime` feature provides an async typed clock operation;
 //! `runtime-blocking` adds an explicitly owned driver.
 //! No context selection, filesystem, terminal or language-binding API is provided.
@@ -48,6 +49,9 @@ pub mod authentication;
 
 #[cfg(feature = "legacy-wsx")]
 pub mod legacy_wsx;
+
+#[cfg(feature = "legacy-token-aes")]
+pub mod legacy_token_aes;
 
 #[cfg(feature = "runtime")]
 pub mod runtime;
