@@ -21,6 +21,11 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `firmware-metadata`: `firmware_metadata::UpdateMetadata::{parse, assess}`
+  provides typed offline release/Remote Connect observations with explicit numeric
+  versions and dates. This is a new Rust-only capability, not a migrated CLI
+  updater or install-eligibility validator. See the [contract and pinned source
+  comparison](../../docs/knowledge/firmware-metadata.md).
 - `numeric_state::decode_value_state_payload`: typed, offline decoding of complete
   numeric value-state table payloads. This is a new Rust-only operation, not a
   migrated CLI producer or a WebSocket transport/subscription API.

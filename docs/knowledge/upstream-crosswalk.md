@@ -98,3 +98,12 @@ outside this operation. CLI, Python and Java/Kotlin decoding are unsupported;
 see the [per-head matrix](../toolkit-archive-bindings.md).
 The seven-repository catalog, reviewed/latest-seen pins and ancestry findings
 are unchanged; this focused source comparison does not advance any pin.
+
+## Offline firmware metadata follow-up
+
+The bounded [firmware metadata recovery](firmware-metadata.md) follows the actual
+`discostu105/lox` update caller at a separately pinned drift commit. It adds a
+strict, typed, optional Rust-only observation API, not an updater, a CLI migration
+or firmware qualification. The catalog's global reviewed/latest-seen pins and
+ancestry statements remain unchanged; the focused source manifest records the
+exact additional commit/blobs and deliberate differences.

@@ -6,6 +6,7 @@
 //! [`numeric_state`] decodes complete numeric value-state table payloads, not frames.
 //! Optional `configuration-xml` adds typed room inventory, summaries and summary deltas.
 //! Optional `statistics-xml` decodes monthly statistics XML without I/O.
+//! Optional `firmware-metadata` observes update XML and assesses numeric versions offline.
 //! Optional `auth-hash` provides explicit existing APP/CONFIG hash profiles.
 //! Optional `structure-json` projects typed top-level LoxApp3 control catalogs.
 //! Optional `legacy-wsx` encodes the existing deterministic legacy handshake.
@@ -17,6 +18,9 @@ pub mod color;
 pub mod configuration;
 pub mod control;
 pub mod numeric_state;
+
+#[cfg(feature = "firmware-metadata")]
+pub mod firmware_metadata;
 
 #[cfg(feature = "structure-json")]
 pub mod control_catalog;
