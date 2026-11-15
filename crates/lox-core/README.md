@@ -35,12 +35,74 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 - `control`: typed in-memory query preparation, catalog resolution and identifier
   validation. The existing CLI `LoxClient::resolve`/`resolve_with_room` producer
   uses this core, including `lox live get` and write-gated `lox live set`.
+- Optional `configuration-xml`: `configuration::rooms::{parse_rooms, RoomInfo,
+  RoomInventoryError}` inventories rooms directly from borrowed bytes. The
+  existing `lox config rooms` producer uses it through a CLI-owned serialization
+  and error adapter.
 
 The library does not read files, select a connection context, print, implicitly
-start a runtime or parse/normalize XML. Arbitrary decoded archive bytes are
+start a runtime or normalize XML. Arbitrary decoded archive bytes are
 preserved, including BOM, mixed line endings, duplicate attributes and non-UTF-8
 data. Default features are empty; archive-only consumers do not depend on
 reqwest/Tokio/serde_json through the library's normal dependencies.
+
+## Optional read-only room inventory
+
+```toml
+lox-core = { path = "path/to/lox-cli/crates/lox-core", features = ["configuration-xml"] }
+```
+
+```rust,ignore
+use lox_core::configuration::rooms::{parse_rooms, RoomInventoryError};
+
+fn inventory(bytes: &[u8]) -> Result<(), RoomInventoryError> {
+    for room in parse_rooms(bytes)? {
+        let _ = (room.uuid, room.name, room.item_count);
+    }
+    Ok(())
+}
+```
+
+This feature reuses the CLI's quick-xml 0.37 reader and its original room
+algorithm, not a second XML parser or shared-domain validator. It adds only the
+optional `quick-xml` normal dependency; default archive/control consumers still
+have no XML, HTTP, JSON, terminal or binding dependency. The existing Rust 1.91
+manifest minimum is unchanged, not newly certified on that compiler.
+
+`C`/`Type="Place"` matching is exact and case-sensitive, at any nesting depth.
+`U` and `Title` must be present and valid UTF-8 but may be empty; values remain
+raw, including entity spellings, whitespace and Unicode. First matching
+attributes win; attribute iterator errors are ignored as before. Later room
+definitions replace earlier titles for the same raw ID. Every start/empty
+`IoData` with a readable raw `Pr` contributes once, regardless of its parent
+type or position, including devices/sensors and references preceding the room.
+Unknown room IDs do not create rooms. These are item counts, **not** strictly
+function-block counts. Results sort case-sensitively by name; equal-name order
+remains unspecified because the original algorithm uses a hash map.
+
+BOM-prefixed input is accepted by the reader. Bytes are borrowed and never
+mutated; no XML is serialized or written. This is not a byte-roundtrip,
+entity-decoding, encoding-conversion or document-validity guarantee. For example,
+plain text and unclosed elements at EOF can succeed; invalid UTF-8 in a required
+attribute can omit that room, while an irrelevant attribute may be ignored.
+Reader failures return typed `RoomInventoryError::Xml` with the original
+`quick_xml::Error` source. The CLI unwraps that source before its existing error
+envelope/category formatting, avoiding an extra error-chain layer.
+
+The actual CLI chain remains lowercase `.zip` rejection → `fs::read` → room
+parser → CLI model mapping → existing human/JSON/limit formatting. It does **not**
+call `main::load_config_xml` (archive dispatch) or `ConfigEditor::load` (DOM
+loading, digit-name rewriting and duplicate handling). In particular,
+`lox-n37w`'s quoted-text digit-name rewrite remains unresolved, not adopted or
+silently fixed here. The inventory preserves the raw title containing such text.
+`--dry-run` remains a read-only dispatch; legacy CSV/no-header/quiet/trace-id
+output behavior is unchanged, not normalized to other commands.
+
+Run `cargo test -p lox-core --features configuration-xml --test room_inventory`
+for the typed consumer regressions and `cargo test -p lox-cli --bin lox
+--test config_integration room_inventory` for the characterized producer.
+Python/Java/Kotlin room inventory bindings, summary/diff/editing and deployment
+validation are not part of this extraction.
 
 ## In-memory control resolution
 
@@ -200,10 +262,10 @@ qualification is implied.
 
 ## Not exposed yet
 
-XML parsing/editing, runtime operations beyond this HTTP clock read, token/crypto/
+XML parsing beyond room inventory, editing, runtime operations beyond this HTTP clock read, token/crypto/
 WebSocket authentication, subscriptions, and Python or Java/Kotlin native bindings
 are **not** exposed through `lox-core`. Existing CLI capabilities outside the
-archive, clock and this control-resolution family remain binary-private. No cross-head parity, native
+archive, clock, room inventory and control-resolution families remain binary-private. No cross-head parity, native
 package availability or ABI stability is claimed. The approved generated UniFFI
 Python / one Java 22+ FFM API direction is unchanged; this stage adds no bindings.
 Archive byte guarantees and private deployment/sidecar policies are unchanged;

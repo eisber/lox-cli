@@ -1621,6 +1621,184 @@ fn config_add_preserves_original() {
 // ── config rooms JSON output ────────────────────────────────────────────────
 
 #[test]
+fn room_inventory_cli_formats_limits_dry_run_and_raw_loader_boundary() {
+    let dir = tempfile::Builder::new()
+        .prefix(".room-inventory-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let path = dir.path().join("rooms.Loxone");
+    let mut bytes = b"\xef\xbb\xbf".to_vec();
+    bytes.extend_from_slice(
+        br#"<Root>
+<IoData Pr="z"/><IoData Pr="missing"/>
+<C Type="Place" U="z" Title="Z"/><C Type="Place" U="a" Title="A&amp;&#65;"/>
+<C Type="Place" U="q" Title='has 12hTF="x"'/><IoData Pr="z"/>
+</Root>"#,
+    );
+    fs::write(&path, &bytes).unwrap();
+    let command = || {
+        let mut cmd = lox();
+        cmd.current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .env("LOX_HOME", dir.path().join("home"))
+            .args(["--quiet", "--trace-id", "room-inventory"]);
+        cmd
+    };
+    let all = serde_json::json!([
+        {"uuid":"a","name":"A&amp;&#65;","item_count":0},
+        {"uuid":"z","name":"Z","item_count":2},
+        {"uuid":"q","name":"has 12hTF=\"x\"","item_count":0}
+    ]);
+    for dry_run in [false, true] {
+        for limit in [None, Some(0), Some(1), Some(3), Some(8)] {
+            let mut cmd = command();
+            cmd.args(["--json", "config", "rooms", "rooms.Loxone"]);
+            if dry_run {
+                cmd.arg("--dry-run");
+            }
+            if let Some(limit) = limit {
+                cmd.args(["--limit", &limit.to_string()]);
+            }
+            let result = cmd.assert().success().get_output().clone();
+            let shown = limit.unwrap_or(3).min(3);
+            let expected = if shown < 3 {
+                serde_json::json!({
+                    "rooms": &all.as_array().unwrap()[..shown],
+                    "truncated": true, "total":3, "shown":shown
+                })
+            } else {
+                all.clone()
+            };
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&result.stdout).unwrap(),
+                expected
+            );
+            assert_eq!(
+                String::from_utf8(result.stderr).unwrap(),
+                if shown < 3 {
+                    format!("Showing {shown} of 3. Use --limit to see more.\n")
+                } else {
+                    String::new()
+                }
+            );
+            assert_eq!(fs::read(&path).unwrap(), bytes);
+        }
+    }
+    let expected = format!(
+        "  {:<30} {:<6} UUID\n  {:<30} {:<6} {}\n  {:<30} {:<6} a\n\n3 rooms, 2 items total\n",
+        "Room",
+        "Items",
+        "─".repeat(30),
+        "─".repeat(6),
+        "─".repeat(36),
+        "A&amp;&#65;",
+        0
+    );
+    for format in ["table", "csv"] {
+        command()
+            .args([
+                "-o",
+                format,
+                "--no-header",
+                "--dry-run",
+                "config",
+                "rooms",
+                "rooms.Loxone",
+                "--limit",
+                "1",
+            ])
+            .assert()
+            .success()
+            .stdout(expected.clone())
+            .stderr("Showing 1 of 3. Use --limit to see more.\n");
+    }
+    assert_eq!(fs::read(&path).unwrap(), bytes);
+    assert!(!dir.path().join("home").exists());
+}
+
+#[test]
+fn room_inventory_cli_errors_and_permissive_eof_are_unchanged() {
+    let dir = tempfile::Builder::new()
+        .prefix(".room-inventory-errors-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let command = || {
+        let mut cmd = lox();
+        cmd.current_dir(dir.path())
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .env("LOX_HOME", dir.path().join("home"))
+            .args(["--quiet", "--dry-run"]);
+        cmd
+    };
+    fs::write(
+        dir.path().join("mismatch.Loxone"),
+        "<ControlList><C></ControlList>",
+    )
+    .unwrap();
+    for (file, message) in [
+        (
+            "absent.zip",
+            "Expected a .Loxone XML file. Run `lox config extract absent.zip` first.",
+        ),
+        ("absent.Loxone", "Cannot read absent.Loxone"),
+        ("mismatch.Loxone", "expected `</C>`"),
+    ] {
+        let result = command()
+            .args(["--json", "config", "rooms", file])
+            .assert()
+            .code(1)
+            .stderr("")
+            .get_output()
+            .clone();
+        let value: serde_json::Value = serde_json::from_slice(&result.stdout).unwrap();
+        assert_eq!(value["ok"], false);
+        assert_eq!(value["error"], "error");
+        let actual_message = value["message"].as_str().unwrap();
+        assert!(actual_message.contains(message), "{actual_message}");
+        match file {
+            "absent.zip" => assert_eq!(actual_message, message),
+            "absent.Loxone" => assert!(actual_message.starts_with("Cannot read absent.Loxone: ")),
+            "mismatch.Loxone" => assert_eq!(
+                actual_message,
+                "ill-formed document: expected `</C>`, but `</ControlList>` was found: expected `</C>`, but `</ControlList>` was found"
+            ),
+            _ => unreachable!(),
+        }
+        command()
+            .args(["config", "rooms", file])
+            .assert()
+            .code(1)
+            .stdout("")
+            .stderr(format!(
+                "Error: {actual_message}\n\n{}\n",
+                value["report_hint"].as_str().unwrap()
+            ));
+    }
+    for (file, bytes, expected) in [
+        ("text.Loxone", "not XML", serde_json::json!([])),
+        (
+            "open.ZIP",
+            r#"<C Type="Place" U="r" Title="Open">"#,
+            serde_json::json!([{"uuid":"r","name":"Open","item_count":0}]),
+        ),
+    ] {
+        fs::write(dir.path().join(file), bytes).unwrap();
+        let result = command()
+            .args(["--json", "config", "rooms", file])
+            .assert()
+            .success()
+            .stderr("")
+            .get_output()
+            .stdout
+            .clone();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&result).unwrap(),
+            expected
+        );
+    }
+}
+
+#[test]
 fn config_rooms_json_output() {
     let dir = TempDir::new().unwrap();
     let path = write_fixture(&dir);
