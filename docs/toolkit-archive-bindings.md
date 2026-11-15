@@ -25,10 +25,11 @@ No head invokes the CLI or runs another protocol stack.
 | Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
+| Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Unsupported | Unsupported |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
 | LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | Unsupported | Unsupported |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
-| Token auth/crypto, control transport, WebSocket events | Not extracted | Existing binary-private behavior | Unsupported | Unsupported |
+| Token auth transport/crypto, control writes, WebSocket events | Not extracted | Existing binary-private behavior | Unsupported | Unsupported |
 | State subscriptions and event-stream backpressure | No shared event stream exists | No new behavior | Unsupported | Unsupported |
 
 Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns

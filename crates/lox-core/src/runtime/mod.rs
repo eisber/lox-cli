@@ -1,19 +1,24 @@
-//! Ordered HTTP clock observations, with explicit validation and resource lifetime.
+//! Read-only HTTP clock/control observations, validation and resource lifetime.
 //!
 //! Requires a Tokio executor with I/O and time enabled, or the explicitly created
-//! `ClockDriver` (`runtime-blocking`). There are no subscriptions. Ordinary
+//! `ClockDriver` / `ControlReadDriver` (`runtime-blocking`). There are no subscriptions. Ordinary
 //! diagnostic callbacks are opt-in and payload-free. The explicit CLI legacy
 //! policy separately permits raw body observation. All observers are synchronous
 //! and must not block or panic.
 
 mod clock;
+mod control_read;
+mod http;
 mod model;
 
 #[cfg(feature = "runtime-blocking")]
 mod blocking;
 #[cfg(feature = "runtime-blocking")]
 pub use blocking::ClockDriver;
+#[cfg(feature = "runtime-blocking")]
+pub use blocking::ControlReadDriver;
 pub use clock::ClockClient;
+pub use control_read::*;
 pub use model::*;
 
 use std::fmt;
