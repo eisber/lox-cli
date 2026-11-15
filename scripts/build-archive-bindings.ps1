@@ -79,6 +79,7 @@ Step 'java-version' $Java @('-version')
 Step 'kotlin-version' $KotlinCompiler @('-version')
 Step 'python-version' $Python @('-c', 'import platform,sys,sysconfig; print(sys.version, platform.machine(), "GIL-disabled=", sysconfig.get_config_var("Py_GIL_DISABLED")); assert sys.platform == "win32" and platform.machine() == "AMD64" and not sysconfig.get_config_var("Py_GIL_DISABLED")')
 Step 'control-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'control_resolution', '--locked', '--offline')
+Step 'numeric-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'numeric_state_payload', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
@@ -141,6 +142,9 @@ Step 'python-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\catalog_sm
 Step 'java-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'CatalogSmoke', 'crates\lox-bindings\tests\fixtures\control_catalog.json'))
 Step 'python-color-smoke' $VenvPython @('-I', '-B', 'tests\bindings\color_smoke.py', "$Probe.dll", 'crates\lox-bindings\tests\fixtures\color_profiles.tsv')
 Step 'java-color-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.ColorSmoke', 'crates\lox-bindings\tests\fixtures\color_profiles.tsv'))
+Step 'javac-numeric-state-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\NumericStateSmoke.java', 'tests\bindings\NativeNumericStateProbe.java')
+Step 'python-numeric-state-smoke' $VenvPython @('-I', '-B', 'tests\bindings\numeric_state_smoke.py', "$Probe.dll")
+Step 'java-numeric-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'NumericStateSmoke'))
 Step 'java-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveAllocationSmoke', "$Output\fixtures"))
 Step 'java-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ConfigInspectionSmoke', 'crates\lox-bindings\tests\fixtures\config_inspection.xml'))
 Step 'kotlinc-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-smoke.jar", 'tests\bindings\ArchiveSmoke.kt')
@@ -176,6 +180,13 @@ $CatalogKotlinArguments = @('-jvm-target', '22', '-classpath',
 [IO.File]::WriteAllLines("$Output\jvm\kotlin-catalog.args", $CatalogKotlinArguments, [Text.UTF8Encoding]::new($false))
 Step 'kotlinc-catalog-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-catalog.args")
 Step 'kotlin-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-catalog-smoke.jar", 'CatalogSmokeKt', 'crates\lox-bindings\tests\fixtures\control_catalog.json'))
+$NumericKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-numeric-state-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\NumericStateSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-numeric-state.args", $NumericKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-numeric-state-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-numeric-state.args")
+Step 'kotlin-numeric-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-numeric-state-smoke.jar", 'NumericStateSmokeKt'))
 $KotlinArguments = @('-jvm-target', '22', '-classpath',
     ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
     '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-allocation-smoke.jar".Replace('\', '\\') + '"'),
@@ -204,6 +215,7 @@ $Artifacts += Get-Item "$Output\python-config-inspection-smoke.log", "$Output\ja
 $Artifacts += Get-Item "$Output\python-xml-controls-smoke.log", "$Output\java-xml-controls-smoke.log", "$Output\kotlin-xml-controls-smoke.log"
 $Artifacts += Get-Item "$Output\python-catalog-smoke.log", "$Output\java-catalog-smoke.log", "$Output\kotlin-catalog-smoke.log"
 $Artifacts += Get-Item "$Output\python-color-smoke.log", "$Output\java-color-smoke.log", "$Output\kotlin-color-smoke.log"
+$Artifacts += Get-Item "$Output\python-numeric-state-smoke.log", "$Output\java-numeric-state-smoke.log", "$Output\kotlin-numeric-state-smoke.log"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -215,7 +227,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, diff/editor/auth/control I/O/statistics/numeric payloads/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric state decoding with exact UUID/IEEE bits, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, framing/diff/editor/auth/control I/O/statistics/text payloads/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest
