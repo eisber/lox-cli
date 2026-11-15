@@ -1,8 +1,8 @@
 # Experimental native archive, configuration inspection, numeric/text, clock, control and color bindings
 
-This is a narrow **archive, XML device/control/room/summary inspection, LoxApp3 catalog, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, devices, rooms, summary}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -22,7 +22,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only structural summary from raw XML bytes | Optional `configuration::summary::parse_config_summary` (`configuration-xml`) | Existing shared producer for `config diff`; unchanged | `parse_config_summary(bytes) -> ConfigSummary` | `LoxArchive.parseConfigSummary(byte[]) -> ConfigSummary` |
 | Read-only control inventory from raw XML bytes | Optional `configuration::controls::parse_controls` (`configuration-xml`); existing filters and pending associations | `config controls` shares inventory; I/O, limits and presentation stay in CLI | `parse_controls(bytes, type_filter, room_filter) -> list[XmlControlInfo]` | `LoxArchive.parseControls(byte[], String, String) -> List<XmlControlInfo>`; nullable filters |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
-| Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Unsupported | Unsupported |
+| Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Candidate `parse_users(bytes) -> list[XmlUserInfo]` | Candidate `LoxArchive.parseUsers(byte[]) -> List<XmlUserInfo>`; SAME Java API in Kotlin |
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
 | Other XML mutations, validation, deployment, sidecars/trust | No additional functional transaction migrated by this slice | Existing CLI behavior unchanged; shared legacy editor infrastructure only | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Unsupported | Unsupported |
@@ -48,6 +48,35 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Read-only user inventory candidate
+
+This publication-gated family adds only owned `XmlUserInfo` records with
+`name: String`, `uuid: String`, `nfc: bool`, and `description: String`.
+Only exact raw `C` elements with first `Type="User"` at any depth count.
+Encounter order and duplicate identities remain unchanged. First matching
+attributes retain raw UTF-8/entity spellings; absent or unreadable attributes
+default independently. Missing `Title`, `U`, and `Desc` become empty strings.
+Only literal underscores in the description become spaces; names and identifiers
+are untouched. NFC is only whether raw `NFCArr` is nonempty (even `"0"`, whitespace
+or an entity spelling): no contents are returned or interpreted.
+
+Empty/text-only input and incomplete EOF can succeed. Actual XML reader errors
+are atomic, returning no partial list through the existing Python
+`ConfigurationError.Xml` / checked Java `ConfigurationException.Xml`;
+`source_message` / `sourceMessage()` retains the original Core reader message.
+There is no entity decoding, UUID validation, normalization, stricter firmware
+parser, credential/password access, permissions/authentication evaluation,
+user CRUD, DOM loading or session handle. The unrelated shared DOM bug
+`lox-n37w` remains explicit.
+
+`users_smoke.py`, `UsersSmoke.java` and `UsersSmoke.kt` exercise actual exports,
+typed values/errors, raw/default/UTF-8/order semantics and owned snapshots.
+The existing unchanged C heap probe guards actual large success and XML-error
+buffers with an exact 128-byte prefix and minimum 64000-byte allocation:
+live one, explicit release zero, then 64 public calls retaining zero without
+requesting GC. Kotlin calls the SAME generated Java API and DLL. This does not
+add platform, ABI, MSRV, registry, native Config or full-parity qualification.
 
 ### Read-only device inventory candidate
 

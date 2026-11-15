@@ -1,0 +1,14 @@
+<Root>
+  <C Type="Other"><Group>
+    <C Type="User" Title=" raw&amp;&#65;&custom; " Title="ignored" U="not_a_uuid" U="ignored" Desc="one__two_&#95;_&amp;" Desc="ignored" NFCArr=" " NFCArr=""/>
+  </Group></C>
+  <C Type="User"/>
+  <C Type="User" Title="repeat" U="same" Desc="_" NFCArr=""/>
+  <C Type="User" Title="repeat" U="same" Desc="_" NFCArr=""/>
+  <C Type="User" Type="Other" Title="first" NFCArr="0" Desc="a_b"/>
+  <C Type="Other" Type="User" Title="excluded"/>
+  <C Type="user" Title="excluded"/>
+  <C Type="Us&#101;r" Title="excluded"/>
+  <c Type="User" Title="excluded"/>
+  <C Type="User" Title="Grün" U="raw_under" Desc="Grüße_世界" NFCArr="&empty;"/>
+</Root>
