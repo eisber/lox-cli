@@ -367,12 +367,19 @@ async fn receive<T>(receiver: &mpsc::Receiver<T>) -> T {
 
 #[tokio::test(flavor = "current_thread")]
 async fn cancellation_close_and_future_drop_actually_disconnect_pending_headers_and_body() {
+    pending_disconnects(ControlReadCompatibility::Strict).await;
+    pending_disconnects(ControlReadCompatibility::LegacyCli).await;
+}
+
+async fn pending_disconnects(compatibility: ControlReadCompatibility) {
     for body in [false, true] {
         for action in 0..3 {
             let fixture = SocketFixture::new(
                 body.then_some("HTTP/1.1 200 OK\r\nContent-Length: 10000\r\n\r\n{\"LL\":"),
             );
-            let client = ControlReadClient::new(options(fixture.host)).unwrap();
+            let mut config = options(fixture.host);
+            config.compatibility = compatibility;
+            let client = ControlReadClient::new(config).unwrap();
             let handle = client.clone();
             let cancellation = Cancellation::new();
             let cancel = cancellation.clone();
@@ -416,6 +423,117 @@ async fn cancellation_close_and_future_drop_actually_disconnect_pending_headers_
     }
 }
 
+fn phased_response(header_ms: u64, body_ms: u64) -> (String, thread::JoinHandle<()>) {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let host = format!("http://{}", listener.local_addr().unwrap());
+    let worker = thread::spawn(move || {
+        let (mut socket, _) = listener.accept().unwrap();
+        socket
+            .set_read_timeout(Some(Duration::from_secs(3)))
+            .unwrap();
+        headers(&mut socket);
+        thread::sleep(Duration::from_millis(header_ms));
+        if socket
+            .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 32\r\nConnection: close\r\n\r\n")
+            .is_ok()
+        {
+            thread::sleep(Duration::from_millis(body_ms));
+            let _ = socket.write_all(b"{\"LL\":{\"value\":\"ok\",\"Code\":200}}");
+        }
+    });
+    (host, worker)
+}
+
+#[tokio::test(flavor = "current_thread")]
+async fn legacy_phase_budgets_match_original_blocking_reference_not_a_total_deadline() {
+    for (header_ms, body_ms, expired) in [
+        (60, 60, None),
+        (130, 0, Some(ControlReadPhase::Headers)),
+        (0, 130, Some(ControlReadPhase::Body)),
+    ] {
+        let (host, worker) = phased_response(header_ms, body_ms);
+        let reference = thread::spawn(move || {
+            reqwest::blocking::Client::builder()
+                .no_proxy()
+                .timeout(Duration::from_millis(80))
+                .build()
+                .unwrap()
+                .get(format!("{host}/jdev/sps/io/{ID}"))
+                .send()?
+                .json::<serde_json::Value>()
+        })
+        .join()
+        .unwrap();
+        worker.join().unwrap();
+        assert_eq!(reference.is_err(), expired.is_some());
+        if let Err(error) = reference {
+            assert!(error.is_timeout());
+            assert_eq!(
+                error.is_request(),
+                expired == Some(ControlReadPhase::Headers)
+            );
+            assert_eq!(error.is_decode(), expired == Some(ControlReadPhase::Body));
+        }
+
+        for verbose in [false, true] {
+            let (host, worker) = phased_response(header_ms, body_ms);
+            let mut config = options(host);
+            config.compatibility = ControlReadCompatibility::LegacyCli;
+            config.timeout = Duration::from_millis(80);
+            config.retry_delays.clear();
+            if verbose {
+                config.response_policy = ControlReadResponsePolicy::LegacyCliVerbose {
+                    body_observer: Arc::new(|_| {}),
+                };
+            }
+            let client = ControlReadClient::new(config).unwrap();
+            let result = client.read_control(ID, &Cancellation::new()).await;
+            match expired {
+                None => assert_eq!(result.unwrap().validate().unwrap().value, "ok"),
+                Some(phase) => {
+                    let error = result.unwrap_err();
+                    assert_eq!(
+                        error.kind,
+                        ControlReadFailure::Transport {
+                            kind: TransportFailure::Timeout
+                        }
+                    );
+                    assert!(std::error::Error::source(&error).is_none());
+                    let timeout = error
+                        .into_source()
+                        .unwrap()
+                        .downcast::<ControlReadPhaseTimeout>()
+                        .unwrap();
+                    assert_eq!(timeout.phase(), phase);
+                    assert_eq!(timeout.to_string(), "operation timed out");
+                    assert!(!format!("{timeout:?}").contains("127.0.0.1"));
+                }
+            }
+            assert_eq!(client.active_operations(), 0);
+            client.close().await.unwrap();
+            worker.join().unwrap();
+        }
+    }
+
+    let (host, worker) = phased_response(60, 60);
+    let mut config = options(host);
+    config.timeout = Duration::from_millis(80);
+    config.retry_delays.clear();
+    let strict = ControlReadClient::new(config).unwrap();
+    assert_eq!(
+        strict
+            .read_control(ID, &Cancellation::new())
+            .await
+            .unwrap_err()
+            .kind,
+        ControlReadFailure::Transport {
+            kind: TransportFailure::Timeout
+        }
+    );
+    strict.close().await.unwrap();
+    worker.join().unwrap();
+}
+
 #[tokio::test(flavor = "current_thread")]
 async fn precancellation_and_retry_wait_cancellation_do_not_issue_another_request() {
     let server = MockServer::start();
@@ -457,33 +575,46 @@ async fn precancellation_and_retry_wait_cancellation_do_not_issue_another_reques
 
 #[tokio::test(flavor = "current_thread")]
 async fn close_releases_successful_pooled_socket_and_timeout_is_typed() {
+    pooled_close_and_timeout(ControlReadCompatibility::Strict).await;
+    pooled_close_and_timeout(ControlReadCompatibility::LegacyCli).await;
+}
+
+async fn pooled_close_and_timeout(compatibility: ControlReadCompatibility) {
     let fixture = SocketFixture::new(Some(
         "HTTP/1.1 200 OK\r\nContent-Length: 32\r\n\r\n{\"LL\":{\"value\":\"ok\",\"Code\":200}}",
     ));
-    let client = ControlReadClient::new(options(fixture.host)).unwrap();
+    let mut config = options(fixture.host);
+    config.compatibility = compatibility;
+    let client = ControlReadClient::new(config).unwrap();
     client.read_control(ID, &Cancellation::new()).await.unwrap();
     client.close().await.unwrap();
     assert!(receive(&fixture.ended).await);
     fixture.worker.join().unwrap();
 
-    let fixture = SocketFixture::new(None);
-    let mut config = options(fixture.host);
-    config.timeout = Duration::from_millis(30);
-    config.retry_delays.clear();
-    let client = ControlReadClient::new(config).unwrap();
-    assert_eq!(
-        client
-            .read_control(ID, &Cancellation::new())
-            .await
-            .unwrap_err()
-            .kind,
-        ControlReadFailure::Transport {
-            kind: TransportFailure::Timeout
-        }
-    );
-    assert!(receive(&fixture.ended).await);
-    client.close().await.unwrap();
-    fixture.worker.join().unwrap();
+    for response in [
+        None,
+        Some("HTTP/1.1 200 OK\r\nContent-Length: 10000\r\n\r\n{\"LL\":"),
+    ] {
+        let fixture = SocketFixture::new(response);
+        let mut config = options(fixture.host);
+        config.compatibility = compatibility;
+        config.timeout = Duration::from_millis(30);
+        config.retry_delays.clear();
+        let client = ControlReadClient::new(config).unwrap();
+        assert_eq!(
+            client
+                .read_control(ID, &Cancellation::new())
+                .await
+                .unwrap_err()
+                .kind,
+            ControlReadFailure::Transport {
+                kind: TransportFailure::Timeout
+            }
+        );
+        assert!(receive(&fixture.ended).await);
+        client.close().await.unwrap();
+        fixture.worker.join().unwrap();
+    }
 }
 
 #[tokio::test(flavor = "current_thread")]
@@ -573,8 +704,16 @@ async fn truncated_transfer_is_body_transport_not_a_successful_empty_state_or_js
 #[cfg(feature = "runtime-blocking")]
 #[tokio::test(flavor = "current_thread")]
 async fn owned_driver_busy_close_cancellation_and_drop_join_and_release_real_sockets() {
+    owned_sockets(ControlReadCompatibility::Strict).await;
+    owned_sockets(ControlReadCompatibility::LegacyCli).await;
+}
+
+#[cfg(feature = "runtime-blocking")]
+async fn owned_sockets(compatibility: ControlReadCompatibility) {
     let fixture = SocketFixture::new(None);
-    let driver = Arc::new(ControlReadDriver::new(options(fixture.host)).unwrap());
+    let mut config = options(fixture.host);
+    config.compatibility = compatibility;
+    let driver = Arc::new(ControlReadDriver::new(config).unwrap());
     let handle = driver.clone();
     let task = thread::spawn(move || handle.read_control(ID, &Cancellation::new()));
     receive(&fixture.started).await;
@@ -606,7 +745,9 @@ async fn owned_driver_busy_close_cancellation_and_drop_join_and_release_real_soc
     let fixture = SocketFixture::new(Some(
         "HTTP/1.1 200 OK\r\nContent-Length: 32\r\n\r\n{\"LL\":{\"value\":\"ok\",\"Code\":200}}",
     ));
-    let driver = ControlReadDriver::new(options(fixture.host)).unwrap();
+    let mut config = options(fixture.host);
+    config.compatibility = compatibility;
+    let driver = ControlReadDriver::new(config).unwrap();
     driver
         .read_control(ID, &Cancellation::new())
         .unwrap()

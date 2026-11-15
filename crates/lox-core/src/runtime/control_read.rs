@@ -16,10 +16,63 @@ pub use super::ClockValue as ControlValue;
 pub enum ControlReadCompatibility {
     #[default]
     Strict,
-    /// Preserve the live-get head's opaque resolved paths and deferred host errors.
-    /// This deliberately does not validate/encode identifiers or harden URLs.
+    /// Preserve opaque paths, deferred host errors and separate header/body
+    /// timeout budgets. This does not validate/encode identifiers or harden URLs.
     LegacyCli,
 }
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ControlReadPhase {
+    Headers,
+    Body,
+}
+
+/// An actual legacy phase-budget expiry, not a fabricated reqwest error.
+/// Available only through the explicit `ControlReadError::into_source` opt-in.
+pub struct ControlReadPhaseTimeout {
+    phase: ControlReadPhase,
+    url: reqwest::Url,
+    _elapsed: tokio::time::error::Elapsed,
+}
+
+impl ControlReadPhaseTimeout {
+    pub(super) fn new(
+        phase: ControlReadPhase,
+        url: reqwest::Url,
+        elapsed: tokio::time::error::Elapsed,
+    ) -> Self {
+        Self {
+            phase,
+            url,
+            _elapsed: elapsed,
+        }
+    }
+
+    pub fn phase(&self) -> ControlReadPhase {
+        self.phase
+    }
+
+    /// Explicit legacy adapter disclosure; the URL can contain private data.
+    pub fn request_url(&self) -> &reqwest::Url {
+        &self.url
+    }
+}
+
+impl fmt::Debug for ControlReadPhaseTimeout {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("ControlReadPhaseTimeout")
+            .field("phase", &self.phase)
+            .finish_non_exhaustive()
+    }
+}
+
+impl fmt::Display for ControlReadPhaseTimeout {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("operation timed out")
+    }
+}
+
+impl std::error::Error for ControlReadPhaseTimeout {}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum ControlReadDiagnostic {
@@ -243,7 +296,8 @@ impl ControlReadError {
         Self { kind, source: None }
     }
 
-    /// Opt-in original reqwest/serde source, for an existing head's error adapter.
+    /// Opt-in original reqwest/serde source or genuine `ControlReadPhaseTimeout`,
+    /// for an existing head's error adapter.
     /// May contain request URLs/credentials or backend details; do not log it
     /// unconditionally. This does not claim global secret sanitization.
     pub fn into_source(self) -> Option<Box<dyn std::error::Error + Send + Sync>> {
@@ -305,6 +359,12 @@ fn control_error(error: HttpError) -> ControlReadError {
                 ControlReadFailure::Transport {
                     kind: transport_kind(&error),
                 }
+            },
+            Some(Box::new(error)),
+        ),
+        HttpError::PhaseTimeout(error) => (
+            ControlReadFailure::Transport {
+                kind: TransportFailure::Timeout,
             },
             Some(Box::new(error)),
         ),

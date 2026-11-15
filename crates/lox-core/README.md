@@ -188,7 +188,14 @@ Protocol failure codes do not automatically become HTTP errors.
 Default options validate HTTP(S) hosts and the existing command-path identifier
 contract. The CLI explicitly selects `ControlReadCompatibility::LegacyCli`,
 retaining its deferred host errors and **opaque** alias/catalog targets without
-new path validation or URL encoding. Resolution, cached/raw structure acquisition,
+new path validation or URL encoding. This explicit profile also preserves the
+old blocking client's **separate** timeout budgets: up to `timeout` waiting for
+headers, then a fresh `timeout` for the complete JSON/text body. It does not
+install reqwest's async total-timeout body wrapper, preserving the original
+backend source chain on truncated transfers. Strict control and Clock retain
+their existing total request deadlines.
+
+Resolution, cached/raw structure acquisition,
 config/context choice, error envelopes/categories, quiet/JSON/human formatting and
 template notes remain in the head. It still constructs the original `LoxClient`
 before resolution, retaining its original build/warning/error order and catalog
@@ -200,7 +207,15 @@ Debug; ordinary diagnostics contain only event/status/size. Error Display and
 automatic source chains are sanitized. `ControlReadError::kind` is typed;
 `into_source()` is an **explicit disclosure opt-in** for the CLI's original
 reqwest/serde error-source chain, which may contain URLs/credentials/backend
-details. The CLI uses it to preserve inherited errors/categories, not to promise
+details. An expired legacy phase budget instead supplies a genuine typed
+`ControlReadPhaseTimeout` (with `Headers`/`Body` phase), not a fabricated
+`reqwest::Error`: reqwest's constructors for its blocking timeout errors are
+private. Existing backend errors retain their reqwest/serde downcasts; phase
+budget expiry has this distinct downcast. Its Display/Debug contain no URL;
+`request_url()` is a separate explicit disclosure for the head's header-error
+context. The CLI's typed adapter preserves the old rendered timeout chain and
+category without inspecting or rewriting backend error strings.
+The CLI uses it to preserve inherited errors/categories, not to promise
 global secret removal. `LegacyCliVerbose` separately enables replacement-decoded
 response text and a caller-owned raw-body observer, preserving `-vv` behavior
 (including malformed-body logging). Neither opt-in is automatic for library

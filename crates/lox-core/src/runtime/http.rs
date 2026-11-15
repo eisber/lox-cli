@@ -1,5 +1,8 @@
 //! Private HTTP and operation lifetime shared only by clock and control reads.
-use super::{CancelReason, Cancellation, ClockOptions, TransportFailure};
+use super::{
+    CancelReason, Cancellation, ClockOptions, ControlReadPhase, ControlReadPhaseTimeout,
+    TransportFailure,
+};
 use reqwest::Client;
 use serde_json::Value;
 use std::future::Future;
@@ -46,6 +49,7 @@ pub(super) enum HttpError {
     Build(reqwest::Error),
     Status(u16),
     Request(reqwest::Error),
+    PhaseTimeout(ControlReadPhaseTimeout),
     Json(serde_json::Error),
     Cancelled(CancelReason),
     Closed,
@@ -86,6 +90,7 @@ struct Shared {
     active: watch::Sender<usize>,
     shutdown: Cancellation,
     options: HttpOptions,
+    legacy_phase_timeout: bool,
 }
 
 impl Shared {
@@ -109,6 +114,7 @@ impl Drop for Operation {
 
 impl HttpRuntime {
     pub fn new(options: HttpOptions, policy: HostPolicy) -> Result<Self, HttpError> {
+        let legacy_phase_timeout = matches!(policy, HostPolicy::ControlLegacy);
         let parsed = reqwest::Url::parse(&options.host);
         if !matches!(policy, HostPolicy::ControlLegacy)
             && !parsed.as_ref().is_ok_and(|host| {
@@ -141,8 +147,10 @@ impl HttpRuntime {
         let mut builder = Client::builder()
             .user_agent(&options.user_agent)
             .danger_accept_invalid_certs(!options.verify_tls)
-            .redirect(redirects)
-            .timeout(options.timeout);
+            .redirect(redirects);
+        if !legacy_phase_timeout {
+            builder = builder.timeout(options.timeout);
+        }
         if !options.use_system_proxy {
             builder = builder.no_proxy();
         }
@@ -157,7 +165,30 @@ impl HttpRuntime {
             active: watch::channel(0).0,
             shutdown: Cancellation::new(),
             options,
+            legacy_phase_timeout,
         })))
+    }
+
+    async fn phase<T>(
+        &self,
+        phase: ControlReadPhase,
+        url: &reqwest::Url,
+        operation: impl Future<Output = Result<T, reqwest::Error>>,
+    ) -> Result<T, HttpError> {
+        if self.0.legacy_phase_timeout {
+            tokio::time::timeout(self.0.options.timeout, operation)
+                .await
+                .map_err(|elapsed| {
+                    HttpError::PhaseTimeout(ControlReadPhaseTimeout::new(
+                        phase,
+                        url.clone(),
+                        elapsed,
+                    ))
+                })?
+                .map_err(HttpError::Request)
+        } else {
+            operation.await.map_err(HttpError::Request)
+        }
     }
 
     pub fn is_closed(&self) -> bool {
@@ -236,26 +267,38 @@ impl HttpRuntime {
         let mut delays = options.retry_delays.iter();
         loop {
             let result = async {
-                let response = client
+                let request = client
                     .get(&url)
                     .basic_auth(&options.user, Some(&options.password))
-                    .send()
-                    .await
+                    .build()
                     .map_err(HttpError::Request)?;
+                let request_url = request.url().clone();
+                let response = self
+                    .phase(
+                        ControlReadPhase::Headers,
+                        &request_url,
+                        client.execute(request),
+                    )
+                    .await?;
                 let status = response.status();
                 emit(HttpEvent::Response(status.as_u16()));
                 if !status.is_success() {
                     return Err(HttpError::Status(status.as_u16()));
                 }
                 match &policy {
-                    JsonPolicy::ResponseJson => response.json().await.map_err(HttpError::Request),
+                    JsonPolicy::ResponseJson => {
+                        self.phase(ControlReadPhase::Body, &request_url, response.json())
+                            .await
+                    }
                     JsonPolicy::Bytes => {
                         let body = response.bytes().await.map_err(HttpError::Request)?;
                         emit(HttpEvent::Body(body.len()));
                         serde_json::from_slice(&body).map_err(HttpError::Json)
                     }
                     JsonPolicy::LegacyText(observer) => {
-                        let body = response.text().await.map_err(HttpError::Request)?;
+                        let body = self
+                            .phase(ControlReadPhase::Body, &request_url, response.text())
+                            .await?;
                         emit(HttpEvent::Body(body.len()));
                         observer(&body);
                         serde_json::from_str(&body).map_err(HttpError::Json)

@@ -16,7 +16,8 @@ use clap::Subcommand;
 use lox_core::runtime::{
     Cancellation, ClockDriver, ClockError, ClockOptions, ClockResponsePolicy,
     ControlReadCompatibility, ControlReadDiagnostic, ControlReadDriver, ControlReadError,
-    ControlReadFailure, ControlReadOptions, ControlReadResponsePolicy, Diagnostic,
+    ControlReadFailure, ControlReadOptions, ControlReadPhase, ControlReadPhaseTimeout,
+    ControlReadResponsePolicy, Diagnostic,
 };
 use serde_json::{Value, json};
 use std::sync::Arc;
@@ -142,7 +143,18 @@ fn control_read_error(error: ControlReadError, path: &str) -> anyhow::Error {
             Ok(source) => anyhow::Error::new(*source),
             Err(source) => match source.downcast::<serde_json::Error>() {
                 Ok(source) => anyhow::Error::new(*source),
-                Err(source) => anyhow::Error::from_boxed(source),
+                Err(source) => match source.downcast::<ControlReadPhaseTimeout>() {
+                    Ok(source) => {
+                        let context = match source.phase() {
+                            ControlReadPhase::Headers => {
+                                format!("error sending request for url ({})", source.request_url())
+                            }
+                            ControlReadPhase::Body => "error decoding response body".into(),
+                        };
+                        anyhow::Error::new(*source).context(context)
+                    }
+                    Err(source) => anyhow::Error::from_boxed(source),
+                },
             },
         },
         None => anyhow::anyhow!("{message}"),
@@ -248,6 +260,92 @@ mod tests {
     use super::*;
     use httpmock::{Method::GET, MockServer};
     use std::time::Duration;
+
+    #[test]
+    fn legacy_phase_timeouts_preserve_actual_blocking_messages_and_categories() {
+        use std::io::{Read, Write};
+        use std::net::TcpListener;
+        use std::thread;
+
+        for body_phase in [false, true] {
+            for verbose in [false, true] {
+                let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+                let host = format!("http://{}", listener.local_addr().unwrap());
+                let worker = thread::spawn(move || {
+                    let mut responses = Vec::new();
+                    for _ in 0..2 {
+                        let (mut socket, _) = listener.accept().unwrap();
+                        responses.push(thread::spawn(move || {
+                            socket
+                                .set_read_timeout(Some(Duration::from_secs(3)))
+                                .unwrap();
+                            let mut request = Vec::new();
+                            while !request.ends_with(b"\r\n\r\n") {
+                                let mut byte = [0];
+                                socket.read_exact(&mut byte).unwrap();
+                                request.push(byte[0]);
+                            }
+                            if body_phase {
+                                socket
+                                    .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 100\r\n\r\n{")
+                                    .unwrap();
+                            }
+                            thread::sleep(Duration::from_millis(150));
+                        }));
+                    }
+                    for response in responses {
+                        response.join().unwrap();
+                    }
+                });
+                let path = "/jdev/sps/io/abcdef";
+                let legacy = reqwest::blocking::Client::builder()
+                    .no_proxy()
+                    .timeout(Duration::from_millis(80))
+                    .build()
+                    .unwrap();
+                let reference = (|| -> Result<Value> {
+                    let response = legacy.get(format!("{host}{path}")).send()?;
+                    if verbose {
+                        Ok(serde_json::from_str(&response.text()?)?)
+                    } else {
+                        Ok(response.json()?)
+                    }
+                })()
+                .unwrap_err();
+                let mut options = ControlReadOptions::new(&host, "", "");
+                options.compatibility = ControlReadCompatibility::LegacyCli;
+                options.use_system_proxy = false;
+                options.timeout = Duration::from_millis(80);
+                options.retry_delays.clear();
+                if verbose {
+                    options.response_policy = ControlReadResponsePolicy::LegacyCliVerbose {
+                        body_observer: Arc::new(|_| panic!("No complete body on timeout")),
+                    };
+                }
+                let driver = ControlReadDriver::new(options).unwrap();
+                let actual = control_read_error(
+                    driver
+                        .read_control("abcdef", &Cancellation::new())
+                        .unwrap_err(),
+                    path,
+                );
+                driver.close().unwrap();
+                assert_eq!(format!("{actual:#}"), format!("{reference:#}"));
+                assert_eq!(
+                    crate::categorize_error(&actual),
+                    crate::categorize_error(&reference)
+                );
+                assert!(
+                    reference
+                        .downcast_ref::<reqwest::Error>()
+                        .unwrap()
+                        .is_timeout()
+                );
+                assert!(actual.downcast_ref::<ControlReadPhaseTimeout>().is_some());
+                worker.join().unwrap();
+            }
+        }
+    }
 
     #[test]
     fn control_read_adapter_preserves_actual_legacy_http_and_decode_sources() {

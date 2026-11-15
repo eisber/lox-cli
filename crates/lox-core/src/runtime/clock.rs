@@ -104,6 +104,10 @@ fn clock_error(error: HttpError, endpoint: ClockEndpoint) -> ClockError {
             endpoint,
             kind: transport_kind(&error),
         },
+        HttpError::PhaseTimeout(_) => ClockError::Transport {
+            endpoint,
+            kind: TransportFailure::Timeout,
+        },
         HttpError::Json(_) => ClockError::Decode { endpoint },
         HttpError::Cancelled(reason) => ClockError::Cancelled(reason),
         HttpError::Closed => ClockError::Closed,
