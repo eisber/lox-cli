@@ -21,6 +21,9 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- `numeric_state::decode_value_state_payload`: typed, offline decoding of complete
+  numeric value-state table payloads. This is a new Rust-only operation, not a
+  migrated CLI producer or a WebSocket transport/subscription API.
 - `color`: offline typed RGB/HSV/temperature encoding, distinct actor composites
   and LightsceneC percent mood values, and explicit existing-profile
   `decode_legacy` / `parse_mood_legacy` observations. The actual CLI color
@@ -72,6 +75,42 @@ start a runtime or normalize XML. Arbitrary decoded archive bytes are
 preserved, including BOM, mixed line endings, duplicate attributes and non-UTF-8
 data. Default features are empty; archive-only consumers do not depend on
 reqwest/Tokio/serde_json through the library's normal dependencies.
+
+## Complete numeric value-state payloads
+
+`numeric_state::{decode_value_state_payload, NumericState, StateUuid,
+NumericStatePayloadError}` is available with default features and adds no
+dependencies. The caller supplies `&[u8]` containing an already-identified,
+complete numeric value-state table **payload**, with protocol/transport headers
+removed. Each 24-byte record is UUID16 followed by IEEE 754 f64 little-endian8.
+Empty input produces an empty vector; any incomplete tail returns typed
+`InvalidLength { actual, trailing }` before decoding, with no partial result.
+
+Owned records preserve event order and duplicate IDs. `uuid().wire_bytes()`
+retains the original UUID16; `uuid().to_native35()` renders lowercase
+`8-4-4-16` using unsigned u32 LE/u16 LE/u16 LE and eight tail bytes in wire order.
+It does not change `control::is_uuid`, `validate_uuid`, configuration RFC36
+identifiers or opaque runtime IDs. `value()` returns f64 without arithmetic;
+`value_bits()` preserves every bit, including negative zero, infinities,
+subnormals and signaling/quiet NaN payloads. Record equality is bitwise, not
+floating-point numerical equality. There is no finite-only validation.
+
+Length is not a type discriminator: unrelated bytes of a matching length can
+decode. This API does not authenticate, identify or assemble modern WebSocket
+frames, process the legacy 64-byte WSX handshake, or decode binary statistics
+(V1/V2 epochs), text, daytimer or weather. No cache, subscription, callbacks,
+backpressure, CLI command or Python/JVM/FFI head is added.
+
+The public consumer proof is
+`cargo test -p lox-core --test numeric_state_payload`; it uses original synthetic
+bytes, independently expected identifiers/values, ordered duplicate IDs,
+IEEE edge patterns and every incomplete tail around multiple record boundaries.
+No existing private decoder/caller was found at base `73621a8a242c8130c569795b68b2d2097737b603`;
+authentication text receivers and raw/legacy WSX transport are unchanged.
+The [source mapping and policy comparison](../../docs/knowledge/upstream-crosswalk.md#complete-numeric-value-state-payloads)
+cite pinned implementation/tests and the existing protocol reference. In
+particular, strict rejection is an original API choice, not an upstream bugfix
+or firmware/native qualification.
 
 ## Optional LoxApp3 control catalog
 
@@ -791,7 +830,7 @@ XML control/room inventory, summary/comparison, monthly statistics,
 authentication-hash and control-resolution families remain binary-private.
 The separate generated UniFFI Python / one Java 22+ FFM facade exposes only the
 capabilities in its [per-head matrix](../../docs/toolkit-archive-bindings.md).
-Comparison, statistics, authentication hashes, editing and runtime catalog
+Numeric value-state payloads, comparison, statistics, authentication hashes, editing and runtime catalog
 acquisition remain unsupported there. No general cross-head parity, registry
 package availability or ABI stability is claimed.
 Archive byte guarantees and private deployment/sidecar policies are unchanged;
@@ -803,8 +842,10 @@ validated on Windows AMD64; other platforms are not newly qualified by it.
 
 ## License and provenance
 
-This is an extraction of this project's own archive code, not an import of an
-upstream client/config crate. Licensing and attribution are unchanged:
+The archive family extracts this project's own code. The numeric value-state
+payload family is an original implementation of documented wire facts, with
+original synthetic tests; no upstream code or test vectors were imported.
+Neither imports an upstream client/config crate. Licensing and attribution are unchanged:
 see the repository [LICENSE](../../LICENSE), [LICENSE-AGPL](../../LICENSE-AGPL),
 [LICENSE-COMMERCIAL](../../LICENSE-COMMERCIAL) and [NOTICE](../../NOTICE).
 The package retains `AGPL-3.0-or-later AND LicenseRef-Commercial` metadata.

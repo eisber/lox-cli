@@ -42,3 +42,59 @@ This is a focused comparison with the
 not wholesale code adoption, acceptance of every change at that head, or native
 firmware qualification. The catalog's reviewed repository pin is not advanced
 by observing this later commit.
+
+## Complete numeric value-state payloads
+
+**Missing public capability at local base
+`73621a8a242c8130c569795b68b2d2097737b603` → supported Rust payload branch.**
+The default-feature `lox_core::numeric_state::decode_value_state_payload`
+operation now decodes complete numeric value-state tables into owned, typed
+records/errors. A search of the actual workspace and the pinned Rust source
+found no existing private numeric decoder or caller to extract. `src/ws.rs`
+provides raw connection/legacy reload transport; the authentication receivers
+in `src/token.rs` handle text and skip binary messages. Neither is migrated.
+This is a new Rust-only operation, with a public library consumer test, not
+an imaginary CLI command, foreign binding or full event runtime.
+
+Wire evidence at the already-reviewed Smarteon/loxone-client-kotlin commit
+[`22fc2d9c1ec58065295fde384fb2cab79fa71d31`](https://github.com/Smarteon/loxone-client-kotlin/commit/22fc2d9c1ec58065295fde384fb2cab79fa71d31):
+
+- [`Codec.kt::readValueEvents/readUuid`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/Codec.kt)
+  reads UUID16 followed by little-endian f64 in each 24-byte record. UUID
+  rendering uses unsigned u32 LE/u16 LE/u16 LE and eight bytes in wire order,
+  yielding lowercase native35 (`8-4-4-16`). The `readUuid` comment's shorter
+  twelve-digit tail is inconsistent with its implementation and tests; the
+  implementation/tests, not that comment, inform this mapping.
+- [`event/ValueEvent.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonMain/kotlin/event/ValueEvent.kt)
+  defines the record shape and 24-byte size.
+- [`event/ValueEventTest.kt`](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonTest/kotlin/event/ValueEventTest.kt)
+  explicitly checks the sixteen-digit tail, empty input, complete events,
+  and intentionally lenient incomplete-tail/prefix behavior.
+- The pinned [BSD-3-Clause license](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/LICENSE)
+  and Smarteon Systems attribution remain in the existing catalog. Only
+  factual wire-format knowledge is used here, not copied implementation or
+  upstream test vectors.
+
+The existing local protocol reference at the same local base independently
+confirms the layout: [Event-Table of Value-States](../loxone-miniserver-protocol.txt#L825-L842)
+and [The UUID](../loxone-miniserver-protocol.txt#L950-L975).
+The new implementation and synthetic test vectors are original.
+**Upstream implementation/reference evidence is not native/firmware qualification.**
+
+The strict policy is a deliberate **difference**, not an upstream defect fix:
+empty input is valid, but every non-multiple-of-24 payload returns typed
+`NumericStatePayloadError::InvalidLength { actual, trailing }` atomically,
+including complete-prefix-plus-tail inputs. No lenient local caller is changed.
+Records retain order, duplicate UUIDs, raw UUID bytes and every IEEE f64 bit
+pattern (including nonfinite values and signed zero), with explicit raw-bit
+access. There is no JSON conversion or finite-value rule. Config RFC36 and
+other runtime identifier contracts are unchanged.
+
+The precondition is an already-identified, assembled numeric table payload.
+Length validation cannot authenticate or identify payload types. Modern
+WebSocket headers/framing/reassembly, legacy WSX packets, binary statistics,
+text/daytimer/weather, subscriptions, caches, callbacks and backpressure remain
+outside this operation. CLI, Python and Java/Kotlin decoding are unsupported;
+see the [per-head matrix](../toolkit-archive-bindings.md).
+The seven-repository catalog, reviewed/latest-seen pins and ancestry findings
+are unchanged; this focused source comparison does not advance any pin.
