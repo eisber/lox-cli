@@ -36,6 +36,8 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   migrated CLI producer or a WebSocket transport/subscription API.
 - `text_state::decode_text_state_payload`: complete UTF-8 text-state payloads,
   retaining state/icon UUIDs and exact text with strict atomic errors.
+- `weather_state::decode_weather_state_payload`: complete unframed Weather-State
+  payloads as raw typed observations, with atomic count/length errors.
 - `color`: offline typed RGB/HSV/temperature encoding, distinct actor composites
   and LightsceneC percent mood values, and explicit existing-profile
   `decode_legacy` / `parse_mood_legacy` observations. The actual CLI color
@@ -167,6 +169,46 @@ Existing numeric contracts/tests are unchanged.
 This adds no CLI command, Python/JVM operation, frame classifier/reassembler,
 network runtime, subscription, backpressure, timestamp interpretation or
 firmware/native Config qualification.
+
+## Complete Weather-State payloads
+
+Default-feature `weather_state::{decode_weather_state_payload, WeatherState,
+WeatherEntry, WeatherStatePayloadError}` is pure std with no new dependencies.
+Supply an already-identified, fully assembled payload without protocol/transport headers.
+Each state contains UUID16, unsigned little-endian `last_update: u32`, signed
+little-endian entry count, then 68 bytes per entry: five signed LE32 fields
+(`timestamp`, `weather_type`, `wind_direction`, `solar_radiation`,
+`relative_humidity`), followed by six LE64 IEEE fields (`temperature`,
+`perceived_temperature`, `dew_point`, `precipitation`, `wind_speed`,
+`barometric_pressure`).
+
+States preserve order, duplicate identifiers, zero-entry states and entry order.
+`uuid()` reuses the published `numeric_state::StateUuid` raw/native35 contract.
+`last_update()` preserves all unsigned bits rather than Kotlin's signed narrowing;
+entry `timestamp` remains signed. The six public `*_bits: u64` fields are
+authoritative wire observations, including all NaNs, infinities, signed zeros
+and subnormals; the correspondingly named methods interpret those bits as f64
+without arithmetic. Equality is bitwise. No signed-field ranges are enforced.
+
+Empty input is valid. A validation pass checks **the entire input** before
+allocating any result: short headers, negative counts, unrepresentable checked
+count-times-68 lengths and truncated entries return typed payload-free errors.
+Errors identify the state header's byte offset and declared/expected/available
+counts (entry byte counts exclude the 24-byte header). No partial result is
+returned for malformed suffixes and no arbitrary size cap is imposed.
+Strict atomic rejection is an **original local policy**, not upstream
+compatibility or firmware qualification.
+
+No timestamp conversion, timezone/epoch interpretation, weather-type enum,
+units, semantic range, Weather-Abo eligibility or firmware-version policy is
+provided. This is **not** the HTTP `weatheru.bin` 108-byte entry layout. It adds
+no transport, framing, dispatcher, subscription, CLI or Python/JVM/FFI surface.
+The [pinned source/caller/model/test comparison](../../docs/knowledge/upstream-crosswalk.md#complete-weather-state-payloads)
+distinguishes upstream descriptions from this raw observation contract.
+`cargo test -p lox-core --test weather_state_payload` exercises the public API
+with original synthetic inputs, mixed-endian UUIDs, unsigned/signed extremes,
+IEEE payload identity, duplicate states, multiple entries, and every truncation
+of a two-entry state after a valid prefix.
 
 ## Optional read-only XML device inventory
 
