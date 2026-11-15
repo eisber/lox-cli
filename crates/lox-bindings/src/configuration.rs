@@ -1,7 +1,45 @@
 //! Owned inspection results; the distinct XML contracts belong to core.
 
-use lox_core::configuration::{controls, rooms, summary};
+use lox_core::configuration::{controls, devices, rooms, summary};
 use std::collections::HashMap;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, uniffi::Enum)]
+pub enum XmlDeviceBus {
+    Tree,
+    Air,
+    Network,
+}
+
+/// Read-only SAX inventory, not DOM device identity or port discovery.
+#[derive(Clone, Debug, PartialEq, Eq, uniffi::Record)]
+pub struct XmlDeviceInfo {
+    pub name: String,
+    pub bus: XmlDeviceBus,
+    pub serial: Option<String>,
+    /// Widened from core u32 so Java's signed Long retains every value.
+    pub sub_type: Option<u64>,
+    pub type_label: String,
+    pub mac: Option<String>,
+    pub address: Option<String>,
+}
+
+impl From<devices::DeviceInfo> for XmlDeviceInfo {
+    fn from(value: devices::DeviceInfo) -> Self {
+        Self {
+            name: value.name,
+            bus: match value.bus {
+                devices::DeviceBus::Tree => XmlDeviceBus::Tree,
+                devices::DeviceBus::Air => XmlDeviceBus::Air,
+                devices::DeviceBus::Network => XmlDeviceBus::Network,
+            },
+            serial: value.serial,
+            sub_type: value.sub_type.map(u64::from),
+            type_label: value.type_label,
+            mac: value.mac,
+            address: value.address,
+        }
+    }
+}
 
 /// Offline XML inventory, not runtime Control or summary ConfigControlEntry.
 #[derive(Clone, Debug, PartialEq, Eq, uniffi::Record)]
@@ -124,6 +162,24 @@ impl From<controls::ControlInventoryError> for ConfigurationError {
     }
 }
 
+impl From<devices::DeviceInventoryError> for ConfigurationError {
+    fn from(value: devices::DeviceInventoryError) -> Self {
+        match value {
+            devices::DeviceInventoryError::Xml { source } => Self::Xml {
+                source_message: source.to_string(),
+            },
+        }
+    }
+}
+
+/// Preserve core's raw-byte, document-order device inventory without enrichment.
+#[uniffi::export]
+pub fn parse_devices(xml: Vec<u8>) -> Result<Vec<XmlDeviceInfo>, ConfigurationError> {
+    devices::parse_devices(&xml)
+        .map(|values| values.into_iter().map(Into::into).collect())
+        .map_err(Into::into)
+}
+
 /// Read raw XML using core's pending-next-IoData inventory and filter admission.
 #[uniffi::export]
 pub fn parse_controls(
@@ -156,6 +212,74 @@ pub fn parse_config_summary(xml: Vec<u8>) -> Result<ConfigSummary, Configuration
 mod tests {
     use super::*;
     use std::error::Error;
+
+    #[test]
+    fn devices_preserve_raw_branch_fields_defaults_order_and_unsigned_subtypes() {
+        let xml = br#"<Root>
+          <C Type="TreeDevice" Title=" raw&amp;&#65; " Title="ignored" Serial="" SubType="4294967295" MAC="ignored"/>
+          <C Type="LoxAIRDevice" Title="same" Serial="ignored" SubType="7" Addr="ignored"/>
+          <C Type="NetworkDevice" Title="same" Serial="ignored" SubType="4294967295" MAC="" Addr="raw&amp;"/>
+          <C Type="TreeDevice" SubType=" 7"/>
+          <C Type="treeDevice" Title="excluded"/>
+          <C Type="TreeDevice" Title="repeat"/><C Type="TreeDevice" Title="repeat"/>
+        </Root>"#;
+        let values = parse_devices(xml.to_vec()).unwrap();
+        assert_eq!(values.len(), 6);
+        assert_eq!(
+            values[0],
+            XmlDeviceInfo {
+                name: " raw&amp;&#65; ".into(),
+                bus: XmlDeviceBus::Tree,
+                serial: Some("".into()),
+                sub_type: Some(4_294_967_295),
+                type_label: "Unknown (4294967295)".into(),
+                mac: None,
+                address: None,
+            }
+        );
+        assert_eq!(values[1].bus, XmlDeviceBus::Air);
+        assert_eq!(values[1].serial, None);
+        assert_eq!(values[1].type_label, "Nano IO Air");
+        assert_eq!(values[2].bus, XmlDeviceBus::Network);
+        assert_eq!(values[2].sub_type, Some(4_294_967_295));
+        assert_eq!(values[2].type_label, "Network device");
+        assert_eq!(values[2].mac.as_deref(), Some(""));
+        assert_eq!(values[2].address.as_deref(), Some("raw&amp;"));
+        assert_eq!(values[3].name, "");
+        assert_eq!(values[3].sub_type, None);
+        assert_eq!(values[3].type_label, "Unknown");
+        assert_eq!(values[4], values[5]);
+    }
+
+    #[test]
+    fn devices_keep_permissive_attributes_eof_and_original_reader_errors() {
+        for xml in [
+            b"plain text".as_slice(),
+            b"",
+            b"<C Type=\"TreeDevice\" Title=\"open\">",
+            b"<C Type=\"TreeDevice\" Title=\"raw&amp;\" bad />",
+            b"<C Type=\"TreeDevice\" Title=\"\xff\" Serial=\"\xff\"/>",
+            b"<C Type=\"NetworkDevice\" SubType=\"4294967296\"/>",
+        ] {
+            let expected: Vec<XmlDeviceInfo> = devices::parse_devices(xml)
+                .unwrap()
+                .into_iter()
+                .map(Into::into)
+                .collect();
+            assert_eq!(parse_devices(xml.to_vec()).unwrap(), expected);
+        }
+        let xml = b"<Root><C Type=\"TreeDevice\" Title=\"not partial\"/><secret>not-an-error-payload</Root>";
+        let ConfigurationError::Xml { source_message } = parse_devices(xml.to_vec()).unwrap_err();
+        assert_eq!(
+            source_message,
+            devices::parse_devices(xml)
+                .unwrap_err()
+                .source()
+                .unwrap()
+                .to_string()
+        );
+        assert!(!source_message.contains("not-an-error-payload"));
+    }
 
     #[test]
     fn xml_controls_preserve_every_field_filter_admission_and_owned_results() {

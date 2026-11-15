@@ -1,8 +1,8 @@
 # Experimental native archive, configuration inspection, numeric/text, clock, control and color bindings
 
-This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML device/control/room/summary inspection, LoxApp3 catalog, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, devices, rooms, summary}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -21,7 +21,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only room inventory from raw XML bytes | Optional `configuration::rooms::parse_rooms` (`configuration-xml`) | Existing shared parser; unchanged | `parse_rooms(bytes) -> list[RoomInfo]` | `LoxArchive.parseRooms(byte[]) -> List<RoomInfo>` |
 | Read-only structural summary from raw XML bytes | Optional `configuration::summary::parse_config_summary` (`configuration-xml`) | Existing shared producer for `config diff`; unchanged | `parse_config_summary(bytes) -> ConfigSummary` | `LoxArchive.parseConfigSummary(byte[]) -> ConfigSummary` |
 | Read-only control inventory from raw XML bytes | Optional `configuration::controls::parse_controls` (`configuration-xml`); existing filters and pending associations | `config controls` shares inventory; I/O, limits and presentation stay in CLI | `parse_controls(bytes, type_filter, room_filter) -> list[XmlControlInfo]` | `LoxArchive.parseControls(byte[], String, String) -> List<XmlControlInfo>`; nullable filters |
-| Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Unsupported | Unsupported |
+| Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Unsupported | Unsupported |
 | XML editing, validation, deployment, sidecars/trust | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Unsupported | Unsupported |
@@ -46,6 +46,41 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Read-only device inventory candidate
+
+This thin device head is publication-gated; older packages do not expose it.
+`XmlDeviceInfo` owns `name`, typed `XmlDeviceBus` (`Tree`, `Air`, `Network`),
+optional `serial`, optional `sub_type` (`subType()`), `type_label`
+(`typeLabel()`), optional `mac`, and optional `address`. Core's unsigned
+32-bit subtype is widened losslessly to `u64`: Python receives an integer,
+Java/Kotlin a nullable `Long` in **0..4294967295**, never a narrowed signed
+32-bit value. Missing and empty optional strings remain distinct.
+
+Only exact raw `C` types `TreeDevice`, `LoxAIRDevice`, `NetworkDevice` count.
+Bus depends on that type alone. Only Tree retains `Serial`; only Network
+retains `MAC`/`Addr`, and its label always remains `Network device` regardless
+of subtype. Missing names become empty. Labels and untrimmed `u32` parsing
+come from Core, including unknown subtype labels. Raw UTF-8/entity spellings,
+first matching attributes, ignored malformed attributes, absent invalid UTF-8
+values, encounter order and duplicates are unchanged. Empty/text-only input
+and incomplete EOF can succeed; reader errors return no partial list and
+raise Python `ConfigurationError.Xml` / Java checked
+`ConfigurationException.Xml` with original `source_message`/`sourceMessage()`.
+These SAX contracts are not the separate strict firmware parser or DOM APIs;
+`lox-n37w` remains explicit. There is no port, grouped identity, room, filter,
+enrichment, authentication or permission API.
+
+`devices_smoke.py`, `DevicesSmoke.java` and `DevicesSmoke.kt` exercise actual
+native exports and host-owned values. Their success/error allocation proofs
+reuse the unchanged reviewed Windows heap probe: a real large serialized
+device result/error is counted live once, explicitly freed and counted zero,
+then 64 public calls retain zero matching buffers without requesting GC.
+Long mismatched XML tag names make real source-error buffers large enough
+for that existing exact-prefix/64000-byte guard; no small-allocation proxy,
+new production counters, heap-scan weakening or recovery claim is involved.
+The scope remains Windows AMD64, CPython 3.13 GIL and Java 22 FFM with Kotlin
+using that same Java API; no ABI, MSRV or other-platform qualification.
 
 ### Errors and compatibility boundaries
 

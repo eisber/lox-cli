@@ -1,0 +1,13 @@
+<Root>
+  <C Type="TreeDevice" Title=" raw&amp;&#65;&custom; " Title="ignored" Serial="" SubType="4294967295" MAC="ignored" Addr="ignored"/>
+  <C Type="LoxAIRDevice" Title="same" Serial="ignored" SubType="7" MAC="ignored"/>
+  <C Type="NetworkDevice" Title="same" Serial="ignored" SubType="4294967295" MAC="" Addr="raw&amp;"/>
+  <C Type="TreeDevice" SubType=" 7"/>
+  <C Type="treeDevice" Title="excluded"/>
+  <C Type="TreeDevice" Title="repeat"/><C Type="TreeDevice" Title="repeat"/>
+  <C Type="TreeDevice" SubType="4294967296"/>
+  <C Type="LoxAIRDevice" SubType="32794"/>
+  <C Type="NetworkDevice" SubType="7"/>
+  <C Type="TreeDevice" SubType="7" SubType="32"/>
+  <C Type="TreeDevice" Title="before-bad" bad />
+</Root>
