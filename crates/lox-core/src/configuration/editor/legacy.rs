@@ -16,6 +16,11 @@ pub struct State {
 }
 
 impl State {
+    #[cfg(feature = "configuration-xml")]
+    pub fn mqtt_topics(&self) -> Vec<super::super::mqtt::MqttTopic> {
+        super::super::mqtt::from_root(&self.root)
+    }
+
     /// Load a .Loxone XML file for editing.
     ///
     /// Loxone Config can produce attributes with digit-prefixed names (e.g. `12hTF="true"`)

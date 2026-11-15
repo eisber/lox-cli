@@ -18,6 +18,9 @@ pub mod devices;
 pub mod diff;
 
 #[cfg(feature = "configuration-xml")]
+pub mod mqtt;
+
+#[cfg(feature = "configuration-xml")]
 pub mod rooms;
 
 #[cfg(feature = "configuration-xml")]

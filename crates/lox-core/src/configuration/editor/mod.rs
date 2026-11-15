@@ -5,7 +5,7 @@
 //! digit-name/quoted-text limitation (lox-n37w), duplicate handling and formatting.
 //! No file, clock, home directory, terminal or process state is accessed.
 
-mod legacy;
+pub(super) mod legacy;
 mod selector;
 mod write;
 

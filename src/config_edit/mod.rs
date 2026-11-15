@@ -34,6 +34,8 @@ pub mod lighting_sid;
 #[cfg(test)]
 mod lighting_tests;
 pub mod load_manager;
+#[cfg(test)]
+mod mqtt_catalog_tests;
 pub mod operating_modes;
 mod permissions;
 mod properties;
@@ -494,6 +496,17 @@ pub struct MqttTopic {
     pub direction: String,
     pub topic: String,
     pub qos: String,
+}
+
+impl From<lox_core::configuration::mqtt::MqttTopic> for MqttTopic {
+    fn from(topic: lox_core::configuration::mqtt::MqttTopic) -> Self {
+        Self {
+            title: topic.title,
+            direction: topic.direction.as_str().to_string(),
+            topic: topic.topic,
+            qos: topic.qos,
+        }
+    }
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────

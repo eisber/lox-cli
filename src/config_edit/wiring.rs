@@ -537,56 +537,13 @@ impl ConfigEditor {
     }
 
     /// List all MQTT topics (GenTSensor subscriptions + GenTActor publishes).
+    #[allow(dead_code)] // Compatibility for callers holding an already-edited DOM.
     pub fn list_mqtt_topics(&self) -> Vec<MqttTopic> {
-        let mut topics = Vec::new();
-        Self::collect_mqtt_topics(&self.root, &mut topics);
-        topics
-    }
-
-    fn collect_mqtt_topics(elem: &Element, topics: &mut Vec<MqttTopic>) {
-        if elem.name == "C"
-            && let Some(t) = elem.attributes.get("Type")
-            && (t == "GenTSensor" || t == "GenTActor")
-        {
-            let title = elem.attributes.get("Title").cloned().unwrap_or_default();
-            let direction = if t == "GenTSensor" {
-                "subscribe"
-            } else {
-                "publish"
-            };
-
-            // Get topic from SET properties
-            let mut topic = String::new();
-            let mut qos = String::new();
-            for child in &elem.children {
-                if let Some(set) = child.as_element()
-                    && set.name == "SET"
-                {
-                    for prop in &set.children {
-                        if let Some(p) = prop.as_element() {
-                            if p.name == "mqtt_topic" {
-                                topic = p.attributes.get("v").cloned().unwrap_or_default();
-                            }
-                            if p.name == "mqtt_qos" {
-                                qos = p.attributes.get("v").cloned().unwrap_or_default();
-                            }
-                        }
-                    }
-                }
-            }
-
-            topics.push(MqttTopic {
-                title,
-                direction: direction.to_string(),
-                topic,
-                qos,
-            });
-        }
-        for child in &elem.children {
-            if let Some(child_elem) = child.as_element() {
-                Self::collect_mqtt_topics(child_elem, topics);
-            }
-        }
+        self.kernel
+            .mqtt_topics()
+            .into_iter()
+            .map(Into::into)
+            .collect()
     }
 
     /// Resolve stale InputRef wiring by updating connector UUIDs
