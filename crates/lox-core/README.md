@@ -37,6 +37,16 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   a whole-command migration or a Python/JVM capability. The feature adds only
   optional serde_json; default Core dependencies remain unchanged.
 
+- `backup_catalog::{parse_backup_name, parse_backup_listing, BackupInfo}`:
+  pure owned observations of the existing case-sensitive backup filename and
+  permissive FTP LIST profile. Invalid rows are omitted, duplicate rows retained,
+  and raw timestamps sorted lexically descending with stable ties. Timestamps
+  have at least fourteen ASCII digits, not calendar validation or an exact length.
+  The existing CLI `list_backups` producer delegates after unchanged acquisition;
+  its DTO, date formatting, output and transport errors remain head-owned.
+  This adds no dependency, whole-command qualification or foreign binding:
+  Python and JVM are unsupported. It is not FTP transport, path/file-type
+  validation, custom-overlay listing or archive decoding.
 - Optional `legacy-token-aes`: `legacy_token_aes::{encrypt, decrypt,
   encrypt_command, DecryptError}` extracts the existing CLI token AES-256-CBC/
   PKCS7 byte codec and deterministic `jdev/sys/enc/` envelope. Keys and IVs are

@@ -53,23 +53,23 @@ impl BackupInfo {
 }
 
 /// Parse a backup filename like "sps_194_20260308182256.zip"
+#[cfg_attr(
+    not(test),
+    expect(dead_code, reason = "Retained head compatibility helper")
+)]
 pub fn parse_backup_name(name: &str, size: u64) -> Option<BackupInfo> {
-    let stem = name.strip_suffix(".zip")?;
-    let parts: Vec<&str> = stem.splitn(3, '_').collect();
-    if parts.len() != 3 || parts[0] != "sps" {
-        return None;
+    lox_core::backup_catalog::parse_backup_name(name, size).map(Into::into)
+}
+
+impl From<lox_core::backup_catalog::BackupInfo> for BackupInfo {
+    fn from(info: lox_core::backup_catalog::BackupInfo) -> Self {
+        Self {
+            filename: info.filename,
+            version: info.version,
+            timestamp: info.timestamp,
+            size: info.size,
+        }
     }
-    let version = parts[1].parse::<u32>().ok()?;
-    let timestamp = parts[2].to_string();
-    if timestamp.len() < 14 || !timestamp.chars().all(|c| c.is_ascii_digit()) {
-        return None;
-    }
-    Some(BackupInfo {
-        filename: name.to_string(),
-        version,
-        timestamp,
-        size,
-    })
 }
 
 /// Connect to the Miniserver FTP and list backup ZIPs in /prog/.
@@ -85,29 +85,10 @@ pub fn list_backups(cfg: &Config) -> Result<Vec<BackupInfo>> {
         Ok(listing)
     })?;
 
-    let mut backups = Vec::new();
-    for line in &listing {
-        // FTP LIST output: parse last token as filename, size from fields
-        let fields: Vec<&str> = line.split_whitespace().collect();
-        if fields.len() < 4 {
-            continue;
-        }
-        let name = fields.last().unwrap();
-        if !name.ends_with(".zip") || !name.starts_with("sps_") {
-            continue;
-        }
-        // Size is typically field index 4 in Unix-style listing
-        let size = fields
-            .get(4)
-            .and_then(|s| s.parse::<u64>().ok())
-            .unwrap_or(0);
-        if let Some(info) = parse_backup_name(name, size) {
-            backups.push(info);
-        }
-    }
-    // Sort by timestamp descending (newest first)
-    backups.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
-    Ok(backups)
+    Ok(lox_core::backup_catalog::parse_backup_listing(&listing)
+        .into_iter()
+        .map(Into::into)
+        .collect())
 }
 
 /// List runtime control overlays. A failed/missing directory is not evidence that it is empty.
@@ -249,5 +230,22 @@ mod tests {
             size: 0,
         };
         assert_eq!(info.formatted_date(), "2026-01-01 12:00:00");
+    }
+
+    #[test]
+    fn shared_catalog_adapter_retains_head_date_and_output_fields() {
+        let rows = ["drwx x x x +00042 sps_+001_20261399259999999.zip".to_string()];
+        let info: BackupInfo = lox_core::backup_catalog::parse_backup_listing(&rows)
+            .pop()
+            .unwrap()
+            .into();
+        assert_eq!(info.filename, "sps_+001_20261399259999999.zip");
+        assert_eq!(info.version, 1);
+        assert_eq!(info.timestamp, "20261399259999999");
+        assert_eq!(info.size, 42);
+        assert_eq!(info.formatted_date(), "2026-13-99 25:99:99");
+        let parsed = parse_backup_name(&info.filename, info.size).unwrap();
+        assert_eq!(parsed.timestamp, info.timestamp);
+        assert_eq!(parsed.formatted_date(), info.formatted_date());
     }
 }
