@@ -99,6 +99,16 @@ impl From<summary::ControlEntry> for ConfigControlEntry {
     }
 }
 
+impl From<ConfigControlEntry> for summary::ControlEntry {
+    fn from(value: ConfigControlEntry) -> Self {
+        Self {
+            name: value.name,
+            control_type: value.control_type,
+            room_uuid: value.room_uuid,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, uniffi::Record)]
 pub struct ConfigSummary {
     pub version: String,
@@ -111,6 +121,23 @@ pub struct ConfigSummary {
 
 impl From<summary::ConfigSummary> for ConfigSummary {
     fn from(value: summary::ConfigSummary) -> Self {
+        Self {
+            version: value.version,
+            date: value.date,
+            controls: value
+                .controls
+                .into_iter()
+                .map(|(key, entry)| (key, entry.into()))
+                .collect(),
+            rooms: value.rooms,
+            categories: value.categories,
+            users: value.users,
+        }
+    }
+}
+
+impl From<ConfigSummary> for summary::ConfigSummary {
+    fn from(value: ConfigSummary) -> Self {
         Self {
             version: value.version,
             date: value.date,

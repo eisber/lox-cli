@@ -227,6 +227,17 @@ Step 'clock-head-smokes' $VenvPython @('-I', '-B', 'tests\bindings\clock_smoke.p
     '--kotlin-jar', "$Output\jvm\kotlin-clock-smoke.jar", '--native-dir', "$Output\jvm\native",
     '--heap-probe', "$Probe.dll")
 
+Step 'python-config-diff-smoke' $VenvPython @('-I', '-B', 'tests\bindings\config_diff_smoke.py', "$Probe.dll")
+Step 'javac-config-diff-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ConfigDiffSmoke.java', 'tests\bindings\NativeConfigDiffProbe.java')
+Step 'java-config-diff-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ConfigDiffSmoke'))
+$DiffKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-config-diff-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\ConfigDiffSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-config-diff.args", $DiffKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-config-diff-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-config-diff.args")
+Step 'kotlin-config-diff-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-config-diff-smoke.jar", 'ConfigDiffSmokeKt'))
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -240,6 +251,7 @@ $Artifacts += Get-Item "$Output\python-color-smoke.log", "$Output\java-color-smo
 $Artifacts += Get-Item "$Output\python-numeric-state-smoke.log", "$Output\java-numeric-state-smoke.log", "$Output\kotlin-numeric-state-smoke.log"
 $Artifacts += Get-Item "$Output\python-text-state-smoke.log", "$Output\java-text-state-smoke.log", "$Output\kotlin-text-state-smoke.log"
 $Artifacts += Get-Item "$Output\python-devices-smoke.log", "$Output\java-devices-smoke.log", "$Output\kotlin-devices-smoke.log"
+$Artifacts += Get-Item "$Output\python-config-diff-smoke.log", "$Output\java-config-diff-smoke.log", "$Output\kotlin-config-diff-smoke.log"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -251,7 +263,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML device/control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, framing/diff/editor/auth/control I/O/statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, full XML/semantic diff/editor/auth/control I/O/statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest

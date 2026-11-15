@@ -25,7 +25,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Unsupported | Unsupported |
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
 | Other XML mutations, validation, deployment, sidecars/trust | No additional functional transaction migrated by this slice | Existing CLI behavior unchanged; shared legacy editor infrastructure only | Unsupported | Unsupported |
-| Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Unsupported | Unsupported |
+| Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
 | Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); timestamps remain opaque | `stats get` shares decoding; acquisition, selection, merging and formatting stay in CLI | Unsupported | Unsupported |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
 | Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
@@ -83,6 +83,56 @@ for that existing exact-prefix/64000-byte guard; no small-allocation proxy,
 new production counters, heap-scan weakening or recovery claim is involved.
 The scope remains Windows AMD64, CPython 3.13 GIL and Java 22 FFM with Kotlin
 using that same Java API; no ABI, MSRV or other-platform qualification.
+
+### Typed structural summary comparison candidate
+
+`diff_configs(old, new)` / `LoxArchive.diffConfigs(old, new)` compares supplied
+typed `ConfigSummary` snapshots through the existing Core comparator. It is
+infallible for valid typed snapshots: there is no invented domain error,
+XML parsing, JSON, CLI invocation, or language-side comparison. Host type
+errors and existing `parse_config_summary` XML errors remain separate.
+This additional family is unpublished until matching artifacts are published.
+
+`ConfigDiff` owns `version_old`, `version_new`, `date_old`, `date_new`,
+`controls_added/removed: list[ConfigControlRecord]`,
+`controls_changed: list[ConfigControlChange]`, `rooms_added/removed`,
+`categories_added/removed: list[ConfigNamedEntry]`, `rooms_renamed`,
+`categories_renamed: list[ConfigNameChange]`, `users_added/removed`, and
+`has_changes`. Java record accessors use camelCase. `has_changes` is computed
+by Core's `has_changes()` before conversion, not a second predicate:
+metadata-only changes are carried through but return false.
+
+`ConfigControlRecord` contains raw `uuid` and a `ConfigControlEntry`;
+`ConfigControlChange` contains raw `uuid`, the **new** summary's `name`,
+and `ConfigControlFieldChange`. Python variants are `.NAME(old, new)`,
+`.TYPE(old, new)`, `.ROOM(old, new)`; Java/Kotlin use nested records
+`.Name`, `.Type`, `.Room`. Java's generated accessor for a field named
+`new` is `_new()`, including in `ConfigNameChange`. Room payloads are
+`ConfigRoomReference(uuid, name)` with a nullable per-side title. Missing
+titles stay distinct from empty titles. `ConfigNamedEntry` owns `uuid/name`;
+`ConfigNameChange` owns `uuid/old/new`. Python record constructors are
+keyword-only; enum payload constructors also accept positional arguments.
+
+Identity is the exact raw UUID, never a title. Each control's changed fields
+retain Core's name/type/room order. Renaming a room without changing its UUID
+does not move controls. User names compare as sets, ignoring duplicate counts
+and input order. Map/set enumeration order is **unspecified**; no production
+sorting is added. Reverse input conversion moves all snapshot fields without
+normalization, defaults, or another parser. Returned records and collections
+are owned and remain independent of subsequent caller input mutation.
+
+`config_diff_smoke.py`, `ConfigDiffSmoke.java`, and `ConfigDiffSmoke.kt`
+exercise every structural family and sum-type variant, metadata, user sets,
+raw identities, Unicode, room-title optionality, and input independence.
+`NativeConfigDiffProbe` and the Python test reuse the unchanged reviewed
+128-byte-prefix/minimum-64000-byte Windows probe on the **actual exported**
+result. A long opaque caller-supplied version string makes that real result
+large enough: live=1, explicit free=0, then 64 public calls retain zero matching
+buffers without requesting GC. No artificial error, allocator proxy, new
+generator correction, or production counter is needed. The existing native
+families and Clock lifecycle remain separately tested on the same final DLL.
+This is structural-summary comparison, not full XML/semantic Config UI diff,
+credentials/permissions, editing/deployment, ABI freezing, or platform parity.
 
 ### Errors and compatibility boundaries
 
