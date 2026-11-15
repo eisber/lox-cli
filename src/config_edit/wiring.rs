@@ -492,48 +492,12 @@ impl ConfigEditor {
     }
 
     /// List all connectors and their wiring for an element.
+    #[allow(dead_code)] // Compatibility bridge for callers holding a cached legacy editor.
     pub fn list_wires(&self, selector: &str) -> Result<Vec<WireInfo>> {
-        let path = self.require_one(selector)?;
-        let elem = self.get_element(&path);
-
-        let mut wires = Vec::new();
-        for child in &elem.children {
-            if let Some(co) = child.as_element()
-                && co.name == "Co"
-            {
-                let name = co.attributes.get("K").cloned().unwrap_or_default();
-                let target_uuid = co.attributes.get("U").cloned().unwrap_or_default();
-
-                // Classify direction
-                let direction =
-                    if name.starts_with('I') || name.starts_with("AI") || name == "Input" {
-                        "input"
-                    } else if name.starts_with('Q')
-                        || name.starts_with("AQ")
-                        || name.starts_with("Output")
-                    {
-                        "output"
-                    } else {
-                        "parameter"
-                    };
-
-                let has_in_children = co
-                    .children
-                    .iter()
-                    .any(|c| c.as_element().map(|e| e.name == "In").unwrap_or(false));
-                let connected = has_in_children
-                    || (!target_uuid.is_empty()
-                        && target_uuid != "00000000-0000-0000-0000000000000000");
-
-                wires.push(WireInfo {
-                    connector: name,
-                    direction: direction.to_string(),
-                    target_uuid,
-                    connected,
-                });
-            }
-        }
-        Ok(wires)
+        self.kernel
+            .connector_wiring(selector)
+            .map(|wires| wires.into_iter().map(Into::into).collect())
+            .map_err(super::editor_error)
     }
 
     /// List all MQTT topics (GenTSensor subscriptions + GenTActor publishes).

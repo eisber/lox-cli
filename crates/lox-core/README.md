@@ -21,6 +21,22 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `configuration-xml`: `configuration::wiring::connector_wiring(bytes,
+  selector)` returns owned `ConnectorWiring` records with `ConnectorDirection`.
+  The existing `config control wires` command and cached legacy editor share
+  this producer. It observes direct `Co` children in source order, retaining
+  duplicate/missing names and raw `U` values. Direction prefixes are case-sensitive;
+  connected means a direct `In` child or nonempty `U` other than exactly
+  `00000000-0000-0000-0000000000000000` (35 characters). The conventional
+  36-character all-zero UUID remains connected under this legacy policy. It does not validate
+  UUIDs, endpoints or physical state. The shared legacy selector retains room,
+  type, gid, fuzzy title and UUID-mirror policy; typed `EditError` preserves load
+  causes and selection failures. The shared loader's quoted-text/digit-name
+  limitation (lox-n37w) is unchanged. This feature now includes the existing
+  `configuration-editor` dependencies; default Core still has three direct
+  dependencies. No mutable DOM is exposed by this API, and it adds no Python/JVM
+  binding or native Config qualification.
+
 - Optional `legacy-token-reply`: `legacy_token_reply::{parse, Reply, ReplyError,
   ReplyErrorKind}` is the exact existing token WebSocket LL projection, now used
   by the CLI's plaintext, key-exchange and encrypted receive helpers through
