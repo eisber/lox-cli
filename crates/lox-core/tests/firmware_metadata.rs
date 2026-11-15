@@ -183,6 +183,71 @@ fn rejects_malformed_ambiguous_or_incomplete_metadata_without_partial_success() 
 }
 
 #[test]
+fn rejects_missing_xml_attribute_separators_throughout_document() {
+    for xml in [
+        "<Miniserversoftware><Release Version='2.0'Path='x'/></Miniserversoftware>",
+        "<Miniserversoftware><Release Version=\"2.0\"Path=\"x\"/></Miniserversoftware>",
+        "<Miniserversoftware A='a'B='b'/>",
+        "<Miniserversoftware><Ignored><Nested A='a'B='b'></Nested></Ignored></Miniserversoftware>",
+        "<Miniserversoftware><Release Version='2.0'\u{b}Path='x'/></Miniserversoftware>",
+        "<Miniserversoftware><Release Version='2.0'\u{c}Path='x'/></Miniserversoftware>",
+    ] {
+        assert!(
+            matches!(
+                UpdateMetadata::parse(xml),
+                Err(FirmwareMetadataError::InvalidDocument(_))
+            ),
+            "{xml}"
+        );
+    }
+}
+
+#[test]
+fn rejects_raw_less_than_in_xml_attributes_throughout_document() {
+    for xml in [
+        "<Miniserversoftware><Release Version='2.0' Path='a<b'/></Miniserversoftware>",
+        "<Miniserversoftware><Release Version=\"2.0\" Path=\"a<b\"/></Miniserversoftware>",
+        "<Miniserversoftware A='a<b'/>",
+        "<Miniserversoftware><Ignored A='a<b'/></Miniserversoftware>",
+        "<Miniserversoftware><Ignored><Nested A='a<b'></Nested></Ignored></Miniserversoftware>",
+    ] {
+        assert!(
+            matches!(
+                UpdateMetadata::parse(xml),
+                Err(FirmwareMetadataError::InvalidDocument(_))
+            ),
+            "{xml}"
+        );
+    }
+}
+
+#[test]
+fn accepts_xml_attribute_whitespace_entities_and_both_quote_styles_without_mutation() {
+    for separator in [" ", "\t", "\r", "\n", " \t\r\n"] {
+        let xml = format!(
+            "<?xml version='1.0'?><Miniserversoftware Source=\"it's &quot;quoted&quot;\">\
+             <Release{separator}Version = '2.0'{separator}Path = \"https://invalid.example/a?x=&lt;b&gt;&amp;q='yes'&amp;d=&quot;ok&quot;\"{separator}/>\
+             <RemoteConnect{separator}MinVersion='1.9'{separator}Deadline='2028-02-29'/>\
+             <Ignored Note='say \"yes\" &amp; it&apos;s valid'></Ignored>\
+             </Miniserversoftware>"
+        );
+        let original = xml.clone();
+        let metadata = UpdateMetadata::parse(&xml).unwrap();
+        assert_eq!(xml, original);
+        let release = metadata.release.unwrap();
+        assert_eq!(release.version, version("2.0"));
+        assert_eq!(
+            release.config_download.as_deref(),
+            Some("https://invalid.example/a?x=<b>&q='yes'&d=\"ok\"")
+        );
+        assert_eq!(
+            metadata.remote_connect.unwrap().deadline,
+            date("2028-02-29")
+        );
+    }
+}
+
+#[test]
 fn does_not_promote_nested_release_or_infer_update_eligibility() {
     let metadata = UpdateMetadata::parse(
         r#"<Miniserversoftware certificate="not-verified">

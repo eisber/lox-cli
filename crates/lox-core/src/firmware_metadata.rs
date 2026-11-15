@@ -275,6 +275,31 @@ impl UpdateMetadata {
         depth: usize,
         seen_root: &mut bool,
     ) -> Result<()> {
+        // quick-xml accepts adjacent quoted attributes and literal '<' in values.
+        let raw_attributes = element.attributes_raw();
+        let mut quote = None;
+        for (index, &byte) in raw_attributes.iter().enumerate() {
+            if let Some(delimiter) = quote {
+                if byte == b'<' {
+                    return Err(FirmwareMetadataError::InvalidDocument(
+                        "raw '<' in attribute value",
+                    ));
+                }
+                if byte == delimiter {
+                    if raw_attributes
+                        .get(index + 1)
+                        .is_some_and(|next| !matches!(next, b' ' | b'\t' | b'\r' | b'\n'))
+                    {
+                        return Err(FirmwareMetadataError::InvalidDocument(
+                            "expected XML whitespace after attribute value",
+                        ));
+                    }
+                    quote = None;
+                }
+            } else if matches!(byte, b'\'' | b'"') {
+                quote = Some(byte);
+            }
+        }
         for attr in element.attributes() {
             attr.map_err(FirmwareMetadataError::Attribute)?
                 .unescape_value()

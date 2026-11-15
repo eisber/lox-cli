@@ -97,7 +97,10 @@ Deliberate original API policies, not upstream fixes or firmware assertions:
   outside-root nonwhitespace text/CDATA and DTDs. This is not a general XML/XSD
   validator; namespace semantics and external entities are unsupported (names are
   compared literally and default namespace declarations are not interpreted).
-- Reject duplicate known elements and malformed/duplicate attributes.
+- Reject duplicate known elements and malformed/duplicate attributes, including
+  missing XML whitespace between attributes and raw `<` inside quoted values.
+  Single/double quotes, XML whitespace (space, tab, CR, LF) and entity-escaped
+  values remain supported, including on ignored elements.
   A present release requires `Version`; a present Remote Connect element requires
   both attributes. Missing release remains explicitly `ReleaseStatus::Unavailable`,
   never a fabricated current-version offer. `Path` is optional, entity-decoded,
