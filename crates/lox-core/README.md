@@ -84,8 +84,8 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 - `configuration::users::{parse_users, UserInfo, UserInventoryError}` shares the
   existing `lox config users` raw inventory producer only. Its independent DOM
   direct-permission enrichment, fallback, limits and presentation stay in CLI.
-- Optional `statistics-xml`: `statistics::{parse_series, StatSeries,
-  StatisticsError}` decodes monthly statistics XML. The existing `lox stats get`
+- Optional `statistics-xml`: `statistics::{parse_index, StatEntry, parse_series, StatSeries,
+  StatisticsError}` parses the HTML index and monthly statistics XML. The existing `lox stats get`
   producer uses it, while HTTP, selection, merging and formatting stay in the CLI.
 - Optional `auth-hash`: `authentication` provides the distinct existing APP
   and CONFIG `/wsx` credential/token hash profiles. Both CLI producers use it;
@@ -660,7 +660,7 @@ Python and Java/Kotlin **control-read transport are unsupported**; no native
 artifact, firmware/real-device, platform, registry or Config-parity credit is
 earned by this Rust/CLI slice.
 
-## Optional monthly statistics decoder
+## Optional statistics index and monthly decoder
 
 ```toml
 lox-core = { path = "path/to/lox-cli/crates/lox-core", features = ["statistics-xml"] }
@@ -677,6 +677,29 @@ fn monthly(xml: &str) -> Result<(), StatisticsError> {
     Ok(())
 }
 ```
+
+`statistics::parse_index(&str) -> Vec<StatEntry>` is the shared producer for the
+CLI's `/stats/` index (`ls`, `get` and `download`). Its owned records retain
+`file`, lowercase native `8-4-4-16` `uuid`, optional `u32` `group`, hyphenated
+`month`, stripped `name` and full `label`. The CLI alone maps these fields into
+its existing serde/output shape.
+
+The index parser deliberately recognizes exact lowercase `<li>` and
+`<a href="` (after optional whitespace), with double-quoted href first.
+Other anchor attributes after href and missing closing `</li>` remain accepted.
+Malformed entries are omitted, resynchronizing at the next `<li>`; duplicates
+and encounter order survive. Groups are untrimmed ASCII decimal without signs,
+including zero and `u32::MAX`. Months are exactly six ASCII digits, **not**
+calendar-validated (`202613` becomes `2026-13`). No filename validation API is
+exposed.
+
+Labels are XML-entity-decoded, except that **any unknown/invalid entity retains
+the entire original raw label**, including otherwise valid entities. This is
+intentional compatibility, not an improved general HTML/XML parser. Whitespace
+and a matching trailing `YYYYMM` are trimmed; a balanced final parenthesized
+room suffix and then a matching `(Statistic Group: N)` suffix are stripped
+from the name as before. Index parsing is infallible and returns no error for
+omitted entries. The monthly decoder's separate typed errors are unchanged.
 
 This is the decoder for the CLI's `/stats/<file>.xml` monthly route, extracted
 from this project's existing implementation. It reuses optional quick-xml 0.37,
@@ -725,13 +748,15 @@ The CLI maps sources back to its original anyhow chain with no extra wrapper,
 retaining `reading <file>` / `parsing <file>` context, error envelope and exit
 behavior. All months are decoded and merged before output, so a failed later
 month emits no partial table/CSV or success-shaped JSON. HTTP/retry policy,
-HTML index, month filenames/ranges, name/group selection, multi-month merging,
+Index acquisition/serialization, month range validation, name/group selection, multi-month merging,
 JSON duplicate-label rejection, output flags and raw downloads remain CLI-owned.
 
 Run `cargo test -p lox-core --features statistics-xml --test statistics_series`
 for typed consumers, and `cargo test -p lox-cli --bin lox --test
 statistics_series_cli monthly_` for before/after decoder characterization and
-the actual executable over loopback HTTP. This extraction adds no Python,
+the actual executable over loopback HTTP. `cargo test -p lox-cli --bin lox index_`
+exercises the original index regressions and before/after characterization
+through the real CLI mapping. This extraction adds no Python,
 Java/Kotlin or native statistics API, and qualifies no firmware, real device or
 new platform. Archive, clock, control, rooms and the unresolved `lox-n37w`
 shared-DOM-loader behavior are unchanged.

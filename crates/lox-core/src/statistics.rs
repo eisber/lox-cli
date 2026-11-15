@@ -1,12 +1,148 @@
-//! Decoder for the monthly XML files served at `/stats/<file>.xml`.
+//! Parsers for the `/stats/` HTML index and monthly `/stats/<file>.xml` files.
 //!
 //! This is not a decoder for binary statistics or an epoch/timezone converter.
 
 use quick_xml::Reader;
+use quick_xml::escape::unescape;
 use quick_xml::events::attributes::AttrError;
 use quick_xml::events::{BytesStart, Event};
 use std::fmt;
 use std::num::{ParseFloatError, ParseIntError};
+
+/// One file listed in the `/stats/` index, in encounter order.
+#[derive(Debug, Clone, PartialEq)]
+pub struct StatEntry {
+    /// File name as served, e.g. `0a1b2c3d-4e5f-6a7b-8c9d0e1f2a3b4c5d_2.202610.xml`.
+    pub file: String,
+    /// Lowercase Loxone `8-4-4-16` UUID.
+    pub uuid: String,
+    pub group: Option<u32>,
+    /// Six filename digits with a hyphen inserted: `YYYY-MM`, not calendar-validated.
+    pub month: String,
+    /// Label with the trailing room and matching statistic group parts stripped.
+    pub name: String,
+    /// Trimmed label without the matching trailing `YYYYMM`.
+    pub label: String,
+}
+
+/// Parse the Miniserver's existing `/stats/` HTML index grammar without I/O.
+///
+/// Matching is case-sensitive: exact `<li>` followed by optional whitespace and
+/// `<a href="`. Other anchor attributes after the href and absent `</li>` are
+/// accepted. A malformed entry is skipped, resynchronizing at the next `<li>`.
+/// Only lowercase native UUID filenames, optional decimal `u32` groups and six
+/// ASCII month digits are accepted; no calendar validation is performed.
+///
+/// Labels are XML-entity-decoded, but any unescape error intentionally retains
+/// the ORIGINAL raw label (including otherwise valid entities). This permissive
+/// fallback is not an XML/HTML validation policy. Label trimming and balanced
+/// parenthesis suffix stripping preserve the existing CLI behavior.
+/// Duplicates and encounter order are retained; malformed entries are omitted.
+pub fn parse_index(html: &str) -> Vec<StatEntry> {
+    let mut entries = Vec::new();
+    let mut rest = html;
+    while let Some(pos) = rest.find("<li>") {
+        rest = &rest[pos + 4..];
+        // Parse within this entry only, so a malformed entry is skipped
+        // without consuming the next one.
+        let item = rest.find("<li>").map_or(rest, |end| &rest[..end]);
+        let Some(after) = item.trim_start().strip_prefix("<a href=\"") else {
+            continue;
+        };
+        let Some((href, after)) = after.split_once('"') else {
+            continue;
+        };
+        let Some(gt) = after.find('>') else {
+            continue;
+        };
+        let after = &after[gt + 1..];
+        let Some((raw_label, _)) = after.split_once("</a>") else {
+            continue;
+        };
+        let Some((uuid, group, month)) = parse_file_name(href) else {
+            continue;
+        };
+        let decoded = unescape(raw_label)
+            .map(|c| c.into_owned())
+            .unwrap_or_else(|_| raw_label.to_string());
+        let yyyymm = month.replace('-', "");
+        let label = decoded
+            .trim()
+            .strip_suffix(yyyymm.as_str())
+            .unwrap_or(decoded.trim())
+            .trim_end()
+            .to_string();
+        let name = strip_label_suffix(&label);
+        let name = group
+            .and_then(|g| name.strip_suffix(&format!(" (Statistic Group: {g})")))
+            .unwrap_or(name)
+            .trim()
+            .to_string();
+        entries.push(StatEntry {
+            file: href.to_string(),
+            uuid,
+            group,
+            month,
+            name,
+            label,
+        });
+    }
+    entries
+}
+
+fn parse_file_name(file: &str) -> Option<(String, Option<u32>, String)> {
+    let stem = file.strip_suffix(".xml")?;
+    let (stem, month) = stem.rsplit_once('.')?;
+    if month.len() != 6 || !month.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    let (uuid, group) = match stem.split_once('_') {
+        Some((uuid, group)) => {
+            if group.is_empty() || !group.bytes().all(|b| b.is_ascii_digit()) {
+                return None;
+            }
+            (uuid, Some(group.parse::<u32>().ok()?))
+        }
+        None => (stem, None),
+    };
+    let parts: Vec<&str> = uuid.split('-').collect();
+    let lens: Vec<usize> = parts.iter().map(|p| p.len()).collect();
+    if lens != [8, 4, 4, 16]
+        || !parts
+            .iter()
+            .all(|p| p.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')))
+    {
+        return None;
+    }
+    Some((
+        uuid.to_string(),
+        group,
+        format!("{}-{}", &month[..4], &month[4..]),
+    ))
+}
+
+fn strip_label_suffix(label: &str) -> &str {
+    if !label.ends_with(')') {
+        return label;
+    }
+    let mut depth = 0usize;
+    for (i, c) in label.char_indices().rev() {
+        match c {
+            ')' => depth += 1,
+            '(' => {
+                let Some(next) = depth.checked_sub(1) else {
+                    return label;
+                };
+                depth = next;
+                if depth == 0 {
+                    return label[..i].strip_suffix(' ').unwrap_or(label);
+                }
+            }
+            _ => {}
+        }
+    }
+    label
+}
 
 /// One monthly file, with row and output ordering preserved.
 #[derive(Debug, Clone, PartialEq)]
