@@ -8,6 +8,7 @@ use std::error::Error;
 mod clock;
 mod configuration;
 mod control;
+mod control_catalog;
 
 uniffi::setup_scaffolding!();
 

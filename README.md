@@ -64,10 +64,12 @@ CLI capabilities remain binary-private. See its README for capabilities and limi
 An experimental, separate [generated binding facade](docs/toolkit-archive-bindings.md)
 provides native Python bytes and one Java 22+ FFM API also used by Kotlin.
 Archive operations, typed read-only raw-XML room/summary inspection, pure control
-selection and production-backed strict clock reads have Windows AMD64 artifact
+selection, stateless typed LoxApp3 catalog parsing/filtering, and production-backed strict clock reads have Windows AMD64 artifact
 tests, including actual I/O cancellation and explicit shutdown through
 Python asyncio and Java/Kotlin futures. Inspection does not expose comparison,
-statistics, validation or editing. Other runtime operations/subscriptions,
+XML control inventory, statistics, authentication, color, validation or editing.
+Catalog calls reparse caller-supplied bytes each time; they add no HTTP/cache or
+control transport. Other runtime operations/subscriptions,
 cross-platform qualification and full CLI parity are not claimed. Prototype
 prerequisite compositions remain publication-gated until coherent review/integration.
 

@@ -117,6 +117,7 @@ if ((Get-FileHash $InstalledDll).Hash -ne (Get-FileHash "$Output\jvm\native\lox_
     throw 'Python and JVM native artifacts differ.'
 }
 Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java', 'tests\bindings\NativeClockStatusProbe.java', 'tests\bindings\ClockTestSupport.java', 'tests\bindings\ClockSmoke.java', 'tests\bindings\ControlSmoke.java', 'tests\bindings\ConfigInspectionSmoke.java', 'tests\bindings\NativeConfigInspectionProbe.java')
+Step 'javac-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\CatalogSmoke.java', 'tests\bindings\NativeCatalogProbe.java')
 $NativeAccess = @('--enable-native-access=ALL-UNNAMED', "-Djava.library.path=$Output\jvm\native")
 Step 'java-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveSmoke', "$Output\fixtures"))
 Step 'java-control-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ControlSmoke'))
@@ -134,6 +135,8 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\catalog_smoke.py', "$Probe.dll")
+Step 'java-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'CatalogSmoke', 'crates\lox-bindings\tests\fixtures\control_catalog.json'))
 Step 'java-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveAllocationSmoke', "$Output\fixtures"))
 Step 'java-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ConfigInspectionSmoke', 'crates\lox-bindings\tests\fixtures\config_inspection.xml'))
 Step 'kotlinc-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-smoke.jar", 'tests\bindings\ArchiveSmoke.kt')
@@ -148,6 +151,13 @@ $ConfigKotlinArguments = @('-jvm-target', '22', '-classpath',
 [IO.File]::WriteAllLines("$Output\jvm\kotlin-config-inspection.args", $ConfigKotlinArguments, [Text.UTF8Encoding]::new($false))
 Step 'kotlinc-config-inspection-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-config-inspection.args")
 Step 'kotlin-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-config-inspection-smoke.jar", 'ConfigInspectionSmokeKt', 'crates\lox-bindings\tests\fixtures\config_inspection.xml'))
+$CatalogKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-catalog-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\CatalogSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-catalog.args", $CatalogKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-catalog-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-catalog.args")
+Step 'kotlin-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-catalog-smoke.jar", 'CatalogSmokeKt', 'crates\lox-bindings\tests\fixtures\control_catalog.json'))
 $KotlinArguments = @('-jvm-target', '22', '-classpath',
     ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
     '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-allocation-smoke.jar".Replace('\', '\\') + '"'),
@@ -173,6 +183,7 @@ $Artifacts += Get-Item "$Output\java-generator-correction.json"
 $Artifacts += Get-Item "$Output\CLOCK-PROOF.json", "$Output\clock-java.log", "$Output\clock-kotlin.log"
 $Artifacts += Get-Item "$Output\python-control-smoke.log", "$Output\java-control-smoke.log", "$Output\kotlin-control-smoke.log"
 $Artifacts += Get-Item "$Output\python-config-inspection-smoke.log", "$Output\java-config-inspection-smoke.log", "$Output\kotlin-config-inspection-smoke.log"
+$Artifacts += Get-Item "$Output\python-catalog-smoke.log", "$Output\java-catalog-smoke.log", "$Output\kotlin-catalog-smoke.log"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -184,7 +195,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only room/summary inspection, strict production HTTP clock, and pure typed control selection. Current loopback clock cancellation/close only; no diff/editor/auth/control I/O/subscriptions/full-runtime/platform parity. Prerequisite composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, strict production HTTP clock, and pure typed control selection. Current loopback clock cancellation/close only; no XML control inventory/diff/editor/auth/control I/O/statistics/color/subscriptions/full-runtime/platform parity. Prerequisite composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest
