@@ -42,6 +42,10 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 - The same optional feature exposes `configuration::summary::{parse_config_summary,
   ConfigSummary, ControlEntry, ConfigSummaryError}`. The summary producer consumed
   by the existing `lox config diff` command uses it; comparison/output stay in CLI.
+- It also exposes `configuration::controls::{parse_controls, ControlInfo,
+  ControlInventoryError}` for offline XML control inventory. The existing
+  `lox config controls` producer uses it; CLI serialization, files and display
+  limits remain in the binary. This is distinct from the online `control` API.
 - Optional `statistics-xml`: `statistics::{parse_series, StatSeries,
   StatisticsError}` decodes monthly statistics XML. The existing `lox stats get`
   producer uses it, while HTTP, selection, merging and formatting stay in the CLI.
@@ -185,6 +189,74 @@ for the typed consumer regressions and `cargo test -p lox-cli --bin lox
 --test config_integration room_inventory` for the characterized producer.
 Python/Java/Kotlin room inventory bindings, diff/editing and deployment
 validation are not part of this extraction.
+
+## Optional read-only XML control inventory
+
+Enable `configuration-xml`, as for rooms:
+
+```rust,ignore
+use lox_core::configuration::controls::{parse_controls, ControlInventoryError};
+
+fn controls(bytes: &[u8]) -> Result<(), ControlInventoryError> {
+    for control in parse_controls(bytes, Some("Switch"), Some("kitchen"))? {
+        let _ = (control.control_type, control.title, control.uuid,
+                 control.room, control.category);
+    }
+    Ok(())
+}
+```
+
+This is the existing offline SAX inventory, not the online catalog's UUID,
+alias or query resolution. `ControlInfo` has five string fields, with no serde,
+CLI, binding, filesystem, context or runtime dependency. The existing private
+raw-attribute helper is shared with rooms and summary; no new parser stack or
+dependencies are added. Default features remain empty.
+
+The legacy candidate rule is deliberately **not** Summary's blacklist:
+any exact `C` tag with a readable `Type` other than exact `Place`/`Category`
+can become pending when its type matches the optional ASCII-case-insensitive
+**exact** filter and its `U` is readable. Empty type/ID/title values are accepted.
+A missing/unreadable title replaces the pending title with no value, preventing
+emission. A missing/unreadable ID, absent type or filtered-out type does not
+replace a prior pending candidate. Place/category definitions do not clear it.
+
+The next start/empty `IoData` anywhere consumes a complete pending candidate
+once, with raw `Pr`/`Cr` defaulting to empty strings. This is not parent-scoped:
+end tags do not clear state, a self-closing candidate can use a later sibling's
+`IoData`, and nested candidates overwrite pending ones without restoring the
+outer candidate. Filtering during tracking can therefore change which candidate
+receives an `IoData`. This intentionally differs from Summary's direct-parent
+relationship and rooms' all-`IoData` counts; it is not schema validation.
+
+Room/category names resolve after the entire scan. Later readable definitions
+replace earlier ones by raw ID, including empty IDs and names. Missing definitions
+leave raw IDs unchanged. Room filtering then uses Unicode lowercase substring
+matching on resolved names (or raw fallback IDs); an empty room filter matches all.
+Results sort stably by case-sensitive type then title; equal keys retain emission
+order, including repeated IDs. There is no deduplication.
+
+Attributes remain raw UTF-8, including whitespace/entity spellings; first matching
+attributes win and iterator errors are ignored. BOM/Unicode and incomplete EOF
+retain the original reader's permissive behavior. Invalid UTF-8 in requested
+attributes acts like a missing value, not document rejection. Input bytes are
+never modified, repaired or serialized, and success does not validate all XML.
+Reader failures return `ControlInventoryError::Xml` with the original quick-xml
+source, without partial results. The CLI unwraps it to the original anyhow chain,
+preserving human/JSON errors without adding a wrapper.
+
+The actual command remains lowercase `.zip` rejection → `fs::read` → shared
+inventory → CLI model adapter → existing count/limit/human/JSON formatting.
+It bypasses both archive-dispatch `load_config_xml` and DOM `ConfigEditor::load`,
+so `lox-n37w`'s quoted-text digit-name rewrite remains open and is not adopted.
+CSV/no-header/quiet/trace-id/dry-run behavior is unchanged, not normalized.
+Other callers (`config autopilot-list` and `config mode-list`) retain the same
+adapter; this does not claim their whole-command migration.
+
+Run `cargo test -p lox-core --features configuration-xml --test control_inventory`
+for typed consumers and `cargo test -p lox-cli --bin lox --test config_integration
+control_inventory` for parser/error-adapter and actual CLI regressions.
+No Python/Java/Kotlin control-inventory bindings, native artifacts, firmware
+qualifications, editing, deployment validation or whole-SDK parity are added.
 
 ## Optional read-only configuration summary
 

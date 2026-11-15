@@ -3,6 +3,9 @@
 pub mod archive;
 
 #[cfg(feature = "configuration-xml")]
+pub mod controls;
+
+#[cfg(feature = "configuration-xml")]
 pub mod rooms;
 
 #[cfg(feature = "configuration-xml")]

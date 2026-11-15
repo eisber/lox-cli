@@ -30,6 +30,10 @@ httpmock = "0.7"
 tokio = { version = "1", features = ["rt", "sync", "time", "macros"] }
 
 [[test]]
+name = "control_inventory"
+required-features = ["configuration-xml"]
+
+[[test]]
 name = "room_inventory"
 required-features = ["configuration-xml"]
 

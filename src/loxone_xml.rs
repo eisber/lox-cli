@@ -310,108 +310,20 @@ pub fn parse_controls(
     type_filter: Option<&str>,
     room_filter: Option<&str>,
 ) -> Result<Vec<ControlInfo>> {
-    let mut reader = Reader::from_reader(xml);
-    reader.config_mut().trim_text(true);
-    let mut buf = Vec::new();
-
-    let mut rooms: HashMap<String, String> = HashMap::new();
-    let mut categories: HashMap<String, String> = HashMap::new();
-
-    struct RawControl {
-        control_type: String,
-        title: String,
-        uuid: String,
-        room_uuid: String,
-        cat_uuid: String,
-    }
-
-    let mut controls: Vec<RawControl> = Vec::new();
-    let mut current_uuid: Option<String> = None;
-    let mut current_type: Option<String> = None;
-    let mut current_title: Option<String> = None;
-
-    loop {
-        match reader.read_event_into(&mut buf) {
-            Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
-                let tag = e.name();
-                if tag.as_ref() == b"C" {
-                    if let Some(t) = attr_value(e, b"Type") {
-                        match t.as_str() {
-                            "Place" => {
-                                if let (Some(u), Some(name)) =
-                                    (attr_value(e, b"U"), attr_value(e, b"Title"))
-                                {
-                                    rooms.insert(u, name);
-                                }
-                            }
-                            "Category" => {
-                                if let (Some(u), Some(name)) =
-                                    (attr_value(e, b"U"), attr_value(e, b"Title"))
-                                {
-                                    categories.insert(u, name);
-                                }
-                            }
-                            _ => {
-                                // Track any element with a Type, Title, and UUID
-                                if type_filter
-                                    .map(|f| t.eq_ignore_ascii_case(f))
-                                    .unwrap_or(true)
-                                    && let Some(uuid) = attr_value(e, b"U")
-                                {
-                                    current_uuid = Some(uuid);
-                                    current_type = Some(t);
-                                    current_title = attr_value(e, b"Title");
-                                }
-                            }
-                        }
-                    }
-                } else if tag.as_ref() == b"IoData"
-                    && let (Some(uuid), Some(ctype), Some(title)) =
-                        (&current_uuid, &current_type, &current_title)
-                {
-                    let room_uuid = attr_value(e, b"Pr").unwrap_or_default();
-                    let cat_uuid = attr_value(e, b"Cr").unwrap_or_default();
-                    controls.push(RawControl {
-                        control_type: ctype.clone(),
-                        title: title.clone(),
-                        uuid: uuid.clone(),
-                        room_uuid,
-                        cat_uuid,
-                    });
-                    current_uuid = None;
-                    current_type = None;
-                    current_title = None;
-                }
-            }
-            Ok(Event::Eof) => break,
-            Err(e) => return Err(e.into()),
-            _ => {}
-        }
-        buf.clear();
-    }
-
-    let mut result: Vec<ControlInfo> = controls
+    let controls = lox_core::configuration::controls::parse_controls(xml, type_filter, room_filter)
+        .map_err(
+            |lox_core::configuration::controls::ControlInventoryError::Xml { source }| source,
+        )?;
+    Ok(controls
         .into_iter()
         .map(|c| ControlInfo {
             control_type: c.control_type,
             title: c.title,
             uuid: c.uuid,
-            room: rooms.get(&c.room_uuid).cloned().unwrap_or(c.room_uuid),
-            category: categories.get(&c.cat_uuid).cloned().unwrap_or(c.cat_uuid),
+            room: c.room,
+            category: c.category,
         })
-        .collect();
-
-    if let Some(rf) = room_filter {
-        let rf_lower = rf.to_lowercase();
-        result.retain(|c| c.room.to_lowercase().contains(&rf_lower));
-    }
-
-    result.sort_by(|a, b| {
-        a.control_type
-            .cmp(&b.control_type)
-            .then(a.title.cmp(&b.title))
-    });
-    Ok(result)
+        .collect())
 }
 
 pub fn diff_configs(old: &ConfigSummary, new: &ConfigSummary) -> ConfigDiff {
@@ -1261,5 +1173,33 @@ mod tests {
         let xml = br#"<?xml version="1.0"?><ControlList/>"#;
         let controls = parse_controls(xml, None, None).unwrap();
         assert!(controls.is_empty());
+    }
+
+    #[test]
+    fn control_inventory_raw_bytes_lenient_eof_and_reader_errors() {
+        let mut xml = b"\xef\xbb\xbf<Root>\r\n".to_vec();
+        xml.extend_from_slice(
+            "<C Type=\"Switch\" U=\"室\" Title=\"Grüße\"><IoData/></C>".as_bytes(),
+        );
+        xml.extend_from_slice(b"<C Type=\"Switch\" U=\"bad\" Title=\"\xff\"/><IoData/>");
+        xml.extend_from_slice(
+            b"<C Type=\"Switch\" U=\"valid\" Title=\"A\" Extra=\"\xff\"/><IoData Pr=\"\xff\"/>",
+        );
+        xml.extend_from_slice(b"<C Type=\"Switch\" U=\"\xff\" Title=\"Unreadable ID\"/><IoData/>");
+        let before = xml.clone();
+        let rows = parse_controls(&xml, None, None).unwrap();
+        assert_eq!(rows.len(), 2);
+        assert_eq!((&*rows[0].uuid, &*rows[0].room), ("valid", ""));
+        assert_eq!((&*rows[1].uuid, &*rows[1].title), ("室", "Grüße"));
+        assert_eq!(xml, before);
+        for bytes in [b"".as_slice(), b"not XML", b"<Root>"] {
+            assert!(parse_controls(bytes, None, None).unwrap().is_empty());
+        }
+        let error = parse_controls(b"<Root><C></Root>", None, None).unwrap_err();
+        assert!(error.downcast_ref::<quick_xml::Error>().is_some());
+        assert_eq!(
+            format!("{error:#}"),
+            "ill-formed document: expected `</C>`, but `</Root>` was found: expected `</C>`, but `</Root>` was found"
+        );
     }
 }
