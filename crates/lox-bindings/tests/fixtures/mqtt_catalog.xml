@@ -1,0 +1,9 @@
+<ControlList>
+<C Type="Plugin"><C Type="GenTActor" Title="Küche &amp; 灯">
+  <SET><mqtt_topic v="old"/><mqtt_qos v="1"/></SET>
+  <SET><mqtt_topic/><mqtt_qos/><mqtt_qos v=" raw "/></SET>
+  <Wrapper><C Type="GenTSensor"><SET><mqtt_topic v=" /raw/+ "/></SET></C></Wrapper>
+</C></C>
+<C Type="gentsensor" Title="ignored"/><c Type="GenTActor"/><C Type="InputRef"/>
+<C Type="GenTSensor"><SET><mqtt_topic v=" /raw/+ "/></SET></C>
+</ControlList>

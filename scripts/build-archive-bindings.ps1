@@ -139,6 +139,21 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-mqtt-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\mqtt_catalog_smoke.py', "$Probe.dll")
+Step 'javac-mqtt-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\MqttCatalogSmoke.java', 'tests\bindings\NativeMqttCatalogProbe.java')
+Step 'java-mqtt-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'MqttCatalogSmoke'))
+$MqttKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-mqtt-catalog-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\MqttCatalogSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-mqtt-catalog.args", $MqttKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-mqtt-catalog-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-mqtt-catalog.args")
+Step 'kotlin-mqtt-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-mqtt-catalog-smoke.jar", 'MqttCatalogSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual MQTT success/load-error RustBuffers live1/free0,64 public calls per branch per language retained0 without requested GC; retained owned results/exceptions; unchanged Core shared loader including lox-n37w; Python and compiledJava22/Kotlin SAME API'
+} | ConvertTo-Json | Set-Content "$Output\MQTT-CATALOG-MECHANISM.json" -Encoding utf8
 Step 'python-backup-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\backup_catalog_smoke.py', "$Probe.dll")
 Step 'javac-backup-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\BackupCatalogSmoke.java', 'tests\bindings\NativeBackupCatalogProbe.java')
 Step 'java-backup-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'BackupCatalogSmoke'))
@@ -352,6 +367,7 @@ $Artifacts += Get-Item "$Output\python-autopilot-catalog-smoke.log", "$Output\ja
 $Artifacts += Get-Item "$Output\python-statistics-index-smoke.log", "$Output\java-statistics-index-smoke.log", "$Output\kotlin-statistics-index-smoke.log", "$Output\STATISTICS-INDEX-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
+$Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
