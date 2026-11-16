@@ -83,10 +83,12 @@ fn inspect(xml: &str) -> Result<(), FirmwareMetadataError> {
 }
 ```
 
-This independently usable, headless **Rust-only** capability uses the existing
-optional quick-xml dependency, adding no default dependencies. No CLI, Python,
-JVM, transport, updater, context, clock, files, printing, process exits or JSON
-universal API is added. Existing CLI syntax and producers are untouched.
+This independently usable, headless Core capability uses the existing optional
+quick-xml dependency, adding no default dependencies. The thin, publication-gated
+[Python and shared Java/Kotlin bindings](../toolkit-archive-bindings.md#offline-firmware-metadata-candidate)
+delegate to this same implementation. No CLI command, transport, updater,
+context, clock, files, printing, process exits or universal JSON API is added.
+Existing CLI syntax and producers are untouched.
 
 Deliberate original API policies, not upstream fixes or firmware assertions:
 

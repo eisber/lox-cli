@@ -33,6 +33,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
 | Monthly statistics XML decoding | Optional `statistics::{parse_series, resolve_identity}` (`statistics-xml`); typed identity errors, timestamps remain opaque | `stats get` shares identity selection and decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | Unsupported | Unsupported |
 | Read-only HTML statistics index catalog | Published optional `statistics::parse_index` (`statistics-xml`); infallible existing omissions, raw fields, order and duplicates | Existing index producer unchanged | Candidate `parse_statistics_index(str) -> list[StatEntry]` | Candidate `LoxArchive.parseStatisticsIndex(String) -> List<StatEntry>`; SAME generated Java API in Kotlin |
+| Offline firmware metadata and comparison | Published optional `firmware_metadata` (`firmware-metadata`); strict XML, numeric versions, Gregorian dates and explicit-date observations | Existing CLI unchanged; no updater or device contact | Candidate `parse_firmware_version`, `compare_firmware_versions`, `parse_firmware_metadata`, `assess_firmware_metadata`; typed records/enums/errors | Candidate corresponding `LoxArchive` methods; SAME generated Java22 FFM API in Kotlin |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
 | Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
 | Legacy token AES bytes and deterministic command envelope | Optional `legacy_token_aes` (`legacy-token-aes`); explicit borrowed key/IV, AES-256-CBC/PKCS7 and data-free padding errors | Existing token getkey2/gettoken encrypted-command and encrypted-response producers share Core; complete authentication/session policy remains CLI-owned | Unsupported | Unsupported |
@@ -59,6 +60,47 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Offline firmware metadata candidate
+
+The four thin operations delegate to published `FirmwareVersion::from_str`,
+`UpdateMetadata::parse`, numeric ordering and `UpdateMetadata::assess`; there is
+no second version, XML, calendar or comparison implementation in the heads.
+Owned release metadata retains optional entity-decoded `config_download` (an
+opaque Config installer location, **not** a firmware URL). Remote Connect
+metadata retains its minimum version and canonical `YYYY-MM-DD` deadline.
+`FirmwareVersion` exposes normalized text and all original numeric components:
+Python has unsigned integer values; Java `int[]` retains u32 bit patterns,
+recovered with `Integer.toUnsignedLong`, or Kotlin `toUInt()`. Optional records,
+strings and enums use Python `None` and Java/Kotlin nullable values.
+
+Versions compare lexicographically without zero padding (`1.2 < 1.2.0`).
+Assessment requires caller-supplied `as_of`, accepts an optional program version,
+and observes only Core's newer/equal/older/unavailable and major/minor predicates.
+`warning_due` is below-minimum AND on/before deadline. False after the deadline
+does **not** establish Remote Connect usability. No clock, trust/signature check,
+download, eligibility grant, update action, runtime or network/device effect
+exists in this family.
+
+Typed `FirmwareMetadataError` / checked Java `FirmwareMetadataException` retains
+all seven Core variants, original invalid version/date values, Core Display text,
+and XML/attribute source text. Invalid dates, duplicate known elements and missing
+attributes remain actual refusal paths, not empty success results. Kotlin uses
+the same generated Java API, with no second generator.
+
+The existing native build script adds installed-Python and compiled-Java/Kotlin
+tests of actual semantics and ownership. Both actual returned success and
+InvalidVersion error RustBuffers are calibrated using only the unchanged generic
+128-byte-prefix/minimum64000 HeapWalk matcher (live1, explicit-free0), followed by
+64 public calls per branch/language requiring retained0 without requested GC.
+The error uses a realistically large invalid-version field and its real Core
+Display echo, never an allocation proxy or a new matcher. The same final DLL,
+wheel and Java API must also pass every previously published native family and
+Clock lifecycle/error/close checks. Current published counts remain CLI13/native18;
+this is an unreviewed, unpublished prospective nineteenth family, not a count
+increase. Other platforms and Rust MSRV1.91 remain unqualified; actual builds use
+Rust1.99.1 on WindowsAMD64 with CPython3.13GIL, JDK22.0.2+9 and Kotlin2.4.21.
+Native Config qualifications remain two historical, zero new.
 
 ### Read-only HTML statistics index candidate
 

@@ -12,6 +12,7 @@ mod configuration;
 mod configuration_diff;
 mod control;
 mod control_catalog;
+mod firmware_metadata;
 mod numeric_state;
 mod statistics_index;
 mod structure_metadata;
