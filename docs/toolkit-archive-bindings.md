@@ -24,7 +24,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Candidate `parse_users(bytes) -> list[XmlUserInfo]` | Candidate `LoxArchive.parseUsers(byte[]) -> List<XmlUserInfo>`; SAME Java API in Kotlin |
-| Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Unsupported | Unsupported |
+| Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
@@ -61,6 +61,33 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Offline MQTT topic catalog candidate
+
+`list_mqtt_topics` delegates supplied bytes directly to Core's existing
+`configuration::mqtt::list_topics`. It does not read files, select a context,
+contact a broker, validate topics/QoS or mutate configuration. Only exact
+`C` elements with `GenTSensor` (subscribe) or `GenTActor` (publish) types
+contribute records. Depth-first source order and duplicate rows survive.
+Each owned record retains `title`, typed `direction`, `topic` and raw string
+`qos`; missing values are empty strings, not numeric defaults.
+
+Direct `SET` properties are observed in encounter order: later `mqtt_topic`
+and `mqtt_qos` properties overwrite earlier ones, including properties without
+`v`. Entities and legacy loader admission remain Core-owned. In particular,
+the known quoted digit-name rewrite limitation `lox-n37w` remains visible:
+this wrapper is not a loader correction or native Config acceptance claim.
+
+Python returns native records/enums and raises `MqttCatalogError.Load`;
+Java/Kotlin return typed records/enums and checked `MqttCatalogException.Load`.
+The original Core parser cause text is retained as `source_message` /
+`sourceMessage()`. A typed `Other` fallback retains message and optional cause
+for future non-load Core errors; no such branch is invented in tests.
+The focused ownership tests calibrate actual returned success and load-error
+RustBuffers with the existing unchanged HeapWalk primitive, then exercise
+64 calls per branch while retaining language-owned results/errors without
+requesting garbage collection. Other platforms, registry distribution,
+ABI stability and CLI/native Config qualification are not claimed.
 
 ### Offline backup catalog candidate
 
