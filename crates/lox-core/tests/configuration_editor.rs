@@ -90,6 +90,68 @@ fn now() -> DateTime<FixedOffset> {
 }
 
 #[test]
+fn legacy_attribute_identity_previous_option_and_raw_values() {
+    use lox_core::configuration::editor::{describe_element, set_attribute};
+    let xml = br#"<ControlList><C Type="And" U="a" Title="Old" Empty=""/><C Type="And" U="a" Title="Mirror"/></ControlList>"#;
+    let renamed = set_attribute(xml, "uuid:a", "Title", "New", &now()).unwrap();
+    assert_eq!(renamed.change.element.title, "Old");
+    assert_eq!(renamed.change.old_value.as_deref(), Some("Old"));
+    assert_eq!(renamed.change.new_value, "New");
+    assert!(String::from_utf8_lossy(&renamed.bytes).contains("Title=\"Mirror\""));
+    let empty = set_attribute(&renamed.bytes, "uuid:a", "Empty", "", &now()).unwrap();
+    assert_eq!(empty.change.old_value.as_deref(), Some(""));
+    assert!(!empty.content_changed);
+    let raw = set_attribute(&empty.bytes, "uuid:a", "Future", "<&\"\n室", &now()).unwrap();
+    assert_eq!(raw.change.old_value, None);
+    assert_eq!(raw.change.attribute, "Future");
+    assert_eq!(raw.change.new_value, "<&\"\n室");
+    assert_eq!(describe_element(&raw.bytes, "uuid:a").unwrap().title, "New");
+    assert!(String::from_utf8_lossy(&raw.bytes).contains("Future=\"&lt;&amp;&quot;\n室\""));
+}
+
+#[test]
+fn legacy_attribute_canonical_noop_stamp_and_bom_crlf() {
+    use lox_core::configuration::editor::set_attribute;
+    let xml = "\u{feff}<C Type=\"Document\" DateS=\"561020133\">\r\n<C U=\"a\" Title=\"Old\"/>\r\n</C>\r\n";
+    let noop = set_attribute(xml.as_bytes(), "uuid:a", "Title", "Old", &now()).unwrap();
+    assert!(!noop.content_changed && !noop.document_stamped);
+    assert_ne!(noop.bytes, xml.as_bytes());
+    let edit = set_attribute(xml.as_bytes(), "uuid:a", "NTXT", "one\ntwo", &now()).unwrap();
+    assert!(edit.content_changed && edit.document_stamped);
+    assert!(edit.bytes.starts_with(&[0xef, 0xbb, 0xbf]));
+    let text = String::from_utf8(edit.bytes).unwrap();
+    assert!(text.contains("DateS=\"561020134\""));
+    assert!(text.contains("Date=\"2026-10-12 07:55:34\""));
+    assert!(text.contains("NTXT=\"one\ntwo\""));
+    assert!(text.ends_with("\r\n"));
+}
+
+#[test]
+fn legacy_attribute_refusals_preserve_input_and_parser_cause() {
+    use lox_core::configuration::editor::set_attribute;
+    let xml = br#"<ControlList><C U="a" Title="Gate"/><C U="b" Title="Gate"/></ControlList>"#;
+    let before = xml.to_vec();
+    assert!(matches!(
+        set_attribute(xml, "missing", "", "", &now()),
+        Err(EditError::Selection(SelectionError::NotFound { .. }))
+    ));
+    assert!(matches!(
+        set_attribute(xml, "Gate", "", "", &now()),
+        Err(EditError::Selection(SelectionError::Ambiguous { matches, .. })) if matches.len() == 2
+    ));
+    let error = set_attribute(b"<C>", "missing", "", "", &now()).unwrap_err();
+    assert!(matches!(error, EditError::Load(_)));
+    assert!(
+        error
+            .source()
+            .unwrap()
+            .downcast_ref::<xmltree::ParseError>()
+            .is_some()
+    );
+    assert_eq!(xml.as_slice(), before);
+}
+
+#[test]
 fn canonical_bytes_preserve_native_collateral_and_first_connector_semantics() {
     let before = "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
 <ControlList Version=\"267\">\r\n\

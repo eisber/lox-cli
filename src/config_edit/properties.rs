@@ -3,6 +3,54 @@ use anyhow::{Result, bail};
 use std::collections::{BTreeMap, BTreeSet};
 use xmltree::Element;
 
+#[cfg(test)]
+mod legacy_attribute_characterization {
+    use super::ConfigEditor;
+
+    #[test]
+    fn title_identity_raw_values_and_previous_option() {
+        let xml = br#"<ControlList><C Type="And" U="a" Title="Old" Empty=""/><C Type="And" U="a" Title="Mirror"/></ControlList>"#;
+        let mut editor = ConfigEditor::load(xml).unwrap();
+        assert_eq!(
+            editor.set_attribute("uuid:a", "Title", "New").unwrap(),
+            "Set Old.Title: Old → 'New'"
+        );
+        assert_eq!(
+            editor.set_attribute("uuid:a", "Empty", "").unwrap(),
+            "Set New.Empty:  → ''"
+        );
+        assert_eq!(
+            editor
+                .set_attribute("uuid:a", "Future", "<&\"\n室")
+                .unwrap(),
+            "Set New.Future: (none) → '<&\"\n室'"
+        );
+        let bytes = editor.to_bytes().unwrap();
+        let check = ConfigEditor::load(&bytes).unwrap();
+        let path = check.require_one("uuid:a").unwrap();
+        assert_eq!(check.get_element(&path).attributes["Future"], "<&\"\n室");
+        assert!(
+            String::from_utf8(bytes)
+                .unwrap()
+                .contains("Title=\"Mirror\"")
+        );
+    }
+
+    #[test]
+    fn selector_refusal_precedes_raw_attribute_mutation() {
+        let xml = br#"<ControlList><C U="a" Title="Gate"/><C U="b" Title="Gate"/></ControlList>"#;
+        let mut editor = ConfigEditor::load(xml).unwrap();
+        let before = editor.to_bytes().unwrap();
+        for selector in ["missing", "Gate"] {
+            let expected = editor.require_one(selector).unwrap_err();
+            let actual = editor.set_attribute(selector, "", "").unwrap_err();
+            assert_eq!(actual.to_string(), expected.to_string());
+            assert!(actual.downcast_ref::<String>().is_some());
+            assert_eq!(editor.to_bytes().unwrap(), before);
+        }
+    }
+}
+
 impl ConfigEditor {
     /// Set a property in an element's SET block.
     /// Creates the SET block and property tag if they don't exist.
@@ -65,18 +113,16 @@ impl ConfigEditor {
         attr_name: &str,
         value: &str,
     ) -> Result<String> {
-        let path = self.require_one(selector)?;
-        let elem = self.get_element_mut(&path);
-        let title = elem.attributes.get("Title").cloned().unwrap_or_default();
-        let old = elem
-            .attributes
-            .insert(attr_name.to_string(), value.to_string());
+        let change = self
+            .kernel
+            .set_attribute_legacy(selector, attr_name, value)
+            .map_err(super::editor_error)?;
         Ok(format!(
             "Set {}.{}: {} → '{}'",
-            title,
-            attr_name,
-            old.as_deref().unwrap_or("(none)"),
-            value
+            change.element.title,
+            change.attribute,
+            change.old_value.as_deref().unwrap_or("(none)"),
+            change.new_value
         ))
     }
 
