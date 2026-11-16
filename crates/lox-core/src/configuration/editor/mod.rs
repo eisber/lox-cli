@@ -1,4 +1,4 @@
-//! Legacy-compatible, headless `config set-param` byte transaction.
+//! Legacy-compatible, headless configuration byte transactions.
 //!
 //! This is not a native Config validator or a lossless arbitrary-XML editor.
 //! Loading and canonical serialization intentionally retain the CLI's existing
@@ -91,6 +91,9 @@ pub enum EditError {
     Serialize(EditCause),
     InvalidUtf8(EditCause),
     Selection(SelectionError),
+    ExactUuidNotFound {
+        uuid: String,
+    },
     ParameterMissing {
         element: ElementIdentity,
         parameter: String,
@@ -121,6 +124,9 @@ impl fmt::Display for EditError {
             Self::Serialize(_) => f.write_str("Configuration serialization failed"),
             Self::InvalidUtf8(_) => f.write_str("Configuration serialization is not UTF-8"),
             Self::Selection(error) => error.fmt(f),
+            Self::ExactUuidNotFound { uuid } => {
+                write!(f, "Element with UUID '{}' not found", uuid)
+            }
             Self::ParameterMissing { parameter, .. } => {
                 write!(f, "Connector {parameter:?} is absent")
             }
@@ -167,6 +173,68 @@ pub struct SetParamOutcome {
     pub document_stamped: bool,
 }
 
+#[derive(Debug)]
+pub struct RemoveElementOutcome {
+    pub bytes: Vec<u8>,
+    pub removed_title: String,
+    /// Compared against an unedited canonical serialization, not the raw input.
+    pub content_changed: bool,
+    pub document_stamped: bool,
+}
+
+/// Remove the first child element with an exact, case-sensitive raw `U`.
+///
+/// All direct siblings are checked before recursively searching each child's
+/// descendants in source order. The root is excluded; duplicate UUIDs elsewhere
+/// and references, wires and permissions are left untouched. No selector prefix
+/// is stripped and an empty UUID matches only an explicitly empty `U`.
+///
+/// Uses the same canonical serialization and explicit monotonic document stamp
+/// as [`set_param`]. A refusal returns no output and cannot mutate borrowed input.
+pub fn remove_element(
+    bytes: &[u8],
+    uuid: &str,
+    now: &DateTime<FixedOffset>,
+) -> Result<RemoveElementOutcome, EditError> {
+    let mut state = legacy::State::load(bytes)?;
+    let removed_title = remove_by_uuid(&mut state.root.children, uuid)?;
+    let mut output = state.to_bytes()?;
+    let baseline = legacy::State::load(bytes)?.to_bytes()?;
+    let content_changed = baseline != output;
+    let document_stamped = content_changed && state.stamp_document(now);
+    if document_stamped {
+        output = state.to_bytes()?;
+    }
+    Ok(RemoveElementOutcome {
+        bytes: output,
+        removed_title,
+        content_changed,
+        document_stamped,
+    })
+}
+
+fn remove_by_uuid(children: &mut Vec<xmltree::XMLNode>, uuid: &str) -> Result<String, EditError> {
+    for i in 0..children.len() {
+        if let Some(elem) = children[i].as_element()
+            && elem.attributes.get("U").map(|u| u == uuid).unwrap_or(false)
+        {
+            let title = elem.attributes.get("Title").cloned().unwrap_or_default();
+            children.remove(i);
+            return Ok(title);
+        }
+    }
+    for child in children.iter_mut() {
+        if let Some(elem) = child.as_mut_element()
+            && let Ok(title) = remove_by_uuid(&mut elem.children, uuid)
+        {
+            return Ok(title);
+        }
+    }
+    Err(EditError::ExactUuidNotFound {
+        uuid: uuid.to_owned(),
+    })
+}
+
 /// Edit the first matching `Co K=parameter` on one legacy-selected block.
 ///
 /// Mirrors the existing CLI's connector-only eligibility, including input/output
@@ -204,6 +272,11 @@ pub fn set_param(
 }
 
 impl legacy::State {
+    #[cfg(feature = "unstable-legacy-cli-editor")]
+    pub fn remove_element_legacy(&mut self, uuid: &str) -> Result<String, EditError> {
+        remove_by_uuid(&mut self.root.children, uuid)
+    }
+
     fn edit_parameter(
         &mut self,
         selector: &str,

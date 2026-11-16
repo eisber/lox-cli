@@ -21,6 +21,19 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `configuration-editor`: `configuration::editor::remove_element(bytes,
+  raw_uuid, &DateTime<FixedOffset>)` removes one whole child subtree by exact,
+  case-sensitive `U`, returning owned bytes, the removed title and canonical
+  change/stamp flags. Direct siblings take priority, then each child's descendants
+  in source order; the root is never removable. Empty, Unicode and literal
+  `uuid:` values are not interpreted as selectors. Other duplicates, wires and
+  permissions remain unchanged. The actual `config xml remove FILE --uuid RAW`
+  producer and cached CLI editor share one helper. Typed `ExactUuidNotFound` and
+  native boxed load causes return no bytes on refusal. Canonical BOM/EOL handling,
+  explicit monotonic document stamps and the lox-n37w loader limitation are
+  unchanged. File I/O, atomic save-as, CLI rendering and outer dry-run refusal
+  remain head-owned. No graph cleanup, validation policy or foreign API is added.
+
 - Optional `configuration-xml`: `configuration::mqtt::list_topics(&[u8])`
   returns owned `MqttTopic` records with typed `MqttDirection`. The actual
   `lox config mqtt topics` producer and cached CLI editor share this one walker.
