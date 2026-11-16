@@ -139,6 +139,23 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-firmware-metadata-smoke' $VenvPython @('-I', '-B', 'tests\bindings\firmware_metadata_smoke.py', "$Probe.dll")
+Step 'javac-firmware-metadata-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\FirmwareMetadataSmoke.java', 'tests\bindings\NativeFirmwareMetadataProbe.java')
+Step 'java-firmware-metadata-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'FirmwareMetadataSmoke'))
+$FirmwareKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-firmware-metadata-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\FirmwareMetadataSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-firmware-metadata.args", $FirmwareKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-firmware-metadata-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-firmware-metadata.args")
+Step 'kotlin-firmware-metadata-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-firmware-metadata-smoke.jar", 'FirmwareMetadataSmokeKt'))
+@{
+    original_receipt_utc = '2026-11-16T02:42:37.8875211Z'
+    original_deadline_utc = '2026-11-16T03:02:37.8875211Z'
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual firmware XML export success/error RustBuffers live1/free0,64 public calls per branch per language retained0 without requested GC; Core InvalidVersion Display echo and unchanged prefix matcher; generated String lowering; Python and compiledJava22/Kotlin SAME API'
+} | ConvertTo-Json | Set-Content "$Output\FIRMWARE-METADATA-MECHANISM.json" -Encoding utf8
 Step 'python-statistics-index-smoke' $VenvPython @('-I', '-B', 'tests\bindings\statistics_index_smoke.py', "$Probe.dll")
 Step 'javac-statistics-index-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\StatisticsIndexSmoke.java', 'tests\bindings\NativeStatisticsIndexProbe.java')
 Step 'java-statistics-index-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'StatisticsIndexSmoke'))
@@ -316,6 +333,7 @@ $Artifacts += Get-Item "$Output\python-config-diff-smoke.log", "$Output\java-con
 $Artifacts += Get-Item "$Output\python-structure-metadata-smoke.log", "$Output\java-structure-metadata-smoke.log", "$Output\kotlin-structure-metadata-smoke.log", "$Output\METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-autopilot-catalog-smoke.log", "$Output\java-autopilot-catalog-smoke.log", "$Output\kotlin-autopilot-catalog-smoke.log", "$Output\AUTOPILOT-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-statistics-index-smoke.log", "$Output\java-statistics-index-smoke.log", "$Output\kotlin-statistics-index-smoke.log", "$Output\STATISTICS-INDEX-MECHANISM.json"
+$Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
