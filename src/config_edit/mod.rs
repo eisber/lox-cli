@@ -18,6 +18,8 @@ mod blocks;
 pub mod central_light_links;
 pub mod daytimer;
 mod describe;
+#[cfg(test)]
+mod element_description_tests;
 pub mod energy;
 #[cfg(test)]
 mod energy_tests;
@@ -488,6 +490,45 @@ pub struct ElementDescription {
     pub properties: HashMap<String, PropertyValue>,
     pub connectors: Vec<ConnectorInfo>,
     pub children: Vec<String>,
+}
+
+impl From<lox_core::configuration::editor::ElementDescription> for ElementDescription {
+    fn from(value: lox_core::configuration::editor::ElementDescription) -> Self {
+        Self {
+            element_type: value.element_type,
+            title: value.title,
+            uuid: value.uuid,
+            gid: value.gid,
+            room_uuid: value.room_uuid,
+            category_uuid: value.category_uuid,
+            properties: value
+                .properties
+                .into_iter()
+                .map(|(name, property)| {
+                    (
+                        name,
+                        PropertyValue {
+                            value: property.value,
+                            type_code: property.type_code,
+                        },
+                    )
+                })
+                .collect(),
+            connectors: value
+                .connectors
+                .into_iter()
+                .map(|connector| ConnectorInfo {
+                    kind: connector.kind,
+                    target: connector.target,
+                })
+                .collect(),
+            children: value
+                .children
+                .into_iter()
+                .map(|child| format!("{}: {}", child.element_type, child.title))
+                .collect(),
+        }
+    }
 }
 
 #[derive(Debug, serde::Serialize)]

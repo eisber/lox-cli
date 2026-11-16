@@ -1,6 +1,6 @@
-use super::{ConfigEditor, ConfigSurfaceEntry, ConnectorInfo, ElementDescription, PropertyValue};
+use super::{ConfigEditor, ConfigSurfaceEntry, ElementDescription};
 use anyhow::{Result, bail};
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet};
 use xmltree::Element;
 
 impl ConfigEditor {
@@ -89,75 +89,10 @@ impl ConfigEditor {
 
     /// Describe an element: type, title, UUID, properties, connectors, children.
     pub fn describe(&self, selector: &str) -> Result<ElementDescription> {
-        let path = self.require_one(selector)?;
-        let elem = self.get_element(path.as_slice());
-        self.describe_element(elem)
-    }
-
-    fn describe_element(&self, elem: &Element) -> Result<ElementDescription> {
-        let mut properties = HashMap::new();
-        let mut connectors = Vec::new();
-        let mut children = Vec::new();
-        let mut room = String::new();
-        let mut category = String::new();
-
-        for child in &elem.children {
-            if let Some(child_elem) = child.as_element() {
-                match child_elem.name.as_str() {
-                    "SET" => {
-                        for prop_node in &child_elem.children {
-                            if let Some(prop) = prop_node.as_element() {
-                                let val = prop.attributes.get("v").cloned().unwrap_or_default();
-                                let t = prop.attributes.get("t").cloned().unwrap_or_default();
-                                properties.insert(
-                                    prop.name.clone(),
-                                    PropertyValue {
-                                        value: val,
-                                        type_code: t,
-                                    },
-                                );
-                            }
-                        }
-                    }
-                    "Co" => {
-                        connectors.push(ConnectorInfo {
-                            kind: child_elem.attributes.get("K").cloned().unwrap_or_default(),
-                            target: child_elem.attributes.get("U").cloned().unwrap_or_default(),
-                        });
-                    }
-                    "IoData" => {
-                        room = child_elem.attributes.get("Pr").cloned().unwrap_or_default();
-                        category = child_elem.attributes.get("Cr").cloned().unwrap_or_default();
-                    }
-                    "C" => {
-                        let ct = child_elem
-                            .attributes
-                            .get("Type")
-                            .cloned()
-                            .unwrap_or_default();
-                        let ct_title = child_elem
-                            .attributes
-                            .get("Title")
-                            .cloned()
-                            .unwrap_or_default();
-                        children.push(format!("{}: {}", ct, ct_title));
-                    }
-                    _ => {}
-                }
-            }
-        }
-
-        Ok(ElementDescription {
-            element_type: elem.attributes.get("Type").cloned().unwrap_or_default(),
-            title: elem.attributes.get("Title").cloned().unwrap_or_default(),
-            uuid: elem.attributes.get("U").cloned().unwrap_or_default(),
-            gid: elem.attributes.get("gid").cloned().unwrap_or_default(),
-            room_uuid: room,
-            category_uuid: category,
-            properties,
-            connectors,
-            children,
-        })
+        self.kernel
+            .describe_selected(selector)
+            .map(ElementDescription::from)
+            .map_err(super::editor_error)
     }
 
     /// Describe field names and nested storage without exposing configuration values.
