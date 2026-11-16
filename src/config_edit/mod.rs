@@ -46,6 +46,8 @@ pub mod schema;
 mod selector;
 pub mod status_monitor;
 mod template;
+#[cfg(test)]
+mod unwire_tests;
 mod validation;
 mod virtual_input_format;
 mod wiring;
@@ -432,6 +434,9 @@ pub(crate) fn editor_error(error: lox_core::configuration::editor::EditError) ->
             element.title,
             element.block_type
         ),
+        EditError::ConnectorMissing { element, connector } => {
+            anyhow::anyhow!("Connector '{}' not found on '{}'", connector, element.title)
+        }
         EditError::UnsupportedLegacyParameter { parameter } => anyhow::anyhow!(
             "'{parameter}' is neither a connector nor a settable attribute on this block \
              (attribute params: MaxVal, MinVal, MinChange, MinTime, Step)"

@@ -9,6 +9,7 @@ mod control_move;
 mod description;
 pub(super) mod legacy;
 mod selector;
+mod unwire;
 mod write;
 
 use chrono::{DateTime, FixedOffset};
@@ -21,6 +22,7 @@ pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelecto
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
 };
+pub use unwire::{UnwireChange, UnwireOutcome, unwire};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///
@@ -105,6 +107,10 @@ pub enum EditError {
         element: ElementIdentity,
         parameter: String,
     },
+    ConnectorMissing {
+        element: ElementIdentity,
+        connector: String,
+    },
     UnsupportedLegacyParameter {
         parameter: String,
     },
@@ -141,6 +147,13 @@ impl fmt::Display for EditError {
             Self::Selection(error) => error.fmt(f),
             Self::ParameterMissing { parameter, .. } => {
                 write!(f, "Connector {parameter:?} is absent")
+            }
+            Self::ConnectorMissing { element, connector } => {
+                write!(
+                    f,
+                    "Connector '{connector}' not found on '{}'",
+                    element.title
+                )
             }
             Self::UnsupportedLegacyParameter { parameter } => {
                 write!(f, "Unsupported legacy parameter {parameter:?}")
