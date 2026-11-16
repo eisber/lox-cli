@@ -13,49 +13,11 @@ impl ConfigEditor {
         value: &str,
         type_code: &str,
     ) -> Result<String> {
-        let path = self.require_one(selector)?;
-        let elem = self.get_element_mut(&path);
-        let title = elem.attributes.get("Title").cloned().unwrap_or_default();
-
-        // Find or create SET child
-        let set_idx = elem
-            .children
-            .iter()
-            .position(|c| c.as_element().map(|e| e.name == "SET").unwrap_or(false));
-
-        let set_elem = if let Some(idx) = set_idx {
-            elem.children[idx].as_mut_element().unwrap()
-        } else {
-            let set = Element::new("SET");
-            elem.children.push(xmltree::XMLNode::Element(set));
-            let last = elem.children.len() - 1;
-            elem.children[last].as_mut_element().unwrap()
-        };
-
-        // Find or create property tag
-        let prop_idx = set_elem
-            .children
-            .iter()
-            .position(|c| c.as_element().map(|e| e.name == prop_name).unwrap_or(false));
-
-        if let Some(idx) = prop_idx {
-            let prop = set_elem.children[idx].as_mut_element().unwrap();
-            let old_val = prop.attributes.get("v").cloned().unwrap_or_default();
-            prop.attributes
-                .insert("t".to_string(), type_code.to_string());
-            prop.attributes.insert("v".to_string(), value.to_string());
-            Ok(format!(
-                "Updated {}.{}: '{}' → '{}'",
-                title, prop_name, old_val, value
-            ))
-        } else {
-            let mut prop = Element::new(prop_name);
-            prop.attributes
-                .insert("t".to_string(), type_code.to_string());
-            prop.attributes.insert("v".to_string(), value.to_string());
-            set_elem.children.push(xmltree::XMLNode::Element(prop));
-            Ok(format!("Created {}.{} = '{}'", title, prop_name, value))
-        }
+        let change = self
+            .kernel
+            .set_property_legacy(selector, prop_name, value, type_code)
+            .map_err(super::editor_error)?;
+        Ok(super::property_report(&change))
     }
 
     /// Set an attribute on an element.

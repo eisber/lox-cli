@@ -39,6 +39,8 @@ mod mqtt_catalog_tests;
 pub mod operating_modes;
 mod permissions;
 mod properties;
+#[cfg(test)]
+mod property_tests;
 mod rooms;
 pub mod schema;
 mod selector;
@@ -440,6 +442,23 @@ pub(crate) fn editor_error(error: lox_core::configuration::editor::EditError) ->
         error @ (EditError::RoomNotFound { .. } | EditError::RoomAmbiguous { .. }) => {
             anyhow::anyhow!("{error}")
         }
+    }
+}
+
+pub(crate) fn property_report(change: &lox_core::configuration::editor::PropertyChange) -> String {
+    if change.created {
+        format!(
+            "Created {}.{} = '{}'",
+            change.element.title, change.property, change.new_value
+        )
+    } else {
+        format!(
+            "Updated {}.{}: '{}' → '{}'",
+            change.element.title,
+            change.property,
+            change.old_value.as_deref().unwrap_or_default(),
+            change.new_value
+        )
     }
 }
 

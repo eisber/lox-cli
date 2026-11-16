@@ -1,11 +1,110 @@
 use chrono::{DateTime, Duration, FixedOffset};
 use lox_core::configuration::editor::{
-    ControlMoveSelector, EditError, SelectionError, move_control, set_param,
+    ControlMoveSelector, EditError, SelectionError, move_control, set_param, set_property,
 };
 use std::error::Error;
 
 fn now() -> DateTime<FixedOffset> {
     DateTime::parse_from_rfc3339("2026-10-12T07:55:33+01:00").unwrap()
+}
+
+#[test]
+fn set_property_keeps_first_set_first_property_and_native_collateral() {
+    let before = "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+<ControlList>\r\n\
+\t<C Type=\"GenTActor\" U=\"a\" Title=\"Küche 室\" 12hTF=\"true\" Note=\"first\nsecond\">\r\n\
+\t\t<SET>\r\n\
+\t\t\t<mqtt_topic Extra=\"+003\" t=\"old\" v=\"first\"><Unknown/></mqtt_topic>\r\n\
+\t\t\t<mqtt_topic t=\"11\" v=\"second\"/>\r\n\
+\t\t</SET>\r\n\
+\t\t<SET><mqtt_topic v=\"last\"/><mqtt_qos v=\"+01\"/></SET>\r\n\
+\t\t<Unknown Value=\"&quot; &amp; &lt;\"/>\r\n\
+\t</C>\r\n\
+</ControlList>\r\n";
+    let out = set_property(
+        before.as_bytes(),
+        "uuid:a",
+        "mqtt_topic",
+        "雪 & <",
+        "-007",
+        &now(),
+    )
+    .unwrap();
+    assert_eq!(
+        out.bytes,
+        before
+            .replace("t=\"old\" v=\"first\"", "t=\"-007\" v=\"雪 &amp; &lt;\"")
+            .replace(
+                "\"><Unknown/></mqtt_topic>",
+                "\">\r\n\t\t\t\t<Unknown></Unknown>\r\n\t\t\t</mqtt_topic>",
+            )
+            .replace("<SET><mqtt_topic v=\"last\"/><mqtt_qos v=\"+01\"/></SET>",
+                "<SET>\r\n\t\t\t<mqtt_topic v=\"last\"/>\r\n\t\t\t<mqtt_qos v=\"+01\"/>\r\n\t\t</SET>")
+            .as_bytes()
+    );
+    assert!(!out.change.created);
+    assert_eq!(out.change.old_value.as_deref(), Some("first"));
+    assert_eq!(out.change.old_type_code.as_deref(), Some("old"));
+    #[cfg(feature = "configuration-xml")]
+    {
+        let topics = lox_core::configuration::mqtt::list_topics(&out.bytes).unwrap();
+        assert_eq!(topics[0].topic, "last");
+        assert_eq!(topics[0].qos, "+01");
+    }
+}
+
+#[test]
+fn set_property_create_missing_value_noop_and_type_only_stamp_are_distinct() {
+    let xml = br#"<C Type="Document" Date="2026-10-12 07:55:33" DateS="561020133"><C Type="And" U="a"><Unknown/><SET><P Other="keep"><Child/></P></SET><SET><P v="later"/></SET></C></C>"#;
+    let out = set_property(xml, "uuid:a", "P", "", "+11", &now()).unwrap();
+    assert!(!out.change.created);
+    assert_eq!(out.change.old_value, None);
+    assert!(out.content_changed && out.document_stamped);
+    assert!(String::from_utf8_lossy(&out.bytes).contains("DateS=\"561020134\""));
+    let noop = set_property(&out.bytes, "uuid:a", "P", "", "+11", &now()).unwrap();
+    assert!(!noop.content_changed && !noop.document_stamped);
+    assert_eq!(noop.bytes, out.bytes);
+    let typed = set_property(&out.bytes, "uuid:a", "P", "", "15", &now()).unwrap();
+    assert!(typed.content_changed && typed.document_stamped);
+    assert_eq!(typed.change.old_value.as_deref(), Some(""));
+    let appended = set_property(xml, "uuid:a", "New", "+0003", "anything", &now()).unwrap();
+    assert!(appended.change.created);
+    let text = String::from_utf8(appended.bytes).unwrap();
+    assert!(text.find("<New ").unwrap() < text.find("v=\"later\"").unwrap());
+    let created =
+        set_property(br#"<C U="a"><Unknown/></C>"#, "uuid:a", "P", "", "", &now()).unwrap();
+    assert!(created.change.created);
+    assert_eq!(created.change.element.title, "");
+    assert_eq!(created.bytes, b"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<C U=\"a\">\n\t<Unknown></Unknown>\n\t<SET>\n\t\t<P t=\"\" v=\"\"/>\n\t</SET>\n</C>\n");
+}
+
+#[test]
+fn set_property_preserves_load_selection_order_and_raw_name_acceptance() {
+    let xml = br#"<ControlList><C Type="And" U="a" Title="Gate"/><C Type="And" U="b" Title="Gate"/></ControlList>"#;
+    let saved = xml.to_vec();
+    assert!(matches!(
+        set_property(xml, "missing", "", "", "", &now()),
+        Err(EditError::Selection(SelectionError::NotFound { .. }))
+    ));
+    assert!(matches!(
+        set_property(xml, "Gate", "", "", "", &now()),
+        Err(EditError::Selection(SelectionError::Ambiguous { .. }))
+    ));
+    let error = set_property(b"<C A='1' A='2'/>", "missing", "", "", "", &now()).unwrap_err();
+    assert!(matches!(error, EditError::Load(_)));
+    assert!(
+        error
+            .source()
+            .unwrap()
+            .downcast_ref::<xmltree::ParseError>()
+            .is_some()
+    );
+    assert_eq!(xml.as_slice(), saved);
+    for property in ["", "a/b", "prefix:name", "12name"] {
+        // The emitter's legacy acceptance is intentionally not an XML-name validator.
+        let out = set_property(xml, "uuid:a", property, "+003", "-1", &now()).unwrap();
+        assert_eq!(out.change.property, property);
+    }
 }
 
 #[test]

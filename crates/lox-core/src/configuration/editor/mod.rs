@@ -1,4 +1,4 @@
-//! Legacy-compatible, headless parameter and control-room byte transactions.
+//! Legacy-compatible, headless parameter, SET-property and control-room transactions.
 //!
 //! This is not a native Config validator or a lossless arbitrary-XML editor.
 //! Loading and canonical serialization intentionally retain the CLI's existing
@@ -7,6 +7,7 @@
 
 mod control_move;
 pub(super) mod legacy;
+mod property;
 mod selector;
 mod write;
 
@@ -17,6 +18,7 @@ use std::{error::Error, fmt};
 #[doc(hidden)]
 pub use control_move::ControlMovePlan;
 pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelector, move_control};
+pub use property::{PropertyChange, SetPropertyOutcome, set_property};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///

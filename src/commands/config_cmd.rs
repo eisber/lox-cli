@@ -5260,8 +5260,10 @@ fn cmd_xml_edit(_ctx: &RunContext, action: XmlEditCmd) -> Result<()> {
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let mut editor = ConfigEditor::load(&data)?;
-            let msg = editor.set_property(&selector, &property, &value, &r#type)?;
-            println!("✓ {}", msg);
+            let change = editor
+                .set_property_legacy(&selector, &property, &value, &r#type)
+                .map_err(crate::config_edit::editor_error)?;
+            println!("✓ {}", crate::config_edit::property_report(&change));
             save_edited(&mut editor, &file, save_as.as_deref())?;
         }
         XmlEditCmd::SetAttr {

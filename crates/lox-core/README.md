@@ -21,6 +21,21 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `configuration-editor`: `configuration::editor::set_property` edits
+  borrowed bytes with an explicit `DateTime<FixedOffset>`, returning owned bytes,
+  typed `PropertyChange` and `EditError`. The first direct `SET` and first
+  matching property are updated; missing elements are appended. Both `t` and
+  `v` change without schema/name/type-code validation or collateral replacement.
+  This intentionally differs from the MQTT catalog's later-value-wins policy
+  and from connector `set_param`. Canonical no-ops do not stamp, while type-only
+  changes do. The shared legacy loader's lox-n37w limitation is unchanged.
+  The actual `config xml set-property` producer and cached editor call the same
+  Core mutator through the existing unstable CLI bridge. The CLI deliberately
+  retains its report **before serialization**, original-file reread for change
+  detection, clock acquisition, atomic staging/write, save-as and output quirks;
+  it does not substitute the standalone transaction's borrowed-byte baseline.
+  No new preview, raw-DOM API, Python/JVM support or native qualification is added.
+
 - Optional `configuration-xml`: `configuration::mqtt::list_topics(&[u8])`
   returns owned `MqttTopic` records with typed `MqttDirection`. The actual
   `lox config mqtt topics` producer and cached CLI editor share this one walker.
