@@ -13,16 +13,23 @@ enum Request {
         cancellation: Cancellation,
         reply: mpsc::SyncSender<Result<ControlObservation, ControlReadError>>,
     },
+    Command {
+        command: LegacyControlCommand,
+        cancellation: Cancellation,
+        reply: mpsc::SyncSender<Result<ControlObservation, ControlReadError>>,
+    },
 }
 
 enum Options {
     Clock(ClockOptions),
     Control(ControlReadOptions),
+    Command(ControlReadOptions),
 }
 
 enum Client {
     Clock(ClockClient),
     Control(ControlReadClient),
+    Command(LegacyControlCommandClient),
 }
 
 enum StartError {
@@ -40,6 +47,9 @@ impl Client {
             Options::Control(options) => ControlReadClient::new(options)
                 .map(Self::Control)
                 .map_err(StartError::Control),
+            Options::Command(options) => LegacyControlCommandClient::new(options)
+                .map(Self::Command)
+                .map_err(StartError::Control),
         }
     }
 
@@ -47,6 +57,7 @@ impl Client {
         match self {
             Self::Clock(client) => &client.http,
             Self::Control(client) => &client.http,
+            Self::Command(client) => &client.inner.http,
         }
     }
 
@@ -71,10 +82,25 @@ impl Client {
             ) => {
                 let _ = reply.send(client.read_control(&target, &cancellation).await);
             }
+            (
+                Self::Command(client),
+                Request::Command {
+                    command,
+                    cancellation,
+                    reply,
+                },
+            ) => {
+                let _ = reply.send(client.send_command(&command, &cancellation).await);
+            }
             (_, Request::Clock { reply, .. }) => {
                 let _ = reply.send(Err(ClockError::DriverStopped));
             }
             (_, Request::Control { reply, .. }) => {
+                let _ = reply.send(Err(ControlReadError::new(
+                    ControlReadFailure::DriverStopped,
+                )));
+            }
+            (_, Request::Command { reply, .. }) => {
                 let _ = reply.send(Err(ControlReadError::new(
                     ControlReadFailure::DriverStopped,
                 )));
@@ -130,6 +156,7 @@ impl OwnedDriver {
                 match &options {
                     Options::Clock(_) => "lox-clock",
                     Options::Control(_) => "lox-control-read",
+                    Options::Command(_) => "lox-legacy-control-command",
                 }
                 .into(),
             )
@@ -256,7 +283,7 @@ impl Drop for OwnedDriver {
 }
 
 /// Explicitly owned clock worker. Public behavior is unchanged; private worker
-/// admission/teardown is shared with the one control-read operation.
+/// admission/teardown is shared with control reads and explicit legacy commands.
 pub struct ClockDriver(OwnedDriver);
 
 impl ClockDriver {
@@ -359,4 +386,55 @@ fn control_driver_error(error: ClockError) -> ControlReadError {
         ClockError::ShutdownTimeout { active } => ControlReadFailure::ShutdownTimeout { active },
         _ => ControlReadFailure::DriverStopped,
     })
+}
+
+/// Explicit legacy mutating-GET facade on the same bounded owned worker as
+/// clock/control reads. See `LegacyControlCommandClient` for retry hazards.
+pub struct LegacyControlCommandDriver(OwnedDriver);
+
+impl LegacyControlCommandDriver {
+    pub fn new(options: ControlReadOptions) -> Result<Self, ControlReadError> {
+        OwnedDriver::new(Options::Command(options))
+            .map(Self)
+            .map_err(|error| match error {
+                StartError::Control(error) => error,
+                StartError::Clock(error) | StartError::Driver(error) => control_driver_error(error),
+            })
+    }
+
+    pub fn is_closed(&self) -> bool {
+        self.0.is_closed()
+    }
+
+    pub fn active_operations(&self) -> usize {
+        self.0.active_operations()
+    }
+
+    pub fn send_command(
+        &self,
+        command: &LegacyControlCommand,
+        cancellation: &Cancellation,
+    ) -> Result<ControlObservation, ControlReadError> {
+        let (reply, result) = mpsc::sync_channel(1);
+        let mut observation = None;
+        self.0
+            .submit(
+                Request::Command {
+                    command: command.clone(),
+                    cancellation: cancellation.clone(),
+                    reply,
+                },
+                || {
+                    observation = Some(result.recv().map_err(|_| ClockError::Closed)?);
+                    Ok(())
+                },
+            )
+            .map_err(control_driver_error)?;
+        observation.ok_or_else(|| ControlReadError::new(ControlReadFailure::DriverStopped))?
+    }
+
+    /// Idempotent bounded close; success proves the owned worker was joined.
+    pub fn close(&self) -> Result<(), ControlReadError> {
+        self.0.close().map_err(control_driver_error)
+    }
 }

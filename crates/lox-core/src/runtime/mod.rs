@@ -1,4 +1,4 @@
-//! Read-only HTTP clock/control observations, validation and resource lifetime.
+//! HTTP clock/control observations, explicit legacy commands and resource lifetime.
 //!
 //! Requires a Tokio executor with I/O and time enabled, or the explicitly created
 //! `ClockDriver` / `ControlReadDriver` (`runtime-blocking`). There are no subscriptions. Ordinary
@@ -7,6 +7,7 @@
 //! and must not block or panic.
 
 mod clock;
+mod control_command;
 mod control_read;
 mod http;
 mod model;
@@ -17,7 +18,10 @@ mod blocking;
 pub use blocking::ClockDriver;
 #[cfg(feature = "runtime-blocking")]
 pub use blocking::ControlReadDriver;
+#[cfg(feature = "runtime-blocking")]
+pub use blocking::LegacyControlCommandDriver;
 pub use clock::ClockClient;
+pub use control_command::*;
 pub use control_read::*;
 pub use model::*;
 

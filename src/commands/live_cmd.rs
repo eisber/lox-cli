@@ -17,9 +17,9 @@ use lox_core::runtime::{
     Cancellation, ClockDriver, ClockError, ClockOptions, ClockResponsePolicy,
     ControlReadCompatibility, ControlReadDiagnostic, ControlReadDriver, ControlReadError,
     ControlReadFailure, ControlReadOptions, ControlReadPhase, ControlReadPhaseTimeout,
-    ControlReadResponsePolicy, Diagnostic,
+    ControlReadResponsePolicy, Diagnostic, LegacyControlCommand, LegacyControlCommandDriver,
 };
-use serde_json::{Value, json};
+use serde_json::json;
 use std::sync::Arc;
 
 use crate::client::{self, HttpStatusError, LoxClient};
@@ -58,26 +58,36 @@ pub fn cmd_live(ctx: &RunContext, action: LiveCmd) -> Result<()> {
     }
 }
 
-/// Extract `(value, code)` from a Loxone `{"LL": {...}}` envelope.
-fn parse_ll(v: &Value) -> (String, Option<String>) {
-    let ll = &v["LL"];
-    let value = ll["value"]
-        .as_str()
-        .map(|s| s.to_string())
-        .or_else(|| ll["value"].as_f64().map(|f| f.to_string()))
-        .unwrap_or_default();
-    let code = ll["Code"]
-        .as_str()
-        .map(|s| s.to_string())
-        .or_else(|| ll["code"].as_str().map(|s| s.to_string()))
-        .or_else(|| ll["Code"].as_i64().map(|n| n.to_string()));
-    (value, code)
-}
-
 fn get(ctx: &RunContext, lox: &mut LoxClient, name_or_uuid: &str) -> Result<()> {
     let uuid = lox.resolve(name_or_uuid)?;
     let path = format!("/jdev/sps/io/{uuid}");
-    let cfg = &lox.cfg;
+    let options = control_options(&lox.cfg, &path);
+    let read = || -> Result<_> {
+        let driver =
+            ControlReadDriver::new(options).map_err(|error| control_read_error(error, &path))?;
+        let result = driver.read_control(&uuid, &Cancellation::new());
+        let closed = driver.close();
+        let observation = result.map_err(|error| control_read_error(error, &path))?;
+        closed?;
+        Ok(observation.legacy_text())
+    };
+    let state = read().with_context(|| format!("reading state of {uuid}"))?;
+    let (value, code) = (state.value, state.code);
+    if ctx.json {
+        println!("{}", json!({ "uuid": uuid, "value": value, "code": code }));
+    } else {
+        println!("{value}");
+        if value.contains("<v.col>") || value.contains("<v>") {
+            eprintln!(
+                "note: this is a color/template state — HTTP polling returns the literal \
+                 template, not a number. Perceived color is not readable here."
+            );
+        }
+    }
+    Ok(())
+}
+
+fn control_options(cfg: &Config, path: &str) -> ControlReadOptions {
     let mut options = ControlReadOptions::new(&cfg.host, &cfg.user, &cfg.pass);
     options.compatibility = ControlReadCompatibility::LegacyCli;
     options.verify_tls = cfg.verify_ssl.unwrap_or(false);
@@ -102,29 +112,7 @@ fn get(ctx: &RunContext, lox: &mut LoxClient, name_or_uuid: &str) -> Result<()> 
             _ => {}
         }));
     }
-    let read = || -> Result<_> {
-        let driver =
-            ControlReadDriver::new(options).map_err(|error| control_read_error(error, &path))?;
-        let result = driver.read_control(&uuid, &Cancellation::new());
-        let closed = driver.close();
-        let observation = result.map_err(|error| control_read_error(error, &path))?;
-        closed?;
-        Ok(observation.legacy_text())
-    };
-    let state = read().with_context(|| format!("reading state of {uuid}"))?;
-    let (value, code) = (state.value, state.code);
-    if ctx.json {
-        println!("{}", json!({ "uuid": uuid, "value": value, "code": code }));
-    } else {
-        println!("{value}");
-        if value.contains("<v.col>") || value.contains("<v>") {
-            eprintln!(
-                "note: this is a color/template state — HTTP polling returns the literal \
-                 template, not a number. Perceived color is not readable here."
-            );
-        }
-    }
-    Ok(())
+    options
 }
 
 fn control_read_error(error: ControlReadError, path: &str) -> anyhow::Error {
@@ -175,10 +163,20 @@ fn set(
         );
     }
     let uuid = lox.resolve(name_or_uuid)?;
-    let resp = lox
-        .send_cmd(&uuid, value)
-        .with_context(|| format!("writing '{value}' to {uuid}"))?;
-    let (ret, code) = parse_ll(&resp);
+    let path = format!("/jdev/sps/io/{uuid}/{value}");
+    let send = || -> Result<_> {
+        client::validate_uuid(&uuid)?;
+        let command = LegacyControlCommand::new(&uuid, value)?;
+        let driver = LegacyControlCommandDriver::new(control_options(&lox.cfg, &path))
+            .map_err(|error| control_read_error(error, &path))?;
+        let result = driver.send_command(&command, &Cancellation::new());
+        let closed = driver.close();
+        let observation = result.map_err(|error| control_read_error(error, &path))?;
+        closed?;
+        Ok(observation.legacy_text())
+    };
+    let state = send().with_context(|| format!("writing '{value}' to {uuid}"))?;
+    let (ret, code) = (state.value, state.code);
     if ctx.json {
         println!(
             "{}",
@@ -259,7 +257,52 @@ fn clock_error(error: ClockError) -> anyhow::Error {
 mod tests {
     use super::*;
     use httpmock::{Method::GET, MockServer};
+    use serde_json::Value;
     use std::time::Duration;
+
+    #[test]
+    fn command_error_adapter_preserves_actual_send_cmd_sources_and_categories() {
+        let server = MockServer::start();
+        let path = "/jdev/sps/io/abcdef/pulse";
+        for (status, body, attempts) in [(401, "{", 1), (503, "{", 4), (200, "{", 4)] {
+            let mut response = server.mock(|when, then| {
+                when.method(GET).path(path);
+                then.status(status).body(body);
+            });
+            let legacy = LoxClient::new(Config {
+                host: server.base_url(),
+                user: "command".into(),
+                pass: "synthetic-only".into(),
+                ..Config::default()
+            })
+            .unwrap();
+            let expected = legacy.send_cmd("abcdef", "pulse").unwrap_err();
+            let mut options = control_options(&legacy.cfg, path);
+            options.use_system_proxy = false;
+            options.retry_delays = vec![Duration::from_millis(1); 3];
+            let driver = LegacyControlCommandDriver::new(options).unwrap();
+            let command = LegacyControlCommand::new("abcdef", "pulse").unwrap();
+            let actual = control_read_error(
+                driver
+                    .send_command(&command, &Cancellation::new())
+                    .unwrap_err(),
+                path,
+            );
+            driver.close().unwrap();
+            assert_eq!(format!("{actual:#}"), format!("{expected:#}"));
+            assert_eq!(
+                crate::categorize_error(&actual),
+                crate::categorize_error(&expected)
+            );
+            if status == 200 {
+                assert!(actual.downcast_ref::<reqwest::Error>().is_some());
+            } else {
+                assert!(actual.downcast_ref::<HttpStatusError>().is_some());
+            }
+            response.assert_hits(attempts * 2);
+            response.delete();
+        }
+    }
 
     #[test]
     fn legacy_phase_timeouts_preserve_actual_blocking_messages_and_categories() {

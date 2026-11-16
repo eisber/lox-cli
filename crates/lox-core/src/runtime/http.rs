@@ -1,4 +1,4 @@
-//! Private HTTP and operation lifetime shared only by clock and control reads.
+//! Private HTTP/lifetime shared by clock, control reads and explicit legacy commands.
 use super::{
     CancelReason, Cancellation, ClockOptions, ControlReadPhase, ControlReadPhaseTimeout,
     TransportFailure,

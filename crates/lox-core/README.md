@@ -110,6 +110,21 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   `ControlReadDriver`, used for the actual `lox live get` HTTP read, not only
   response decoding. Typed observations, validation, errors, cancellation and
   bounded close share the clock's private transport/lifetime implementation.
+- `LegacyControlCommand::new` owns and validates a resolved command identifier.
+  `LegacyControlCommandClient::send_command` and the explicitly owned
+  `LegacyControlCommandDriver` perform the actual `live set --write` HTTP
+  command through that same transport, LL projection and bounded worker.
+  They deliberately reuse `ControlReadOptions`, `ControlObservation` and
+  `ControlReadError` as the existing control-HTTP vocabulary, not a second
+  protocol/error framework. The named legacy factory always selects the CLI
+  host/header/body compatibility policy. Commands are literal URL suffixes:
+  no new segment encoding or command-language validation is imposed.
+  **Retries include non-idempotent commands**, HTTP 5xx, body/transport failures
+  and malformed JSON after HTTP success; HTTP 4xx is not retried. A failed or
+  cancelled operation may already have executed. There is no exactly-once or
+  rollback guarantee. Only the CLI owns `--write`, context, resolution/cache,
+  output and legacy error rendering. No Python/JVM write export, general route,
+  session/authentication or subscription capability is added.
 - `control`: typed in-memory query preparation, catalog resolution and identifier
   validation. The existing CLI `LoxClient::resolve`/`resolve_with_room` producer
   uses this core, including `lox live get` and write-gated `lox live set`.

@@ -439,13 +439,27 @@ impl ControlReadClient {
         resolved_target: &str,
         cancellation: &Cancellation,
     ) -> Result<ControlObservation, ControlReadError> {
+        self.observe_control(resolved_target, None, cancellation)
+            .await
+    }
+
+    pub(super) async fn observe_control(
+        &self,
+        resolved_target: &str,
+        command: Option<&str>,
+        cancellation: &Cancellation,
+    ) -> Result<ControlObservation, ControlReadError> {
         self.http
             .run(cancellation, |client| async move {
-                if self.compatibility == ControlReadCompatibility::Strict {
+                if command.is_some() || self.compatibility == ControlReadCompatibility::Strict {
                     validate_uuid(resolved_target).map_err(|error| {
                         ControlReadError::new(ControlReadFailure::InvalidTarget(error))
                     })?;
                 }
+                let path = match command {
+                    Some(command) => format!("/jdev/sps/io/{resolved_target}/{command}"),
+                    None => format!("/jdev/sps/io/{resolved_target}"),
+                };
                 let observer = |body: &str| {
                     if let ControlReadResponsePolicy::LegacyCliVerbose { body_observer } =
                         &self.response_policy
@@ -460,22 +474,17 @@ impl ControlReadClient {
                     }
                 };
                 self.http
-                    .get_json(
-                        &client,
-                        &format!("/jdev/sps/io/{resolved_target}"),
-                        policy,
-                        |event| {
-                            if let Some(observer) = &self.diagnostics {
-                                observer(match event {
-                                    HttpEvent::Request => ControlReadDiagnostic::Request,
-                                    HttpEvent::Response(status) => {
-                                        ControlReadDiagnostic::Response { status }
-                                    }
-                                    HttpEvent::Body(bytes) => ControlReadDiagnostic::Body { bytes },
-                                });
-                            }
-                        },
-                    )
+                    .get_json(&client, &path, policy, |event| {
+                        if let Some(observer) = &self.diagnostics {
+                            observer(match event {
+                                HttpEvent::Request => ControlReadDiagnostic::Request,
+                                HttpEvent::Response(status) => {
+                                    ControlReadDiagnostic::Response { status }
+                                }
+                                HttpEvent::Body(bytes) => ControlReadDiagnostic::Body { bytes },
+                            });
+                        }
+                    })
                     .await
                     .map(ControlObservation::decode)
                     .map_err(control_error)
