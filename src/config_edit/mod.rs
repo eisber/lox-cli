@@ -434,6 +434,12 @@ pub(crate) fn editor_error(error: lox_core::configuration::editor::EditError) ->
             "'{parameter}' is neither a connector nor a settable attribute on this block \
              (attribute params: MaxVal, MinVal, MinChange, MinTime, Step)"
         ),
+        EditError::ControlMoveSelectorMissing => {
+            anyhow::anyhow!("Specify --type or --title to select controls to move")
+        }
+        error @ (EditError::RoomNotFound { .. } | EditError::RoomAmbiguous { .. }) => {
+            anyhow::anyhow!("{error}")
+        }
     }
 }
 
