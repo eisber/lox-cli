@@ -1,5 +1,7 @@
 use chrono::{DateTime, Duration, FixedOffset};
-use lox_core::configuration::editor::{EditError, SelectionError, set_param};
+use lox_core::configuration::editor::{
+    ControlMoveSelector, EditError, SelectionError, move_control, set_param,
+};
 use std::error::Error;
 
 fn now() -> DateTime<FixedOffset> {
@@ -91,4 +93,120 @@ fn refusals_are_typed_and_leave_borrowed_input_unchanged() {
     assert_eq!(xml.as_slice(), saved);
     let identical = br#"<C Type='And' U='a' Title='Gate' Title="Gate"><Co K='I1' Def='1'/></C>"#;
     assert!(set_param(identical, "Type:And", "I1", "2", &now()).is_ok());
+}
+
+#[test]
+fn control_move_preserves_direct_associations_collateral_and_explicit_stamp() {
+    let before = "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+<ControlList>\r\n\
+\t<C Type=\"Document\" Date=\"2026-10-12 07:55:33\" DateS=\"561020133\"/>\r\n\
+\t<C Type=\"Place\" U=\"r\" Title=\"Küche 室\"/>\r\n\
+\t<C Type=\"Future\" U=\"a\" Title=\"Lamp\" 12hTF=\"true\">\r\n\
+\t\t<IoData Pr=\"old\" Cr=\"cat\" Future=\"+003\"/>\r\n\
+\t\t<IoData Pr=\"\"/>\r\n\
+\t\t<IoData/>\r\n\
+\t\t<Unknown>\r\n\
+\t\t\t<IoData Pr=\"nested\"/>\r\n\
+\t\t</Unknown>\r\n\
+\t\t<Co K=\"AQ\" U=\"wire\">\r\n\
+\t\t\t<In Input=\"source\" FLG=\"01\"/>\r\n\
+\t\t</Co>\r\n\
+\t</C>\r\n\
+</ControlList>\r\n";
+    let moved = move_control(
+        before.as_bytes(),
+        None,
+        Some("Lamp"),
+        "KÜCHE 室",
+        &["Future"],
+        &(now() - Duration::days(1)),
+    )
+    .unwrap();
+    assert!(moved.content_changed && moved.document_stamped);
+    assert_eq!(moved.change.selected_count, 1);
+    assert!(moved.change.association_changed);
+    let expected = before
+        .replace(
+            "Date=\"2026-10-12 07:55:33\"",
+            "Date=\"2026-10-12 07:55:34\"",
+        )
+        .replace("DateS=\"561020133\"", "DateS=\"561020134\"")
+        .replace("Pr=\"old\"", "Pr=\"r\"")
+        .replace("Pr=\"\"", "Pr=\"r\"")
+        .replace("<IoData/>", "<IoData Pr=\"r\"/>");
+    assert_eq!(moved.bytes, expected.as_bytes());
+    let noop = move_control(&moved.bytes, None, Some("Lamp"), "Küche 室", &[], &now()).unwrap();
+    assert!(!noop.content_changed && !noop.document_stamped);
+    assert_eq!(noop.bytes, moved.bytes);
+}
+
+#[test]
+fn control_move_type_and_title_keep_distinct_mirror_exclusion_and_sparse_rules() {
+    let xml = br#"<ControlList><C Type="Place" U="r" Title="Room"/>
+<C Type="Future" U="a" Title="Lamp"><IoData Pr="r"/></C>
+<C Type="Future" U="a" Title="Mirror"><IoData Pr="old"/></C>
+<C Type="Future" U="dry" Title="Dry"><Unknown><IoData Pr="old"/></Unknown></C>
+</ControlList>"#;
+    let typed = move_control(xml, Some("fUtUrE"), Some("missing"), "Room", &[], &now()).unwrap();
+    assert_eq!(
+        typed.change.selector,
+        ControlMoveSelector::Type("fUtUrE".into())
+    );
+    assert_eq!(typed.change.selected_count, 2);
+    assert!(typed.content_changed && !typed.document_stamped);
+    let excluded = move_control(xml, Some("Future"), None, "Room", &["FUTURE"], &now()).unwrap();
+    assert_eq!(excluded.change.selected_count, 0);
+    assert!(!excluded.content_changed && !excluded.document_stamped);
+    assert_ne!(excluded.bytes, xml);
+    let title = move_control(xml, None, Some("uuid:a"), "Room", &["Future"], &now()).unwrap();
+    assert_eq!(title.change.selected_count, 1);
+    assert!(!title.content_changed);
+    assert!(
+        String::from_utf8(title.bytes)
+            .unwrap()
+            .contains("Pr=\"old\"")
+    );
+    let dry = move_control(xml, None, Some("Dry"), "Room", &[], &now()).unwrap();
+    assert_eq!(dry.change.selected_count, 1);
+    assert!(!dry.change.association_changed && !dry.content_changed);
+}
+
+#[test]
+fn control_move_typed_refusals_preserve_branch_error_order_and_room_duplicates() {
+    let xml = br#"<ControlList><C Type="Place" U="r" Title="Room"/>
+<C Type="Place" U="long" Title="Room Long"/>
+<C Type="Future" U="a" Title="Lamp"/><C Type="Future" U="b" Title="Lamp"/></ControlList>"#;
+    let saved = xml.to_vec();
+    assert!(matches!(
+        move_control(xml, Some("Future"), Some("Lamp"), "missing", &[], &now()),
+        Err(EditError::RoomNotFound { room }) if room == "missing"
+    ));
+    assert!(matches!(
+        move_control(xml, None, Some("Lamp"), "missing", &[], &now()),
+        Err(EditError::Selection(SelectionError::Ambiguous { .. }))
+    ));
+    assert!(matches!(
+        move_control(xml, None, Some("missing"), "missing", &[], &now()),
+        Err(EditError::Selection(SelectionError::NotFound { .. }))
+    ));
+    assert!(matches!(
+        move_control(xml, None, None, "missing", &[], &now()),
+        Err(EditError::ControlMoveSelectorMissing)
+    ));
+    assert_eq!(
+        move_control(xml, Some(""), None, "Room", &[], &now())
+            .unwrap()
+            .change
+            .room_uuid,
+        "r"
+    );
+    let mirrors = br#"<ControlList><C Type="Place" U="r" Title="Room"/><C Type="Place" U="r" Title="Room"/></ControlList>"#;
+    assert!(matches!(
+        move_control(mirrors, Some("Future"), None, "Room", &[], &now()),
+        Err(EditError::RoomAmbiguous { matches, .. }) if matches == ["Room", "Room"]
+    ));
+    let error = move_control(b"<C A='1' A='2'/>", None, None, "", &[], &now()).unwrap_err();
+    assert!(matches!(error, EditError::Load(_)));
+    assert!(error.source().is_some());
+    assert_eq!(xml.as_slice(), saved);
 }

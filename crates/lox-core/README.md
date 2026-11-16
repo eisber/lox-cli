@@ -164,6 +164,11 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   the existing CLI's connector-only byte transaction with explicit save time,
   typed outcomes/errors and the shared legacy loader/selector/serializer.
   See [the editing contract](#optional-legacy-compatible-configuration-editing).
+- The same feature exposes `configuration::editor::move_control`: a typed,
+  explicit-clock byte transaction for existing direct `IoData.Pr` room
+  associations. The actual CLI move and its existing rich dry-run preview share
+  one Core plan and mutator through the opt-in legacy bridge. This adds no
+  Python/JVM editor binding or physical-device/native Config qualification.
 - The same optional feature exposes `configuration::summary::{parse_config_summary,
   ConfigSummary, ControlEntry, ConfigSummaryError}`. The summary producer consumed
   by the existing `lox config diff` command uses it.
@@ -289,6 +294,25 @@ no clock is read. A changed canonical program stamps a root/immediate Document,
 using local `Date`, UTC Loxone-epoch `DateS` and previous+1 monotonic advancement.
 Canonical no-ops do not stamp, but may still normalize the raw input.
 
+`move_control(bytes, type_filter, title, target_room, exclude, now)` uses that
+same loader, selector, canonical comparison, stamp and serializer. A supplied
+type takes precedence even when a title is also supplied: room lookup happens
+first, then ASCII-case-insensitive type/exclusion matching selects `C` elements
+with direct `IoData`, retaining UUID mirrors and pre-order. The title branch
+selects one element before room lookup, de-duplicates selector UUID mirrors,
+ignores exclusions and can select an element without `IoData`. Neither branch
+creates `IoData`; every existing direct `IoData.Pr` is assigned, including
+missing/empty values, without changing `Cr` or other attributes/child order.
+Room matching retains case-insensitive substring lookup, unique exact-match
+preference and duplicate-room ambiguity, without de-duplicating room UUIDs.
+`ControlMoveOutcome` contains revised bytes, typed selection/target/count,
+association-change, canonical-content-change and stamp observations. Counts
+include unchanged selections. Missing selectors/rooms and ambiguous rooms are
+typed `EditError` variants; title selection retains `SelectionError`.
+This is a storage association edit, not rewiring or a UI/physical-effect claim.
+CLI flags, report/preview DTOs and JSON/table/CSV rendering, rich error mapping,
+file I/O, save-as and atomic-write timing remain head-owned and unchanged.
+
 BOM, detected document EOL, literal attribute LF, digit-name restoration,
 value-identical duplicate collapse, quote/empty-tag normalization, ordered
 children and unrelated subtree behavior are the **existing** loader/serializer's
@@ -309,6 +333,8 @@ the adapter in consumers or bindings.
 Focused proofs: `cargo test -p lox-core --no-default-features --features
 configuration-editor --test configuration_editor`, and
 `cargo test --test config_integration editor_kernel_set_param_legacy_boundaries`.
+`cargo test -p lox-cli control_move` also compares the shared transaction with
+the original mutator/canonical-save oracle and existing CLI/preview contracts.
 The original serializer/stamp tests now live next to their shared Core code.
 
 ## Complete numeric value-state payloads

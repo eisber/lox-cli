@@ -1,16 +1,22 @@
-//! Legacy-compatible, headless `config set-param` byte transaction.
+//! Legacy-compatible, headless parameter and control-room byte transactions.
 //!
 //! This is not a native Config validator or a lossless arbitrary-XML editor.
 //! Loading and canonical serialization intentionally retain the CLI's existing
 //! digit-name/quoted-text limitation (lox-n37w), duplicate handling and formatting.
 //! No file, clock, home directory, terminal or process state is accessed.
 
+mod control_move;
 pub(super) mod legacy;
 mod selector;
 mod write;
 
 use chrono::{DateTime, FixedOffset};
 use std::{error::Error, fmt};
+
+#[cfg(feature = "unstable-legacy-cli-editor")]
+#[doc(hidden)]
+pub use control_move::ControlMovePlan;
+pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelector, move_control};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///
@@ -98,6 +104,14 @@ pub enum EditError {
     UnsupportedLegacyParameter {
         parameter: String,
     },
+    ControlMoveSelectorMissing,
+    RoomNotFound {
+        room: String,
+    },
+    RoomAmbiguous {
+        room: String,
+        matches: Vec<String>,
+    },
 }
 
 impl EditError {
@@ -126,6 +140,13 @@ impl fmt::Display for EditError {
             }
             Self::UnsupportedLegacyParameter { parameter } => {
                 write!(f, "Unsupported legacy parameter {parameter:?}")
+            }
+            Self::ControlMoveSelectorMissing => {
+                f.write_str("Specify --type or --title to select controls to move")
+            }
+            Self::RoomNotFound { room } => write!(f, "Room '{room}' not found in config"),
+            Self::RoomAmbiguous { room, matches } => {
+                write!(f, "Multiple rooms match '{room}': {matches:?}")
             }
         }
     }

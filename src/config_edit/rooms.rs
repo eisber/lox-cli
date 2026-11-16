@@ -86,8 +86,54 @@ pub struct ControlMovePreview {
     pub scope: &'static str,
 }
 
-struct ControlMovePlan {
-    preview: ControlMovePreview,
+impl From<lox_core::configuration::editor::ControlMovePlan> for ControlMovePreview {
+    fn from(plan: lox_core::configuration::editor::ControlMovePlan) -> Self {
+        use lox_core::configuration::editor::ControlMoveSelector as CoreSelector;
+        let selector = match plan.selector {
+            CoreSelector::Type(value) => ControlMoveSelector::Type(value),
+            CoreSelector::Title(value) => ControlMoveSelector::Title(value),
+        };
+        let report = match &selector {
+            ControlMoveSelector::Type(tf) => format!(
+                "Moved {} {tf} items to '{}' ({})",
+                plan.count, plan.target_room, plan.room_uuid
+            ),
+            ControlMoveSelector::Title(title) => format!(
+                "Moved '{title}' to '{}' ({})",
+                plan.target_room, plan.room_uuid
+            ),
+        };
+        Self {
+            selector,
+            exclude: plan.exclude,
+            target_room: plan.target_room,
+            room_uuid: plan.room_uuid,
+            selected: plan
+                .selected
+                .into_iter()
+                .map(|selected| ControlMoveSelection {
+                    path: selected.path,
+                    attributes: selected.attributes,
+                    io_data: selected
+                        .io_data
+                        .into_iter()
+                        .map(|io| ControlMoveRoomReference {
+                            path: io.path,
+                            attributes: io.attributes,
+                            before_pr: io.before_pr,
+                            after_pr: io.after_pr,
+                            created: io.created,
+                            changed: io.changed,
+                        })
+                        .collect(),
+                })
+                .collect(),
+            count: plan.count,
+            changed: plan.changed,
+            report,
+            scope: "Existing CLI IoData.Pr attribute edit only; no native UI or physical-effect claim",
+        }
+    }
 }
 
 impl ConfigEditor {
@@ -154,10 +200,11 @@ impl ConfigEditor {
         target_room_name: &str,
         exclude_types: &[&str],
     ) -> Result<(usize, String)> {
-        let plan =
-            self.plan_control_move(Some(type_filter), None, target_room_name, exclude_types)?;
-        self.apply_control_move(&plan);
-        Ok((plan.preview.count, plan.preview.room_uuid))
+        let plan = self
+            .kernel
+            .move_control(Some(type_filter), None, target_room_name, exclude_types)
+            .map_err(super::editor_error)?;
+        Ok((plan.count, plan.room_uuid))
     }
 
     pub fn preview_control_move(
@@ -167,9 +214,10 @@ impl ConfigEditor {
         target_room: &str,
         exclude: &[&str],
     ) -> Result<ControlMovePreview> {
-        Ok(self
-            .plan_control_move(type_filter, title, target_room, exclude)?
-            .preview)
+        self.kernel
+            .plan_control_move(type_filter, title, target_room, exclude)
+            .map(ControlMovePreview::from)
+            .map_err(super::editor_error)
     }
 
     pub fn move_control(
@@ -179,151 +227,17 @@ impl ConfigEditor {
         target_room: &str,
         exclude: &[&str],
     ) -> Result<String> {
-        let plan = self.plan_control_move(type_filter, title, target_room, exclude)?;
-        self.apply_control_move(&plan);
-        Ok(plan.preview.report)
-    }
-
-    fn plan_control_move(
-        &self,
-        type_filter: Option<&str>,
-        title: Option<&str>,
-        target_room: &str,
-        exclude: &[&str],
-    ) -> Result<ControlMovePlan> {
-        let (selector, paths, room_uuid) = if let Some(tf) = type_filter {
-            let room_uuid = self.find_room_uuid(target_room)?;
-            let mut paths = Vec::new();
-            Self::collect_typed_with_iodata(&self.root, tf, exclude, &mut Vec::new(), &mut paths);
-            (ControlMoveSelector::Type(tf.to_owned()), paths, room_uuid)
-        } else if let Some(title) = title {
-            let path = self.require_one(title)?;
-            let room_uuid = self.find_room_uuid(target_room)?;
-            (
-                ControlMoveSelector::Title(title.to_owned()),
-                vec![path],
-                room_uuid,
-            )
-        } else {
-            bail!("Specify --type or --title to select controls to move");
-        };
-        let attributes = |elem: &Element| {
-            elem.attributes
-                .iter()
-                .map(|(key, value)| (key.clone(), value.clone()))
-                .collect()
-        };
-        let selected: Vec<_> = paths
-            .into_iter()
-            .map(|path| {
-                let elem = self.get_element(&path);
-                let io_data = elem
-                    .children
-                    .iter()
-                    .enumerate()
-                    .filter_map(|(index, child)| {
-                        let child = child.as_element()?;
-                        if child.name != "IoData" {
-                            return None;
-                        }
-                        let mut io_path = path.clone();
-                        io_path.push(index);
-                        let before_pr = child.attributes.get("Pr").cloned();
-                        Some(ControlMoveRoomReference {
-                            path: io_path,
-                            attributes: attributes(child),
-                            created: before_pr.is_none(),
-                            changed: before_pr.as_deref() != Some(&room_uuid),
-                            before_pr,
-                            after_pr: room_uuid.clone(),
-                        })
-                    })
-                    .collect();
-                ControlMoveSelection {
-                    attributes: attributes(elem),
-                    path,
-                    io_data,
-                }
-            })
-            .collect();
-        let count = selected.len();
-        let report = match &selector {
-            ControlMoveSelector::Type(tf) => {
-                format!("Moved {count} {tf} items to '{target_room}' ({room_uuid})")
-            }
-            ControlMoveSelector::Title(title) => {
-                format!("Moved '{title}' to '{target_room}' ({room_uuid})")
-            }
-        };
-        Ok(ControlMovePlan {
-            preview: ControlMovePreview {
-                changed: selected
-                    .iter()
-                    .any(|item| item.io_data.iter().any(|io| io.changed)),
-                selector,
-                exclude: exclude.iter().map(|value| (*value).to_owned()).collect(),
-                target_room: target_room.to_owned(),
-                room_uuid,
-                selected,
-                count,
-                report,
-                scope: "Existing CLI IoData.Pr attribute edit only; no native UI or physical-effect claim",
-            },
-        })
-    }
-
-    fn apply_control_move(&mut self, plan: &ControlMovePlan) {
-        // Attribute-only edits leave pre-order paths stable, even for nested selections.
-        for selected in &plan.preview.selected {
-            for io in &selected.io_data {
-                self.get_element_mut(&io.path)
-                    .attributes
-                    .insert("Pr".to_owned(), io.after_pr.clone());
-            }
-        }
+        let plan = self
+            .kernel
+            .move_control(type_filter, title, target_room, exclude)
+            .map_err(super::editor_error)?;
+        Ok(ControlMovePreview::from(plan).report)
     }
 
     pub fn find_room_uuid(&self, room_name: &str) -> Result<String> {
-        let lower = room_name.to_lowercase();
-        let mut found = Vec::new();
-        Self::walk_rooms(&self.root, &lower, &mut found);
-        match found.len() {
-            0 => bail!("Room '{}' not found in config", room_name),
-            1 => Ok(found.into_iter().next().unwrap().0),
-            _ => {
-                // Try exact match
-                let exact: Vec<_> = found
-                    .iter()
-                    .filter(|(_uuid, name)| name.to_lowercase() == lower)
-                    .collect();
-                if exact.len() == 1 {
-                    Ok(exact[0].0.clone())
-                } else {
-                    bail!(
-                        "Multiple rooms match '{}': {:?}",
-                        room_name,
-                        found.iter().map(|(_, n)| n.as_str()).collect::<Vec<_>>()
-                    )
-                }
-            }
-        }
-    }
-
-    fn walk_rooms(elem: &Element, name_lower: &str, found: &mut Vec<(String, String)>) {
-        if elem.name == "C"
-            && let Some(t) = elem.attributes.get("Type")
-            && t == "Place"
-            && let (Some(uuid), Some(title)) =
-                (elem.attributes.get("U"), elem.attributes.get("Title"))
-            && title.to_lowercase().contains(name_lower)
-        {
-            found.push((uuid.clone(), title.clone()));
-        }
-        for child in &elem.children {
-            if let Some(child_elem) = child.as_element() {
-                Self::walk_rooms(child_elem, name_lower, found);
-            }
-        }
+        self.kernel
+            .find_room_uuid(room_name)
+            .map_err(super::editor_error)
     }
 
     /// Find a Page element by title (fuzzy substring match).
@@ -431,6 +345,7 @@ impl ConfigEditor {
         }
     }
 
+    #[cfg(test)]
     fn collect_typed_with_iodata(
         elem: &Element,
         type_filter: &str,
@@ -479,8 +394,7 @@ impl ConfigEditor {
     }
 
     fn plan_room_add(&self, name: &str) -> Result<RoomAddPlan> {
-        let mut existing = Vec::new();
-        Self::walk_rooms(&self.root, &name.to_lowercase(), &mut existing);
+        let existing = self.kernel.matching_rooms(&name.to_lowercase());
         if !existing.is_empty() {
             bail!("Room '{}' already exists", name);
         }
@@ -721,8 +635,7 @@ mod room_add_tests {
 
     // Baseline add_room, with only its random UUID supplied by the test.
     fn legacy_add(editor: &mut ConfigEditor, name: &str, uuid: &str) -> Result<String> {
-        let mut existing = Vec::new();
-        ConfigEditor::walk_rooms(&editor.root, &name.to_lowercase(), &mut existing);
+        let existing = editor.kernel.matching_rooms(&name.to_lowercase());
         if !existing.is_empty() {
             bail!("Room '{}' already exists", name);
         }
@@ -1254,6 +1167,106 @@ mod control_move_tests {
                 legacy_error
             );
             assert_eq!(format!("{:?}", editor.root), before);
+        }
+    }
+
+    #[test]
+    fn control_move_public_transaction_matches_original_mutator_and_canonical_save() {
+        let clock = chrono::DateTime::parse_from_rfc3339("2026-10-12T07:55:33+01:00").unwrap();
+        let stamped_xml = XML.replace(
+            "<ControlList Future=\"retain\">",
+            "<ControlList Future=\"retain\"><C Type=\"Document\" Date=\"future\" DateS=\"999999999\"/>",
+        );
+        for xml in [
+            XML.to_owned(),
+            format!("\u{feff}{}\r\n", stamped_xml.replace('\n', "\r\n")),
+        ] {
+            let baseline = ConfigEditor::load(xml.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap();
+            for (tf, title, exclude) in [
+                (Some("fUtUrE"), Some("missing"), vec![]),
+                (Some("Future"), None, vec!["FUTURE"]),
+                (Some("Missing"), None, vec![]),
+                (None, Some("gid:lampgid"), vec!["Future"]),
+                (None, Some("uuid:first"), vec![]),
+                (None, Some("Dry"), vec![]),
+                (None, Some("Nested"), vec![]),
+                (None, Some("Lamp [Beta]"), vec![]),
+            ] {
+                let mut old = ConfigEditor::load(xml.as_bytes()).unwrap();
+                let report = legacy_move(&mut old, tf, title, "bEtA", &exclude).unwrap();
+                let changed = baseline != old.to_bytes().unwrap();
+                let stamped = changed && old.stamp_document(&clock);
+                let actual = lox_core::configuration::editor::move_control(
+                    xml.as_bytes(),
+                    tf,
+                    title,
+                    "bEtA",
+                    &exclude,
+                    &clock,
+                )
+                .unwrap();
+                assert_eq!(actual.bytes, old.to_bytes().unwrap());
+                assert_eq!(actual.content_changed, changed);
+                assert_eq!(actual.document_stamped, stamped);
+                let preview = ConfigEditor::load(xml.as_bytes())
+                    .unwrap()
+                    .preview_control_move(tf, title, "bEtA", &exclude)
+                    .unwrap();
+                assert_eq!(preview.report, report);
+                assert_eq!(actual.change.selected_count, preview.count);
+                assert_eq!(actual.change.association_changed, preview.changed);
+            }
+        }
+    }
+
+    #[test]
+    fn control_move_public_errors_keep_original_debug_chain_and_concrete_causes() {
+        let clock = chrono::DateTime::parse_from_rfc3339("2026-10-12T07:55:33+01:00").unwrap();
+        for (bytes, tf, title, room) in [
+            (b"<C>".as_slice(), None, None, ""),
+            (b"<C A='1' A='2'/>".as_slice(), None, None, ""),
+            (b"<C Title='\xff'/>".as_slice(), None, None, ""),
+            (XML.as_bytes(), None, Some("Missing"), "missing"),
+            (XML.as_bytes(), None, Some("Lamp"), "missing"),
+            (XML.as_bytes(), Some("Future"), Some("Lamp"), "missing"),
+            (XML.as_bytes(), Some("Future"), None, ""),
+            (XML.as_bytes(), None, None, ""),
+        ] {
+            let old = ConfigEditor::load(bytes)
+                .and_then(|mut editor| legacy_move(&mut editor, tf, title, room, &[]))
+                .unwrap_err();
+            let new = super::super::editor_error(
+                lox_core::configuration::editor::move_control(bytes, tf, title, room, &[], &clock)
+                    .unwrap_err(),
+            );
+            assert_eq!(format!("{old:?}"), format!("{new:?}"));
+            assert_eq!(format!("{old:#}"), format!("{new:#}"));
+            assert_eq!(
+                old.chain().map(ToString::to_string).collect::<Vec<_>>(),
+                new.chain().map(ToString::to_string).collect::<Vec<_>>()
+            );
+            assert_eq!(old.root_cause().to_string(), new.root_cause().to_string());
+            assert_eq!(
+                old.downcast_ref::<String>().is_some(),
+                new.downcast_ref::<String>().is_some()
+            );
+            assert_eq!(
+                old.downcast_ref::<&'static str>().is_some(),
+                new.downcast_ref::<&'static str>().is_some()
+            );
+            let native = |error: &anyhow::Error| {
+                error
+                    .downcast_ref::<Box<dyn std::error::Error + Send + Sync>>()
+                    .is_some_and(|cause| cause.as_ref().is::<xmltree::ParseError>())
+            };
+            assert_eq!(native(&old), native(&new));
+            assert_eq!(
+                old.downcast_ref::<xmltree::ParseError>().is_some(),
+                new.downcast_ref::<xmltree::ParseError>().is_some()
+            );
         }
     }
 }
