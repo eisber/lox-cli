@@ -51,7 +51,7 @@ all validation, codec math and wire rendering also remain in Core.
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
 | LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | `select_loxapp3_controls(bytes, ControlFilter) -> list[Control]` | `LoxArchive.selectLoxapp3Controls(byte[], ControlFilter) -> List<Control>` |
 | Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | Candidate `list_loxapp3_autopilot_rules(bytes) -> list[AutopilotRule]` | Candidate `LoxArchive.listLoxapp3AutopilotRules(byte[]) -> List<AutopilotRule>`; SAME generated Java API in Kotlin |
-| Legacy backup filename / FTP LIST catalog | Default `backup_catalog`; owned raw filename/version/timestamp/size, permissive row omission and stable descending raw timestamp ordering | Existing `list_backups` producer delegates after unchanged FTP acquisition; head DTO/date/output retained; no whole-command count increase | Unsupported | Unsupported |
+| Legacy backup filename / FTP LIST catalog | Default `backup_catalog`; owned raw filename/version/timestamp/size, permissive row omission and stable descending raw timestamp ordering | Existing `list_backups` producer delegates after unchanged FTP acquisition; head DTO/date/output retained; no whole-command count increase | Candidate `parse_backup_name(str, int) -> BackupInfo \| None`, `parse_backup_listing(list[str]) -> list[BackupInfo]` | Candidate `LoxArchive.parseBackupName(String, long) -> BackupInfo` (nullable), `parseBackupListing(List<String>) -> List<BackupInfo>`; SAME generated Java22 API in Kotlin |
 | LoxApp3 metadata snapshot | Optional `structure_metadata` (`structure-json`); typed owned projections | Existing three metadata producers share Core; acquisition/presentation unchanged | Candidate `parse_loxapp3_structure_metadata(bytes) -> StructureMetadata` | Candidate `LoxArchive.parseLoxapp3StructureMetadata(byte[]) -> StructureMetadata`; SAME Java API in Kotlin |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
 | Full token acquisition, control writes and WebSocket events | Not extracted as complete shared operations | Existing binary-private behavior | Unsupported | Unsupported |
@@ -61,6 +61,35 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Offline backup catalog candidate
+
+These two thin operations delegate exclusively to published Core. They observe
+caller-supplied strings; they never list FTP, touch files or download, restore,
+delete or format dates. This is **not** a path/file-type/calendar safety validator.
+Names are case-sensitive `sps_<u32>_<timestamp>.zip`; Rust's accepted leading `+`
+and zero padding survive. Timestamps retain every ASCII digit (at least fourteen),
+without calendar validation or an upper length cap. Records own the exact
+filename, numeric version, raw timestamp and byte size.
+
+Listing rows need at least four whitespace-separated fields. The last field is
+the name; field index four is the optional unsigned size, defaulting to zero for
+absent, invalid or overflowing values. Directory/link/unknown types and duplicates
+are not rejected. Sorting is stable descending **raw string** timestamp order,
+not numeric/calendar order. No human-size or Qt/date presentation is introduced.
+
+Python integers preserve u32/u64 values. Java `int`/`long` preserve unsigned bits:
+use `Integer.toUnsignedLong` / `Long.toUnsignedString`, or Kotlin `toUInt()` /
+`toULong()`, including both MAX values. Missing name observations are Python
+`None` and Java/Kotlin null; empty listings return empty lists. Neither operation
+has a domain error branch. Ownership qualification measures the actual returned
+`Some` RustBuffer with the existing unchanged heap probe (live one, exact free
+zero, 64 generated calls retained zero without requested GC in all three heads).
+The deliberately long valid timestamp exercises Core's uncapped string contract.
+Tiny `None` and listing buffers inherit established generated ownership; their
+functional roundtrips are tested, not misrepresented as large-buffer calibration.
+Other platforms, registry distribution and native Config qualification remain
+unsupported/unclaimed.
 
 ### Offline firmware metadata candidate
 

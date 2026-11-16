@@ -6,6 +6,7 @@ use lox_core::configuration::archive;
 use std::error::Error;
 
 mod autopilot_catalog;
+mod backup_catalog;
 mod clock;
 mod color;
 mod configuration;

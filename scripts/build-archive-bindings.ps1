@@ -139,6 +139,23 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-backup-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\backup_catalog_smoke.py', "$Probe.dll")
+Step 'javac-backup-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\BackupCatalogSmoke.java', 'tests\bindings\NativeBackupCatalogProbe.java')
+Step 'java-backup-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'BackupCatalogSmoke'))
+$BackupKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-backup-catalog-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\BackupCatalogSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-backup-catalog.args", $BackupKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-backup-catalog-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-backup-catalog.args")
+Step 'kotlin-backup-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-backup-catalog-smoke.jar", 'BackupCatalogSmokeKt'))
+@{
+    original_receipt_utc = '2026-11-16T04:54:08.592Z'
+    original_deadline_utc = '2026-11-16T05:14:08.592Z'
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual backup name Some success RustBuffer live1/free0,64 public calls per language retained0 without requested GC; unchanged matcher. None functional only, Vec inherits generated ownership; infallible domain has no error branch. Python and compiledJava22/Kotlin SAME API.'
+} | ConvertTo-Json | Set-Content "$Output\BACKUP-CATALOG-MECHANISM.json" -Encoding utf8
 Step 'python-firmware-metadata-smoke' $VenvPython @('-I', '-B', 'tests\bindings\firmware_metadata_smoke.py', "$Probe.dll")
 Step 'javac-firmware-metadata-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\FirmwareMetadataSmoke.java', 'tests\bindings\NativeFirmwareMetadataProbe.java')
 Step 'java-firmware-metadata-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'FirmwareMetadataSmoke'))
@@ -334,6 +351,7 @@ $Artifacts += Get-Item "$Output\python-structure-metadata-smoke.log", "$Output\j
 $Artifacts += Get-Item "$Output\python-autopilot-catalog-smoke.log", "$Output\java-autopilot-catalog-smoke.log", "$Output\kotlin-autopilot-catalog-smoke.log", "$Output\AUTOPILOT-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-statistics-index-smoke.log", "$Output\java-statistics-index-smoke.log", "$Output\kotlin-statistics-index-smoke.log", "$Output\STATISTICS-INDEX-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
+$Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
