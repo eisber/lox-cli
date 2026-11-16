@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+  <C Type="Document" Date="2026-01-02 03:04:05" DateS="123"/>
+  <C Type="Place" U="r" Title="Küche 室"/>
+  <C Type="Category" U="cat" Title="Not resolved"/>
+  <C Type="Future" U="a" Title="Gate &amp; 室" gid="raw-gid" 12hTF="true" Unknown="keep">
+    <SET><Repeated v="first" t="11"/><Empty/><Repeated v="second" t="15"/><Entity v="&quot; &amp; &lt;" t="+003"/></SET>
+    <Unknown><SET><Hidden v="not-direct"/></SET><Co K="hidden" U="nested"/><IoData Pr="hidden"/></Unknown>
+    <Co K="AQ1" U="{RAW-ID}" Def="+001"><In Input="ignored"/></Co>
+    <Co/><Co K="AQ1" U="second" Def="never-observed"/>
+    <IoData Pr="r" Cr="first"/>
+    <C Type="Child" U="nested" Title="Nested &amp; 室"><SET><Own v="child"/></SET><C Type="Grandchild" Title="not-direct"/></C>
+    <C/><SET><Repeated v="last" t="raw"/></SET>
+    <IoData Pr="last-room"/>
+  </C>
+  <C Type="Future" U="a" Title="Gate &amp; 室"><SET><Repeated v="mirror"/></SET><IoData Pr="r"/></C>
+  <C Type="Future" U="b" Title="Gate &amp; 室"><IoData Pr="elsewhere"/></C>
+  <C U="sparse" Title="Sparse"><Unknown><IoData Pr="nested"/></Unknown></C>
+</ControlList>

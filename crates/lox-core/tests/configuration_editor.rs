@@ -4,6 +4,87 @@ use lox_core::configuration::editor::{
 };
 use std::error::Error;
 
+#[test]
+fn selected_description_preserves_direct_raw_observations_and_last_precedence() {
+    use lox_core::configuration::editor::describe_element;
+    let xml = include_bytes!("fixtures/element-description.Loxone");
+    let before = xml.to_vec();
+    let description = describe_element(xml, "uuid:a").unwrap();
+    assert_eq!(description.properties["Repeated"].value, "last");
+    assert_eq!(description.properties["Repeated"].type_code, "raw");
+    assert_eq!(description.properties["Empty"].value, "");
+    assert_eq!(description.properties["Entity"].value, "\" & <");
+    assert!(!description.properties.contains_key("Hidden"));
+    assert_eq!(description.room_uuid, "last-room");
+    assert_eq!(description.category_uuid, "");
+    assert_eq!(
+        description
+            .connectors
+            .iter()
+            .map(|c| (c.kind.as_str(), c.target.as_str()))
+            .collect::<Vec<_>>(),
+        [("AQ1", "{RAW-ID}"), ("", ""), ("AQ1", "second")]
+    );
+    assert_eq!(description.children.len(), 2);
+    assert_eq!(description.children[0].title, "Nested & 室");
+    assert_eq!(description.children[1].element_type, "");
+    assert_eq!(
+        describe_element(xml, "gate [KÜCHE 室]").unwrap(),
+        description
+    );
+    assert_eq!(describe_element(xml, "gid:raw-gid").unwrap(), description);
+    assert_eq!(
+        describe_element(xml, "uuid:nested").unwrap().properties["Own"].value,
+        "child"
+    );
+    let sparse = describe_element(xml, "Sparse").unwrap();
+    assert!(sparse.room_uuid.is_empty() && sparse.connectors.is_empty());
+    assert_eq!(xml.as_slice(), before);
+    for ending in ["\n", "\r\n"] {
+        let text = std::str::from_utf8(xml).unwrap().replace('\n', ending);
+        for bom in ["", "\u{feff}"] {
+            assert_eq!(
+                describe_element(format!("{bom}{text}").as_bytes(), "uuid:a").unwrap(),
+                description
+            );
+        }
+    }
+}
+
+#[test]
+fn selected_description_typed_failures_keep_concrete_parser_cause() {
+    use lox_core::configuration::editor::describe_element;
+    let xml = include_bytes!("fixtures/element-description.Loxone");
+    assert!(matches!(
+        describe_element(xml, "Gate"),
+        Err(EditError::Selection(SelectionError::Ambiguous { matches, .. })) if matches.len() == 2
+    ));
+    assert!(matches!(
+        describe_element(xml, "missing"),
+        Err(EditError::Selection(SelectionError::NotFound { titles, .. })) if titles.contains(&"Sparse".to_owned())
+    ));
+    for bytes in [b"".as_slice(), b"<C A='1' A='2'/>", b"<C>"] {
+        let error = describe_element(bytes, "missing").unwrap_err();
+        assert!(matches!(error, EditError::Load(_)));
+        assert!(
+            error
+                .source()
+                .unwrap()
+                .downcast_ref::<xmltree::ParseError>()
+                .is_some()
+        );
+        let EditError::Load(cause) = error else {
+            unreachable!()
+        };
+        assert!(cause.into_inner().downcast::<xmltree::ParseError>().is_ok());
+    }
+    let legacy = br#"<C U="a" Title="text 12hTF=value" 12hTF="true"/>"#;
+    assert_eq!(
+        describe_element(legacy, "uuid:a").unwrap().title,
+        "text _12hTF=value"
+    );
+}
+
 fn now() -> DateTime<FixedOffset> {
     DateTime::parse_from_rfc3339("2026-10-12T07:55:33+01:00").unwrap()
 }

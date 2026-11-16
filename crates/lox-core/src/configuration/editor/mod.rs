@@ -6,6 +6,7 @@
 //! No file, clock, home directory, terminal or process state is accessed.
 
 mod control_move;
+mod description;
 pub(super) mod legacy;
 mod selector;
 mod write;
@@ -17,6 +18,9 @@ use std::{error::Error, fmt};
 #[doc(hidden)]
 pub use control_move::ControlMovePlan;
 pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelector, move_control};
+pub use description::{
+    ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
+};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///

@@ -1426,6 +1426,18 @@ owned-worker joining under an existing executor, and the unchanged 22-case CLI
 characterization. No real device, firmware, native/package or VM readiness
 qualification is implied.
 
+## Selected element description
+
+The `configuration-editor` feature also exposes the read-only
+`configuration::editor::describe_element(bytes, selector)` operation, returning
+owned typed observations and `EditError`. It shares the legacy loader/selector
+and the CLI's cached-editor producer: direct SET fields overwrite by name across
+SET blocks, connector and child order is retained, and the last direct IoData
+supplies raw room/category UUIDs. Property map iteration remains unspecified.
+It does not save, stamp, resolve category labels, or access files, context,
+home, clock or network. The existing quoted-text/digit-name loader limitation
+`lox-n37w` is preserved. No new Python/JVM/native capability is implied.
+
 ## Not exposed yet
 
 XML parsing beyond XML control/room inventory, summary/comparison and monthly
