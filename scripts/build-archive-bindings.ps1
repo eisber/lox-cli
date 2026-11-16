@@ -81,6 +81,7 @@ Step 'python-version' $Python @('-c', 'import platform,sys,sysconfig; print(sys.
 Step 'control-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'control_resolution', '--locked', '--offline')
 Step 'numeric-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'numeric_state_payload', '--locked', '--offline')
 Step 'text-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'text_state_payload', '--locked', '--offline')
+Step 'daytimer-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'daytimer_state_payload', '--locked', '--offline')
 Step 'device-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'device_inventory', '--locked', '--offline')
 Step 'user-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'user_inventory', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
@@ -139,6 +140,21 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-daytimer-state-smoke' $VenvPython @('-I', '-B', 'tests\bindings\daytimer_state_smoke.py', "$Probe.dll")
+Step 'javac-daytimer-state-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\DaytimerStateSmoke.java', 'tests\bindings\NativeDaytimerStateProbe.java')
+Step 'java-daytimer-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'DaytimerStateSmoke'))
+$DaytimerKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-daytimer-state-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\DaytimerStateSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-daytimer-state.args", $DaytimerKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-daytimer-state-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-daytimer-state.args")
+Step 'kotlin-daytimer-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-daytimer-state-smoke.jar", 'DaytimerStateSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual Daytimer success/error RustBuffers live1/free0,64 calls per branch per language retained0 without requested GC; Core payload decoder, typed signed fields, authoritative u64 bits, raw/native35 UUIDs, order/duplicates and atomic errors. Python and compiledJava22/Kotlin SAME API.'
+} | ConvertTo-Json | Set-Content "$Output\DAYTIMER-STATE-MECHANISM.json" -Encoding utf8
 Step 'python-mqtt-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\mqtt_catalog_smoke.py', "$Probe.dll")
 Step 'javac-mqtt-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\MqttCatalogSmoke.java', 'tests\bindings\NativeMqttCatalogProbe.java')
 Step 'java-mqtt-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'MqttCatalogSmoke'))

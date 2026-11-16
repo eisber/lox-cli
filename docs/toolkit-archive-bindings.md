@@ -41,7 +41,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Legacy WSX handshake packet codec | Optional `legacy_wsx` (`legacy-wsx`); typed nonce and complete legacy packet | Existing fast-reload callers share encoding; time, randomness and transport stay in CLI | Unsupported | Unsupported |
 | Exact legacy token LL reply interpretation | Optional `legacy_token_reply` (`legacy-token-reply`); typed u32/opaque-string projection and payload-free kind/location errors with explicit original JSON-error handoff | Actual plaintext, key-exchange and encrypted receive producers call Core through their existing shared helper; success/session policy and legacy diagnostic context remain CLI-owned | Unsupported | Unsupported |
 | Complete numeric value-state table payload decoding | Default `numeric_state::decode_value_state_payload`; ordered typed records, raw UUID/native35 and exact f64 bits; strict atomic tail rejection | Unsupported; no existing numeric decoder/caller migrated or new command | `decode_value_state_payload(bytes) -> list[NumericState]` | `LoxArchive.decodeValueStatePayload(byte[]) -> List<NumericState>` |
-| Complete runtime Daytimer-State payload observations | Default `daytimer_state::decode_daytimer_state_payload`; shared `StateUuid`, signed entry observations, raw activation word and authoritative IEEE default/entry bits; strict atomic errors | Unsupported; no existing decoder/caller migrated or new command | Unsupported | Unsupported |
+| Complete runtime Daytimer-State payload observations | Default `daytimer_state::decode_daytimer_state_payload`; shared `StateUuid`, signed entry observations, raw activation word and authoritative IEEE default/entry bits; strict atomic errors | Unsupported; no existing decoder/caller migrated or new command | Candidate `decode_daytimer_state_payload(bytes) -> list[DaytimerState]` | Candidate `LoxArchive.decodeDaytimerStatePayload(byte[]) -> List<DaytimerState>`; SAME generated Java22 API in Kotlin |
 | Complete Weather-State table payload observations | Default `weather_state::decode_weather_state_payload`; raw unsigned update, signed entry fields, exact IEEE bits, ordered states/entries and atomic count/length errors | Unsupported; no existing decoder/caller migrated or new command; HTTP weather layout is distinct | Unsupported | Unsupported |
 | Application binary-message header observation/encoding | Default `message_header`; exact eight-byte header, known-type classification and lossless raw fields, unsigned size and estimated bit; no transport, payload validation or dispatch | Unsupported; new Rust-only primitive, no migrated caller | Unsupported | Unsupported |
 | Complete text-state table payload decoding | Default `text_state::decode_text_state_payload`; state/icon `StateUuid`, byte count and exact UTF-8 text; strict atomic bounds/UTF-8 errors, ignored four-byte-alignment padding | Unsupported; no existing decoder/caller migrated or new command | Candidate `decode_text_state_payload(bytes) -> list[TextState]`; only with matching published artifacts | Candidate `LoxArchive.decodeTextStatePayload(byte[]) -> List<TextState>`; Kotlin uses the same Java API |
@@ -61,6 +61,45 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Runtime Daytimer-State payload candidate
+
+This thin adapter calls the existing Core decoder and shared `StateUuid`, not
+another parser. Callers supply a complete already-identified payload with
+framing removed. Empty input and zero-entry states are valid. States and entries
+retain encounter order and duplicates. `DaytimerState` owns `uuid_wire_bytes`,
+`uuid_native35`, `default_value_bits` and `entries`; `DaytimerEntry` owns signed
+`mode`, `from_minutes`, `to_minutes`, `activation_word`, the Core convenience
+predicate `needs_activation` (any nonzero word), and `value_bits`.
+
+Both IEEE-u64 fields are authoritative, including NaN payloads, signed zero,
+subnormals and infinities; no floating convenience replaces them. Python
+integers are unsigned/nonnegative. JVM `long`/Kotlin `Long` carry the identical
+64 bits as signed values; use `Long.toUnsignedString` or Kotlin `toULong()` for
+unsigned interpretation.
+
+Python `DaytimerStatePayloadError` and Java/Kotlin checked
+`DaytimerStatePayloadException` project all four Core variants:
+`TruncatedHeader(record_offset, available)`,
+`NegativeEntryCount(record_offset, declared)`,
+`LengthOverflow(record_offset, declared)` and
+`TruncatedEntries(record_offset, declared, available)` (Java camelCase
+accessors). Errors reject the complete input, including a malformed tail after
+valid states; no partial list escapes. Length overflow is projected/tested in
+Rust; a nonnegative i32 count times24 cannot overflow usize on Windows AMD64.
+No framing, Config DayTimer XML, HTTP weather, subscriptions, transport, inferred
+units, schedule/range validation or CLI migration is included.
+
+`scripts/build-archive-bindings.ps1` includes focused Rust and real installed
+Python, compiled Java and Kotlin tests against one matching DLL. The native
+tests use the established unchanged HeapWalk primitive: returned success and
+typed-error RustBuffers must each calibrate live1/free0, followed by64 generated
+calls per branch with zero retained matching buffers and no requested GC.
+Supported qualification remains Windows AMD64, CPython3.13 with GIL,
+Java22.0.2 and Kotlin2.4.21 using the SAME Java API, UniFFI0.32.1 and third-party
+JavaGen0.5.2 plus the existing reviewed correction. Source proof is not shipment;
+archive packages, review, composition, gates and publication remain independent.
+No ABI stability, registry distribution, other-platform or full-parity claim.
 
 ### Offline MQTT topic catalog candidate
 
