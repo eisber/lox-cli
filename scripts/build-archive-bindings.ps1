@@ -81,6 +81,8 @@ Step 'python-version' $Python @('-c', 'import platform,sys,sysconfig; print(sys.
 Step 'control-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'control_resolution', '--locked', '--offline')
 Step 'numeric-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'numeric_state_payload', '--locked', '--offline')
 Step 'text-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'text_state_payload', '--locked', '--offline')
+Step 'daytimer-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'daytimer_state_payload', '--locked', '--offline')
+Step 'weather-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'weather_state_payload', '--locked', '--offline')
 Step 'device-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'device_inventory', '--locked', '--offline')
 Step 'user-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'user_inventory', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
@@ -139,6 +141,36 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-daytimer-state-smoke' $VenvPython @('-I', '-B', 'tests\bindings\daytimer_state_smoke.py', "$Probe.dll")
+Step 'javac-daytimer-state-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\DaytimerStateSmoke.java', 'tests\bindings\NativeDaytimerStateProbe.java')
+Step 'java-daytimer-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'DaytimerStateSmoke'))
+$DaytimerKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-daytimer-state-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\DaytimerStateSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-daytimer-state.args", $DaytimerKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-daytimer-state-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-daytimer-state.args")
+Step 'kotlin-daytimer-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-daytimer-state-smoke.jar", 'DaytimerStateSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual Daytimer success/error RustBuffers live1/free0,64 calls per branch per language retained0 without requested GC; Core payload decoder, typed signed fields, authoritative u64 bits, raw/native35 UUIDs, order/duplicates and atomic errors. Python and compiledJava22/Kotlin SAME API.'
+} | ConvertTo-Json | Set-Content "$Output\DAYTIMER-STATE-MECHANISM.json" -Encoding utf8
+Step 'python-weather-state-smoke' $VenvPython @('-I', '-B', 'tests\bindings\weather_state_smoke.py', "$Probe.dll")
+Step 'javac-weather-state-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\WeatherStateSmoke.java', 'tests\bindings\NativeWeatherStateProbe.java')
+Step 'java-weather-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'WeatherStateSmoke'))
+$WeatherKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-weather-state-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\WeatherStateSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-weather-state.args", $WeatherKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-weather-state-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-weather-state.args")
+Step 'kotlin-weather-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-weather-state-smoke.jar", 'WeatherStateSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual Weather success/error RustBuffers live1/free0,64 calls per branch per language retained0 without requested GC; Core payload decoder, unsigned last-update, signed fields, six authoritative u64 bits, raw/native35 UUIDs, order/duplicates and atomic typed errors. Python and compiledJava22/Kotlin SAME API.'
+} | ConvertTo-Json | Set-Content "$Output\WEATHER-STATE-MECHANISM.json" -Encoding utf8
 Step 'python-mqtt-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\mqtt_catalog_smoke.py', "$Probe.dll")
 Step 'javac-mqtt-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\MqttCatalogSmoke.java', 'tests\bindings\NativeMqttCatalogProbe.java')
 Step 'java-mqtt-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'MqttCatalogSmoke'))
@@ -359,6 +391,8 @@ $Artifacts += Get-Item "$Output\python-catalog-smoke.log", "$Output\java-catalog
 $Artifacts += Get-Item "$Output\python-color-smoke.log", "$Output\java-color-smoke.log", "$Output\kotlin-color-smoke.log"
 $Artifacts += Get-Item "$Output\python-numeric-state-smoke.log", "$Output\java-numeric-state-smoke.log", "$Output\kotlin-numeric-state-smoke.log"
 $Artifacts += Get-Item "$Output\python-text-state-smoke.log", "$Output\java-text-state-smoke.log", "$Output\kotlin-text-state-smoke.log"
+$Artifacts += Get-Item "$Output\python-daytimer-state-smoke.log", "$Output\java-daytimer-state-smoke.log", "$Output\kotlin-daytimer-state-smoke.log", "$Output\DAYTIMER-STATE-MECHANISM.json"
+$Artifacts += Get-Item "$Output\python-weather-state-smoke.log", "$Output\java-weather-state-smoke.log", "$Output\kotlin-weather-state-smoke.log", "$Output\WEATHER-STATE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-devices-smoke.log", "$Output\java-devices-smoke.log", "$Output\kotlin-devices-smoke.log"
 $Artifacts += Get-Item "$Output\python-users-smoke.log", "$Output\java-users-smoke.log", "$Output\kotlin-users-smoke.log"
 $Artifacts += Get-Item "$Output\python-config-diff-smoke.log", "$Output\java-config-diff-smoke.log", "$Output\kotlin-config-diff-smoke.log"
@@ -379,7 +413,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML user/device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, infallible HTML statistics index catalog delegated to Core, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. User inventory is raw owned fields only, never credentials/permissions/authentication. Current loopback clock cancellation/close only; no Lighting eligibility, framing, full XML/semantic diff, editor/auth/control I/O/monthly-series or binary statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML user/device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, infallible HTML statistics index catalog delegated to Core, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict payload-only Daytimer-State decoding with signed observations/raw activation word/two authoritative IEEE bit fields and exact typed atomic errors, strict payload-only Weather-State decoding with unsigned update/signed observations/six authoritative IEEE bit fields and exact typed atomic errors, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. User inventory is raw owned fields only, never credentials/permissions/authentication. Current loopback clock cancellation/close only; no Lighting eligibility, framing, HTTP weather layout, full XML/semantic diff, editor/auth/control I/O/monthly-series or binary statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest

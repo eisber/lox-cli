@@ -1,8 +1,8 @@
-# Experimental native archive, configuration inspection, numeric/text, clock, control and color bindings
+# Experimental native archive, configuration inspection, numeric/text/daytimer/weather, clock, control and color bindings
 
-This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog/metadata, numeric/text payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog/metadata, numeric/text/daytimer/weather payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` / `structure_metadata` / `autopilot_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `daytimer_state`, `weather_state`, `color`, optional `control_catalog` / `structure_metadata` / `autopilot_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -41,8 +41,8 @@ all validation, codec math and wire rendering also remain in Core.
 | Legacy WSX handshake packet codec | Optional `legacy_wsx` (`legacy-wsx`); typed nonce and complete legacy packet | Existing fast-reload callers share encoding; time, randomness and transport stay in CLI | Unsupported | Unsupported |
 | Exact legacy token LL reply interpretation | Optional `legacy_token_reply` (`legacy-token-reply`); typed u32/opaque-string projection and payload-free kind/location errors with explicit original JSON-error handoff | Actual plaintext, key-exchange and encrypted receive producers call Core through their existing shared helper; success/session policy and legacy diagnostic context remain CLI-owned | Unsupported | Unsupported |
 | Complete numeric value-state table payload decoding | Default `numeric_state::decode_value_state_payload`; ordered typed records, raw UUID/native35 and exact f64 bits; strict atomic tail rejection | Unsupported; no existing numeric decoder/caller migrated or new command | `decode_value_state_payload(bytes) -> list[NumericState]` | `LoxArchive.decodeValueStatePayload(byte[]) -> List<NumericState>` |
-| Complete runtime Daytimer-State payload observations | Default `daytimer_state::decode_daytimer_state_payload`; shared `StateUuid`, signed entry observations, raw activation word and authoritative IEEE default/entry bits; strict atomic errors | Unsupported; no existing decoder/caller migrated or new command | Unsupported | Unsupported |
-| Complete Weather-State table payload observations | Default `weather_state::decode_weather_state_payload`; raw unsigned update, signed entry fields, exact IEEE bits, ordered states/entries and atomic count/length errors | Unsupported; no existing decoder/caller migrated or new command; HTTP weather layout is distinct | Unsupported | Unsupported |
+| Complete runtime Daytimer-State payload observations | Default `daytimer_state::decode_daytimer_state_payload`; shared `StateUuid`, signed entry observations, raw activation word and authoritative IEEE default/entry bits; strict atomic errors | Unsupported; no existing decoder/caller migrated or new command | Candidate `decode_daytimer_state_payload(bytes) -> list[DaytimerState]` | Candidate `LoxArchive.decodeDaytimerStatePayload(byte[]) -> List<DaytimerState>`; SAME generated Java22 API in Kotlin |
+| Complete Weather-State table payload observations | Default `weather_state::decode_weather_state_payload`; raw unsigned update, signed entry fields, exact IEEE bits, ordered states/entries and atomic count/length errors | Unsupported; no existing decoder/caller migrated or new command; HTTP weather layout is distinct | Candidate `decode_weather_state_payload(bytes) -> list[WeatherState]`; requires matching qualified artifacts | Candidate `LoxArchive.decodeWeatherStatePayload(byte[]) -> List<WeatherState>`; Kotlin uses that SAME Java API |
 | Application binary-message header observation/encoding | Default `message_header`; exact eight-byte header, known-type classification and lossless raw fields, unsigned size and estimated bit; no transport, payload validation or dispatch | Unsupported; new Rust-only primitive, no migrated caller | Unsupported | Unsupported |
 | Complete text-state table payload decoding | Default `text_state::decode_text_state_payload`; state/icon `StateUuid`, byte count and exact UTF-8 text; strict atomic bounds/UTF-8 errors, ignored four-byte-alignment padding | Unsupported; no existing decoder/caller migrated or new command | Candidate `decode_text_state_payload(bytes) -> list[TextState]`; only with matching published artifacts | Candidate `LoxArchive.decodeTextStatePayload(byte[]) -> List<TextState>`; Kotlin uses the same Java API |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
@@ -61,6 +61,45 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Runtime Daytimer-State payload candidate
+
+This thin adapter calls the existing Core decoder and shared `StateUuid`, not
+another parser. Callers supply a complete already-identified payload with
+framing removed. Empty input and zero-entry states are valid. States and entries
+retain encounter order and duplicates. `DaytimerState` owns `uuid_wire_bytes`,
+`uuid_native35`, `default_value_bits` and `entries`; `DaytimerEntry` owns signed
+`mode`, `from_minutes`, `to_minutes`, `activation_word`, the Core convenience
+predicate `needs_activation` (any nonzero word), and `value_bits`.
+
+Both IEEE-u64 fields are authoritative, including NaN payloads, signed zero,
+subnormals and infinities; no floating convenience replaces them. Python
+integers are unsigned/nonnegative. JVM `long`/Kotlin `Long` carry the identical
+64 bits as signed values; use `Long.toUnsignedString` or Kotlin `toULong()` for
+unsigned interpretation.
+
+Python `DaytimerStatePayloadError` and Java/Kotlin checked
+`DaytimerStatePayloadException` project all four Core variants:
+`TruncatedHeader(record_offset, available)`,
+`NegativeEntryCount(record_offset, declared)`,
+`LengthOverflow(record_offset, declared)` and
+`TruncatedEntries(record_offset, declared, available)` (Java camelCase
+accessors). Errors reject the complete input, including a malformed tail after
+valid states; no partial list escapes. Length overflow is projected/tested in
+Rust; a nonnegative i32 count times24 cannot overflow usize on Windows AMD64.
+No framing, Config DayTimer XML, HTTP weather, subscriptions, transport, inferred
+units, schedule/range validation or CLI migration is included.
+
+`scripts/build-archive-bindings.ps1` includes focused Rust and real installed
+Python, compiled Java and Kotlin tests against one matching DLL. The native
+tests use the established unchanged HeapWalk primitive: returned success and
+typed-error RustBuffers must each calibrate live1/free0, followed by64 generated
+calls per branch with zero retained matching buffers and no requested GC.
+Supported qualification remains Windows AMD64, CPython3.13 with GIL,
+Java22.0.2 and Kotlin2.4.21 using the SAME Java API, UniFFI0.32.1 and third-party
+JavaGen0.5.2 plus the existing reviewed correction. Source proof is not shipment;
+archive packages, review, composition, gates and publication remain independent.
+No ABI stability, registry distribution, other-platform or full-parity claim.
 
 ### Offline MQTT topic catalog candidate
 
@@ -503,6 +542,52 @@ Existing generator checksum/fail-closed correction, archive/clock/control and
 room/summary tests remain required. Qualification is Windows AMD64, Python 3.13
 GIL, JDK 22 and Kotlin 2.4 only; no new MSRV, ABI, platform, registry or native
 Config credit. Historical native UI qualifications remain two; new credit zero.
+
+## Payload-only Weather-State heads
+
+`decode_weather_state_payload(bytes)` and Java
+`LoxArchive.decodeWeatherStatePayload(byte[])` (also used directly by Kotlin)
+are thin owned projections of the existing default Core decoder. The caller
+identifies and assembles the complete table and removes transport headers.
+This is **not** HTTP `weatheru.bin`, a framer, a subscription or a CLI wrapper.
+No Core/CLI caller is migrated and no native configuration capability is added.
+
+Each `WeatherState` contains `uuid_wire_bytes` (16 original bytes),
+`uuid_native35` (shared Core `StateUuid` formatting), `last_update` (`u32`),
+`entry_count` (`i32`) and ordered owned `entries`. Each `WeatherEntry` contains
+five signed `i32` observations: `timestamp`, `weather_type`, `wind_direction`,
+`solar_radiation`, `relative_humidity`; and six authoritative `u64` IEEE fields:
+`temperature_bits`, `perceived_temperature_bits`, `dew_point_bits`,
+`precipitation_bits`, `wind_speed_bits`, `barometric_pressure_bits`.
+NaN payloads, signed zero, infinities, duplicate IDs/entries and encounter order
+are preserved. No units, epoch, timezone, finiteness or semantic-range validation
+is introduced; no floating-point convenience value replaces the authoritative bits.
+
+Python receives unsigned `int` values for `u32` and `u64`. Java `int` / Kotlin
+`Int` carries the raw update bits: use `Integer.toUnsignedLong(value)` or
+`value.toUInt()` for its unsigned magnitude. Java `long` / Kotlin `Long` carries
+each raw IEEE bit pattern; use `Long.toUnsignedString(value)`,
+`Long.toUnsignedString(value, 16)`, or Kotlin `toULong()` for unsigned presentation. Signed fields
+remain signed. Host records have no native handle or close obligation.
+
+Errors map Core's actual four variants and all fields exactly:
+`TruncatedHeader(record_offset, available)`,
+`NegativeEntryCount(record_offset, declared)`,
+`LengthOverflow(record_offset, declared)`,
+`TruncatedEntries(record_offset, declared, expected, available)`.
+Offsets/lengths widen from `usize` to `u64`; declarations remain signed `i32`.
+The overflow variant is preserved even where unreachable on Windows AMD64.
+Core checks the entire input before producing results: a malformed suffix rejects
+the whole table; empty input is valid. Errors contain no identifiers or payload.
+
+`weather_state_smoke.py`, compiled `WeatherStateSmoke.java` and `.kt` exercise
+the same native DLL and generated Java API, including typed failures and
+deterministic RustBuffer release with the unchanged Windows HeapWalk primitive
+(live 1, freed 0; 64 calls per success/error branch, retained 0, no requested GC).
+Qualification is per matching build: Windows AMD64, CPython 3.13 GIL,
+Java 22.0.2 and Kotlin 2.4.21 using UniFFI 0.32.1 / Java generator 0.5.2.
+Source proof alone is not package/review/publication credit, ABI stability,
+registry availability, other-platform support or full parity.
 
 ## Payload-only numeric state heads
 
