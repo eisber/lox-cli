@@ -60,6 +60,20 @@ __declspec(dllexport) DWORD lox_test_heap_catalog_error_count(
     return lox_test_heap_count(prefix, sizeof(prefix), sizeof(prefix), count);
 }
 
+/* Exact custom-listing error tag and row, assembled off the measured heap. */
+__declspec(dllexport) DWORD lox_test_heap_custom_listing_error_count(
+    DWORD variant, ULONGLONG row, SIZE_T *count
+) {
+    unsigned char prefix[12] = {0};
+    unsigned int i;
+    if (variant < 1 || variant > 2) return ERROR_INVALID_PARAMETER;
+    prefix[3] = (unsigned char)variant;
+    for (i = 0; i < 8; ++i) {
+        prefix[4 + i] = (unsigned char)(row >> ((7 - i) * 8));
+    }
+    return lox_test_heap_count(prefix, sizeof(prefix), sizeof(prefix), count);
+}
+
 /* Text decoder's exact error serialization, assembled on the stack so the
    measurement cannot itself retain a matching serialized error on the heap.
    InvalidUtf8 uses second == ~0ULL for an absent error_len. */

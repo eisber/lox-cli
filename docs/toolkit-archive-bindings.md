@@ -3,7 +3,7 @@
 This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog/metadata, numeric/text/daytimer/weather payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
 facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `daytimer_state`, `weather_state`, `color`, optional `control_catalog` / `structure_metadata` / `autopilot_catalog` and the optional production
-`runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
+`runtime::ClockDriver`, plus default `configuration::custom_listing`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
 No head invokes the CLI or runs another protocol stack.
@@ -30,7 +30,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
 | Byte-preserving runtime overlay and three-way merge | Optional `configuration::runtime_overlay` (`configuration-xml`); `merge_overlays`, `three_way` and the existing `validate_document` precondition share one private byte-span kernel and typed errors | Existing acquisition/patch/preparation producers delegate; file/network/baseline/deployment policy and legacy error presentation stay head-owned; no whole-command count increase or safe-deployment claim | Unsupported | Unsupported |
-| Strict successful `/sys/custom` FTP listing interpretation | Default `configuration::custom_listing::parse_custom_listing`; sorted raw owned names with duplicates, atomic typed row-index errors, exact legacy whitespace/suffix/type-letter quirks; not backup or fragment-filename validation | Actual `ftp::list_custom_changes` called by `custom_overlay::acquire` delegates inside the same retry closure; exact static-str/String diagnostics and quit/error timing retained; transport failures are not empty listings; no whole-command count increase | Unsupported | Unsupported |
+| Strict successful `/sys/custom` FTP listing interpretation | Default `configuration::custom_listing::parse_custom_listing`; sorted raw owned names with duplicates, atomic typed row-index errors, exact legacy whitespace/suffix/type-letter quirks; not backup or fragment-filename validation | Actual `ftp::list_custom_changes` called by `custom_overlay::acquire` delegates inside the same retry closure; exact static-str/String diagnostics and quit/error timing retained; transport failures are not empty listings; no whole-command count increase | Source-only unvalidated candidate `parse_custom_listing(list[str]) -> list[str]`; typed `CustomListingError` | Source-only unvalidated candidate `LoxArchive.parseCustomListing(List<String>) -> List<String>`; checked `CustomListingException`; SAME generated Java22 API in Kotlin |
 | Other XML mutations, semantic validation, deployment, sidecars/trust | No further functional transaction beyond the rows above | Existing CLI behavior unchanged; other legacy editor and trust/deployment behavior remains head-owned | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
 | Monthly statistics XML decoding | Optional `statistics::{parse_series, resolve_identity}` (`statistics-xml`); typed identity errors, timestamps remain opaque | `stats get` shares identity selection and decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | Unsupported | Unsupported |
@@ -62,6 +62,41 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Strict custom-listing native candidate (not yet qualified)
+
+The thin `parse_custom_listing` adapter accepts caller-supplied rows from an
+**already successful** `/sys/custom` FTP LIST. Acquisition and transport failures
+remain caller-owned: a failed LIST must not be replaced with an empty list.
+There is no network, filesystem, CLI subprocess or overlay application in this API.
+The existing Core parser and CLI caller are unchanged.
+
+Each row must contain a whitespace-delimited token, even when it would not select
+an overlay. Only the last token's ASCII-case-insensitive `.loxcc` suffix selects a
+row. Selected rows reject raw lowercase `d`/`l` prefixes and filename `/` or `\`.
+Uppercase prefixes and leading whitespace retain Core's legacy behavior.
+No UUID, permission, size, Unicode normalization, NUL or additional filename
+validation is introduced. This is neither the permissive backup catalog nor the
+runtime fragment-filename validator.
+
+Success returns owned raw strings, sorted by Core's Rust string ordering, retaining
+case and duplicates; Java's UTF-16 natural ordering is not substituted.
+Python receives `list[str]`; Java and Kotlin share `List<String>`. There are no
+native handles for callers to close. Both heads retain typed, atomic first-error
+variants `Malformed` and `Unsupported`, each with the zero-based `row` (`u64`,
+Python integer / Java `long` bit pattern). Their messages and fields contain no
+listing contents. The CLI separately retains its existing richer diagnostics.
+
+This source candidate is **unvalidated**: it adds no native qualification,
+platform, package, registry, ABI or parity claim. After resource admission, the
+existing builder runs the focused Core/adapter tests and installed Python,
+compiled Java22 and Kotlin smokes. Those smokes exercise raw names, ordering,
+duplicates, legacy quirks, retained owned values/errors, and actual success plus
+both error RustBuffers. The test-only HeapWalk extension constructs the exact
+12-byte error tag/row prefix on the stack, using the unchanged heap-walk matcher.
+Each branch must calibrate live1/free0, then retain zero matching buffers after
+64 public calls without requested GC. Only a successful actual run writes
+`CUSTOM-LISTING-MECHANISM.json` and includes its logs in `ARTIFACTS.json`.
 
 ### Runtime Daytimer-State payload candidate
 
