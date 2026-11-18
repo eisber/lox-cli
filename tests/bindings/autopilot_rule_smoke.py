@@ -10,7 +10,8 @@ from lox_archive import lox_archive as native
 
 
 def row(uuid, name):
-    return lox.AutopilotRule(name, uuid, "raw/\0", "<history>\r\n")
+    return lox.AutopilotRule(
+        name=name, uuid=uuid, state_changed="raw/\0", state_history="<history>\r\n")
 
 
 uuid = "abcdef01-2345-6789-abcdef0123456789"
