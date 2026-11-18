@@ -202,104 +202,65 @@ class ValidationReuseTests(unittest.TestCase):
         self.assertEqual(env["DO_NOT_TRACK"], "1")
         self.assertEqual(Path(env["LOX_CONFIG"]).read_bytes(), b"telemetry: false\n")
 
+    def native_builder(self, calls, mismatch=False):
+        def execute(command, env, log):
+            calls.append(list(command))
+            output = Path(command[command.index("-OutputDirectory") + 1])
+            python = output / "venv" / "Lib" / "site-packages" / "lox_archive"
+            jvm = output / "jvm" / "native"
+            generated = output / "generated-java"
+            for path in (python, jvm, generated):
+                path.mkdir(parents=True)
+            (python / "lox_archive.dll").write_bytes(b"qualified library")
+            (python / "lox_archive.py").write_bytes(b"generated Python")
+            (jvm / "lox_archive.dll").write_bytes(b"wrong library" if mismatch else b"qualified library")
+            (generated / "Record.java").write_bytes(b"generated Java")
+            paths = [python / "lox_archive.dll", python / "lox_archive.py",
+                     jvm / "lox_archive.dll", generated / "Record.java"]
+            (output / "ARTIFACTS.json").write_text(json.dumps({"artifact_manifest": [
+                {"path": str(path.relative_to(output)), "sha256": VALIDATE.digest(path)} for path in paths]}))
+            (output / "commands.json").write_text(json.dumps([{"exit_code": 0}]))
+            (output / "java-allocation-smoke.log").write_bytes(b"live buffers released")
+            log.write_bytes(b"native build and all checks completed")
+            return {"command": list(command), "exit_code": 0, "seconds": .01, "log": str(log)}
+        return execute
+
+    def native_arguments(self):
+        return ["native", "--target-dir", str(self.target), "--results", str(self.results),
+                "--maturin", "maturin", "--java-generator", "generator", "--java-home", "jdk",
+                "--kotlin-compiler", "kotlinc"]
+
     @unittest.skipUnless(os.name == "nt", "Existing native proof builder is Windows AMD64 only")
-    def test_native_reuse_builds_current_library_and_invalidates_changed_library_or_generated_output(self):
-        library = self.target / "release" / "lox_archive.dll"
-        library.parent.mkdir(parents=True)
-        library.write_bytes(b"first native library")
+    def test_native_reuse_requires_the_exact_managed_sdk_and_all_proof_evidence(self):
         calls = []
-        commands = []
-
-        def execute(command, env, log):
-            calls.append(command[0])
-            commands.append(list(command))
-            if command[0] == "cargo":
-                log.write_text(json.dumps({"reason": "compiler-artifact",
-                                           "filenames": [str(library)]}) + "\n")
-            else:
-                output = Path(command[command.index("-OutputDirectory") + 1])
-                actual = output / "venv" / "Lib" / "site-packages" / "lox_archive" / "lox_archive.dll"
-                actual.parent.mkdir(parents=True)
-                actual.write_bytes(library.read_bytes())
-                generated = output / "generated-java" / "Record.java"
-                generated.parent.mkdir()
-                generated.write_bytes(b"generated API")
-                (output / "ARTIFACTS.json").write_text(json.dumps({"artifact_manifest": [
-                    {"path": str(path.relative_to(output)), "sha256": VALIDATE.digest(path)}
-                    for path in (actual, generated)]}))
-                (output / "commands.json").write_text(json.dumps([{"exit_code": 0}]))
-                (output / "java-allocation-smoke.log").write_bytes(b"live buffers released")
-                log.write_bytes(b"all native error/disposal checks passed")
-            return {"command": list(command), "exit_code": 0, "seconds": .01, "log": str(log)}
-
-        args = ["native", "--target-dir", str(self.target), "--results", str(self.results),
-                "--maturin", "maturin", "--java-generator", "generator", "--java-home", "jdk",
-                "--kotlin-compiler", "kotlinc"]
         with mock.patch.object(VALIDATE, "inputs", side_effect=self.fake_inputs), \
-                mock.patch.object(VALIDATE, "source_files", return_value=[self.source]), \
                 mock.patch.object(VALIDATE, "native_tool_payloads", return_value={"compiler": "identity"}), \
-                mock.patch.object(VALIDATE, "execute", side_effect=execute):
-            self.assertEqual(VALIDATE.main(args), 0)
-            self.assertEqual(commands[0][1], "rustc")
-            self.assertEqual(commands[0][commands[0].index("--crate-type") + 1], "cdylib")
-            first = json.loads(self.results.read_text())["native"]
-            retained_dll = Path(first["run_directory"]) / "current-library.dll"
-            self.assertEqual(retained_dll.read_bytes(), library.read_bytes())
-            self.assertEqual(VALIDATE.main(args), 0)
-            self.assertEqual(calls, ["cargo", "pwsh", "cargo"])
-            library.write_bytes(b"changed native library, identical bindings source")
-            self.assertEqual(VALIDATE.main(args), 0)
-            self.assertEqual(calls[-2:], ["cargo", "pwsh"])
-            self.source.write_bytes(b"changed Core test assertions, unchanged library")
-            self.assertEqual(VALIDATE.main(args), 0)
-            self.assertEqual(calls[-2:], ["cargo", "pwsh"])
-            for name in ("java-allocation-smoke.log", "commands.json", "current-library.log"):
+                mock.patch.object(VALIDATE, "execute", side_effect=self.native_builder(calls)):
+            self.assertEqual(VALIDATE.main(self.native_arguments()), 0)
+            self.assertEqual(VALIDATE.main(self.native_arguments()), 0)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(VALIDATE.main([*self.native_arguments(), "--force"]), 0)
+            self.assertEqual(len(calls), 2)
+            for name in ("lox_archive.dll", "Record.java", "java-allocation-smoke.log", "commands.json"):
                 record = json.loads(self.results.read_text())["native"]
-                proof = next(Path(path) for path in record["artifacts"] if path.endswith(name))
-                proof.unlink()
-                self.assertEqual(VALIDATE.main(args), 0)
-                self.assertEqual(calls[-2:], ["cargo", "pwsh"])
-            record = json.loads(self.results.read_text())["native"]
-            generated = next(Path(path) for path in record["artifacts"] if path.endswith("Record.java"))
-            generated.write_bytes(b"modified generated API")
-            self.assertEqual(VALIDATE.main(args), 0)
-            self.assertEqual(calls[-2:], ["cargo", "pwsh"])
+                artifact = next(Path(path) for path in record["artifacts"] if path.endswith(name))
+                artifact.write_bytes(b"changed after qualification")
+                before = len(calls)
+                self.assertEqual(VALIDATE.main(self.native_arguments()), 0)
+                self.assertEqual(len(calls), before + 1)
+            self.source.write_bytes(b"changed Core assertions, identical binding source")
+            before = len(calls)
+            self.assertEqual(VALIDATE.main(self.native_arguments()), 0)
+            self.assertEqual(len(calls), before + 1)
 
     @unittest.skipUnless(os.name == "nt", "Existing native proof builder is Windows AMD64 only")
-    def test_native_mismatch_is_failed_and_preserves_actual_prebuild(self):
-        library = self.target / "release" / "lox_archive.dll"
-        library.parent.mkdir(parents=True)
-        library.write_bytes(b"original producer")
-
-        def execute(command, env, log):
-            if command[0] == "cargo":
-                log.write_text(json.dumps({"reason": "compiler-artifact",
-                                           "filenames": [str(library)]}) + "\n")
-            else:
-                output = Path(command[command.index("-OutputDirectory") + 1])
-                actual = output / "venv" / "Lib" / "site-packages" / "lox_archive" / "lox_archive.dll"
-                actual.parent.mkdir(parents=True)
-                actual.write_bytes(b"different actual wheel")
-                library.write_bytes(b"builder overwrote producer slot")
-                (output / "commands.json").write_text(json.dumps([{"exit_code": 0}]))
-                (output / "ARTIFACTS.json").write_text(json.dumps({"artifact_manifest": [
-                    {"path": str(actual.relative_to(output)), "sha256": VALIDATE.digest(actual)}]}))
-                log.write_bytes(b"native checks completed")
-            return {"command": list(command), "exit_code": 0, "seconds": .01, "log": str(log)}
-
-        args = ["native", "--target-dir", str(self.target), "--results", str(self.results),
-                "--maturin", "maturin", "--java-generator", "generator", "--java-home", "jdk",
-                "--kotlin-compiler", "kotlinc"]
+    def test_native_python_jvm_library_mismatch_is_explicitly_failed(self):
         with mock.patch.object(VALIDATE, "inputs", side_effect=self.fake_inputs), \
-                mock.patch.object(VALIDATE, "source_files", return_value=[self.source]), \
                 mock.patch.object(VALIDATE, "native_tool_payloads", return_value={"compiler": "identity"}), \
-                mock.patch.object(VALIDATE, "execute", side_effect=execute):
-            with self.assertRaisesRegex(RuntimeError, "Qualified native library differs"):
-                VALIDATE.main(args)
-        record = json.loads(self.results.read_text())["native"]
-        self.assertEqual(record["status"], "failed")
-        self.assertEqual((Path(record["run_directory"]) / "current-library.dll").read_bytes(),
-                         b"original producer")
+                mock.patch.object(VALIDATE, "execute", side_effect=self.native_builder([], mismatch=True)):
+            with self.assertRaisesRegex(RuntimeError, "Python and JVM SDK libraries differ"):
+                VALIDATE.main(self.native_arguments())
+        self.assertEqual(json.loads(self.results.read_text())["native"]["status"], "failed")
 
 
 if __name__ == "__main__":

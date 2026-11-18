@@ -19,7 +19,7 @@ python scripts\validate-toolkit.py gates --offline --test-threads 1 `
 | `dev` | Locked workspace `cargo check` |
 | `gates` | Formatting, warnings-as-errors clippy, release workspace build, complete workspace tests |
 | `packages` | **Fresh** workspace Cargo package verification, existing archive-content checks, actual standalone simulator tests and benchmark smoke |
-| `native` | Current native library build, then existing Python/Java22/Kotlin artifact/error/resource checks, or verified exact-artifact proof reuse |
+| `native` | Existing managed-SDK build and Python/Java22/Kotlin checks, or verified reuse of that exact SDK |
 
 `--features` is applied to development and final gates. `--test-threads` is
 explicit and part of the gates' identity; the default remains one until a
@@ -90,21 +90,22 @@ Use your installed tool paths. Versions and platform requirements of
 `build-archive-bindings.ps1` are unchanged. Kotlin uses the same generated Java
 API, not a separate implementation.
 
-Every invocation first asks Cargo to build the **current** release `cdylib`
-with `cargo rustc --crate-type cdylib`, matching maturin's library kind rather
-than a generic combined `cdylib`/`rlib` build. Its bytes are retained before the
-existing builder can write the same output slot.
-Only identical library bytes, the conservative complete source inventory,
-toolchain/environment
-and all retained generated artifacts/fixtures/proof outputs can reuse the
-previous native success. A changed library cannot inherit success merely because
-the binding source is unchanged. The library inside the actually qualified
-Python package must match the current build before a result becomes reusable.
+On a cache miss the existing builder produces and checks one SDK, including its
+actual wheel DLL, generated Python and Java API, and JVM-native copy. The Python
+and JVM DLLs must match exactly. On a hit, the complete source inventory,
+toolchain/environment and **every retained SDK binary, generated artifact,
+fixture and proof log** must still match.
 
-Native-library compilation time and native proof execution time are separate.
-Source mutation during either compilation or qualification prevents recording
-success. This does not claim reproducible native binaries, a stable ABI, another
-platform's qualification, or general CLI/API parity.
+Reuse returns that exact qualified SDK's paths and library hash. It does not
+rebuild a different DLL and attach an old proof to it. A modified SDK DLL
+invalidates success even when binding source is unchanged. Another generic Cargo
+output or newly produced library has no qualification merely because its crate
+name/version matches. Use `--force` to build and qualify a new SDK explicitly.
+
+Source mutation during compilation or qualification prevents recording success.
+This does not claim reproducible native binaries, a stable ABI, another platform's
+qualification, or general CLI/API parity.
 Kotlin compiler JARs and the Java runtime implementation are hashed in addition
 to their launchers. Native command records and every top-level proof log remain
-required, including allocation checks and the current-library build.
+required, including allocation checks. Phases sharing one result manifest must
+run sequentially.

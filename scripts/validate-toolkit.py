@@ -146,10 +146,10 @@ def save_result(path, manifest, record):
     write(path, manifest)
 
 
-def execute(command, env, log):
+def execute(command, env, log, cwd=None):
     started = time.monotonic()
     with log.open("wb") as output:
-        result = subprocess.run(command, cwd=ROOT, env=env, stdout=output, stderr=subprocess.STDOUT)
+        result = subprocess.run(command, cwd=cwd or ROOT, env=env, stdout=output, stderr=subprocess.STDOUT)
     return {"command": list(command), "exit_code": result.returncode,
             "seconds": time.monotonic() - started, "log": str(log)}
 
@@ -235,36 +235,10 @@ def main(argv=None):
     run_dir = results.parent / "validation-runs" / (args.phase + "-" + uuid.uuid4().hex)
     run_dir.mkdir(parents=True)
     tools = []
-    native_key = None
-    native_source_guard = None
     native_payloads = None
-    library_build = None
     if args.phase == "native":
         if not all((args.maturin, args.java_generator, args.java_home, args.kotlin_compiler)):
             parser.error("native requires --maturin, --java-generator, --java-home and --kotlin-compiler")
-        # Always ask Cargo for the CURRENT library before considering native-proof reuse.
-        native_source_guard = source_identity(source_files())
-        build = ["cargo", "rustc", "--manifest-path", str(ROOT / "crates" / "lox-bindings" / "Cargo.toml"),
-                 "--lib", "--release", *cargo, "--message-format=json", "--crate-type", "cdylib"]
-        row = execute(build, env, run_dir / "current-library.log")
-        library_build = row
-        if row["exit_code"]:
-            record = {"key": None, "status": "failed", "commands": [row],
-                      "artifacts": files_identity([run_dir / "current-library.log"]),
-                      "run_directory": str(run_dir), "error": "current native-library build failed"}
-            manifest["native"] = record
-            save_result(results, manifest, record)
-            print(json.dumps(row))
-            return row["exit_code"]
-        library = target / "release" / ("lox_archive.dll" if os.name == "nt" else "liblox_archive.so")
-        if library not in cargo_artifacts(run_dir / "current-library.log"):
-            raise RuntimeError("Cargo did not identify the expected current native library")
-        if source_identity(source_files()) != native_source_guard:
-            raise RuntimeError("Source changed during the current native-library build")
-        native_key = digest(library)
-        shutil.copy2(library, run_dir / "current-library.dll")
-        if digest(run_dir / "current-library.dll") != native_key:
-            raise RuntimeError("Current native-library retention differs from the producer")
         tools = [sys.executable, args.maturin, args.java_generator, args.kotlin_compiler,
                  args.java_home / "bin" / "java.exe", args.java_home / "bin" / "javac.exe",
                  args.java_home / "bin" / "jar.exe", "pwsh"]
@@ -278,8 +252,7 @@ def main(argv=None):
     # Conservatively include the full source inventory: the native builder also
     # executes Core tests whose assertions do not affect release-library bytes.
     fingerprint = inputs(env, commands[args.phase], tools=tools)
-    if native_key:
-        fingerprint["current_native_library_sha256"] = native_key
+    if native_payloads is not None:
         fingerprint["native_tool_payloads"] = native_payloads
     key = identity(fingerprint)
     previous = manifest.get(args.phase)
@@ -290,13 +263,11 @@ def main(argv=None):
     if (args.phase != "packages" and not args.force and not fingerprint.get("reuse_blockers")
             and valid_result(previous, key, expected_count)):
         print(json.dumps({"phase": args.phase, "status": "reused", "key": key,
-                          "current_library_build_seconds": library_build["seconds"] if library_build else 0,
+                          "qualified_native_library": previous.get("native_library"),
                           "saved_command_seconds": sum(row["seconds"] for row in previous["commands"])}))
         return 0
     record = {"key": key, "status": "running", "inputs": fingerprint,
               "commands": [], "artifacts": {}, "target": str(target), "run_directory": str(run_dir)}
-    if library_build:
-        record["current_library_build"] = library_build
     manifest[args.phase] = record
     save_result(results, manifest, record)
     if args.phase == "packages":
@@ -304,7 +275,7 @@ def main(argv=None):
         env["CARGO_TARGET_DIR"] = str(target / "clean-packages" / uuid.uuid4().hex)
         record["target"] = env["CARGO_TARGET_DIR"]
     native_dir = run_dir / "native"
-    artifacts = [run_dir / "current-library.log", run_dir / "current-library.dll"] if library_build else []
+    artifacts = []
 
     def refuse(message):
         record.update(status="failed", error=message, artifacts=files_identity(artifacts))
@@ -361,14 +332,15 @@ def main(argv=None):
             refuse("Native command evidence is incomplete or failed")
         artifacts.extend([proof, ledger, *native_dir.glob("*.log")])
         actual = native_dir / "venv" / "Lib" / "site-packages" / "lox_archive" / "lox_archive.dll"
-        if digest(actual) != native_key:
-            refuse("Qualified native library differs from the current Cargo build; no reusable success")
-        if source_identity(source_files()) != native_source_guard:
-            refuse("Source changed during native qualification")
+        jvm = native_dir / "jvm" / "native" / "lox_archive.dll"
+        generated = native_dir / "venv" / "Lib" / "site-packages" / "lox_archive" / "lox_archive.py"
+        artifacts.extend([actual, jvm, generated])
+        if digest(actual) != digest(jvm):
+            refuse("Python and JVM SDK libraries differ; no reusable native success")
+        record["native_library"] = {"python": str(actual), "jvm": str(jvm), "sha256": digest(actual)}
     # Check the same logical inputs, never the fresh-output command expansion.
     final = inputs(environment(results, target), commands[args.phase], tools=tools)
-    if native_key:
-        final["current_native_library_sha256"] = digest(library)
+    if native_payloads is not None:
         final["native_tool_payloads"] = native_tool_payloads(args.java_home, args.kotlin_compiler)
     if final != fingerprint:
         refuse("Inputs changed during validation; success was not recorded")
