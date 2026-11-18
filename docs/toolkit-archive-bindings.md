@@ -29,13 +29,13 @@ all validation, codec math and wire rendering also remain in Core.
 | Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
-| Byte-preserving runtime overlay and three-way merge | Optional `configuration::runtime_overlay` (`configuration-xml`); `merge_overlays`, `three_way` and the existing `validate_document` precondition share one private byte-span kernel and typed errors | Existing acquisition/patch/preparation producers delegate; file/network/baseline/deployment policy and legacy error presentation stay head-owned; no whole-command count increase or safe-deployment claim | Unsupported | Unsupported |
+| Byte-preserving runtime overlay and three-way merge | Optional `configuration::runtime_overlay` (`configuration-xml`); `merge_overlays`, `three_way` and the existing `validate_document` precondition share one private byte-span kernel and typed errors | Existing acquisition/patch/preparation producers delegate; file/network/baseline/deployment policy and legacy error presentation stay head-owned; no whole-command count increase or safe-deployment claim | Source-only unvalidated `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` ordered typed frames; no fragment-application/validation export | Source-only unvalidated `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused.frames()`; SAME generated Java22 API in Kotlin; no fragment-application/validation export |
 | Strict successful `/sys/custom` FTP listing interpretation | Default `configuration::custom_listing::parse_custom_listing`; sorted raw owned names with duplicates, atomic typed row-index errors, exact legacy whitespace/suffix/type-letter quirks; not backup or fragment-filename validation | Actual `ftp::list_custom_changes` called by `custom_overlay::acquire` delegates inside the same retry closure; exact static-str/String diagnostics and quit/error timing retained; transport failures are not empty listings; no whole-command count increase | Source-only unvalidated candidate `parse_custom_listing(list[str]) -> list[str]`; typed `CustomListingError` | Source-only unvalidated candidate `LoxArchive.parseCustomListing(List<String>) -> List<String>`; checked `CustomListingException`; SAME generated Java22 API in Kotlin |
 | Other XML mutations, semantic validation, deployment, sidecars/trust | No further functional transaction beyond the rows above | Existing CLI behavior unchanged; other legacy editor and trust/deployment behavior remains head-owned | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
 | Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); ordered finite rows, typed errors, timestamps remain opaque | `stats get` shares decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | `parse_statistics_series(str) -> StatSeries`; typed `StatRow` and `StatisticsError` | `LoxArchive.parseStatisticsSeries(String) -> StatSeries`; owned `List<StatRow>` / `double[]` and checked `StatisticsException`; Kotlin uses the same Java 22 API |
 | Supplied statistics-index identity resolution | Published optional `statistics::resolve_identity` (`statistics-xml`); raw UUID result and typed identity errors | Actual `stats get` already shares Core selection before separate acquisition/group/month/output logic; unchanged | `resolve_statistics_identity(list[StatEntry], str) -> str`; typed `StatisticResolutionError` | `LoxArchive.resolveStatisticsIdentity(List<StatEntry>, String) -> String`; checked `StatisticResolutionException`; Kotlin uses the same Java 22 API |
-| Caller-ordered statistics month merge | Optional `statistics::merge_months` (`statistics-xml`); existing independent Core contract | Existing CLI caller unchanged | Unsupported | Unsupported |
+| Caller-ordered statistics month merge | Published optional `statistics::merge_months` (`statistics-xml`); existing independent Core contract | Existing CLI caller unchanged | Source-only unvalidated `merge_statistics_months(list[StatMonthPart]) -> StatSeries`; typed `StatisticsMergeError.OutputMismatch` | Source-only unvalidated `LoxArchive.mergeStatisticsMonths(List<StatMonthPart>) -> StatSeries`; checked `StatisticsMergeException.OutputMismatch`; Kotlin uses the same Java 22 API |
 | Read-only HTML statistics index catalog | Published optional `statistics::parse_index` (`statistics-xml`); infallible existing omissions, raw fields, order and duplicates | Existing index producer unchanged | Candidate `parse_statistics_index(str) -> list[StatEntry]` | Candidate `LoxArchive.parseStatisticsIndex(String) -> List<StatEntry>`; SAME generated Java API in Kotlin |
 | Offline firmware metadata and comparison | Published optional `firmware_metadata` (`firmware-metadata`); strict XML, numeric versions, Gregorian dates and explicit-date observations | Existing CLI unchanged; no updater or device contact | Candidate `parse_firmware_version`, `compare_firmware_versions`, `parse_firmware_metadata`, `assess_firmware_metadata`; typed records/enums/errors | Candidate corresponding `LoxArchive` methods; SAME generated Java22 FFM API in Kotlin |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
@@ -53,7 +53,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Unsupported | Unsupported |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
 | LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | `select_loxapp3_controls(bytes, ControlFilter) -> list[Control]` | `LoxArchive.selectLoxapp3Controls(byte[], ControlFilter) -> List<Control>` |
-| Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | `list_loxapp3_autopilot_rules(bytes) -> list[AutopilotRule]`; source-only UNRUN candidate `resolve_autopilot_rule(rules, query) -> AutopilotRule` with typed errors | `LoxArchive.listLoxapp3AutopilotRules(byte[]) -> List<AutopilotRule>`; source-only UNRUN candidate `resolveAutopilotRule(List<AutopilotRule>, String)`; SAME generated Java API in Kotlin |
+| Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | `list_loxapp3_autopilot_rules(bytes) -> list[AutopilotRule]`; `resolve_autopilot_rule(rules, query) -> AutopilotRule` with typed errors | `LoxArchive.listLoxapp3AutopilotRules(byte[]) -> List<AutopilotRule>`; `resolveAutopilotRule(List<AutopilotRule>, String)` with checked errors; Kotlin uses the same Java 22 API |
 | Legacy backup filename / FTP LIST catalog | Default `backup_catalog`; owned raw filename/version/timestamp/size, permissive row omission and stable descending raw timestamp ordering | Existing `list_backups` producer delegates after unchanged FTP acquisition; head DTO/date/output retained; no whole-command count increase | Candidate `parse_backup_name(str, int) -> BackupInfo \| None`, `parse_backup_listing(list[str]) -> list[BackupInfo]` | Candidate `LoxArchive.parseBackupName(String, long) -> BackupInfo` (nullable), `parseBackupListing(List<String>) -> List<BackupInfo>`; SAME generated Java22 API in Kotlin |
 | LoxApp3 metadata snapshot | Optional `structure_metadata` (`structure-json`); typed owned projections | Existing three metadata producers share Core; acquisition/presentation unchanged | Candidate `parse_loxapp3_structure_metadata(bytes) -> StructureMetadata` | Candidate `LoxArchive.parseLoxapp3StructureMetadata(byte[]) -> StructureMetadata`; SAME Java API in Kotlin |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
@@ -331,6 +331,38 @@ perform identity selection, HTML index parsing, month merge, statistics
 acquisition or binary statistics decoding. It adds no CLI command and does not
 change the supported platform boundaries.
 
+### Caller-ordered statistics month merge source candidate
+
+`merge_statistics_months` consumes supplied `StatMonthPart { month, series }`
+records, reusing the owned `StatSeries` and `StatRow` DTOs. It calls
+`lox_core::statistics::merge_months` once, without XML parsing, acquisition,
+identity/group/month selection, or changes to the existing CLI caller.
+
+Empty input yields an empty series. Core keeps the first part's metadata and
+rows and checks each later part's output labels for exact, ordered equality.
+Rows are filtered only against timestamps from earlier parts; repeated
+timestamps within the same part survive. Caller order, raw month and timestamp
+text, row widths and values are not interpreted or normalized. The typed
+`OutputMismatch` contains `name`, `previous_month`, `month`, `previous_outputs`
+and `outputs`. The previous month is the immediately preceding part, even if
+it has no rows; the name and previous output labels come from the first part.
+
+The Rust boundary moves the `f64` values unchanged; unlike XML parsing, this
+operation does not reject nonfinite values. Source tests require the generated
+Python API and the same Java 22/Kotlin API (owned `double[]` / `DoubleArray`)
+to round-trip raw witnesses for signed zero, a subnormal, both infinities and
+noncanonical quiet NaNs. Foreign bit preservation is not qualified until those
+tests run successfully on the actual generated artifacts.
+
+This slice adds five checks to the SDK builder. It must show live1/free0 on
+actual large success and checked-error RustBuffers using the unchanged
+128-byte-prefix/minimum-64000 HeapWalk matcher, then zero matching native
+buffers with 64 distinct host objects retained per branch per language without
+requested GC. The builder includes the qualification logs in `ARTIFACTS.json`
+and emits the mechanism receipt with the tested DLL hash only after all three
+language tests pass. Published counts remain CLI 16, Python 27 and Java/Kotlin
+27, with two historical and zero new native Config qualifications.
+
 ### Read-only HTML statistics index candidate
 
 One String-input/list-output export delegates directly to the published infallible
@@ -401,7 +433,7 @@ and resource checks. This is one new native family, not broader CLI parity.
 Native Config remains two historical qualifications and zero new qualifications;
 the ten whole-CLI migration count is unchanged. Publication remains review-gated.
 
-### Supplied typed Autopilot rule selector — source-only, UNRUN
+### Supplied typed Autopilot rule selector
 
 `resolve_autopilot_rule(rules, query)` /
 `LoxArchive.resolveAutopilotRule(List<AutopilotRule>, String)` reuses the
@@ -428,26 +460,19 @@ carry the typed variants and owned fields, not Rust's display text or a
 debug/JSON payload. Returned values are detached host-owned records, with no
 new native object handle or disposal protocol.
 
-Rust and Python/Java22/Kotlin test **sources only** cover raw first-UUID wins,
+Rust and Python/Java 22/Kotlin tests cover raw first-UUID wins,
 case-sensitive UUID failure, loose hyphen IDs, unranked/duplicate ambiguity,
 empty input/query, Unicode lowercase-only behavior, opaque fields and ownership.
 The existing builder retains all 141 steps from the published statistics
 baseline and adds five selector steps (146 total). Its artifact manifest adds
 the three consumer logs and `AUTOPILOT-RULE-MECHANISM.json`. The unchanged C
-HeapWalk primitive is used on the actual export's success, UUID-not-found,
-name-not-found and ambiguous RustBuffers: each future Python, Java and Kotlin
-run must establish live1/free0 calibration and 64 public calls retaining0
-without requesting GC. Large owned name/query strings distinguish all four
-buffer prefixes; helper allocations are not substitutes.
-
-Compilation, generation, tests and these four-branch ownership proofs are
-**UNRUN**. The mechanism timestamp is therefore absent until actual future
-builder execution succeeds. The published baseline is 26 capabilities in
-Python and the same 26 in Java/Kotlin, with 16 whole-CLI migrations; this
-selector has no whole-command caller. Native Config remains two historical
-qualifications and zero new. This selector still requires independent review,
-the four final gates, matching SDK artifacts, fresh archives and their consumer
-checks before publication.
+HeapWalk primitive witnesses the actual export's success, UUID-not-found,
+name-not-found and ambiguous RustBuffers. The SDK built from `de1bc5e` passed
+live1/free0 calibration and zero matching retained buffers after 64 public
+calls per branch in Python, Java 22 and Kotlin, without requested GC. See
+`AUTOPILOT-RULE-MECHANISM.json` and the matching `ARTIFACTS.json`. The fresh
+archives and their consumer checks passed as well. This selector adds no CLI
+command, native Config workflow or new platform qualification.
 
 ### Read-only LoxApp3 metadata snapshot candidate
 
@@ -637,6 +662,69 @@ Archive calls are stateless and still prove **nothing** about runtime lifecycle.
 The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
+
+## Source-only offline three-way projection
+
+This candidate is **uncompiled and unqualified**. Only `three_way` is exported;
+`merge_overlays` and `validate_document` remain Core-only APIs. All validation,
+semantic comparison, placement and selected-byte preservation stay in Core.
+Inputs and output are owned byte buffers, not strings, XML trees or handles.
+There is no acquisition, I/O, network, schema, sidecar, baseline, permission,
+deployment or safe-push guarantee, and no new whole-command migration credit.
+
+Core chooses raw shell/child spans independently: local equal to base chooses
+live; otherwise live equal to base or local equal to live chooses local.
+The output need not keep local's BOM/line endings when the live shell wins.
+Formatting/attribute order equivalence is not normalization of literal
+attribute newlines. Incompatible edits, deletion/modification, placement and
+final duplicate identities are refused. This private byte-span parser does not
+use the DOM/editor loader, so `lox-n37w` is not a generic limitation here.
+
+`OverlayError.Refused.frames` (Java/Kotlin checked
+`OverlayException.Refused.frames()`) is an owned, ordered outer-to-inner list of
+`OverlayErrorFrame`. It follows actual Core `Error::source()` links between
+overlay domain errors, without recursion in the foreign model or truncation.
+For independent additions of UUID `c` under different parents, the final
+consistency refusal retains exactly:
+
+1. `MERGED_CONSISTENCY` / Java `MergedConsistency`
+2. `DUPLICATE_UUID(id="c")` / Java `DuplicateUuid.id()`
+
+The domain frames cover all current `three_way` error paths:
+`DocumentUtf8`, `Utf8`, `StringUtf8`, `Xml`, `Attribute`, `DuplicateUuid`,
+`MissingControlType`, `UnexpectedClosingTag`, `Dtd`, `OutsideRoot`,
+`IncompleteRoot`, `ShellConflict`, `ControlConflict`, `Placement` and
+`MergedConsistency`. Python data-enum variant names are upper snake case;
+Java uses nested record names as listed. UUID spelling/normalization is Core's,
+not reimplemented in the facade.
+
+The native-source boundary is explicit: `Xml` and `Attribute` retain distinct
+frame types, typed `OverlayXmlContext.DOCUMENT`/`BARE`, and the native cause's
+`Display` text in `source_message` / `sourceMessage()`, never Debug. They do
+not pretend native parser errors are additional overlay-domain frames.
+UTF-8 frames retain byte `valid_up_to`/`validUpTo()` and optional byte
+`error_len`/`errorLen()`; `StringUtf8` also keeps the original invalid bytes.
+Native `usize` values widen to `u64` (Java boxed `Long`) without truncation.
+An absent error length means an incomplete UTF-8 sequence, not zero.
+
+New non-exhaustive Core variants, and existing overlay-application-only
+variants outside this single export's contract, cause the payload-free
+`OverlayError.UnsupportedCoreVariant` /
+`OverlayException.UnsupportedCoreVariant` refusal. They are never flattened
+into XML, arbitrary text, JSON or success. No stable cross-version ABI is
+promised; regenerate all matching native/generated artifacts together.
+
+This slice adds six checks to the SDK builder: Core runtime-overlay focus,
+Python smoke, Java compile/smoke and Kotlin compile/smoke. With the five
+month-merge checks, the integrated builder retains all 146 published steps
+and has 157 total. Existing `rust-focused` includes the facade tests. All six logs
+and `RUNTIME-OVERLAY-MECHANISM.json` enter the existing artifact manifest.
+The new callers include the two-frame witness, byte ownership and typed native
+boundaries. HeapWalk sources calibrate actual returned success/error RustBuffers
+with the unchanged 128-byte-prefix/minimum-64000 matcher (live1/free0), then
+retain host outputs/errors over 64 calls per branch without requesting GC.
+These are **test sources and future proof steps, not passing execution claims**.
+Compiler, native, package and test validation remain unrun pending admission.
 
 ## Offline color heads
 

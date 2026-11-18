@@ -1,4 +1,4 @@
-//! Thin native archive, configuration/statistics inspection, state, clock, control and color adapters.
+//! Thin native archive, configuration/statistics inspection and merge, state, clock, control and color adapters.
 //! All behavior lives in lox-core.
 //! Generated code and its native library must come from the same build.
 
@@ -18,6 +18,7 @@ mod daytimer_state;
 mod firmware_metadata;
 mod mqtt_catalog;
 mod numeric_state;
+mod runtime_overlay;
 mod statistics_identity;
 mod statistics_index;
 mod statistics_series;
