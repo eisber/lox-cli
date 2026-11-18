@@ -1,8 +1,8 @@
 # Experimental native archive, configuration inspection, numeric/text/daytimer/weather, clock, control and color bindings
 
-This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog/metadata, numeric/text/daytimer/weather payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML user/device/control/room/summary inspection, monthly statistics XML, LoxApp3 catalog/metadata, numeric/text/daytimer/weather payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `daytimer_state`, `weather_state`, `color`, optional `control_catalog` / `structure_metadata` / `autopilot_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `daytimer_state`, `weather_state`, `color`, optional `statistics` / `control_catalog` / `structure_metadata` / `autopilot_catalog` and the optional production
 `runtime::ClockDriver`, plus default `configuration::custom_listing`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -33,7 +33,9 @@ all validation, codec math and wire rendering also remain in Core.
 | Strict successful `/sys/custom` FTP listing interpretation | Default `configuration::custom_listing::parse_custom_listing`; sorted raw owned names with duplicates, atomic typed row-index errors, exact legacy whitespace/suffix/type-letter quirks; not backup or fragment-filename validation | Actual `ftp::list_custom_changes` called by `custom_overlay::acquire` delegates inside the same retry closure; exact static-str/String diagnostics and quit/error timing retained; transport failures are not empty listings; no whole-command count increase | Source-only unvalidated candidate `parse_custom_listing(list[str]) -> list[str]`; typed `CustomListingError` | Source-only unvalidated candidate `LoxArchive.parseCustomListing(List<String>) -> List<String>`; checked `CustomListingException`; SAME generated Java22 API in Kotlin |
 | Other XML mutations, semantic validation, deployment, sidecars/trust | No further functional transaction beyond the rows above | Existing CLI behavior unchanged; other legacy editor and trust/deployment behavior remains head-owned | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
-| Monthly statistics XML decoding | Optional `statistics::{parse_series, resolve_identity}` (`statistics-xml`); typed identity errors, timestamps remain opaque | `stats get` shares identity selection and decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | Unsupported | Unsupported |
+| Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); ordered finite rows, typed errors, timestamps remain opaque | `stats get` shares decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | Source candidate `parse_statistics_series(str) -> StatSeries`; typed `StatRow` and `StatisticsError`, not qualified until actual native/package gates | Source candidate `LoxArchive.parseStatisticsSeries(String) -> StatSeries`; owned `List<StatRow>` / `double[]` and checked `StatisticsException`; SAME generated Java22 API in Kotlin |
+| Supplied statistics-index identity resolution | Published optional `statistics::resolve_identity` (`statistics-xml`); raw UUID result and typed identity errors | Actual `stats get` already shares Core selection before separate acquisition/group/month/output logic; unchanged | Source-only unvalidated `resolve_statistics_identity(list[StatEntry], str) -> str`; typed `StatisticResolutionError` | Source-only unvalidated `LoxArchive.resolveStatisticsIdentity(List<StatEntry>, String) -> String`; checked `StatisticResolutionException`; SAME generated Java22 API in Kotlin |
+| Caller-ordered statistics month merge | Optional `statistics::merge_months` (`statistics-xml`); existing independent Core contract | Existing CLI caller unchanged | Unsupported | Unsupported |
 | Read-only HTML statistics index catalog | Published optional `statistics::parse_index` (`statistics-xml`); infallible existing omissions, raw fields, order and duplicates | Existing index producer unchanged | Candidate `parse_statistics_index(str) -> list[StatEntry]` | Candidate `LoxArchive.parseStatisticsIndex(String) -> List<StatEntry>`; SAME generated Java API in Kotlin |
 | Offline firmware metadata and comparison | Published optional `firmware_metadata` (`firmware-metadata`); strict XML, numeric versions, Gregorian dates and explicit-date observations | Existing CLI unchanged; no updater or device contact | Candidate `parse_firmware_version`, `compare_firmware_versions`, `parse_firmware_metadata`, `assess_firmware_metadata`; typed records/enums/errors | Candidate corresponding `LoxArchive` methods; SAME generated Java22 FFM API in Kotlin |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
@@ -62,6 +64,46 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Statistics identity native candidate (not yet qualified)
+
+`resolve_statistics_identity` reuses the existing owned `StatEntry` record and
+delegates directly to the **already shared** Core identity resolver used by
+`stats get`. It does not parse an index or series, fetch anything, or introduce a
+second selector. It has no dependency on the separate monthly-series native
+candidate. Input `file`, `label` and `month` are not consulted or validated.
+
+Core lowercases only the query for an initial exact comparison with each raw
+stored UUID. If none match, it tries Unicode-lowercased names exactly, then by
+substring. It neither trims nor normalizes Unicode, validates UUIDs, interprets
+filenames, follows aliases, handles room qualifiers nor falls back to another
+catalog. Empty queries follow exactly this same precedence, including empty
+stored UUIDs and names. Stored UUIDs are not case-folded.
+
+Success is the owned **raw UUID string**, not an index row, canonical UUID or
+group/month choice. As with the CLI, callers then select **all** original rows
+with that UUID, retaining encounter order, duplicates and other
+names/groups/months. A result does not authorize an arbitrary filename or URL.
+Suggestions, CLI diagnostics and group/month selection remain caller-owned.
+
+`StatisticResolutionError.NotFound` owns a case-sensitively sorted, deduplicated
+inventory of `names`. `Ambiguous` owns `distinct_uuids` (`u64`, Python integer /
+Java `long`) and `candidates: list[StatisticIdentity]`. Candidates contain only
+raw `name`, optional `group` (`u32`, Python integer / Java nullable `Integer`
+bit pattern) and raw `uuid`; they are sorted/deduplicated by that tuple using
+Core's Rust ordering, absent group before present. The ambiguity count is of
+distinct **raw UUIDs**, not rows, names, groups or months. No JSON, erased
+diagnostic payload or native handle is exposed.
+
+This source candidate is **unvalidated** and makes no new native Config,
+platform, ABI, package or parity claim. The existing builder is extended with
+focused Core/CLI identity regressions and installed Python, compiled Java22 and
+Kotlin SAME-API smokes, including owned results/errors, raw values, precedence
+and sorted diagnostics. It must calibrate actual success, `NotFound` and
+`Ambiguous` RustBuffers with the existing HeapWalk matcher (live1/free0), then
+retain zero matching buffers after 64 calls per branch per language without
+requested GC. All new logs and the actual-three-language mechanism receipt are
+included in its artifact manifest. No such proof has run for this candidate.
 
 ### Strict custom-listing native candidate (not yet qualified)
 
@@ -233,6 +275,66 @@ this is an unreviewed, unpublished prospective nineteenth family, not a count
 increase. Other platforms and Rust MSRV1.91 remain unqualified; actual builds use
 Rust1.99.1 on WindowsAMD64 with CPython3.13GIL, JDK22.0.2+9 and Kotlin2.4.21.
 Native Config qualifications remain two historical, zero new.
+
+### Monthly statistics XML series Source candidate
+
+`parse_statistics_series` calls the already-shared
+`lox_core::statistics::parse_series` once and projects its tuple rows into owned
+`StatRow { timestamp, values }` records. `StatSeries` owns `name`, optional `u32`
+`group`, ordered `outputs` and ordered `rows`. Python receives strings, optional
+integers, lists, and floats; Java receives records, nullable `Integer`,
+`List<String>`, `List<StatRow>` and `double[]` (`DoubleArray` in Kotlin). Kotlin calls that SAME Java
+API. As with other unsigned fields, Java `Integer` / Kotlin `Int` carry the
+group's raw32 bits; use `Integer.toUnsignedLong` / `toUInt()` for interpretation.
+
+The Core parser alone entity-decodes attributes, trims/defaults/resizes labels,
+orders `V`, `V2`, ... values, and validates count/group/value text. It retains
+opaque timestamps (including whitespace/empty text), duplicate timestamps and
+labels, and encounter order. Unknown elements/text are ignored; rows following
+a closed header remain accepted. Zero outputs are valid; absent counts default
+to at least one. Attribute validation remains lazy, not a new strict XML
+schema. `NumOutputs` retains the Core `usize` parsing/platform bound without a
+new resource cap. The adapter neither omits malformed rows nor returns a
+partial series: any Core error rejects the entire input.
+
+Values are Core's decimal-text-to-`f64` results, not raw binary wire observations.
+Focused Source cases characterize negative zero, minimum positive/negative
+subnormals, maximum finite binary64 and signed zero after decimal underflow.
+Python floats and Java/Kotlin doubles are checked by their raw finite-value
+bits. Core rejects NaN, infinities and decimal overflow to infinity; this is
+deliberately different from the numeric/daytimer/weather binary payload
+families. There is no NaN-payload preservation claim and no invented units,
+epoch, timezone, datetime conversion or firmware guarantee.
+
+Python `StatisticsError` / Java checked `StatisticsException` retain all Core
+variants: `Xml`, `MalformedAttribute`, `AttributeValue`,
+`UnexpectedClosingElement`, `TruncatedXml`, `MultipleStatistics`,
+`MissingStatistics`, `RowBeforeStatistics`, `InvalidStatsGroup`,
+`InvalidNumOutputs`, `MissingTimestamp`, `MissingValue`, `InvalidValue` and
+`NonFiniteValue`. Relevant variants retain `attribute`, `timestamp`, raw
+`value`, and original parser/numeric cause text in `source_message` (Java
+`sourceMessage()`). These diagnostics can contain input text. The existing CLI
+HTTP-text caller and its rich cause/context handling are unchanged. This parser
+does not use the configuration DOM loader; known loader issue `lox-n37w`
+remains unchanged and is not repaired or bypassed here.
+
+The existing builder additively includes focused Core/binding tests, installed
+Python, compiled Java22 and Kotlin SAME-API cases, and the unchanged HeapWalk
+primitive. Success and large `InvalidValue` error RustBuffers must each
+calibrate live1/free0, then64 generated calls per branch per language must
+retain zero matching buffers without requested GC, while earlier host values
+and exceptions remain usable. All new logs, the Kotlin argument file and
+`STATISTICS-SERIES-MECHANISM.json` are in `ARTIFACTS.json`. Every existing
+family and Clock lifecycle remains independent and retained.
+
+This is **Source-prepared only**, not an executed native or package result.
+The mechanism receipt is emitted only after actual all-three execution.
+Coordinator allocation, focused checks, independent review, integrated gates,
+actual matching native artifacts and fresh packages are still required.
+Existing generator pins/correction, source/license notices and supported
+platform boundaries are unchanged. This family does not expose identity
+selection, HTML index parsing, month merge, statistics acquisition, binary
+statistics, a new CLI command or another SDK architecture.
 
 ### Read-only HTML statistics index candidate
 
