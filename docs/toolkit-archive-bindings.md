@@ -33,8 +33,8 @@ all validation, codec math and wire rendering also remain in Core.
 | Strict successful `/sys/custom` FTP listing interpretation | Default `configuration::custom_listing::parse_custom_listing`; sorted raw owned names with duplicates, atomic typed row-index errors, exact legacy whitespace/suffix/type-letter quirks; not backup or fragment-filename validation | Actual `ftp::list_custom_changes` called by `custom_overlay::acquire` delegates inside the same retry closure; exact static-str/String diagnostics and quit/error timing retained; transport failures are not empty listings; no whole-command count increase | Source-only unvalidated candidate `parse_custom_listing(list[str]) -> list[str]`; typed `CustomListingError` | Source-only unvalidated candidate `LoxArchive.parseCustomListing(List<String>) -> List<String>`; checked `CustomListingException`; SAME generated Java22 API in Kotlin |
 | Other XML mutations, semantic validation, deployment, sidecars/trust | No further functional transaction beyond the rows above | Existing CLI behavior unchanged; other legacy editor and trust/deployment behavior remains head-owned | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
-| Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); ordered finite rows, typed errors, timestamps remain opaque | `stats get` shares decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | Source candidate `parse_statistics_series(str) -> StatSeries`; typed `StatRow` and `StatisticsError`, not qualified until actual native/package gates | Source candidate `LoxArchive.parseStatisticsSeries(String) -> StatSeries`; owned `List<StatRow>` / `double[]` and checked `StatisticsException`; SAME generated Java22 API in Kotlin |
-| Supplied statistics-index identity resolution | Published optional `statistics::resolve_identity` (`statistics-xml`); raw UUID result and typed identity errors | Actual `stats get` already shares Core selection before separate acquisition/group/month/output logic; unchanged | Source-only unvalidated `resolve_statistics_identity(list[StatEntry], str) -> str`; typed `StatisticResolutionError` | Source-only unvalidated `LoxArchive.resolveStatisticsIdentity(List<StatEntry>, String) -> String`; checked `StatisticResolutionException`; SAME generated Java22 API in Kotlin |
+| Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); ordered finite rows, typed errors, timestamps remain opaque | `stats get` shares decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | `parse_statistics_series(str) -> StatSeries`; typed `StatRow` and `StatisticsError` | `LoxArchive.parseStatisticsSeries(String) -> StatSeries`; owned `List<StatRow>` / `double[]` and checked `StatisticsException`; Kotlin uses the same Java 22 API |
+| Supplied statistics-index identity resolution | Published optional `statistics::resolve_identity` (`statistics-xml`); raw UUID result and typed identity errors | Actual `stats get` already shares Core selection before separate acquisition/group/month/output logic; unchanged | `resolve_statistics_identity(list[StatEntry], str) -> str`; typed `StatisticResolutionError` | `LoxArchive.resolveStatisticsIdentity(List<StatEntry>, String) -> String`; checked `StatisticResolutionException`; Kotlin uses the same Java 22 API |
 | Caller-ordered statistics month merge | Optional `statistics::merge_months` (`statistics-xml`); existing independent Core contract | Existing CLI caller unchanged | Unsupported | Unsupported |
 | Read-only HTML statistics index catalog | Published optional `statistics::parse_index` (`statistics-xml`); infallible existing omissions, raw fields, order and duplicates | Existing index producer unchanged | Candidate `parse_statistics_index(str) -> list[StatEntry]` | Candidate `LoxArchive.parseStatisticsIndex(String) -> List<StatEntry>`; SAME generated Java API in Kotlin |
 | Offline firmware metadata and comparison | Published optional `firmware_metadata` (`firmware-metadata`); strict XML, numeric versions, Gregorian dates and explicit-date observations | Existing CLI unchanged; no updater or device contact | Candidate `parse_firmware_version`, `compare_firmware_versions`, `parse_firmware_metadata`, `assess_firmware_metadata`; typed records/enums/errors | Candidate corresponding `LoxArchive` methods; SAME generated Java22 FFM API in Kotlin |
@@ -53,7 +53,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Unsupported | Unsupported |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
 | LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | `select_loxapp3_controls(bytes, ControlFilter) -> list[Control]` | `LoxArchive.selectLoxapp3Controls(byte[], ControlFilter) -> List<Control>` |
-| Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | Candidate `list_loxapp3_autopilot_rules(bytes) -> list[AutopilotRule]` | Candidate `LoxArchive.listLoxapp3AutopilotRules(byte[]) -> List<AutopilotRule>`; SAME generated Java API in Kotlin |
+| Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | `list_loxapp3_autopilot_rules(bytes) -> list[AutopilotRule]`; source-only UNRUN candidate `resolve_autopilot_rule(rules, query) -> AutopilotRule` with typed errors | `LoxArchive.listLoxapp3AutopilotRules(byte[]) -> List<AutopilotRule>`; source-only UNRUN candidate `resolveAutopilotRule(List<AutopilotRule>, String)`; SAME generated Java API in Kotlin |
 | Legacy backup filename / FTP LIST catalog | Default `backup_catalog`; owned raw filename/version/timestamp/size, permissive row omission and stable descending raw timestamp ordering | Existing `list_backups` producer delegates after unchanged FTP acquisition; head DTO/date/output retained; no whole-command count increase | Candidate `parse_backup_name(str, int) -> BackupInfo \| None`, `parse_backup_listing(list[str]) -> list[BackupInfo]` | Candidate `LoxArchive.parseBackupName(String, long) -> BackupInfo` (nullable), `parseBackupListing(List<String>) -> List<BackupInfo>`; SAME generated Java22 API in Kotlin |
 | LoxApp3 metadata snapshot | Optional `structure_metadata` (`structure-json`); typed owned projections | Existing three metadata producers share Core; acquisition/presentation unchanged | Candidate `parse_loxapp3_structure_metadata(bytes) -> StructureMetadata` | Candidate `LoxArchive.parseLoxapp3StructureMetadata(byte[]) -> StructureMetadata`; SAME Java API in Kotlin |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
@@ -65,13 +65,13 @@ actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
 
-### Statistics identity native candidate (not yet qualified)
+### Statistics identity resolution
 
 `resolve_statistics_identity` reuses the existing owned `StatEntry` record and
 delegates directly to the **already shared** Core identity resolver used by
 `stats get`. It does not parse an index or series, fetch anything, or introduce a
-second selector. It has no dependency on the separate monthly-series native
-candidate. Input `file`, `label` and `month` are not consulted or validated.
+second selector. It has no dependency on monthly-series decoding. Input `file`,
+`label` and `month` are not consulted or validated.
 
 Core lowercases only the query for an initial exact comparison with each raw
 stored UUID. If none match, it tries Unicode-lowercased names exactly, then by
@@ -95,15 +95,13 @@ Core's Rust ordering, absent group before present. The ambiguity count is of
 distinct **raw UUIDs**, not rows, names, groups or months. No JSON, erased
 diagnostic payload or native handle is exposed.
 
-This source candidate is **unvalidated** and makes no new native Config,
-platform, ABI, package or parity claim. The existing builder is extended with
-focused Core/CLI identity regressions and installed Python, compiled Java22 and
-Kotlin SAME-API smokes, including owned results/errors, raw values, precedence
-and sorted diagnostics. It must calibrate actual success, `NotFound` and
-`Ambiguous` RustBuffers with the existing HeapWalk matcher (live1/free0), then
-retain zero matching buffers after 64 calls per branch per language without
-requested GC. All new logs and the actual-three-language mechanism receipt are
-included in its artifact manifest. No such proof has run for this candidate.
+The SDK built from `2ee0bb6` passed the Core/CLI identity regressions and the
+Python, Java 22 and Kotlin smokes on Windows AMD64. The HeapWalk check calibrated
+actual success, `NotFound` and `Ambiguous` buffers, then verified zero retained
+matching buffers after 64 calls per branch per language without requested GC.
+See `STATISTICS-IDENTITY-MECHANISM.json` and the matching `ARTIFACTS.json` for
+the tested DLL and logs. This does not qualify other platforms, native Config
+workflows, cross-version ABI stability or full CLI parity.
 
 ### Strict custom-listing native candidate (not yet qualified)
 
@@ -276,7 +274,7 @@ increase. Other platforms and Rust MSRV1.91 remain unqualified; actual builds us
 Rust1.99.1 on WindowsAMD64 with CPython3.13GIL, JDK22.0.2+9 and Kotlin2.4.21.
 Native Config qualifications remain two historical, zero new.
 
-### Monthly statistics XML series Source candidate
+### Monthly statistics XML series
 
 `parse_statistics_series` calls the already-shared
 `lox_core::statistics::parse_series` once and projects its tuple rows into owned
@@ -327,14 +325,11 @@ and exceptions remain usable. All new logs, the Kotlin argument file and
 `STATISTICS-SERIES-MECHANISM.json` are in `ARTIFACTS.json`. Every existing
 family and Clock lifecycle remains independent and retained.
 
-This is **Source-prepared only**, not an executed native or package result.
-The mechanism receipt is emitted only after actual all-three execution.
-Coordinator allocation, focused checks, independent review, integrated gates,
-actual matching native artifacts and fresh packages are still required.
-Existing generator pins/correction, source/license notices and supported
-platform boundaries are unchanged. This family does not expose identity
-selection, HTML index parsing, month merge, statistics acquisition, binary
-statistics, a new CLI command or another SDK architecture.
+The SDK built from `2ee0bb6` passed these proofs on Windows AMD64, and the fresh
+Core and bindings archives passed their consumer checks. This function does not
+perform identity selection, HTML index parsing, month merge, statistics
+acquisition or binary statistics decoding. It adds no CLI command and does not
+change the supported platform boundaries.
 
 ### Read-only HTML statistics index candidate
 
@@ -387,7 +382,8 @@ Malformed JSON fails atomically through the SAME payload-free
 `CatalogDecodeError.InvalidJson(line, column)` / checked Java
 `CatalogDecodeException.InvalidJson`; Kotlin consumes that Java API.
 These are host-owned values, independent of input storage, not borrowed handles.
-There is no selector, alias/filter API, rule editing, conditions/actions,
+The catalog does not select. The source-only supplied-row selector below does not
+add an alias/filter API, rule editing, conditions/actions,
 state acquisition, authentication/permissions, subscription or Config UI parity.
 
 The focused Python, Java22 and Kotlin consumers exercise actual exports,
@@ -404,6 +400,54 @@ native families plus this one (seventeen total), and the existing Clock lifecycl
 and resource checks. This is one new native family, not broader CLI parity.
 Native Config remains two historical qualifications and zero new qualifications;
 the ten whole-CLI migration count is unchanged. Publication remains review-gated.
+
+### Supplied typed Autopilot rule selector — source-only, UNRUN
+
+`resolve_autopilot_rule(rules, query)` /
+`LoxArchive.resolveAutopilotRule(List<AutopilotRule>, String)` reuses the
+existing four-field `AutopilotRule` record. It converts supplied rows to Core,
+calls `autopilot_catalog::resolve_rule`, and detaches the selected row or error
+candidates. It does not parse another JSON snapshot, call the catalog operation,
+acquire state, or reuse the different control-resolution algorithm.
+
+Core alone chooses the legacy loose UUID branch: a string longer than twenty
+bytes containing at least one hyphen and only ASCII hex digits or hyphens is
+searched as an exact raw,
+case-sensitive UUID; the first identical UUID wins. Other queries match names
+using Rust lowercase substring comparison, with no exact-name preference,
+trimming, alias/room interpretation, Unicode normalization or deduplication.
+An empty name query matches every row. Ambiguity retains all matching rows in
+caller order, including identical IDs and duplicate rows. Every successful row
+and candidate retains all four opaque fields, including NUL and line breaks.
+
+Native `RuleResolutionError.UuidNotFound`, `.NotFound` and `.Ambiguous` map to
+checked Java `RuleResolutionException` variants, also used by Kotlin. All carry
+the exact supplied `query`; `.Ambiguous` additionally owns `candidates`.
+The Rust facade preserves Core's `Display` messages. The generated exceptions
+carry the typed variants and owned fields, not Rust's display text or a
+debug/JSON payload. Returned values are detached host-owned records, with no
+new native object handle or disposal protocol.
+
+Rust and Python/Java22/Kotlin test **sources only** cover raw first-UUID wins,
+case-sensitive UUID failure, loose hyphen IDs, unranked/duplicate ambiguity,
+empty input/query, Unicode lowercase-only behavior, opaque fields and ownership.
+The existing builder retains all 141 steps from the published statistics
+baseline and adds five selector steps (146 total). Its artifact manifest adds
+the three consumer logs and `AUTOPILOT-RULE-MECHANISM.json`. The unchanged C
+HeapWalk primitive is used on the actual export's success, UUID-not-found,
+name-not-found and ambiguous RustBuffers: each future Python, Java and Kotlin
+run must establish live1/free0 calibration and 64 public calls retaining0
+without requesting GC. Large owned name/query strings distinguish all four
+buffer prefixes; helper allocations are not substitutes.
+
+Compilation, generation, tests and these four-branch ownership proofs are
+**UNRUN**. The mechanism timestamp is therefore absent until actual future
+builder execution succeeds. The published baseline is 26 capabilities in
+Python and the same 26 in Java/Kotlin, with 16 whole-CLI migrations; this
+selector has no whole-command caller. Native Config remains two historical
+qualifications and zero new. This selector still requires independent review,
+the four final gates, matching SDK artifacts, fresh archives and their consumer
+checks before publication.
 
 ### Read-only LoxApp3 metadata snapshot candidate
 
