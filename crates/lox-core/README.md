@@ -21,6 +21,20 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `configuration-editor`: `configuration::editor::set_attribute(bytes,
+  selector, attribute, value, &now)` migrates the existing legacy raw attribute
+  operation. Its owned `AttributeChange` captures the selected identity before
+  insertion (including a changed `Title`) and distinguishes absent from empty
+  previous values. The actual cached CLI editor delegates to the same mutator;
+  `config xml set-attr` and `config control rename` keep their head-owned loading,
+  reporting, save-time reread, atomic file writing and dry-run policy. No schema,
+  attribute-name/value validation, permission repair or reference cascade is
+  added. The explicit `DateTime<FixedOffset>` supplies the shared monotonic save
+  stamp; content changes compare canonical serializations, not raw input bytes.
+  Canonical no-ops may normalize raw bytes without stamping. The shared loader's
+  lox-n37w quoted-text/digit-name limitation remains. This is a Rust-only legacy
+  byte transaction, not a native Config contract or a new Python/JVM capability.
+
 - Optional `configuration-xml`: `configuration::mqtt::list_topics(&[u8])`
   returns owned `MqttTopic` records with typed `MqttDirection`. The actual
   `lox config mqtt topics` producer and cached CLI editor share this one walker.

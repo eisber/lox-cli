@@ -1,10 +1,11 @@
-//! Legacy-compatible, headless parameter and control-room byte transactions.
+//! Legacy-compatible, headless parameter, raw attribute and control-room transactions.
 //!
 //! This is not a native Config validator or a lossless arbitrary-XML editor.
 //! Loading and canonical serialization intentionally retain the CLI's existing
 //! digit-name/quoted-text limitation (lox-n37w), duplicate handling and formatting.
 //! No file, clock, home directory, terminal or process state is accessed.
 
+mod attribute;
 mod control_move;
 mod description;
 pub(super) mod legacy;
@@ -14,6 +15,7 @@ mod write;
 use chrono::{DateTime, FixedOffset};
 use std::{error::Error, fmt};
 
+pub use attribute::{AttributeChange, SetAttributeOutcome, set_attribute};
 #[cfg(feature = "unstable-legacy-cli-editor")]
 #[doc(hidden)]
 pub use control_move::ControlMovePlan;
