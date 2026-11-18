@@ -3,6 +3,8 @@ import importlib.util
 import io
 import os
 from pathlib import Path
+import tarfile
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest import mock
@@ -97,6 +99,7 @@ class ToolchainMetadataTests(unittest.TestCase):
             label="metadata-test", cwd=self.cwd, target_dir=root / "probe-target",
             output=root / "probe-results.jsonl", jobs=3, sample_seconds=0.1,
             command=["--", "cargo", "+nightly", "check"],
+            source_archive=None,
         )
         process = mock.Mock(returncode=0)
         process.poll.return_value = 0
@@ -140,6 +143,36 @@ class ToolchainMetadataTests(unittest.TestCase):
         self.assertEqual(
             workload.call_args.args[0], [self.cargo, "+nightly", "check"]
         )
+
+
+class ArchiveSourceTests(unittest.TestCase):
+    def test_archive_measurement_verifies_bytes_without_any_git_context(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "lox-sim-0.1.0"
+            source.mkdir()
+            payload = b"actual extracted source"
+            (source / "lib.rs").write_bytes(payload)
+            archive_path = root / "lox-sim-0.1.0.crate"
+            with tarfile.open(archive_path, "w:gz") as archive:
+                member = tarfile.TarInfo("lox-sim-0.1.0/lib.rs")
+                member.size = len(payload)
+                archive.addfile(member, io.BytesIO(payload))
+            with mock.patch.object(measure.subprocess, "check_output",
+                                   side_effect=AssertionError("Archive source must not query Git")):
+                common, diff, info = measure.source_metadata(source, archive_path)
+            self.assertIsNone(common)
+            self.assertEqual(diff, b"")
+            self.assertEqual(info["source_kind"], "verified-cargo-archive")
+            self.assertIsNone(info["git_head"])
+            self.assertEqual(info["source_archive_members_verified"], 1)
+            (source / "lib.rs").write_bytes(b"modified source")
+            with self.assertRaisesRegex(ValueError, "extracted source differs"):
+                measure.source_metadata(source, archive_path)
+            (source / "lib.rs").write_bytes(payload)
+            (source / "unexpected.rs").write_bytes(b"not in the package")
+            with self.assertRaisesRegex(ValueError, "unexpected or missing files"):
+                measure.source_metadata(source, archive_path)
 
 
 if __name__ == "__main__":

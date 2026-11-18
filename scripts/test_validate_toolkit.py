@@ -208,9 +208,11 @@ class ValidationReuseTests(unittest.TestCase):
         library.parent.mkdir(parents=True)
         library.write_bytes(b"first native library")
         calls = []
+        commands = []
 
         def execute(command, env, log):
             calls.append(command[0])
+            commands.append(list(command))
             if command[0] == "cargo":
                 log.write_text(json.dumps({"reason": "compiler-artifact",
                                            "filenames": [str(library)]}) + "\n")
@@ -238,6 +240,11 @@ class ValidationReuseTests(unittest.TestCase):
                 mock.patch.object(VALIDATE, "native_tool_payloads", return_value={"compiler": "identity"}), \
                 mock.patch.object(VALIDATE, "execute", side_effect=execute):
             self.assertEqual(VALIDATE.main(args), 0)
+            self.assertEqual(commands[0][1], "rustc")
+            self.assertEqual(commands[0][commands[0].index("--crate-type") + 1], "cdylib")
+            first = json.loads(self.results.read_text())["native"]
+            retained_dll = Path(first["run_directory"]) / "current-library.dll"
+            self.assertEqual(retained_dll.read_bytes(), library.read_bytes())
             self.assertEqual(VALIDATE.main(args), 0)
             self.assertEqual(calls, ["cargo", "pwsh", "cargo"])
             library.write_bytes(b"changed native library, identical bindings source")
@@ -257,6 +264,42 @@ class ValidationReuseTests(unittest.TestCase):
             generated.write_bytes(b"modified generated API")
             self.assertEqual(VALIDATE.main(args), 0)
             self.assertEqual(calls[-2:], ["cargo", "pwsh"])
+
+    @unittest.skipUnless(os.name == "nt", "Existing native proof builder is Windows AMD64 only")
+    def test_native_mismatch_is_failed_and_preserves_actual_prebuild(self):
+        library = self.target / "release" / "lox_archive.dll"
+        library.parent.mkdir(parents=True)
+        library.write_bytes(b"original producer")
+
+        def execute(command, env, log):
+            if command[0] == "cargo":
+                log.write_text(json.dumps({"reason": "compiler-artifact",
+                                           "filenames": [str(library)]}) + "\n")
+            else:
+                output = Path(command[command.index("-OutputDirectory") + 1])
+                actual = output / "venv" / "Lib" / "site-packages" / "lox_archive" / "lox_archive.dll"
+                actual.parent.mkdir(parents=True)
+                actual.write_bytes(b"different actual wheel")
+                library.write_bytes(b"builder overwrote producer slot")
+                (output / "commands.json").write_text(json.dumps([{"exit_code": 0}]))
+                (output / "ARTIFACTS.json").write_text(json.dumps({"artifact_manifest": [
+                    {"path": str(actual.relative_to(output)), "sha256": VALIDATE.digest(actual)}]}))
+                log.write_bytes(b"native checks completed")
+            return {"command": list(command), "exit_code": 0, "seconds": .01, "log": str(log)}
+
+        args = ["native", "--target-dir", str(self.target), "--results", str(self.results),
+                "--maturin", "maturin", "--java-generator", "generator", "--java-home", "jdk",
+                "--kotlin-compiler", "kotlinc"]
+        with mock.patch.object(VALIDATE, "inputs", side_effect=self.fake_inputs), \
+                mock.patch.object(VALIDATE, "source_files", return_value=[self.source]), \
+                mock.patch.object(VALIDATE, "native_tool_payloads", return_value={"compiler": "identity"}), \
+                mock.patch.object(VALIDATE, "execute", side_effect=execute):
+            with self.assertRaisesRegex(RuntimeError, "Qualified native library differs"):
+                VALIDATE.main(args)
+        record = json.loads(self.results.read_text())["native"]
+        self.assertEqual(record["status"], "failed")
+        self.assertEqual((Path(record["run_directory"]) / "current-library.dll").read_bytes(),
+                         b"original producer")
 
 
 if __name__ == "__main__":

@@ -70,6 +70,9 @@ artifacts before retiring an idle package compiler cache. The entry point
 does not delete caches, move live targets, publish packages or push commits.
 Required independent review and publication-specific behavioral proofs remain
 separate obligations.
+Standalone measurement explicitly verifies every extracted file against the
+actual archive, rejects unexpected files and links, and records the archive
+digest rather than borrowing a parent Git worktree's identity.
 
 ## Native proof boundary
 
@@ -87,7 +90,10 @@ Use your installed tool paths. Versions and platform requirements of
 `build-archive-bindings.ps1` are unchanged. Kotlin uses the same generated Java
 API, not a separate implementation.
 
-Every invocation first asks Cargo to build the **current** release library.
+Every invocation first asks Cargo to build the **current** release `cdylib`
+with `cargo rustc --crate-type cdylib`, matching maturin's library kind rather
+than a generic combined `cdylib`/`rlib` build. Its bytes are retained before the
+existing builder can write the same output slot.
 Only identical library bytes, the conservative complete source inventory,
 toolchain/environment
 and all retained generated artifacts/fixtures/proof outputs can reuse the

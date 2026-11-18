@@ -94,6 +94,7 @@ def main():
             sys.executable, str(Path(__file__).resolve().with_name("measure-build.py")),
             "--label", label, "--cwd", str(source), "--target-dir", str(target),
             "--output", str(source.parent / "test-results.jsonl"),
+            "--source-archive", str(archive_path.resolve()),
         ]
         if args.jobs is not None:
             command.extend(["--jobs", str(args.jobs)])

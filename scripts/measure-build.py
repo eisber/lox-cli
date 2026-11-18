@@ -12,6 +12,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tarfile
 import time
 
 
@@ -168,6 +169,64 @@ def toolchain_metadata(command, executable, *, cwd, env):
     }
 
 
+def source_metadata(cwd, archive_path=None):
+    if archive_path is not None:
+        archive_path = archive_path.resolve()
+        count = 0
+        actual_files = set()
+        pending = [cwd]
+        while pending:
+            for entry in os.scandir(pending.pop()):
+                attributes = getattr(entry.stat(follow_symlinks=False), "st_file_attributes", 0)
+                if entry.is_symlink() or attributes & 0x400:
+                    raise ValueError(f"extracted source contains a link/reparse point: {entry.path}")
+                if entry.is_dir(follow_symlinks=False):
+                    pending.append(Path(entry.path))
+                else:
+                    actual_files.add(Path(entry.path).relative_to(cwd))
+        expected_files = set()
+        with tarfile.open(archive_path, "r:gz") as archive:
+            for member in archive.getmembers():
+                parts = Path(member.name).parts
+                if (not parts or parts[0] != cwd.name or ".." in parts
+                        or "\\" in member.name or ":" in member.name
+                        or member.issym() or member.islnk()):
+                    raise ValueError(f"unsafe or unexpected source archive entry: {member.name}")
+                if not member.isfile():
+                    continue
+                path = cwd.joinpath(*parts[1:])
+                expected_files.add(Path(*parts[1:]))
+                if not path.resolve().is_relative_to(cwd.resolve()):
+                    raise ValueError(f"source archive member escapes its directory: {member.name}")
+                with path.open("rb") as stream:
+                    actual = hashlib.file_digest(stream, "sha256").hexdigest()
+                expected = hashlib.sha256(archive.extractfile(member).read()).hexdigest()
+                if actual != expected:
+                    raise ValueError(f"extracted source differs from archive: {member.name}")
+                count += 1
+        if not count:
+            raise ValueError("source archive contains no files")
+        if actual_files != expected_files:
+            raise ValueError("extracted source has unexpected or missing files")
+        return None, b"", {
+            "source_kind": "verified-cargo-archive", "git_head": None, "git_status": None,
+            "source_archive": str(archive_path),
+            "source_archive_sha256": hashlib.sha256(archive_path.read_bytes()).hexdigest(),
+            "source_archive_members_verified": count,
+        }
+    common = Path(subprocess.check_output(
+        ["git", "rev-parse", "--git-common-dir"], cwd=cwd, text=True
+    ).strip())
+    if not common.is_absolute():
+        common = cwd / common
+    diff = subprocess.check_output(["git", "diff", "--binary"], cwd=cwd)
+    return common, diff, {
+        "source_kind": "git-worktree",
+        "git_head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=cwd, text=True).strip(),
+        "git_status": subprocess.check_output(["git", "status", "--short"], cwd=cwd, text=True).strip(),
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--label", required=True)
@@ -175,6 +234,8 @@ def main():
     parser.add_argument("--target-dir", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--jobs", type=int)
+    parser.add_argument("--source-archive", type=Path,
+                        help="Verify actual extracted package bytes instead of assuming a Git worktree")
     parser.add_argument("--sample-seconds", type=float, default=0.1)
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
@@ -187,14 +248,11 @@ def main():
         parser.error("supply a command and positive sampling interval/job count")
     cwd = args.cwd.resolve()
     target = args.target_dir.resolve()
-    common_git = Path(subprocess.check_output(
-        ["git", "rev-parse", "--git-common-dir"], cwd=cwd, text=True
-    ).strip())
-    if not common_git.is_absolute():
-        common_git = cwd / common_git
-    if target in {
-        (cwd / "target").resolve(), (common_git.resolve().parent / "target").resolve()
-    }:
+    common_git, source_diff, source_info = source_metadata(cwd, args.source_archive)
+    prohibited = {(cwd / "target").resolve()}
+    prohibited.add((common_git.resolve().parent / "target").resolve() if common_git
+                   else (cwd.parent / "target").resolve())
+    if target in prohibited:
         parser.error("use an isolated target directory, not the workspace target")
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -233,7 +291,6 @@ def main():
     log = output.with_name(f"{output.stem}-{args.label}.log")
     if log.exists():
         log = log.with_name(f"{log.stem}-{time.time_ns()}.log")
-    source_diff = subprocess.check_output(["git", "diff", "--binary"], cwd=cwd)
     patch = log.with_suffix(".patch")
     patch.write_bytes(source_diff)
     record = {
@@ -242,12 +299,7 @@ def main():
         "cwd": str(cwd),
         "target_dir": str(target),
         "command": command,
-        "git_head": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=cwd, text=True
-        ).strip(),
-        "git_status": subprocess.check_output(
-            ["git", "status", "--short"], cwd=cwd, text=True
-        ).strip(),
+        **source_info,
         "source_diff_sha256": hashlib.sha256(source_diff).hexdigest(),
         "source_diff_file": str(patch),
         **toolchain_metadata(command, executable, cwd=cwd, env=env),

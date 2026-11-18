@@ -244,11 +244,16 @@ def main(argv=None):
             parser.error("native requires --maturin, --java-generator, --java-home and --kotlin-compiler")
         # Always ask Cargo for the CURRENT library before considering native-proof reuse.
         native_source_guard = source_identity(source_files())
-        build = ["cargo", "build", "-p", "lox-bindings", "--lib", "--release",
-                 *cargo, "--message-format=json"]
+        build = ["cargo", "rustc", "--manifest-path", str(ROOT / "crates" / "lox-bindings" / "Cargo.toml"),
+                 "--lib", "--release", *cargo, "--message-format=json", "--crate-type", "cdylib"]
         row = execute(build, env, run_dir / "current-library.log")
         library_build = row
         if row["exit_code"]:
+            record = {"key": None, "status": "failed", "commands": [row],
+                      "artifacts": files_identity([run_dir / "current-library.log"]),
+                      "run_directory": str(run_dir), "error": "current native-library build failed"}
+            manifest["native"] = record
+            save_result(results, manifest, record)
             print(json.dumps(row))
             return row["exit_code"]
         library = target / "release" / ("lox_archive.dll" if os.name == "nt" else "liblox_archive.so")
@@ -257,6 +262,9 @@ def main(argv=None):
         if source_identity(source_files()) != native_source_guard:
             raise RuntimeError("Source changed during the current native-library build")
         native_key = digest(library)
+        shutil.copy2(library, run_dir / "current-library.dll")
+        if digest(run_dir / "current-library.dll") != native_key:
+            raise RuntimeError("Current native-library retention differs from the producer")
         tools = [sys.executable, args.maturin, args.java_generator, args.kotlin_compiler,
                  args.java_home / "bin" / "java.exe", args.java_home / "bin" / "javac.exe",
                  args.java_home / "bin" / "jar.exe", "pwsh"]
@@ -296,7 +304,12 @@ def main(argv=None):
         env["CARGO_TARGET_DIR"] = str(target / "clean-packages" / uuid.uuid4().hex)
         record["target"] = env["CARGO_TARGET_DIR"]
     native_dir = run_dir / "native"
-    artifacts = [run_dir / "current-library.log"] if library_build else []
+    artifacts = [run_dir / "current-library.log", run_dir / "current-library.dll"] if library_build else []
+
+    def refuse(message):
+        record.update(status="failed", error=message, artifacts=files_identity(artifacts))
+        save_result(results, manifest, record)
+        raise RuntimeError(message)
 
     def run(command, name, child_env):
         log = run_dir / (name + ".log")
@@ -345,20 +358,20 @@ def main(argv=None):
         ledger = native_dir / "commands.json"
         steps = json.loads(ledger.read_text(encoding="utf-8-sig"))
         if not steps or any(row["exit_code"] for row in steps):
-            raise RuntimeError("Native command evidence is incomplete or failed")
+            refuse("Native command evidence is incomplete or failed")
         artifacts.extend([proof, ledger, *native_dir.glob("*.log")])
         actual = native_dir / "venv" / "Lib" / "site-packages" / "lox_archive" / "lox_archive.dll"
         if digest(actual) != native_key:
-            raise RuntimeError("Qualified native library differs from the current Cargo build; no reusable success")
+            refuse("Qualified native library differs from the current Cargo build; no reusable success")
         if source_identity(source_files()) != native_source_guard:
-            raise RuntimeError("Source changed during native qualification")
+            refuse("Source changed during native qualification")
     # Check the same logical inputs, never the fresh-output command expansion.
     final = inputs(environment(results, target), commands[args.phase], tools=tools)
     if native_key:
         final["current_native_library_sha256"] = digest(library)
         final["native_tool_payloads"] = native_tool_payloads(args.java_home, args.kotlin_compiler)
     if final != fingerprint:
-        raise RuntimeError("Inputs changed during validation; success was not recorded")
+        refuse("Inputs changed during validation; success was not recorded")
     record["artifacts"] = files_identity(artifacts)
     record["status"] = "passed"
     save_result(results, manifest, record)
