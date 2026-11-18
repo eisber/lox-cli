@@ -2,6 +2,7 @@ import importlib.util
 import io
 from pathlib import Path
 import tarfile
+import tempfile
 import unittest
 
 
@@ -61,6 +62,27 @@ class PackageInventoryTests(unittest.TestCase):
         })
         self.assertEqual(len(report["errors"]), 2)
         self.assertTrue(all("unsafe archive entry" in error for error in report["errors"]))
+
+    def test_same_name_and_version_changed_source_gets_distinct_standalone_identity(self):
+        package_spec = importlib.util.spec_from_file_location(
+            "simulator_package", Path(__file__).with_name("test-simulator-package.py")
+        )
+        package = importlib.util.module_from_spec(package_spec)
+        package_spec.loader.exec_module(package)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            archive_path = root / "lox-sim-0.1.0.crate"
+            identities = []
+            for content in (b"original source", b"different source, identical package version"):
+                with tarfile.open(archive_path, "w:gz") as archive:
+                    for name, data in (("src/lib.rs", content), ("Cargo.lock", b"version = 4\n")):
+                        member = tarfile.TarInfo("lox-sim-0.1.0/" + name)
+                        member.size = len(data)
+                        archive.addfile(member, io.BytesIO(data))
+                source, identity, _ = package.unpack_archive(archive_path, root / "unpacked")
+                identities.append(identity)
+                self.assertEqual((source / "src/lib.rs").read_bytes(), content)
+            self.assertNotEqual(*identities)
 
 
 if __name__ == "__main__":

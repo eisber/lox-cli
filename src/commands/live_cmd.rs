@@ -261,9 +261,43 @@ mod tests {
     use httpmock::{Method::GET, MockServer};
     use std::time::Duration;
 
+    fn read_timeout_fixture_headers(socket: &mut impl std::io::Read) -> std::io::Result<bool> {
+        let mut request = Vec::new();
+        while !request.ends_with(b"\r\n\r\n") {
+            let mut byte = [0];
+            if let Err(error) = socket.read_exact(&mut byte) {
+                match error.kind() {
+                    std::io::ErrorKind::UnexpectedEof | std::io::ErrorKind::ConnectionReset => {
+                        return Ok(false);
+                    }
+                    _ => return Err(error),
+                }
+            }
+            request.push(byte[0]);
+        }
+        Ok(true)
+    }
+
+    #[test]
+    fn timeout_fixture_accepts_a_client_cancelled_before_complete_headers() {
+        use std::io::Write;
+        use std::net::{Shutdown, TcpListener, TcpStream};
+
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let mut client = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        client.write_all(b"GET / HTTP/1.1\r\n").unwrap();
+        client.shutdown(Shutdown::Write).unwrap();
+        let (mut socket, _) = listener.accept().unwrap();
+        socket
+            .set_read_timeout(Some(Duration::from_secs(3)))
+            .unwrap();
+        assert!(!read_timeout_fixture_headers(&mut socket).unwrap());
+        assert!(read_timeout_fixture_headers(&mut &b"GET / HTTP/1.1\r\n\r\n"[..]).unwrap());
+    }
+
     #[test]
     fn legacy_phase_timeouts_preserve_actual_blocking_messages_and_categories() {
-        use std::io::{Read, Write};
+        use std::io::Write;
         use std::net::TcpListener;
         use std::thread;
 
@@ -279,11 +313,11 @@ mod tests {
                             socket
                                 .set_read_timeout(Some(Duration::from_secs(3)))
                                 .unwrap();
-                            let mut request = Vec::new();
-                            while !request.ends_with(b"\r\n\r\n") {
-                                let mut byte = [0];
-                                socket.read_exact(&mut byte).unwrap();
-                                request.push(byte[0]);
+                            if !read_timeout_fixture_headers(&mut socket).unwrap() {
+                                eprintln!(
+                                    "timeout fixture: client cancelled before complete headers"
+                                );
+                                return;
                             }
                             if body_phase {
                                 socket
