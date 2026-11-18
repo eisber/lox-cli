@@ -262,20 +262,26 @@ mod tests {
     use std::time::Duration;
 
     fn read_timeout_fixture_headers(socket: &mut impl std::io::Read) -> std::io::Result<bool> {
+        Ok(read_timeout_fixture_request(socket)?.is_some())
+    }
+
+    fn read_timeout_fixture_request(
+        socket: &mut impl std::io::Read,
+    ) -> std::io::Result<Option<Vec<u8>>> {
         let mut request = Vec::new();
         while !request.ends_with(b"\r\n\r\n") {
             let mut byte = [0];
             if let Err(error) = socket.read_exact(&mut byte) {
                 match error.kind() {
                     std::io::ErrorKind::UnexpectedEof | std::io::ErrorKind::ConnectionReset => {
-                        return Ok(false);
+                        return Ok(None);
                     }
                     _ => return Err(error),
                 }
             }
             request.push(byte[0]);
         }
-        Ok(true)
+        Ok(Some(request))
     }
 
     #[test]
@@ -293,6 +299,29 @@ mod tests {
             .unwrap();
         assert!(!read_timeout_fixture_headers(&mut socket).unwrap());
         assert!(read_timeout_fixture_headers(&mut &b"GET / HTTP/1.1\r\n\r\n"[..]).unwrap());
+    }
+
+    #[test]
+    fn timeout_fixture_retains_complete_headers_after_client_cancellation() {
+        use std::io::Write;
+        use std::net::{Shutdown, TcpListener, TcpStream};
+
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let mut client = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let request = b"GET /jdev/sys/date HTTP/1.1\r\nHost: localhost\r\n\r\n";
+        client.write_all(request).unwrap();
+        client.shutdown(Shutdown::Both).unwrap();
+        drop(client);
+        let (mut socket, _) = listener.accept().unwrap();
+        socket
+            .set_read_timeout(Some(Duration::from_secs(3)))
+            .unwrap();
+        assert_eq!(
+            read_timeout_fixture_request(&mut socket)
+                .unwrap()
+                .as_deref(),
+            Some(request.as_slice())
+        );
     }
 
     #[test]
@@ -427,35 +456,99 @@ mod tests {
 
     #[test]
     fn clock_timeout_category_matches_legacy_transport() {
-        let server = MockServer::start();
-        let date = server.mock(|when, then| {
-            when.method(GET).path("/jdev/sys/date");
-            then.delay(Duration::from_millis(200)).body("{}");
-        });
-        let mut legacy = LoxClient::new(Config {
-            host: server.base_url(),
-            user: "clock-test".into(),
-            pass: "synthetic-only".into(),
-            ..Config::default()
-        })
-        .unwrap();
-        legacy.client = reqwest::blocking::Client::builder()
-            .no_proxy()
-            .timeout(Duration::from_millis(20))
-            .build()
+        use std::net::TcpListener;
+        use std::sync::mpsc;
+        use std::thread;
+        use std::time::Instant;
+
+        thread::scope(|scope| {
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            listener.set_nonblocking(true).unwrap();
+            let host = format!("http://{}", listener.local_addr().unwrap());
+            let (ready, started) = mpsc::sync_channel(0);
+            let worker = scope.spawn(move || {
+                let deadline = Instant::now() + Duration::from_secs(3);
+                let mut responses = Vec::new();
+                ready.send(()).unwrap();
+                while responses.len() < 5 {
+                    match listener.accept() {
+                        Ok((mut socket, _)) => responses.push(scope.spawn(move || {
+                            socket.set_nonblocking(false).unwrap();
+                            socket
+                                .set_read_timeout(Some(Duration::from_secs(3)))
+                                .unwrap();
+                            let request = read_timeout_fixture_request(&mut socket)
+                                .unwrap()
+                                .expect("Expected complete clock request headers");
+                            thread::sleep(Duration::from_millis(200));
+                            request
+                        })),
+                        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                            assert!(
+                                Instant::now() < deadline,
+                                "Missing clock request connection"
+                            );
+                            thread::park_timeout(Duration::from_millis(1));
+                        }
+                        Err(error) => panic!("Clock fixture accept failed: {error}"),
+                    }
+                }
+                let requests: Vec<_> = responses
+                    .into_iter()
+                    .map(|response| response.join().unwrap())
+                    .collect();
+                (listener, requests)
+            });
+            started.recv_timeout(Duration::from_secs(3)).unwrap();
+            let mut legacy = LoxClient::new(Config {
+                host: host.clone(),
+                user: "clock-test".into(),
+                pass: "synthetic-only".into(),
+                ..Config::default()
+            })
             .unwrap();
-        let legacy_error = legacy.get_json("/jdev/sys/date").unwrap_err();
-        let mut options = ClockOptions::new(server.base_url(), "clock-test", "synthetic-only");
-        options.use_system_proxy = false;
-        options.timeout = Duration::from_millis(20);
-        options.retry_delays.clear();
-        let driver = ClockDriver::new(options).unwrap();
-        let error = clock_error(driver.read_clock(&Cancellation::new()).unwrap_err());
-        driver.close().unwrap();
-        assert_eq!(
-            crate::categorize_error(&error),
-            crate::categorize_error(&legacy_error)
-        );
-        date.assert_hits(5);
+            legacy.client = reqwest::blocking::Client::builder()
+                .no_proxy()
+                .timeout(Duration::from_millis(20))
+                .build()
+                .unwrap();
+            let legacy_error = legacy.get_json("/jdev/sys/date").unwrap_err();
+            let mut options = ClockOptions::new(host, "clock-test", "synthetic-only");
+            options.use_system_proxy = false;
+            options.timeout = Duration::from_millis(20);
+            options.retry_delays.clear();
+            let driver = ClockDriver::new(options).unwrap();
+            let error = clock_error(driver.read_clock(&Cancellation::new()).unwrap_err());
+            driver.close().unwrap();
+            drop(legacy);
+            let (listener, requests) = worker.join().unwrap();
+            assert!(
+                legacy_error
+                    .downcast_ref::<reqwest::Error>()
+                    .unwrap()
+                    .is_timeout()
+            );
+            assert!(matches!(
+                error.downcast_ref::<ClockError>(),
+                Some(ClockError::Transport {
+                    kind: lox_core::runtime::TransportFailure::Timeout,
+                    ..
+                })
+            ));
+            assert_eq!(
+                crate::categorize_error(&error),
+                crate::categorize_error(&legacy_error)
+            );
+            assert_eq!(requests.len(), 5);
+            assert!(
+                requests
+                    .iter()
+                    .all(|request| { request.starts_with(b"GET /jdev/sys/date HTTP/1.1\r\n") })
+            );
+            assert!(matches!(
+                listener.accept(),
+                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock
+            ));
+        });
     }
 }
