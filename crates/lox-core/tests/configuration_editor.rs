@@ -1447,3 +1447,137 @@ fn status_monitor_inspection_keeps_strict_state_identity_and_shape() {
         Failure::DuplicateValue { value } if value == 0.0
     ));
 }
+
+mod load_manager {
+    use lox_core::configuration::editor::{
+        EditError, LoadManagerInspectionError as Failure, SelectionError,
+        inspect_load_manager as inspect,
+    };
+    use std::{collections::BTreeMap, error::Error};
+
+    fn document() -> String {
+        let rows: String = [5, 0, 3, 1, 2, 4, 6, 7, 8, 9, 10, 11]
+                .into_iter()
+                .map(|index| match index {
+                    5 => r#"<l:Load xmlns:l="urn:synthetic" ioIdx="05" nm=" A &amp; B " pwr="02.5000e0" minOn="+0012" Future=""/>"#.to_owned(),
+                    0 => r#"<Load nm="" maxOff="" pwr="unknown" Note="at 7am=ok"/>"#.to_owned(),
+                    _ => format!(r#"<Load ioIdx="{index}"/>"#),
+                })
+                .collect();
+        format!(
+            "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+                 <Loxone iObjS=\"\"><C Type=\"Place\" Title=\"Workshop\" U=\"room\"/>\
+                 <C Type=\"LoadShed\" U=\"Manager\" Title=\"Loads\" gid=\"primary\">\
+                 <IoData Pr=\"room\"/><Other><Load ioIdx=\"invalid\"/></Other>{rows}</C>\
+                 <C Type=\"Switch\" U=\"Manager\" Title=\"Loads\"/></Loxone>\r\n"
+        )
+    }
+
+    #[test]
+    fn inspection_observes_xml_order_resolved_identity_and_loader_values() {
+        let xml = document();
+        let inspection = inspect(xml.as_bytes(), "uuid:Manager").unwrap();
+        for selector in ["load", "load [work]", "gid:PRIMARY", "Type:loadshed"] {
+            assert_eq!(inspect(xml.as_bytes(), selector).unwrap(), inspection);
+        }
+        assert_eq!(
+            (inspection.uuid.as_str(), inspection.title.as_str()),
+            ("Manager", "Loads")
+        );
+        assert_eq!(
+            inspection
+                .loads
+                .iter()
+                .map(|load| (load.priority, load.io_index))
+                .collect::<Vec<_>>(),
+            [
+                (1, 5),
+                (2, 0),
+                (3, 3),
+                (4, 1),
+                (5, 2),
+                (6, 4),
+                (7, 6),
+                (8, 7),
+                (9, 8),
+                (10, 9),
+                (11, 10),
+                (12, 11),
+            ]
+        );
+        assert_eq!(
+            inspection.loads[0].attributes,
+            BTreeMap::from([
+                ("ioIdx".into(), "05".into()),
+                ("nm".into(), " A & B ".into()),
+                ("pwr".into(), "02.5000e0".into()),
+                ("minOn".into(), "+0012".into()),
+                ("Future".into(), "".into()),
+            ])
+        );
+        assert_eq!(
+            inspection.loads[1].attributes,
+            BTreeMap::from([
+                ("nm".into(), "".into()),
+                ("maxOff".into(), "".into()),
+                ("pwr".into(), "unknown".into()),
+                ("Note".into(), "at _7am=ok".into()),
+            ])
+        );
+        assert_eq!(inspection.loads[2].attributes.len(), 1);
+
+        let unnamed = xml.replace(r#" U="Manager" Title="Loads" gid="primary""#, "");
+        let unnamed = inspect(unnamed.as_bytes(), "Type:LoadShed").unwrap();
+        assert!(unnamed.uuid.is_empty() && unnamed.title.is_empty());
+    }
+
+    #[test]
+    fn inspection_preserves_loader_and_selector_refusals_before_shape_checks() {
+        let error = inspect(b"<Loxone><C></Loxone>", "Missing").unwrap_err();
+        assert!(matches!(&error, Failure::Edit(EditError::Load(_))));
+        assert!(error.source().and_then(|cause| cause.source()).is_some());
+
+        let xml = document();
+        assert!(matches!(
+            inspect(xml.as_bytes(), "uuid:manager"),
+            Err(Failure::Edit(EditError::Selection(SelectionError::NotFound { selector, .. })))
+                if selector == "uuid:manager"
+        ));
+        let ambiguous = xml.replace(r#"Type="Switch" U="Manager""#, r#"Type="Switch" U="Other""#);
+        assert!(matches!(
+            inspect(ambiguous.as_bytes(), "Loads"),
+            Err(Failure::Edit(EditError::Selection(SelectionError::Ambiguous { matches, .. })))
+                if matches.len() == 2 && matches[1].block_type == "Switch"
+        ));
+        let wrong_type = xml.replace(r#"Type="LoadShed""#, r#"Type="loadshed""#);
+        assert!(matches!(
+            inspect(wrong_type.as_bytes(), "Type:LoadShed"),
+            Err(Failure::NotLoadManager { selector }) if selector == "Type:LoadShed"
+        ));
+    }
+
+    #[test]
+    fn inspection_types_complete_shape_and_identity_refusals() {
+        let xml = document();
+        let invalid = |replacement: &str| xml.replace(r#"ioIdx="1""#, replacement);
+        let missing_row = invalid(r#"ioIdx="+1""#).replace(r#"<Load ioIdx="11"/>"#, "");
+        assert!(matches!(
+            inspect(missing_row.as_bytes(), "Loads"),
+            Err(Failure::RecordCount { found: 11 })
+        ));
+        for raw in ["", "+1", " 1", "12", "other"] {
+            let changed = invalid(&format!(r#"ioIdx="{raw}""#));
+            assert!(matches!(
+                inspect(changed.as_bytes(), "Loads"),
+                Err(Failure::InvalidIoIndex { raw: observed }) if observed == raw
+            ));
+        }
+        for replacement in [r#"ioIdx="000""#, ""] {
+            let changed = invalid(replacement);
+            assert!(matches!(
+                inspect(changed.as_bytes(), "Loads"),
+                Err(Failure::DuplicateIoIndex { io_index: 0 })
+            ));
+        }
+    }
+}

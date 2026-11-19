@@ -12,6 +12,7 @@ mod daytimer;
 mod description;
 pub(super) mod legacy;
 mod lighting;
+mod load_manager;
 mod moods;
 #[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
 #[doc(hidden)]
@@ -49,6 +50,9 @@ pub use lighting::{
     LightingInspection, LightingInspectionError, LightingStorage, StoredLightingChannel,
     StoredLightingMood, StoredLightingOutput, StoredLightingWire, inspect_lighting,
 };
+pub use load_manager::{
+    LoadManagerInspection, LoadManagerInspectionError, LoadManagerLoad, inspect_load_manager,
+};
 pub use moods::{MoodInfo, MoodInventoryError, list_moods};
 pub use permissions::{
     DirectPermission, PermissionPrincipal, PrincipalKind, PrincipalPermissions,
@@ -69,6 +73,13 @@ pub use unwire::{UnwireChange, UnwireError, UnwireOutcome, unwire};
 #[doc(hidden)]
 pub mod legacy_central_light_links {
     pub use super::central_light_links::{LINKED, collect_controls, flags, identity, links};
+}
+
+/// Existing read-side validators also used by the legacy binary's edits.
+#[cfg(feature = "unstable-legacy-cli-editor")]
+#[doc(hidden)]
+pub mod legacy_load_manager {
+    pub use super::load_manager::{load_positions, resolve_io_index};
 }
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.

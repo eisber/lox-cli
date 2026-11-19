@@ -94,6 +94,18 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   runtime behavior, native validation or foreign binding is provided.
 
 - Source candidate, optional `configuration-editor`:
+  `configuration::editor::inspect_load_manager(bytes, selector)` reads the
+  selected `C Type="LoadShed"` through the same producer as the cached CLI.
+  Exactly twelve direct `Load` records are required. Returned records retain
+  XML order, loader-decoded attributes and resolved unique connector indices
+  in 0..=11. An absent `ioIdx` resolves to zero but remains absent from the raw
+  map. Name, power, timing and unknown attributes are not interpreted or
+  defaulted. `LoadManagerInspectionError` wraps original editor failures and
+  distinguishes wrong type, record count and invalid or duplicate indices.
+  The shared loader limitation `lox-n37w` is unchanged. No native validation,
+  runtime priority semantics, mutation or foreign binding is provided.
+
+- Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_central_light_links(bytes, selector)` shares
   the cached `lox config central-light inspect` matcher. It returns owned
   references in stored `linkC` order, with their original UUID spelling and

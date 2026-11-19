@@ -421,8 +421,10 @@ nonnumeric values are conservatively rejected, even where the native parser
 would tolerate them; stored values are never silently normalized.
 Sparse/extended lists, wrong block types, ambiguous selectors and moves past
 either boundary fail without writing. `--room`/`-r` disambiguates
-the block; do not combine it with a bracket room qualifier. JSON includes every
-stored load attribute; table/CSV shows priority, io-index and name.
+the block; do not combine it with a bracket room qualifier. JSON shows load
+attributes as read by the shared loader, without defaulting missing values.
+The loader's known quoted-text limitation (`lox-n37w`) still applies.
+Table/CSV shows XML order (`priority`), io-index and name (blank when absent).
 
 This is a Config 17.2.10.21 source-recovered operation, not EnergyManager2's
 separate load model. Moving does not add/delete loads or edit power/timing settings,
