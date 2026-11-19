@@ -1,0 +1,24 @@
+<Root xmlns:ext="urn:future">
+  <C Type="Place" U="r" Title="Kitchen"/>
+  <C Type="LightController2" U="lc" Title="Kitchen lamps" gid="light">
+    <IoData Pr="r"/>
+    <Unknown>
+      <LightsceneC Name="Outer &amp; 灯" UUID="same" SID="+002" CID="-3" Q1="00037">
+        <LightsceneC Name="Inner" UUID="same" SID="2" CID=" 3" Q1=""/>
+      </LightsceneC>
+    </Unknown>
+    <LightscenesC Num="99">
+      <LightsceneC SID="9223372036854775808" CID="future" Q2="ignored"/>
+      <ext:LightsceneC Name="" UUID="" SID="" CID="9223372036854775807" Q1="opaque&amp;unparsed"/>
+      <lightscenec Name="wrong spelling"/>
+    </LightscenesC>
+  </C>
+  <C Type="LightController2" U="lc" Title="Kitchen lamps">
+    <LightsceneC Name="mirror"/>
+  </C>
+  <C Type="LightController2" U="empty"/>
+  <C Type="And" U="a" Title="Mixed lights"/>
+  <C Type="LightController2" U="b" Title="Mixed lights"/>
+  <C Type="lightcontroller2" U="case" Title="Case only"/>
+  <C U="sparse"/>
+</Root>
