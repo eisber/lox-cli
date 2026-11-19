@@ -1892,4 +1892,208 @@ mod load_manager {
             ));
         }
     }
+
+    #[cfg(feature = "configuration-xml")]
+    mod movement {
+        use super::inspect;
+        use chrono::{DateTime, FixedOffset};
+        use lox_core::configuration::editor::{
+            LoadManagerInspectionError, LoadManagerMove,
+            LoadManagerMoveDirection::{Down, Up},
+            LoadManagerMoveError as Refusal, move_load_manager_load as move_load,
+        };
+
+        fn clock() -> DateTime<FixedOffset> {
+            DateTime::parse_from_rfc3339("2009-01-02T01:59:59+02:00").unwrap()
+        }
+
+        fn document() -> String {
+            let rest: String = [3, 1, 2, 4, 6, 7, 8, 9, 10, 11]
+                .into_iter()
+                .map(|index| format!(r#"<Load ioIdx="{index}"/>"#))
+                .collect();
+            format!(
+                "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+                <Loxone><C Type=\"Document\" Date=\"old\" DateS=\"86400\">\
+                <C Type=\"Place\" U=\"room\" Title=\"Workshop\"/><C Type=\"Page\" WF=\"16384\">\
+                <C Type=\"LoadShed\" U=\"manager\" Title=\"Loads\" WF=\"16384\">\
+                <IoData Pr=\"room\"/><Co K=\"AQl1\" U=\"wire\" U=\"wire\" 12hTF=\"true\"/>\
+                <Load ioIdx=\"05\" nm=\"Five\" pwr=\"2.5000e0\" maxOff=\"123\" minOn=\"+0045\"><Extra U=\"Five\"/></Load>\
+                <Between/><Other><Load ioIdx=\"invalid\"/></Other>\
+                <!-- <x:Load xmlns:x='urn:comment'/> <Fake xml:Type='Document'/> -->\
+                <Opaque><![CDATA[<Fake xml:Type='Document'/>]]></Opaque>\
+                <Load nm=\" A &amp; B \" Unknown=\"zero\"><Empty/></Load>\
+                {rest}</C></C></C></Loxone>\r\n"
+            )
+        }
+
+        #[test]
+        fn swaps_adjacent_record_slots_by_connector_and_serializes_with_explicit_clock() {
+            let xml = document();
+            let source = xml.as_bytes();
+            let before = inspect(source, "Loads [Work]").unwrap();
+            let result = move_load(source, "Loads [Work]", 0, Up, &clock()).unwrap();
+            assert_eq!(
+                result.movement,
+                LoadManagerMove {
+                    io_index: 0,
+                    from_priority: 2,
+                    to_priority: 1,
+                }
+            );
+            assert!(result.document_stamped);
+            assert_eq!(
+                result.inspection.loads[0].attributes,
+                before.loads[1].attributes
+            );
+            assert_eq!(
+                result.inspection.loads[1].attributes,
+                before.loads[0].attributes
+            );
+            assert!(!result.inspection.loads[0].attributes.contains_key("ioIdx"));
+            assert_eq!(result.inspection.loads[2..], before.loads[2..]);
+            assert_eq!(
+                inspect(&result.bytes, "uuid:manager").unwrap(),
+                result.inspection
+            );
+
+            let saved = std::str::from_utf8(&result.bytes).unwrap();
+            assert!(saved.starts_with("\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"));
+            assert!(saved.ends_with("</Loxone>\r\n"));
+            assert!(saved.contains(r#"Date="2009-01-02 02:00:01" DateS="86401""#));
+            assert!(saved.contains(r#"<Co K="AQl1" U="wire" 12hTF="true"/>"#));
+            let positions = [
+                r#"<Load nm=" A &amp; B " Unknown="zero">"#,
+                "<Empty></Empty>",
+                "<Between></Between>",
+                r#"<Load ioIdx="invalid"/>"#,
+                "<!-- <x:Load",
+                "<![CDATA[<Fake xml:Type='Document'/>]]>",
+                r#"<Load ioIdx="05" nm="Five" pwr="2.5000e0" maxOff="123" minOn="+0045">"#,
+                r#"<Extra U="Five"/>"#,
+                r#"<Load ioIdx="3"/>"#,
+            ]
+            .map(|part| saved.find(part).unwrap());
+            assert!(positions.windows(2).all(|pair| pair[0] < pair[1]));
+        }
+
+        #[test]
+        fn types_boundaries_and_preserves_existing_shape_validation() {
+            let xml = document();
+            assert!(matches!(
+                move_load(xml.as_bytes(), "Loads", 5, Up, &clock()),
+                Err(Refusal::Boundary {
+                    io_index: 5,
+                    direction: Up
+                })
+            ));
+            assert!(matches!(
+                move_load(xml.as_bytes(), "Loads", 11, Down, &clock()),
+                Err(Refusal::Boundary {
+                    io_index: 11,
+                    direction: Down
+                })
+            ));
+            assert!(matches!(
+                move_load(xml.as_bytes(), "Loads", 12, Down, &clock()),
+                Err(Refusal::InvalidRequestedIoIndex { io_index: 12 })
+            ));
+            let check =
+                |xml: String| move_load(xml.as_bytes(), "Loads", 0, Up, &clock()).unwrap_err();
+            assert!(matches!(
+                check(xml.replace(
+                    r#"<Load ioIdx="11"/>"#,
+                    r#"<Other><Load ioIdx="11"/></Other>"#
+                )),
+                Refusal::Inspection(LoadManagerInspectionError::RecordCount { found: 11 })
+            ));
+            assert!(matches!(
+                check(xml.replace(r#"ioIdx="05""#, r#"ioIdx="000""#)),
+                Refusal::Inspection(LoadManagerInspectionError::DuplicateIoIndex { io_index: 0 })
+            ));
+            assert!(matches!(
+                check(xml.replace(r#"ioIdx="05""#, r#"ioIdx="+5""#)),
+                Refusal::Inspection(LoadManagerInspectionError::InvalidIoIndex { raw })
+                    if raw == "+5"
+            ));
+        }
+
+        #[test]
+        fn refuses_namespaces_template_ownership_and_multiple_roots() {
+            let xml = document();
+            let check =
+                |xml: String| move_load(xml.as_bytes(), "Loads", 0, Up, &clock()).unwrap_err();
+            for namespaced in [
+                xml.replace(r#"Type="LoadShed""#, r#"xml:Type="LoadShed""#),
+                xml.replace(r#"ioIdx="05""#, r#"xml:ioIdx="05""#),
+                xml.replace(r#"DateS="86400""#, r#"xml:DateS="86400""#),
+                xml.replace("<Loxone>", r#"<Loxone xmlns="urn:inherited">"#),
+                xml.replace(
+                    r#"<Load ioIdx="11"/>"#,
+                    r#"<x:Load xmlns:x="urn:load" ioIdx="11"/>"#,
+                ),
+            ] {
+                assert!(matches!(check(namespaced), Refusal::NamespacedXml));
+            }
+            for template in [
+                xml.replace(
+                    r#"DateS="86400">"#,
+                    r#"DateS="86400"><Template IfT="false"/>"#,
+                ),
+                xml.replace(
+                    r#"DateS="86400">"#,
+                    r#"DateS="86400"><C Type="DocumentTemplate"/>"#,
+                ),
+                xml.replace(r#"Type="Document""#, r#"Type="DocumentTemplate""#),
+                xml.replace("</Loxone>", r#"<C Type="DocumentTemplate"/></Loxone>"#),
+                xml.replace(r#"Type="Page" WF="16384""#, r#"Type="Page" WF="536887296""#),
+                xml.replace(r#"Type="Page""#, r#"Type="Page" uuidParent="inherited""#),
+                xml.replace(r#"Type="LoadShed""#, r#"Type="LoadShed" IfT="false""#),
+            ] {
+                assert!(matches!(check(template), Refusal::TemplateOrInherited));
+            }
+            assert!(matches!(
+                check(xml.replace("</Loxone>", r#"<C Type="Document"/></Loxone>"#)),
+                Refusal::DocumentScope
+            ));
+            assert!(matches!(
+                check(xml.replace("</Loxone>", "</Loxone><Hidden/>")),
+                Refusal::UnsupportedXml
+            ));
+            assert!(matches!(
+                check(xml.replace("<Loxone>", "<!DOCTYPE Loxone><Loxone>")),
+                Refusal::UnsupportedXml
+            ));
+            let latin1 = xml
+                .trim_start_matches('\u{feff}')
+                .replace("utf-8", "ISO-8859-1")
+                .replace("Five", "Fünf");
+            assert!(matches!(check(latin1), Refusal::UnsupportedXml));
+        }
+
+        #[test]
+        fn refuses_when_mixed_row_children_would_reselect_another_owner() {
+            let xml = document()
+                .replace(
+                    r#"<Extra U="Five"/>"#,
+                    r#"<C Type="Place" U="room" Title="Garage"/><C Type="Place" U="room2" Title="Workshop"/>"#,
+                )
+                .replace(
+                    "<Empty/>",
+                    r#"<C Type="Place" U="room" Title="Workshop"/><C Type="Place" U="room2" Title="Garage"/>"#,
+                )
+                .replace(
+                    "</C></C></C></Loxone>",
+                    r#"</C><C Type="LoadShed" U="other" Title="Loads"><IoData Pr="room2"/></C></C></C></Loxone>"#,
+                );
+            assert_eq!(
+                inspect(xml.as_bytes(), "Loads [Work]").unwrap().uuid,
+                "manager"
+            );
+            assert!(matches!(
+                move_load(xml.as_bytes(), "Loads [Work]", 0, Up, &clock()),
+                Err(Refusal::SelectedOwnerChanged)
+            ));
+        }
+    }
 }

@@ -7333,6 +7333,43 @@ sleep</Field>
     }
 
     #[test]
+    fn test_save_edited_load_manager_compares_canonical_reread_not_initial_source() {
+        use crate::config_edit::load_manager::LoadMoveDirection;
+
+        let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+        let input = dir.path().join("input.Loxone");
+        let output = dir.path().join("output.Loxone");
+        let rows: String = (0..12).map(|i| format!(r#"<Load ioIdx="{i}"/>"#)).collect();
+        let xml = format!(
+            r#"<C Type="Document" Date="original" DateS="2147483647"><C Type="LoadShed" U="manager">{rows}</C></C>"#
+        );
+        let equivalent = xml.replace(
+            r#"<Load ioIdx="0"/><Load ioIdx="1"/>"#,
+            r#"<Load ioIdx="1"></Load><Load ioIdx="0"/>"#,
+        );
+        for (reread, expected_stamp) in [(&equivalent, "2147483647"), (&xml, "2147483648")] {
+            fs::write(&input, &xml).unwrap();
+            let mut editor = ConfigEditor::load(&fs::read(&input).unwrap()).unwrap();
+            editor
+                .move_load_manager_load("uuid:manager", 0, LoadMoveDirection::Down)
+                .unwrap();
+            editor.inspect_load_manager("uuid:manager").unwrap();
+            fs::write(&input, reread).unwrap();
+            save_edited_with_quiet(
+                &mut editor,
+                input.to_str().unwrap(),
+                Some(output.to_str().unwrap()),
+                true,
+            )
+            .unwrap();
+            let saved = fs::read_to_string(&output).unwrap();
+            assert!(saved.contains(&format!(r#"DateS="{expected_stamp}""#)));
+            assert_eq!(fs::read_to_string(&input).unwrap(), *reread);
+            fs::remove_file(&output).unwrap();
+        }
+    }
+
+    #[test]
     fn test_cmd_rejects_zip() {
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("config.zip");
