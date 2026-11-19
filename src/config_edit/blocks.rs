@@ -1,20 +1,7 @@
-use super::{ConfigEditor, ConnectorMap, remove_by_uuid};
+use super::{ConfigEditor, ConnectorMap, VirtualInOpts, remove_by_uuid, selection_error};
 use anyhow::Result;
+use lox_core::configuration::editor::{InputRefIds, LegacyVirtualInputCreation, VirtualInIds};
 use xmltree::Element;
-
-/// Options for [`ConfigEditor::add_virtual_in`].
-#[derive(Default, Clone)]
-pub struct VirtualInOpts {
-    /// Analog (true) vs digital (false) Virtual Input.
-    pub analog: bool,
-    /// Optional minimum value (analog only). When unset, no `MinVal` is emitted.
-    pub min: Option<f64>,
-    /// Optional maximum value (analog only). When unset, **no** `MaxVal` is
-    /// emitted so the input does not silently clamp (e.g. a color composite).
-    pub max: Option<f64>,
-    /// Optional display unit format string (e.g. `"<v>"`, `"<v.1>°C"`).
-    pub unit: Option<String>,
-}
 
 impl ConfigEditor {
     /// Add a child element under a parent. Returns the generated UUID.
@@ -259,243 +246,44 @@ impl ConfigEditor {
     ///
     /// Returns `(virtual_in_uuid, input_ref_aq_uuid)`: the VirtualIn element's own UUID
     /// (what user permissions, `PRM REF`, refer to) and the UUID of its InputRef's AQ
-    /// output (what blocks wire from).
+    /// output (what blocks wire from). For legacy files without a Page the AQ
+    /// identity is still returned, but no InputRef is placed.
     pub fn add_virtual_in(
         &mut self,
         title: &str,
         opts: &VirtualInOpts,
         parent_selector: &str,
     ) -> Result<(String, String)> {
-        let analog = opts.analog;
-        let parent_path = self.require_one(parent_selector)?;
-
-        // Extract Miniserver serial from existing UUIDs (last 12 hex chars after "ffff")
-        let serial = self.find_miniserver_serial().unwrap_or_default();
-
-        // Generate Loxone-format UUIDs: {random}-ffff{serial}
-        let block_uuid = Self::loxone_uuid(&serial);
-        let conn_uuid = Self::loxone_uuid(&serial);
-        let conn_qm_uuid = Self::loxone_uuid(&serial);
-
-        // Find next free IName index (VI0, VI1, VI2, ...)
-        let iname = self.next_iname("VI");
-
-        // Sanitize title to create a safe VIName (lowercase, underscores)
-        let _vi_name: String = title
-            .chars()
-            .map(|c| {
-                if c.is_alphanumeric() {
-                    c.to_ascii_lowercase()
-                } else {
-                    '_'
-                }
-            })
-            .collect();
-
-        let mut elem = Element::new("C");
-        elem.attributes
-            .insert("Type".to_string(), "VirtualIn".to_string());
-        elem.attributes.insert("IName".to_string(), iname);
-        elem.attributes.insert("V".to_string(), "175".to_string());
-        elem.attributes.insert("U".to_string(), block_uuid.clone());
-        elem.attributes
-            .insert("Title".to_string(), title.to_string());
-        elem.attributes
-            .insert("Cl".to_string(), "238,238,238".to_string());
-        elem.attributes
-            .insert("Analog".to_string(), analog.to_string());
-        elem.attributes.insert("Nio".to_string(), "2".to_string());
-        elem.attributes
-            .insert("WF".to_string(), "16400".to_string());
-        elem.attributes.insert("Idx".to_string(), "-1".to_string());
-        elem.attributes.insert("ValOT".to_string(), "1".to_string());
-        if analog {
-            elem.attributes
-                .insert("EnVal".to_string(), "true".to_string());
-            elem.attributes
-                .insert("MinChange".to_string(), "0.25".to_string());
-            elem.attributes
-                .insert("MinTime".to_string(), "1000".to_string());
-            if let Some(min) = opts.min {
-                elem.attributes.insert("MinVal".to_string(), fmt_num(min));
-            }
-            // Only emit MaxVal when explicitly requested — a default MaxVal
-            // silently clamps values such as a color composite.
-            if let Some(max) = opts.max {
-                elem.attributes.insert("MaxVal".to_string(), fmt_num(max));
-            }
-        }
-
-        // Add Q connector
-        let mut co_q = Element::new("Co");
-        co_q.attributes.insert("K".to_string(), "Q".to_string());
-        co_q.attributes.insert("U".to_string(), conn_uuid.clone());
-        elem.children.push(xmltree::XMLNode::Element(co_q));
-
-        // Add Qm connector (memory/state tracking)
-        let mut co_qm = Element::new("Co");
-        co_qm.attributes.insert("K".to_string(), "Qm".to_string());
-        co_qm
-            .attributes
-            .insert("U".to_string(), conn_qm_uuid.clone());
-        elem.children.push(xmltree::XMLNode::Element(co_qm));
-
-        // Add IoData — St=2 for analog I/O registration, Visu=true for API visibility
-        let mut iodata = Element::new("IoData");
-        iodata.attributes.insert("St".to_string(), "2".to_string());
-        iodata
-            .attributes
-            .insert("Visu".to_string(), "true".to_string());
-        // Room/category from parent's IoData if available, else find first room
-        let parent_elem = self.get_element(&parent_path);
-        if let Some(parent_iodata) = parent_elem
-            .children
-            .iter()
-            .find_map(|c| c.as_element().filter(|e| e.name == "IoData"))
-        {
-            for reference in ["Pr", "Cr"] {
-                if let Some(value) = parent_iodata
-                    .attributes
-                    .get(reference)
-                    .filter(|value| !value.is_empty())
-                {
-                    iodata
-                        .attributes
-                        .insert(reference.to_string(), value.clone());
-                }
-            }
-        }
-        // Fallback: find first room and category from the config
-        fn find_first(elem: &Element, type_name: &str) -> Option<String> {
-            if elem.name == "C"
-                && elem
-                    .attributes
-                    .get("Type")
-                    .map(|t| t == type_name)
-                    .unwrap_or(false)
-            {
-                return elem.attributes.get("U").cloned();
-            }
-            for child in &elem.children {
-                if let Some(e) = child.as_element()
-                    && let Some(u) = find_first(e, type_name)
-                {
-                    return Some(u);
-                }
-            }
-            None
-        }
-        for (reference, type_name) in [("Pr", "Place"), ("Cr", "Category")] {
-            if !iodata.attributes.contains_key(reference)
-                && let Some(uuid) = find_first(&self.root, type_name)
-            {
-                iodata.attributes.insert(reference.to_string(), uuid);
-            }
-        }
-        elem.children.push(xmltree::XMLNode::Element(iodata));
-
-        // Add Display
-        let mut display = Element::new("Display");
-        let unit = opts.unit.as_deref().unwrap_or("<v>");
-        display
-            .attributes
-            .insert("Unit".to_string(), unit.to_string());
-        display
-            .attributes
-            .insert("StateOnly".to_string(), "true".to_string());
-        elem.children.push(xmltree::XMLNode::Element(display));
-
-        // Add InputRef converter (required for wiring to blocks).
-        // Blocks wire from InputRef.AQ, not directly from VirtualIn.Q.
-        let ref_uuid = Self::loxone_uuid(&serial);
-        let ref_ai_uuid = Self::loxone_uuid(&serial);
-        let ref_i_uuid = Self::loxone_uuid(&serial);
-        let ref_aq_uuid = Self::loxone_uuid(&serial);
-        let ref_q_uuid = Self::loxone_uuid(&serial);
-
-        let mut input_ref = Element::new("C");
-        input_ref
-            .attributes
-            .insert("Type".to_string(), "InputRef".to_string());
-        input_ref
-            .attributes
-            .insert("V".to_string(), "175".to_string());
-        input_ref.attributes.insert("U".to_string(), ref_uuid);
-        input_ref
-            .attributes
-            .insert("Title".to_string(), title.to_string());
-        input_ref
-            .attributes
-            .insert("Ref".to_string(), block_uuid.clone());
-        input_ref
-            .attributes
-            .insert("LinkRefType".to_string(), "71".to_string());
-        input_ref
-            .attributes
-            .insert("Analog".to_string(), analog.to_string());
-        input_ref
-            .attributes
-            .insert("Nio".to_string(), "4".to_string());
-        input_ref
-            .attributes
-            .insert("WF".to_string(), "18432".to_string());
-
-        // AI ← VirtualIn.Q
-        let mut ref_co_ai = Element::new("Co");
-        ref_co_ai
-            .attributes
-            .insert("K".to_string(), "AI".to_string());
-        ref_co_ai.attributes.insert("U".to_string(), ref_ai_uuid);
-        let mut ai_in = Element::new("In");
-        ai_in.attributes.insert("Input".to_string(), conn_uuid);
-        ref_co_ai.children.push(xmltree::XMLNode::Element(ai_in));
-        input_ref
-            .children
-            .push(xmltree::XMLNode::Element(ref_co_ai));
-
-        // I ← VirtualIn.Qm
-        let mut ref_co_i = Element::new("Co");
-        ref_co_i.attributes.insert("K".to_string(), "I".to_string());
-        ref_co_i.attributes.insert("U".to_string(), ref_i_uuid);
-        let mut i_in = Element::new("In");
-        i_in.attributes.insert("Input".to_string(), conn_qm_uuid);
-        ref_co_i.children.push(xmltree::XMLNode::Element(i_in));
-        input_ref.children.push(xmltree::XMLNode::Element(ref_co_i));
-
-        // AQ (output — blocks wire FROM this)
-        let mut ref_co_aq = Element::new("Co");
-        ref_co_aq
-            .attributes
-            .insert("K".to_string(), "AQ".to_string());
-        ref_co_aq
-            .attributes
-            .insert("U".to_string(), ref_aq_uuid.clone());
-        input_ref
-            .children
-            .push(xmltree::XMLNode::Element(ref_co_aq));
-
-        // Q
-        let mut ref_co_q = Element::new("Co");
-        ref_co_q.attributes.insert("K".to_string(), "Q".to_string());
-        ref_co_q.attributes.insert("U".to_string(), ref_q_uuid);
-        input_ref.children.push(xmltree::XMLNode::Element(ref_co_q));
-
-        // DO NOT embed InputRef as child of VirtualIn — the Miniserver SPS
-        // refuses to register VirtualIns that have InputRef children.
-        // InputRef goes on the Page only.
-
-        let parent = self.get_element_mut(&parent_path);
-        parent.children.push(xmltree::XMLNode::Element(elem));
-
-        // Place InputRef on the Page so the SPS circuit resolver can find it.
-        let page_paths = self.find_elements("Type:Page");
-        if let Some(page_path) = page_paths.into_iter().next() {
-            let page = self.get_element_mut(&page_path);
-            page.children.push(xmltree::XMLNode::Element(input_ref));
-        }
-
-        // InputRef AQ UUID is what blocks should wire from
-        Ok((block_uuid, ref_aq_uuid))
+        let creation = self
+            .kernel
+            .add_virtual_input_legacy(
+                title,
+                opts,
+                parent_selector,
+                |suffix| VirtualInIds {
+                    object: Self::loxone_uuid(suffix),
+                    q: Self::loxone_uuid(suffix),
+                    qm: Self::loxone_uuid(suffix),
+                },
+                |suffix| InputRefIds {
+                    object: Self::loxone_uuid(suffix),
+                    ai: Self::loxone_uuid(suffix),
+                    i: Self::loxone_uuid(suffix),
+                    aq: Self::loxone_uuid(suffix),
+                    q: Self::loxone_uuid(suffix),
+                },
+            )
+            .map_err(selection_error)?;
+        Ok(match creation {
+            LegacyVirtualInputCreation::WithInputRef {
+                virtual_in_uuid,
+                input_ref_aq_uuid,
+            } => (virtual_in_uuid, input_ref_aq_uuid),
+            LegacyVirtualInputCreation::WithoutPage {
+                virtual_in_uuid,
+                unplaced_aq_uuid,
+            } => (virtual_in_uuid, unplaced_aq_uuid),
+        })
     }
 
     /// Load the embedded connector map (190 types, 2384 connectors from TechDoc + real XML).
@@ -576,29 +364,6 @@ impl ConfigEditor {
         (7392, py)
     }
 
-    /// Extract the existing 12-hex identity suffix after the final `-ffff`.
-    /// The legacy name does not imply the suffix is a hardware serial.
-    pub fn find_miniserver_serial(&self) -> Option<String> {
-        fn scan(elem: &Element) -> Option<String> {
-            if let Some(u) = elem.attributes.get("U")
-                && let Some((_, serial)) = u.rsplit_once("-ffff")
-                && serial.len() >= 12
-                && serial.chars().all(|c| c.is_ascii_hexdigit())
-            {
-                return Some(serial[..12].to_string());
-            }
-            for child in &elem.children {
-                if let xmltree::XMLNode::Element(c) = child
-                    && let Some(s) = scan(c)
-                {
-                    return Some(s);
-                }
-            }
-            None
-        }
-        scan(&self.root)
-    }
-
     /// Generate a Loxone-format UUID: {8hex}-{4hex}-{4hex}-ffff{12hex_serial}
     pub fn loxone_uuid(serial: &str) -> String {
         let r: u64 = rand::random();
@@ -614,27 +379,6 @@ impl ConfigEditor {
             r as u16,
             suffix,
         )
-    }
-
-    /// Find the next free IName index (e.g. "VI" → "VI0", "VI1", ...).
-    pub fn next_iname(&self, prefix: &str) -> String {
-        let mut max_idx: i32 = -1;
-        fn scan(elem: &Element, prefix: &str, max: &mut i32) {
-            if let Some(iname) = elem.attributes.get("IName")
-                && iname.starts_with(prefix)
-                && let Ok(idx) = iname[prefix.len()..].parse::<i32>()
-                && idx > *max
-            {
-                *max = idx;
-            }
-            for child in &elem.children {
-                if let xmltree::XMLNode::Element(c) = child {
-                    scan(c, prefix, max);
-                }
-            }
-        }
-        scan(&self.root, prefix, &mut max_idx);
-        format!("{}{}", prefix, max_idx + 1)
     }
 
     /// Return the IName prefix for element types that require hardware registration.
@@ -653,16 +397,6 @@ impl ConfigEditor {
             // Logic/math blocks also need Nio but NOT IName
             _ => None,
         }
-    }
-}
-
-/// Format an f64 without a trailing `.0` for whole numbers (Loxone prefers
-/// `100` over `100.0` for integer-valued attributes).
-fn fmt_num(v: f64) -> String {
-    if v.fract() == 0.0 {
-        format!("{}", v as i64)
-    } else {
-        format!("{v}")
     }
 }
 

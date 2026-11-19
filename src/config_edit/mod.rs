@@ -53,7 +53,7 @@ mod wiring;
 mod wiring_catalog_tests;
 mod write;
 
-pub use blocks::VirtualInOpts;
+pub use lox_core::configuration::editor::VirtualInOpts;
 pub use permissions::{PermissionChange, PermissionEdit, PrincipalKind};
 pub use rooms::{ControlMovePreview, RoomAddPreview, RoomRenamePreview};
 pub use wiring::SpliceActorPreview;

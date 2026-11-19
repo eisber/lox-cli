@@ -10,6 +10,8 @@ mod control_move;
 mod description;
 pub(super) mod legacy;
 mod selector;
+#[cfg(any(test, feature = "unstable-legacy-cli-editor"))]
+mod virtual_input;
 mod write;
 
 use chrono::{DateTime, FixedOffset};
@@ -31,6 +33,9 @@ pub use description::{
 #[cfg(feature = "unstable-legacy-cli-editor")]
 #[doc(hidden)]
 pub use legacy::State as LegacyState;
+#[cfg(feature = "unstable-legacy-cli-editor")]
+#[doc(hidden)]
+pub use virtual_input::{InputRefIds, LegacyVirtualInputCreation, VirtualInIds, VirtualInOpts};
 
 /// Value-only identity, independent of the editor's storage representation.
 #[derive(Clone, Debug, PartialEq, Eq)]
