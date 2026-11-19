@@ -1,18 +1,15 @@
 use std::collections::HashSet;
 
 use anyhow::{Result, bail};
-use lox_core::configuration::editor::{self, CentralLightLinksError, legacy_central_light_links};
+use lox_core::configuration::editor::{
+    self, CentralLightLinkDirection, CentralLightLinkMoveError, CentralLightLinksError,
+    legacy_central_light_links,
+};
 use serde::Serialize;
 use xmltree::Element;
 
 use super::{ConfigEditor, editor_error};
 use legacy_central_light_links::{LINKED, collect_controls};
-
-#[derive(Debug, Clone, Copy)]
-pub enum CentralLightLinkDirection {
-    Up,
-    Down,
-}
 
 #[derive(Debug, Serialize)]
 pub struct CentralLightLink {
@@ -45,10 +42,9 @@ pub struct CentralLightLinkRemoval {
     pub reference_marker_cleared: bool,
 }
 
-impl ConfigEditor {
-    pub fn inspect_central_light_links(&self, selector: &str) -> Result<CentralLightLinks> {
-        let (_, inspection) = self.central_light_links(selector)?;
-        Ok(CentralLightLinks {
+impl From<editor::CentralLightLinks> for CentralLightLinks {
+    fn from(inspection: editor::CentralLightLinks) -> Self {
+        Self {
             uuid: inspection.uuid,
             title: inspection.title,
             links: inspection
@@ -61,7 +57,14 @@ impl ConfigEditor {
                     control_type: link.control_type,
                 })
                 .collect(),
-        })
+        }
+    }
+}
+
+impl ConfigEditor {
+    pub fn inspect_central_light_links(&self, selector: &str) -> Result<CentralLightLinks> {
+        self.central_light_links(selector)
+            .map(|(_, inspection)| inspection.into())
     }
 
     pub fn move_central_light_link(
@@ -69,46 +72,20 @@ impl ConfigEditor {
         selector: &str,
         uuid: &str,
         direction: CentralLightLinkDirection,
-    ) -> Result<CentralLightLinkMove> {
-        let selected = identity(uuid)?;
-        let (path, inspection) = self.central_light_links(selector)?;
-        // Native buttons use visible positions but callbacks move raw indices.
-        // A fully direct-visible list makes those orders and boundaries agree.
-        for link in &inspection.links {
-            if link.control_type != "ModbusServer" || link.title.is_empty() {
-                bail!(
-                    "Cannot safely reproduce native Up/Down for linked UUID '{}': this CLI admits only direct ModbusServer targets with a nonempty Title, and every member of this owner's linkC must qualify. Other native-visible families and ancestor fallback are unproven here; nothing was changed.",
-                    link.uuid
-                );
-            }
-        }
-        let index = inspection
-            .links
-            .iter()
-            .position(|link| link.uuid.eq_ignore_ascii_case(&selected))
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "'{uuid}' is not an existing linked-function UUID on this CentralLight. Use `lox config central-light inspect FILE OWNER`; positions and names are not identities. Nothing was changed."
-                )
-            })?;
-        let destination = match direction {
-            CentralLightLinkDirection::Up => index.saturating_sub(1),
-            CentralLightLinkDirection::Down => (index + 1).min(inspection.links.len() - 1),
-        };
-        let result = CentralLightLinkMove {
-            uuid: inspection.links[index].uuid.clone(),
-            from_position: index + 1,
-            to_position: destination + 1,
-            changed: index != destination,
-        };
-        if result.changed {
-            let mut links: Vec<_> = inspection.links.into_iter().map(|link| link.uuid).collect();
-            links.swap(index, destination);
-            self.get_element_mut(&path)
-                .attributes
-                .insert("linkC".into(), links.join(","));
-        }
-        Ok(result)
+    ) -> Result<(CentralLightLinkMove, CentralLightLinks)> {
+        let (movement, inspection) = self
+            .kernel
+            .move_central_light_link(selector, uuid, direction)
+            .map_err(central_light_link_move_error)?;
+        Ok((
+            CentralLightLinkMove {
+                uuid: movement.uuid,
+                from_position: movement.from_position,
+                to_position: movement.to_position,
+                changed: movement.changed,
+            },
+            inspection.into(),
+        ))
     }
 
     pub fn remove_central_light_link(
@@ -213,6 +190,20 @@ impl ConfigEditor {
     }
 }
 
+fn central_light_link_move_error(error: CentralLightLinkMoveError) -> anyhow::Error {
+    match error {
+        CentralLightLinkMoveError::Edit(error) => editor_error(error),
+        CentralLightLinkMoveError::Links(error) => central_light_links_error(error),
+        CentralLightLinkMoveError::UnsupportedTarget { uuid } => anyhow::anyhow!(
+            "Cannot safely reproduce native Up/Down for linked UUID '{uuid}': this CLI admits only direct ModbusServer targets with a nonempty Title, and every member of this owner's linkC must qualify. Other native-visible families and ancestor fallback are unproven here; nothing was changed."
+        ),
+        CentralLightLinkMoveError::NotLinked { uuid } => anyhow::anyhow!(
+            "'{uuid}' is not an existing linked-function UUID on this CentralLight. Use `lox config central-light inspect FILE OWNER`; positions and names are not identities. Nothing was changed."
+        ),
+        error => error.into(),
+    }
+}
+
 fn central_light_links_error(error: CentralLightLinksError) -> anyhow::Error {
     use CentralLightLinksError::*;
 
@@ -279,7 +270,7 @@ mod tests {
         let xml = fixture();
         let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
         let before = editor.root.clone();
-        let result = editor
+        let (result, inspection) = editor
             .move_central_light_link(
                 "Central",
                 &id(11).to_uppercase(),
@@ -287,6 +278,7 @@ mod tests {
             )
             .unwrap();
         assert_eq!((result.from_position, result.to_position), (2, 1));
+        assert_eq!(inspection.links[0].uuid, id(11));
         let mut expected = before;
         expected.children[0].as_mut_element().unwrap().children[0]
             .as_mut_element()
@@ -294,6 +286,19 @@ mod tests {
             .attributes
             .insert("linkC".into(), format!("{},{},{}", id(11), id(10), id(12)));
         assert_eq!(editor.root, expected);
+
+        let now = chrono::DateTime::parse_from_rfc3339("2025-01-03T04:05:06+01:00").unwrap();
+        let transaction = editor::move_central_light_link(
+            xml.as_bytes(),
+            "Central",
+            &id(11).to_uppercase(),
+            CentralLightLinkDirection::Up,
+            &now,
+        )
+        .unwrap();
+        assert!(transaction.document_stamped && editor.stamp_document(&now));
+        assert_eq!(editor.to_bytes().unwrap(), transaction.bytes);
+
         editor
             .move_central_light_link("Central", &id(11), CentralLightLinkDirection::Down)
             .unwrap();
@@ -316,6 +321,7 @@ mod tests {
                 !editor
                     .move_central_light_link("Central", &uuid, direction)
                     .unwrap()
+                    .0
                     .changed
             );
             assert_eq!(editor.root, before);
@@ -447,6 +453,7 @@ mod tests {
             editor
                 .move_central_light_link("Central", &id(11), CentralLightLinkDirection::Up)
                 .unwrap()
+                .0
                 .changed
         );
     }

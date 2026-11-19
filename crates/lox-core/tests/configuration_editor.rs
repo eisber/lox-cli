@@ -5,9 +5,13 @@ use lox_core::configuration::editor::{
 use std::error::Error;
 
 mod central_light_links {
+    use chrono::{DateTime, FixedOffset};
     use lox_core::configuration::editor::{
-        CentralLightLink, CentralLightLinks, CentralLightLinksError as Refusal, EditError,
-        SelectionError, inspect_central_light_links as inspect,
+        CentralLightLink,
+        CentralLightLinkDirection::{Down, Up},
+        CentralLightLinkMove, CentralLightLinkMoveError as MoveRefusal, CentralLightLinks,
+        CentralLightLinksError as Refusal, EditError, SelectionError,
+        inspect_central_light_links as inspect, move_central_light_link as move_link,
     };
     use std::error::Error;
 
@@ -15,6 +19,8 @@ mod central_light_links {
     const FIRST: &str = "ABCDEF01-0002-0003-000000000000000A";
     const SECOND: &str = "abcdef01-0002-0003-000000000000000b";
     const MISSING: &str = "abcdef01-0002-0003-000000000000000c";
+    const THIRD: &str = "abCDef01-0002-0003-000000000000000d";
+    const HIDDEN: &str = "abcdef01-0002-0003-000000000000000e";
 
     fn document() -> String {
         let first = FIRST.to_ascii_lowercase();
@@ -193,6 +199,166 @@ mod central_light_links {
         assert!(matches!(
             inspect_xml(xml.replace("268451840", "16384")),
             Refusal::InconsistentMarker { identity: Some(uuid) } if uuid == SECOND
+        ));
+    }
+
+    fn move_document() -> String {
+        let first = FIRST.to_ascii_lowercase();
+        let third = THIRD.to_ascii_uppercase();
+        format!(
+            "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+<ControlList>\r\n\
+\t<C Type=\"Document\" Date=\"2009-01-01 01:00:02\" DateS=\"2\">\r\n\
+\t\t<C Type=\"Place\" U=\"den\" Title=\"Den\"/>\r\n\
+\t\t<C Type=\"CentralLight\" U=\"{OWNER}\" Title=\"Central\" linkC=\"{FIRST},{SECOND},{THIRD}\" Future=\"keep\">\r\n\
+\t\t\t<IoData Visu=\"true\" Pr=\"den\" Rating=\"7\"/>\r\n\
+\t\t\t<Unknown Key=\"first\"/>\r\n\
+\t\t\t<Co K=\"I\">\r\n\
+\t\t\t\t<In Input=\"opaque\"/>\r\n\
+\t\t\t</Co>\r\n\
+\t\t\t<Unknown Key=\"last\"/>\r\n\
+\t\t</C>\r\n\
+\t\t<C Type=\"ModbusServer\" U=\"{first}\" Title=\"A\" WF=\"268451840\"/>\r\n\
+\t\t<C Type=\"ModbusServer\" U=\"{SECOND}\" Title=\"B\" WF=\"268435456\"/>\r\n\
+\t\t<C Type=\"ModbusServer\" U=\"{third}\" Title=\"C\" WF=\"268435456\"/>\r\n\
+\t\t<C Type=\"Other\" linkC=\"{first},{HIDDEN}\" iObjS=\"unrelated\"/>\r\n\
+\t\t<C Type=\"Not\" U=\"{HIDDEN}\" Title=\"Hidden\" WF=\"268435456\"/>\r\n\
+\t</C>\r\n\
+</ControlList>\r\n"
+        )
+    }
+
+    fn move_now() -> DateTime<FixedOffset> {
+        DateTime::parse_from_rfc3339("2009-01-01T01:00:01+01:00").unwrap()
+    }
+
+    #[test]
+    fn moves_in_both_directions_preserving_stored_spelling_and_collateral_exactly() {
+        let source = move_document();
+        let up = move_link(
+            source.as_bytes(),
+            "Central [dEn]",
+            &SECOND.to_ascii_uppercase(),
+            Up,
+            &move_now(),
+        )
+        .unwrap();
+        assert_eq!(
+            up.movement,
+            CentralLightLinkMove {
+                uuid: SECOND.into(),
+                from_position: 2,
+                to_position: 1,
+                changed: true,
+            }
+        );
+        assert!(up.document_stamped);
+        assert_eq!(up.inspection, inspect(&up.bytes, "Central").unwrap());
+        assert_eq!(up.inspection.links[0].uuid, SECOND);
+        assert_eq!(up.inspection.links[1].uuid, FIRST);
+        assert_eq!(up.inspection.links[2].uuid, THIRD);
+        let expected = source
+            .replace(
+                &format!("{FIRST},{SECOND},{THIRD}"),
+                &format!("{SECOND},{FIRST},{THIRD}"),
+            )
+            .replace(r#"01:00:02" DateS="2""#, r#"01:00:03" DateS="3""#);
+        assert_eq!(up.bytes, expected.as_bytes());
+        let down = move_link(
+            &up.bytes,
+            &format!("uuid:{OWNER}"),
+            SECOND,
+            Down,
+            &move_now(),
+        )
+        .unwrap();
+        assert_eq!(
+            (down.movement.from_position, down.movement.to_position),
+            (1, 2)
+        );
+        assert!(down.movement.changed && down.document_stamped);
+        assert_eq!(
+            down.bytes,
+            source
+                .replace(r#"01:00:02" DateS="2""#, r#"01:00:04" DateS="4""#)
+                .as_bytes()
+        );
+    }
+
+    #[test]
+    fn move_boundaries_keep_noncanonical_original_bytes_and_do_not_stamp() {
+        let source = move_document().replace(r#"Future="keep">"#, r#"Future="keep" >"#);
+        let source = source.trim_end().as_bytes();
+        for (uuid, direction, position) in [(FIRST, Up, 1), (THIRD, Down, 3)] {
+            let result = move_link(source, "Central", uuid, direction, &move_now()).unwrap();
+            assert_eq!(result.bytes, source);
+            assert_eq!(result.movement.from_position, position);
+            assert_eq!(result.movement.to_position, position);
+            assert!(!result.movement.changed && !result.document_stamped);
+            assert_eq!(result.inspection, inspect(source, "Central").unwrap());
+        }
+    }
+
+    #[test]
+    fn move_preserves_changed_but_unstamped_legacy_document_branch() {
+        let source = move_document().replace(r#"Type="Document""#, r#"Type="document""#);
+        let moved = move_link(source.as_bytes(), "Central", SECOND, Up, &move_now()).unwrap();
+        assert!(moved.movement.changed && !moved.document_stamped);
+        assert_eq!(
+            moved.bytes,
+            source
+                .replace(
+                    &format!("{FIRST},{SECOND},{THIRD}"),
+                    &format!("{SECOND},{FIRST},{THIRD}"),
+                )
+                .as_bytes()
+        );
+    }
+
+    #[test]
+    fn move_refusals_keep_legacy_validation_order_and_typed_causes() {
+        let source = move_document();
+        let move_up = |source: &str, owner, uuid| {
+            move_link(source.as_bytes(), owner, uuid, Up, &move_now()).unwrap_err()
+        };
+        assert!(matches!(
+            move_up("not XML", "No such owner", "1"),
+            MoveRefusal::Edit(EditError::Load(_))
+        ));
+        let prefixed = format!("uuid:{FIRST}");
+        assert!(matches!(
+            move_up(&source, "No such owner", &prefixed),
+            MoveRefusal::Links(Refusal::InvalidIdentity { uuid }) if uuid == prefixed
+        ));
+        assert!(matches!(
+            move_up(&source, "No such owner", FIRST),
+            MoveRefusal::Links(Refusal::Edit(EditError::Selection(
+                SelectionError::NotFound { .. }
+            )))
+        ));
+        let missing = MISSING.to_ascii_uppercase();
+        assert!(matches!(
+            move_up(&source, "Central", &missing),
+            MoveRefusal::NotLinked { uuid } if uuid == missing
+        ));
+        for unproved in [
+            source.replacen(r#"Title="A""#, r#"Title="""#, 1),
+            source.replacen(r#"Type="ModbusServer""#, r#"Type="Not""#, 1),
+        ] {
+            assert!(matches!(
+                move_up(&unproved, "Central", &missing),
+                MoveRefusal::UnsupportedTarget { uuid } if uuid == FIRST
+            ));
+            assert!(matches!(
+                move_link(unproved.as_bytes(), "Central", THIRD, Down, &move_now()),
+                Err(MoveRefusal::UnsupportedTarget { uuid }) if uuid == FIRST
+            ));
+        }
+        let graph_error = move_up(&source.replace("268451840", "16384"), "Central", &missing);
+        assert!(matches!(
+            graph_error.source().and_then(|cause| cause.downcast_ref::<Refusal>()),
+            Some(Refusal::InconsistentMarker { identity: Some(uuid) })
+                if uuid == &FIRST.to_ascii_lowercase()
         ));
     }
 }

@@ -33,7 +33,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
 | Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
 | Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Verified at `bbfbcc8`: `unwire(UnwireRequest) -> UnwireOutcome`; typed `UnwireError` | Verified at `bbfbcc8`: `LoxArchive.unwire(UnwireRequest) -> UnwireOutcome`; checked `UnwireException`; same Java 22 API in Kotlin |
-| Offline control-to-room byte transaction | Published optional `configuration::editor::move_control` (`configuration-editor`) at `5bf766f`; explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and rich preview share one Core plan/mutator; DTOs, formatting, file I/O and atomic save remain head-owned and unchanged | Source-only, unrun `move_control(ControlMoveRequest) -> ControlMoveOutcome`; typed `ControlMoveError` | Source-only, unrun `LoxArchive.moveControl(ControlMoveRequest) -> ControlMoveOutcome`; checked `ControlMoveException`; same Java 22 API in Kotlin |
+| Offline control-to-room byte transaction | Published optional `configuration::editor::move_control` (`configuration-editor`) at `5bf766f`; explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and rich preview share one Core plan/mutator; DTOs, formatting, file I/O and atomic save remain head-owned and unchanged | Verified at `7e284c3`: `move_control(ControlMoveRequest) -> ControlMoveOutcome`; typed `ControlMoveError` | Verified at `7e284c3`: `LoxArchive.moveControl(ControlMoveRequest) -> ControlMoveOutcome`; checked `ControlMoveException`; same Java 22 API in Kotlin |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
 | Byte-preserving offline three-way merge | Optional `configuration::runtime_overlay::three_way` (`configuration-xml`) | Existing patch/preparation callers unchanged; no deployment claim | Verified at published main `2603542`: `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` | Verified at published main `2603542`: `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused`; SAME Java22 API in Kotlin |
 | Offline application of supplied LoxCC fragments | Optional `configuration::runtime_overlay::merge_overlays` (`configuration-xml`); existing filename-keyed transaction | Existing CLI acquisition, duplicate guard and merge caller unchanged | Source-only, unrun `merge_overlays(base: bytes, fragments: list[LoxccFragment]) -> bytes`; typed `FragmentApplicationError` | Source-only, unrun `LoxArchive.mergeOverlays(byte[], List<LoxccFragment>) -> byte[]`; checked `FragmentApplicationException`; SAME Java22 API in Kotlin |
@@ -369,7 +369,7 @@ ABI.
 
 ### Offline control-to-room association move
 
-The source candidate wraps only `configuration::editor::move_control`.
+The binding wraps only `configuration::editor::move_control`.
 `ControlMoveRequest` holds XML `bytes`, nullable `type_filter` and `title`,
 `target_room`, ordered `exclude` strings, and a caller-supplied
 `ControlMoveClock`. Pass `None` in Python or `null` on the JVM for an omitted
@@ -399,14 +399,16 @@ shared loader limitations (`lox-n37w`) still apply. No room classification,
 file I/O, deployment, other editor transaction, native Config behavior,
 or stable binary ABI is qualified.
 
-The installed exercise is pending. It is designed to check exact bytes and
-typed atomicity via the public APIs, and measure only the changed result and
-four marked selector/room error payloads using the same native export. It
-checks the post-free address and matching-payload count separately.
-Pre-call UTF-8 rejection tests look for a retained marked request in each
-language; they do not assert that a rejected call allocated one. Small
-results, load failures, and payload-free errors have value/atomicity checks
-only, not separate allocation witnesses.
+At published main `7e284c3`, 203 SDK checks passed on Windows x64 with
+CPython 3.13 (GIL), Java 22 and Kotlin using the same Java API. The installed
+tests compared exact bytes and typed refusals. Each language calibrated the
+changed result and four marked selector/room error payloads, then checked
+the post-free address and matching-payload count separately while holding
+64 distinct host outcomes per case. Pre-call UTF-8 rejection tests found no
+retained marked request for invalid type, title, target room, or a later
+exclusion item; they do not assert that a rejected call allocated one.
+Small results, load failures and payload-free errors have value/atomicity
+checks only, not separate allocation witnesses.
 
 ### Offline selected principal direct permissions
 

@@ -1,3 +1,4 @@
+use chrono::{DateTime, FixedOffset};
 use std::{
     collections::{HashMap, HashSet},
     error::Error,
@@ -104,6 +105,70 @@ impl Error for CentralLightLinksError {
 
 type LinkResult<T> = Result<T, CentralLightLinksError>;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CentralLightLinkDirection {
+    Up,
+    Down,
+}
+
+/// Movement of one stored member, even when it is already at the boundary.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CentralLightLinkMove {
+    /// UUID spelling as stored in the owner's `linkC`.
+    pub uuid: String,
+    /// One-based positions in the stored list.
+    pub from_position: usize,
+    pub to_position: usize,
+    pub changed: bool,
+}
+
+#[derive(Debug)]
+pub struct CentralLightLinkMoveOutcome {
+    pub bytes: Vec<u8>,
+    pub movement: CentralLightLinkMove,
+    pub inspection: CentralLightLinks,
+    /// Whether a changed list received the legacy writer's Document stamp.
+    pub document_stamped: bool,
+}
+
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum CentralLightLinkMoveError {
+    Edit(EditError),
+    Links(CentralLightLinksError),
+    UnsupportedTarget { uuid: String },
+    NotLinked { uuid: String },
+}
+
+impl fmt::Display for CentralLightLinkMoveError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Edit(error) => fmt::Display::fmt(error, f),
+            Self::Links(error) => fmt::Display::fmt(error, f),
+            Self::UnsupportedTarget { uuid } => write!(
+                f,
+                "Linked UUID '{uuid}' is not a direct ModbusServer target with a nonempty Title"
+            ),
+            Self::NotLinked { uuid } => {
+                write!(
+                    f,
+                    "'{uuid}' is not an existing linked-function UUID on this CentralLight"
+                )
+            }
+        }
+    }
+}
+
+impl Error for CentralLightLinkMoveError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Edit(error) => Some(error),
+            Self::Links(error) => Some(error),
+            _ => None,
+        }
+    }
+}
+
 /// Inspect the stored `linkC` order of one legacy-selected standalone CentralLight.
 ///
 /// Loading and legacy selection precede admission. The selected owner must be a
@@ -128,7 +193,110 @@ pub fn inspect_central_light_links(
     Ok(inspection)
 }
 
+/// Move one existing member of a standalone CentralLight's stored `linkC`.
+///
+/// The selected member is a raw nonzero native UUID (case-insensitive, no
+/// `uuid:` prefix); the owner uses the same legacy selector and graph admission
+/// as [`inspect_central_light_links`]. Every member on that owner must resolve
+/// directly to a `ModbusServer` with a nonempty stored `Title`, including at a
+/// boundary. An adjacent swap preserves stored UUID spelling and membership,
+/// does not update `WF`, and is reinspected before serialization.
+///
+/// A boundary no-op returns the exact borrowed input contents without stamping.
+/// A changed list uses the shared writer and an explicit monotonic save stamp
+/// when the writer recognizes the Document (root or direct child, exact type).
+/// On failure no revised bytes are returned. This is not a native Config
+/// validator; the shared loader limitation (lox-n37w) still applies.
+pub fn move_central_light_link(
+    bytes: &[u8],
+    selector: &str,
+    uuid: &str,
+    direction: CentralLightLinkDirection,
+    now: &DateTime<FixedOffset>,
+) -> Result<CentralLightLinkMoveOutcome, CentralLightLinkMoveError> {
+    use CentralLightLinkMoveError::Edit;
+
+    let mut state = State::load(bytes).map_err(Edit)?;
+    let (movement, inspection) = state.move_central_light_link(selector, uuid, direction)?;
+    let document_stamped = movement.changed && state.stamp_document(now);
+    let bytes = if movement.changed {
+        state.to_bytes().map_err(Edit)?
+    } else {
+        bytes.to_vec()
+    };
+    Ok(CentralLightLinkMoveOutcome {
+        bytes,
+        movement,
+        inspection,
+        document_stamped,
+    })
+}
+
 impl State {
+    #[doc(hidden)]
+    pub fn move_central_light_link(
+        &mut self,
+        selector: &str,
+        uuid: &str,
+        direction: CentralLightLinkDirection,
+    ) -> Result<(CentralLightLinkMove, CentralLightLinks), CentralLightLinkMoveError> {
+        use CentralLightLinkMoveError as Refusal;
+
+        let selected = identity(uuid).map_err(Refusal::Links)?;
+        let (path, inspection) = self
+            .match_central_light_links(selector)
+            .map_err(Refusal::Links)?;
+        // Native buttons use visible positions but callbacks move raw indices.
+        // Requiring every member to be directly visible makes the orders agree.
+        for link in &inspection.links {
+            if link.control_type != "ModbusServer" || link.title.is_empty() {
+                return Err(Refusal::UnsupportedTarget {
+                    uuid: link.uuid.clone(),
+                });
+            }
+        }
+        let index = inspection
+            .links
+            .iter()
+            .position(|link| link.uuid.eq_ignore_ascii_case(&selected))
+            .ok_or_else(|| Refusal::NotLinked { uuid: uuid.into() })?;
+        let destination = match direction {
+            CentralLightLinkDirection::Up => index.saturating_sub(1),
+            CentralLightLinkDirection::Down => (index + 1).min(inspection.links.len() - 1),
+        };
+        let movement = CentralLightLinkMove {
+            uuid: inspection.links[index].uuid.clone(),
+            from_position: index + 1,
+            to_position: destination + 1,
+            changed: index != destination,
+        };
+        if !movement.changed {
+            return Ok((movement, inspection));
+        }
+        let mut order: Vec<_> = inspection
+            .links
+            .iter()
+            .map(|link| link.uuid.as_str())
+            .collect();
+        order.swap(index, destination);
+        let previous = self
+            .get_element_mut(&path)
+            .attributes
+            .insert("linkC".into(), order.join(","));
+        match self.match_central_light_links(selector) {
+            Ok((_, inspection)) => Ok((movement, inspection)),
+            Err(error) => {
+                let attrs = &mut self.get_element_mut(&path).attributes;
+                if let Some(previous) = previous {
+                    attrs.insert("linkC".into(), previous);
+                } else {
+                    attrs.shift_remove("linkC");
+                }
+                Err(Refusal::Links(error))
+            }
+        }
+    }
+
     #[doc(hidden)]
     pub fn match_central_light_links(
         &self,
