@@ -15,6 +15,7 @@ lz4_flex = "0.13.0"
 zip = "2"
 quick-xml = { version = "0.37", optional = true }
 reqwest = { version = "0.12.23", default-features = false, features = ["json", "rustls-tls-webpki-roots"], optional = true }
+serde = { version = "1", default-features = false, optional = true }
 serde_json = { version = "1", optional = true }
 tokio = { version = "1", features = ["rt", "sync", "time", "macros"], optional = true }
 hmac = { version = "0.12", optional = true }
@@ -40,7 +41,7 @@ configuration-xml = ["dep:quick-xml", "configuration-editor"]
 statistics-xml = ["dep:quick-xml"]
 firmware-metadata = ["dep:quick-xml"]
 structure-json = ["dep:serde_json"]
-runtime = ["dep:reqwest", "dep:serde_json", "dep:tokio"]
+runtime = ["dep:reqwest", "dep:serde", "dep:serde_json", "dep:tokio"]
 runtime-blocking = ["runtime"]
 
 [dev-dependencies]

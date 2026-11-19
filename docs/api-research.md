@@ -114,6 +114,39 @@
 - `lox cache check` — Check if cache is current without full download
 - `lox token check` / `lox token revoke` / `lox token refresh`
 
+#### Provisional Rust bootstrap slice
+
+The session HTTP preflight accepts only an explicitly admitted route whose
+entire path is `/jdev/cfg/api`. It makes one unauthenticated GET with the
+existing direct transport, without redirects, retries, or scheme fallback.
+HTTP 200 is required, and the reply body is capped at 8 KiB. No response
+field changes routing, selects a trust policy, or reserves an event slot.
+
+The [vendor protocol extract](datasheets/extracted/CommunicatingWithMiniserver.md)
+identifies `hasEventSlots` for `/jdev/cfg/api` (line 233) and describes
+JSON `jdev` replies whose command echo uses `dev` (lines 331–334). The pinned
+[pyloxone-api event-slot check](https://github.com/JoDehli/pyloxone-api/blob/96e5e1001282a044298c7608a352c4388a80b454/src/pyloxone_api/connection.py#L2371-L2387)
+and [LL reader](https://github.com/JoDehli/pyloxone-api/blob/96e5e1001282a044298c7608a352c4388a80b454/src/pyloxone_api/message.py#L133-L161)
+are implementation evidence for an LL envelope with a string-encoded object
+and possible apostrophe-delimited tokens, not a device capture. The provisional
+decoder's accepted shapes are covered by synthetic fixtures: a strict JSON
+envelope (`control` of `dev/cfg/api`, `Code` or `code` as an integer or
+three-digit string), and a textual `LL.value` containing a JSON object or
+unescaped, printable ASCII apostrophe-delimited string tokens. Escapes and
+apostrophes in ordinary double-quoted strings are not rewritten. Repeated
+decoded protocol fields are refused at both layers, including status aliases
+and equivalent escaped spellings.
+
+`hasEventSlots` is read only as a Boolean. For `httpsStatus` on `/jdev/cfg/api`,
+the decoder provisionally borrows numeric `1` (TLS available) and `2` (expired
+certificate) from the vendor's `/jdev/cfg/apiKey` documentation (line 255).
+These meanings have not been independently verified on `/jdev/cfg/api`.
+Missing and unknown values are separate; an unrecognized TLS value is not
+evidence that TLS is unavailable. The exact wire forms for
+`local` (vendor line 234) and version are not established here; those fields
+remain unresolved. No firmware cutoff, local-only decision, or permission to
+send credentials is inferred from this preflight.
+
 ---
 
 ### 4b. Network & Bus Statistics

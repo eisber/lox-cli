@@ -1979,6 +1979,7 @@ dependencies = [
  "lz4_flex",
  "quick-xml",
  "reqwest",
+ "serde",
  "serde_json",
  "sha1",
  "sha2",
