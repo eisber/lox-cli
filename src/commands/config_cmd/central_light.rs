@@ -92,12 +92,13 @@ pub(crate) fn run(ctx: &RunContext, action: CentralLightCmd) -> Result<()> {
             )
         })
         .transpose()?;
-    let removal = removal_uuid
+    let removed = removal_uuid
         .map(|uuid| editor.remove_central_light_link(&selector, &uuid))
         .transpose()?;
-    let (movement, inspection) = match moved {
-        Some((movement, inspection)) => (Some(movement), inspection),
-        None => (None, editor.inspect_central_light_links(&selector)?),
+    let (movement, removal, inspection) = match (moved, removed) {
+        (Some((movement, inspection)), _) => (Some(movement), None, inspection),
+        (_, Some((removal, inspection))) => (None, Some(removal), inspection),
+        (None, None) => (None, None, editor.inspect_central_light_links(&selector)?),
     };
     let quiet = ctx.quiet || ctx.json || ctx.csv;
     let changed = movement.as_ref().is_some_and(|movement| movement.changed) || removal.is_some();
