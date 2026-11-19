@@ -3,9 +3,16 @@ use std::{collections::BTreeMap, error::Error, fmt};
 use xmltree::Element;
 
 #[cfg(feature = "configuration-xml")]
+mod min_on;
+#[cfg(feature = "configuration-xml")]
 mod movement;
 #[cfg(feature = "configuration-xml")]
 mod name;
+#[cfg(feature = "configuration-xml")]
+pub use min_on::{
+    LoadManagerMinOnChange, LoadManagerMinOnError, LoadManagerMinOnOutcome,
+    set_load_manager_load_min_on,
+};
 #[cfg(feature = "configuration-xml")]
 pub use movement::{
     LoadManagerMove, LoadManagerMoveDirection, LoadManagerMoveError, LoadManagerMoveOutcome,

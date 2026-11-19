@@ -2269,6 +2269,275 @@ mod load_manager {
     }
 
     #[cfg(feature = "configuration-xml")]
+    mod min_on {
+        use super::{EditError, Failure, SelectionError, inspect};
+        use chrono::{DateTime, FixedOffset};
+        use lox_core::configuration::editor::{
+            LoadManagerMinOnChange, LoadManagerMinOnError as Refusal,
+            set_load_manager_load_min_on as set_min_on,
+        };
+
+        const DECLARATION: &str = r#"<?xml version="1.0" encoding="utf-8"?>"#;
+        const DOCUMENT: &str = r#"<C Type="Document" Date="old" DateS="86400">"#;
+
+        fn clock() -> DateTime<FixedOffset> {
+            DateTime::parse_from_rfc3339("2009-01-02T01:59:59+02:00").unwrap()
+        }
+
+        fn document(storage: &str) -> String {
+            let rest: String = [3, 1, 2, 4, 6, 7, 8, 9, 10, 11]
+                .into_iter()
+                .map(|index| format!(r#"<Load ioIdx="{index}"/>"#))
+                .collect();
+            format!(
+                "\u{feff}{DECLARATION}\r\n\
+                <Loxone>{DOCUMENT}<C Type=\"Place\" U=\"room\" Title=\"Workshop\"/>\
+                <C Type=\"LoadShed\" U=\"manager\" Title=\"Loads\" WF=\"16384\">\
+                <IoData Pr=\"room\"/><Co K=\"AQl1\" U=\"wire\"/>\
+                <Load ioIdx=\"05\" nm=\"Five\" minOn=\"invalid-sibling\"/>\
+                <Between/><Other><Load ioIdx=\"invalid\" minOn=\"90\"/></Other>\
+                <Load nm=\" A &amp; B \" pwr=\"invalid\" maxOff=\"123\"{storage} Future=\"\">\
+                <Extra U=\"keep\" Value=\"  café &#38; &#34; \"/></Load>\
+                {rest}</C><Outside Keep=\"&#65;\"/></C></Loxone>\r\n"
+            )
+        }
+
+        #[test]
+        fn edits_only_the_resolved_connector_and_stamp_in_the_complete_document() {
+            let source = document(r#" minOn="+0045""#);
+            let selector = "Loads [Work]";
+            let mut expected = inspect(source.as_bytes(), selector).unwrap();
+            let result =
+                set_min_on(source.as_bytes(), selector, 0, "02147483647", &clock()).unwrap();
+            assert_eq!(expected.loads[1].io_index, 0);
+            expected.loads[1]
+                .attributes
+                .insert("minOn".into(), "2147483647".into());
+            assert_eq!(result.inspection, expected);
+            assert_eq!(inspect(&result.bytes, selector).unwrap(), expected);
+            assert_eq!(
+                result.change,
+                LoadManagerMinOnChange {
+                    io_index: 0,
+                    before: Some("+0045".into()),
+                    after: Some("2147483647".into()),
+                    changed: true,
+                }
+            );
+            assert!(!result.inspection.loads[1].attributes.contains_key("ioIdx"));
+            assert!(result.document_stamped);
+            let saved = std::str::from_utf8(&result.bytes).unwrap();
+            assert!(saved.starts_with("\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"));
+            let parse = |xml: &str| {
+                xmltree::Element::parse(xml.trim_start_matches('\u{feff}').as_bytes()).unwrap()
+            };
+            let expected_xml = source
+                .replace(
+                    DOCUMENT,
+                    r#"<C Type="Document" Date="2009-01-02 02:00:01" DateS="86401">"#,
+                )
+                .replace(r#"minOn="+0045""#, r#"minOn="2147483647""#);
+            assert_eq!(parse(saved), parse(&expected_xml));
+        }
+
+        #[test]
+        fn zero_removes_storage_but_numeric_noops_retain_exact_input_bytes() {
+            let source = document(r#" minOn="+0009""#)
+                .replace(&format!("\u{feff}{DECLARATION}\r\n"), "")
+                .replace("\r\n", "\n")
+                .replace(DOCUMENT, "")
+                .replace(r#"<Outside Keep="&#65;"/></C></Loxone>"#, "</Loxone>");
+            let cleared = set_min_on(source.as_bytes(), "Loads", 0, "000", &clock()).unwrap();
+            assert!(cleared.change.changed);
+            assert_eq!(cleared.change.before.as_deref(), Some("+0009"));
+            assert_eq!(cleared.change.after, None);
+            assert!(!cleared.document_stamped);
+            assert!(!cleared.inspection.loads[1].attributes.contains_key("minOn"));
+            assert!(
+                cleared
+                    .bytes
+                    .starts_with(format!("{DECLARATION}\n").as_bytes())
+            );
+            let set = set_min_on(&cleared.bytes, "Loads", 0, "10", &clock()).unwrap();
+            assert_eq!(set.change.before, None);
+            assert_eq!(set.change.after.as_deref(), Some("10"));
+
+            for (stored, request, decoded) in [
+                ("", "0", None),
+                (r#" minOn="+0000""#, "000", Some("+0000")),
+                (r#" minOn="&#43;0045""#, "00045", Some("+0045")),
+            ] {
+                let source = document(stored);
+                let result = set_min_on(source.as_bytes(), "Loads", 0, request, &clock()).unwrap();
+                assert_eq!(result.bytes, source.as_bytes());
+                assert!(!result.change.changed);
+                assert!(!result.document_stamped);
+                assert_eq!(result.change.before.as_deref(), decoded);
+                assert_eq!(result.change.after.as_deref(), decoded);
+                assert_eq!(
+                    result.inspection.loads[1]
+                        .attributes
+                        .get("minOn")
+                        .map(String::as_str),
+                    decoded
+                );
+            }
+        }
+
+        #[test]
+        fn types_request_xml_selection_scope_shape_and_selected_storage_in_order() {
+            let check = |xml: &str, selector, index, seconds| {
+                set_min_on(xml.as_bytes(), selector, index, seconds, &clock()).unwrap_err()
+            };
+            let malformed = "<Loxone><C></Loxone>";
+            assert!(matches!(
+                check(malformed, "Missing", 12, "1"),
+                Refusal::InvalidRequestedIoIndex { io_index: 12 }
+            ));
+            for seconds in ["", "1", "9", "2147483648", "+10", "10.0", "1e2", " 10"] {
+                assert!(matches!(
+                    check(malformed, "Missing", 0, seconds),
+                    Refusal::InvalidSeconds
+                ));
+            }
+            assert!(matches!(
+                check(malformed, "Missing", 0, "10"),
+                Refusal::Edit(EditError::Load(_))
+            ));
+            let xml = document(r#" minOn="-0""#);
+            assert!(matches!(
+                check(&xml, "Missing", 0, "10"),
+                Refusal::Inspection(Failure::Edit(EditError::Selection(
+                    SelectionError::NotFound { .. }
+                )))
+            ));
+            assert!(matches!(
+                check(&xml, "uuid:room", 0, "10"),
+                Refusal::Inspection(Failure::NotLoadManager { .. })
+            ));
+            let duplicate = xml.replace(r#"ioIdx="05""#, r#"ioIdx="000""#);
+            let inherited = duplicate.replace(r#"WF="16384""#, r#"IfT="false""#);
+            assert!(matches!(
+                check(&inherited, "Loads", 0, "10"),
+                Refusal::TemplateOrInherited
+            ));
+            assert!(matches!(
+                check(&duplicate, "Loads", 0, "10"),
+                Refusal::Inspection(Failure::DuplicateIoIndex { io_index: 0 })
+            ));
+            assert!(matches!(
+                check(
+                    &xml.replace("ioIdx=\"05\"", "xml:ioIdx=\"05\""),
+                    "Missing",
+                    0,
+                    "10"
+                ),
+                Refusal::NamespacedXml
+            ));
+            let nonowning = xml
+                .replace(DOCUMENT, r#"<C Type="Document"/>"#)
+                .replace("</C></Loxone>", "</Loxone>");
+            assert!(matches!(
+                check(&nonowning, "Loads", 0, "10"),
+                Refusal::DocumentScope
+            ));
+            assert!(matches!(
+                check(&xml, "Loads", 0, "0"),
+                Refusal::InvalidStorage { io_index: 0, raw } if raw == "-0"
+            ));
+        }
+
+        #[test]
+        fn caps_depth_in_unselected_collateral_before_edit_or_noop() {
+            let xml = document(r#" minOn="45""#);
+            for leaf in [r#"<Deep U="keep"/>"#, "<Deep></Deep>"] {
+                for depth in [63, 64, 65] {
+                    // Loxone/Document are the first two levels; this sibling
+                    // subtree is not part of the selected LoadShed.
+                    let wrappers = depth - 3;
+                    let collateral = format!(
+                        "{}{leaf}{}",
+                        "<Nested>".repeat(wrappers),
+                        "</Nested>".repeat(wrappers)
+                    );
+                    let source = xml.replace(r#"<Outside Keep="&#65;"/>"#, &collateral);
+                    let edit = set_min_on(source.as_bytes(), "Loads", 0, "10", &clock());
+                    let noop = set_min_on(source.as_bytes(), "Loads", 0, "45", &clock());
+                    if depth == 65 {
+                        for rejected in [edit, noop] {
+                            assert!(matches!(
+                                rejected,
+                                Err(Refusal::XmlDepthLimit { max_depth: 64 })
+                            ));
+                        }
+                        continue;
+                    }
+
+                    let changed = edit.unwrap();
+                    assert!(changed.change.changed);
+                    assert_eq!(changed.inspection.loads[1].attributes["minOn"], "10");
+                    assert!(std::str::from_utf8(&changed.bytes).unwrap().contains(leaf));
+                    assert_eq!(noop.unwrap().bytes, source.as_bytes());
+                    let repeat = set_min_on(&changed.bytes, "Loads", 0, "0010", &clock()).unwrap();
+                    assert!(!repeat.change.changed);
+                    assert!(!repeat.document_stamped);
+                    assert_eq!(repeat.bytes, changed.bytes);
+                }
+            }
+        }
+
+        #[test]
+        fn refuses_lossy_source_content_and_reapplies_the_guard_to_changed_output() {
+            let xml = document(r#" minOn="45""#);
+            let check =
+                |xml: &str, seconds| set_min_on(xml.as_bytes(), "Loads", 0, seconds, &clock());
+            for opaque in [
+                "<!--tail \t -->",
+                "<?keep  payload \t ?>",
+                "<Unknown> \t<![CDATA[payload]]> \t</Unknown>",
+                "<Unknown> \t</Unknown>",
+                "<Unknown>text</Unknown>",
+                "<Unknown Value=\"line\nbreak\"/>",
+                r#"<Unknown U="duplicate" U="duplicate"/>"#,
+                r#"<Unknown 12hTF="true"/>"#,
+            ] {
+                let source = xml.replace("<Between/>", opaque);
+                for seconds in ["10", "45"] {
+                    assert!(
+                        matches!(
+                            check(&source, seconds),
+                            Err(Refusal::UnsupportedCanonicalContent)
+                        ),
+                        "{opaque:?}"
+                    );
+                }
+            }
+            for declaration in [
+                r#" <?xml version="1.0"?>"#,
+                r#"<?xml version="1.1"?>"#,
+                r#"<?xml version="1.0" standalone="yes"?>"#,
+                r#"<?xml version="1.0" version="1.1"?>"#,
+                r#"<?xml version="1.0" encoding="ISO-8859-1"?>"#,
+                r#"<?XML version="1.0"?>"#,
+                r#"<?xml version="1.0"?><?xml version="1.0"?>"#,
+            ] {
+                let source = xml.replace(DECLARATION, declaration);
+                assert!(matches!(check(&source, "45"), Err(Refusal::UnsupportedXml)));
+            }
+            for decoded_during_save in ["note&#32;12hTF=value", "left&#xA;right"] {
+                let source = xml.replace("&#65;", decoded_during_save);
+                let noop = check(&source, "45").unwrap();
+                assert_eq!(noop.bytes, source.as_bytes());
+                assert!(matches!(
+                    check(&source, "10"),
+                    Err(Refusal::CanonicalReadmission(cause))
+                        if matches!(*cause, Refusal::UnsupportedCanonicalContent)
+                ));
+            }
+        }
+    }
+
+    #[cfg(feature = "configuration-xml")]
     mod name {
         use super::{EditError, Failure, SelectionError, inspect};
         use chrono::{DateTime, FixedOffset};
