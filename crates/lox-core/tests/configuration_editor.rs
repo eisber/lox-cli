@@ -4,6 +4,140 @@ use lox_core::configuration::editor::{
 };
 use std::error::Error;
 
+#[test]
+fn principal_permissions_are_direct_ordered_and_raw() {
+    use lox_core::configuration::editor::{DirectPermission, PrincipalKind, principal_permissions};
+
+    let xml = r#"<Root>
+<NotC Type="User" Title="Sämple" U="wrong-tag"/>
+<C Type="user" Title="Sämple" U="wrong-type"/>
+<NotC U="Object" Title="Not metadata"/>
+<C Type="Place" U="Object" Title="First"/>
+<C Type="VirtualIn" U="Object" Title="Later"/>
+<C U="" Title="Empty reference"/>
+<Folder><C Type="User" Title="Sämple" U="User-01">
+    <Wrapper><PH><PRM REF="nested-block"/></PH></Wrapper>
+    <PH NUM="99">
+        <PRM REF="Object" ACT="0" TIM="slot 12hTF=alpha"/>
+        <Wrapper><PRM REF="nested-entry"/></Wrapper>
+        <PRM REF="OBJECT" ACT="" TIM=""/>
+        <PRM/>
+        <PRM REF=""/>
+        <PRM REF="Object"/>
+    </PH>
+    <PH><PRM REF="ignored-second-block"/></PH>
+</C></Folder>
+<C Type="UserGroup" Title="Sämple" U="Group-01"><PH><PRM REF="group-only"/></PH></C>
+<C Type="User" U="no-title"/>
+<C Type="User" Title="No ID"/>
+</Root>"#;
+    let read = principal_permissions(xml.as_bytes(), "SÄMPLE", PrincipalKind::User).unwrap();
+    assert_eq!(read.principal.title, "Sämple");
+    assert_eq!(read.principal.uuid, "User-01");
+    assert_eq!(
+        read.permissions,
+        [
+            DirectPermission {
+                reference: Some("Object".into()),
+                title: Some("First".into()),
+                element_type: Some("Place".into()),
+                act: Some("0".into()),
+                tim: Some("slot _12hTF=alpha".into()),
+            },
+            DirectPermission {
+                reference: Some("OBJECT".into()),
+                title: None,
+                element_type: None,
+                act: Some(String::new()),
+                tim: Some(String::new()),
+            },
+            DirectPermission {
+                reference: None,
+                title: Some("Empty reference".into()),
+                element_type: None,
+                act: None,
+                tim: None,
+            },
+            DirectPermission {
+                reference: Some(String::new()),
+                title: Some("Empty reference".into()),
+                element_type: None,
+                act: None,
+                tim: None,
+            },
+            DirectPermission {
+                reference: Some("Object".into()),
+                title: Some("First".into()),
+                element_type: Some("Place".into()),
+                act: None,
+                tim: None,
+            },
+        ]
+    );
+    assert_eq!(
+        principal_permissions(xml.as_bytes(), "uuid:User-01", PrincipalKind::User).unwrap(),
+        read
+    );
+    let group = principal_permissions(xml.as_bytes(), "sämple", PrincipalKind::UserGroup).unwrap();
+    assert_eq!(group.principal.uuid, "Group-01");
+    assert_eq!(group.permissions.len(), 1);
+    assert_eq!(
+        group.permissions[0].reference.as_deref(),
+        Some("group-only")
+    );
+    let no_title =
+        principal_permissions(xml.as_bytes(), "uuid:no-title", PrincipalKind::User).unwrap();
+    assert!(no_title.principal.title.is_empty() && no_title.permissions.is_empty());
+    let no_id = principal_permissions(xml.as_bytes(), "No ID", PrincipalKind::User).unwrap();
+    assert!(no_id.principal.uuid.is_empty());
+}
+
+#[test]
+fn principal_permissions_keep_typed_refusals_and_parser_cause() {
+    use lox_core::configuration::editor::{
+        PrincipalKind, PrincipalPermissionsError, PrincipalSelectionError, principal_permissions,
+    };
+
+    let xml = br#"<Root>
+<C Type="UserGroup" Title="Group only" U="GROUP"/>
+<C Type="user" Title="Wrong kind" U="wrong-case"/>
+<C Type="User" Title="Sample" U="Sample-id"/>
+<C Type="User" Title="SAMPLE"/>
+<C Type="User" Title="Sample" U="Sample-id"/>
+<C Type="User" Title="" U="no-name"/>
+</Root>"#;
+    for query in ["Sam", "uuid:sample-id", "UUID:Sample-id", "Group only"] {
+        assert!(matches!(
+            principal_permissions(xml, query, PrincipalKind::User),
+            Err(PrincipalPermissionsError::Selection(PrincipalSelectionError::NotFound {
+                kind: PrincipalKind::User, selector, titles,
+            })) if selector == query && titles.iter().map(String::as_str).eq(["", "SAMPLE", "Sample"])
+        ));
+    }
+    for (query, expected) in [
+        ("sample", &["Sample-id", "", "Sample-id"][..]),
+        ("uuid:Sample-id", &["Sample-id", "Sample-id"][..]),
+    ] {
+        let error = principal_permissions(xml, query, PrincipalKind::User).unwrap_err();
+        assert!(matches!(
+            error.source().and_then(|cause| cause.downcast_ref::<PrincipalSelectionError>()),
+            Some(PrincipalSelectionError::Ambiguous {
+                kind: PrincipalKind::User, selector, uuids,
+            }) if selector == query && uuids.iter().map(String::as_str).eq(expected.iter().copied())
+        ));
+    }
+    let error = principal_permissions(
+        b"<C Type='User' Type='UserGroup'/>",
+        "missing",
+        PrincipalKind::User,
+    )
+    .unwrap_err();
+    let PrincipalPermissionsError::Load(EditError::Load(cause)) = error else {
+        panic!("load must precede principal selection");
+    };
+    assert!(cause.into_inner().downcast::<xmltree::ParseError>().is_ok());
+}
+
 const DAYTIMER_U: &str = "ABCDEF00-0000-0004-FFFF000000000000";
 const MODE_NATIVE: &str = "ABCDEF01-ABCD-0004-15000000ABCDEF00";
 const MODE_RFC: &str = "abcdef01-abcd-0004-1500-0000abcdef00";

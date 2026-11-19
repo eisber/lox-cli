@@ -58,7 +58,8 @@ mod wiring_catalog_tests;
 mod write;
 
 pub use lox_core::configuration::editor::VirtualInOpts;
-pub use permissions::{PermissionChange, PermissionEdit, PrincipalKind};
+pub(crate) use permissions::principal_permissions_error;
+pub use permissions::{PermissionChange, PermissionEdit, PrincipalKind, PrincipalPermissions};
 pub use rooms::{ControlMovePreview, RoomAddPreview, RoomRenamePreview};
 pub use wiring::SpliceActorPreview;
 

@@ -50,6 +50,17 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   quoted-text/digit-name limitation (lox-n37w) remains; raw-byte/lossless foreign
   XML preservation is not claimed. Default Core dependencies are unchanged.
 
+- Source candidate, optional `configuration-editor`: `configuration::editor::principal_permissions`
+  reads one explicitly selected `User` or `UserGroup` from caller-supplied XML
+  bytes. It returns owned entries from the first direct `PH`, retaining optional
+  `REF`/`ACT`/`TIM` and first exact `C U` title/type metadata. Title selection is
+  exact and case-insensitive; a lowercase `uuid:` selector compares `U` exactly
+  without folding case. `PrincipalPermissionsError` distinguishes load failure
+  from missing and ambiguous selection. `config user-perms` uses this read
+  with its existing diagnostics and output formats. The shared loader's
+  lox-n37w limitation is unchanged. No writes, inheritance, effective access
+  decisions, new bulk read or foreign bindings are provided.
+
 - Optional `configuration-editor`: `configuration::editor::set_attribute(bytes,
   selector, attribute, value, &now)` migrates the existing legacy raw attribute
   operation. Its owned `AttributeChange` captures the selected identity before

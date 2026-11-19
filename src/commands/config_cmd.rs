@@ -17,7 +17,8 @@ use crate::commands::RunContext;
 use crate::config::Config;
 use crate::config_edit::{
     ConfigEditor, ControlMovePreview, PermissionChange, PermissionEdit, PrincipalKind,
-    RoomAddPreview, RoomRenamePreview, SpliceActorPreview, VirtualInOpts,
+    PrincipalPermissions, RoomAddPreview, RoomRenamePreview, SpliceActorPreview, VirtualInOpts,
+    principal_permissions_error,
 };
 use crate::custom_overlay;
 use crate::token;
@@ -2310,8 +2311,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
         }
         ConfigCmd::UserPerms { file, user, group } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            let editor = ConfigEditor::load(&data)?;
-            let perms = editor.principal_permissions(&user, principal_kind(group))?;
+            let perms = lox_core::configuration::editor::principal_permissions(
+                &data,
+                &user,
+                principal_kind(group),
+            )
+            .map(PrincipalPermissions::from)
+            .map_err(principal_permissions_error)?;
             if ctx.json {
                 emit_json(ctx, serde_json::to_value(&perms)?);
             } else if ctx.csv {
