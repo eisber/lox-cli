@@ -46,47 +46,127 @@ git clone https://github.com/eisber/lox-cli && cd lox-cli
 cargo build --release    # Binary at target/release/lox (~14MB)
 ```
 
-**Requirements:** Loxone Miniserver Gen 1 or 2 (firmware 12.0+), local network access.
-
-### Shared Rust library
-
-[`lox-core`](crates/lox-core/README.md) exposes the offline LoxCC/LxRes/backup ZIP
-byte codec used by `lox config extract` and `lox config compress`, plus an optional
-typed HTTP clock runtime used by `lox live time`. It requires Rust 1.91; offline
-archive consumers need no networking feature. The clock API distinguishes wire
-observations, explicit envelope validation, and legacy CLI formatting, with
-cancellation and an explicitly owned blocking driver. Typed in-memory control
-resolution is shared with the CLI selector too. Optional `configuration-xml`
-provides typed byte-input XML control/room inventory, summaries and the structural
-comparison used by `lox config diff`. Typed color codecs also serve `color encode`
-and `color decode`. Formatting, context selection and XML editing stay in the CLI.
-See the Core README for additional capabilities and compatibility limits.
-
-An experimental, separate [generated binding facade](docs/toolkit-archive-bindings.md)
-provides native Python bytes and one Java 22+ FFM API also used by Kotlin.
-Archive operations, typed read-only raw-XML control/room/summary inspection, pure control
-selection, stateless typed LoxApp3 catalog parsing/filtering, and production-backed strict clock reads have Windows AMD64 artifact
-tests, including actual I/O cancellation and explicit shutdown through
-Python asyncio and Java/Kotlin futures. Inspection does not expose comparison,
-statistics, authentication, color, validation or editing.
-Catalog calls reparse caller-supplied bytes each time; they add no HTTP/cache or
-control transport. Other runtime operations/subscriptions,
-cross-platform qualification and full CLI parity are not claimed. Prototype
-prerequisite compositions remain publication-gated until coherent review/integration.
-The matching native color candidate adds typed offline RGB/HSV/temperature
-encoding and explicit legacy decode/raw-mood observations, available only when
-published with its same-build wheel/JAR/DLL; it adds no Lighting eligibility,
-device qualification, editing or transport parity.
+**Requirements:** Offline file editing and simulation need no Miniserver.
+Network operations need access to a Loxone Miniserver Gen 1 or 2 (firmware 12.0+).
 
 ## Quick Start
 
-```bash
-# Connect to your Miniserver
-lox setup set --host https://192.168.1.100 --user admin --pass secret
+Start with an exported `.Loxone` XML file. This example moves matching existing
+controls to an existing room, previews the change, then saves a separate file.
+Replace `Desk light` and `Office` with names from your project; `--title` matches
+by substring and may select more than one control.
 
-# Download & inspect config
+```powershell
+# Inspect the project without connecting to a Miniserver
+lox config rooms project.Loxone -o json
+lox config controls project.Loxone -o json
+
+# Preview room assignments without writing
+lox config control move project.Loxone --title "Desk light" --to-room Office --dry-run -o json
+
+# Apply the same selection to a new file, leaving the original untouched
+lox config control move project.Loxone --title "Desk light" --to-room Office --save-as edited.Loxone
+
+# Review structural changes and run static checks
+lox config diff project.Loxone edited.Loxone -o json
+lox config check edited.Loxone -o json
+```
+
+`diff` compares structural summaries, not every nested XML value. `check` is
+static validation, not a simulator or hardware test. Neither command deploys
+the file. Use `lox sim run` for supported behavioral tests before an explicit
+deployment.
+
+To download a project first, configure a connection and use the filename printed
+by `download` in the workflow above:
+
+```bash
+lox setup set --host https://192.168.1.100 --user admin --pass secret
 lox config download --extract
-lox config describe config.Loxone
+```
+
+## Command Surface
+
+These are command families, not a promise that every flag or storage shape is
+supported. [COMMANDS.md](COMMANDS.md) documents exact syntax and restrictions.
+Use `lox <command> --help` for individual flags or `lox schema` for the
+machine-readable command tree.
+
+| Area | Command prefix | Subcommands | Purpose |
+|---|---|---|---|
+| Project inspection | `lox config` | `describe`, `rooms`, `controls`, `devices`, `users`, `diff`, `connectors`, `get-params`, `wires` | Inspect exported XML, hardware, settings, connections and structural differences. |
+| Blocks, rooms and wiring | `lox config` | `add`, `room`, `control`, `set-param`, `wire-connector`, `device-bind`, `template`, `layout`, `splice-actor` | Create/configure blocks, move or rename controls, and edit connections in local files. |
+| Lighting | `lox config` | `lighting`, `moods`, `add-mood`, `set-mood-color`, `central-light` | Inspect/edit stored moods, levels, supported RGB, identities and central navigation links. Raw packed-color editing is separate. |
+| Energy and load management | `lox config` | `energy`, `load-manager`, `status-monitor`, `irrigation-zone-set-name` | Inspect/edit supported load records, state priorities and irrigation names. |
+| Schedules and alarms | `lox config` | `timer-schedule`, `timer-entry-*`, `alarm-entry-*`, `calendar-add`, `mode-list` | Edit supported intervals and alarm entries; inspect global operating modes. |
+| Virtual inputs and programs | `lox config` | `add-virtual-in`, `set-virtual-input-format`, `set-input-inversion`, `get-program`, `set-program` | Configure supported inputs and SequenceController program text. |
+| Users, MQTT and rules | `lox config` | `user-add`, `user-remove`, `user-grant`, `user-revoke`, `user-perms`, `mqtt`, `autopilot-*` | Manage local configuration permissions, brokers/topics and supported rule actions. |
+| Low-level XML | `lox config xml` | `set-property`, `set-attr`, `move`, `add`, `remove` | Explicit XML edits, not automatic reference repair. |
+| Validation | `lox config` | `check`, `validate`, `scan` | Static configuration checks and diagnostics. |
+| Archives and deployment | `lox config` | `ls`, `download`, `extract`, `compress`, `upload`, `push`, `push-http`, `patch`, `snapshot` | Convert backups, acquire projects and explicitly deploy changes; network/write effects vary. |
+| Version history | `lox config` | `init`, `pull`, `log`, `restore` | Git-backed configuration history and restoration. |
+| Live state | `lox live` | `get`, `set`, `time` | Read state; write only with `set --write`. `time` is an auxiliary Miniserver date/time read, not clock synchronization. |
+| Logged statistics | `lox stats` | `ls`, `get`, `download` | Read the Miniserver's statistics index/values and download monthly XML files. |
+| Offline simulation | `lox sim` | `check`, `run`, `step`, `dump` | Inspect the simulation graph and exercise supported behavior without hardware. |
+| Block reference | `lox blocks` | `search`, `info`, `list` | Find automation block definitions and connectors. |
+| Documentation | `lox docs` | Search argument; `--list`, `--schema`, `--datasheet` | Browse bundled articles, schemas and datasheets. |
+| Color codecs | `lox color` | `encode`, `decode` | Convert composite color values offline. |
+| Connection settings | `lox setup` | `set`, `show` | Configure Miniserver connection settings. |
+| Contexts | `lox ctx` | `add`, `use`, `list`, `current`, `remove`, `rename`, `init`, `migrate` | Select isolated connection/project contexts; `lox ctx NAME` also switches context. |
+| Structure cache | `lox cache` | `info`, `clear`, `refresh`, `check` | Manage the cached Miniserver structure. |
+| Authentication tokens | `lox token` | `fetch`, `info`, `clear`, `check`, `refresh`, `revoke` | Manage token acquisition, validation and lifecycle. |
+| Agent/developer tooling | `lox` | `schema`, `completions`, `telemetry`, `report` | Discover commands, generate completions, control analytics and report issues. |
+
+`timer-entry-*`, `alarm-entry-*` and `autopilot-*` are shorthand for families in
+this table, not literal shell commands. Global `--dry-run` is fail-closed:
+unsupported commands refuse rather than performing a write. JSON is available
+with `-o json` / `--json`; CSV support varies by command.
+
+## Rust, Python and Java/Kotlin
+
+[`lox-core`](crates/lox-core/README.md) provides typed, headless archive codecs,
+configuration inspection and selected byte-input edit transactions, control selection,
+statistics, color and state-payload decoding, plus optional HTTP runtime
+operations. The CLI owns filesystem/context selection, presentation and deployment
+policy; not all of its behavior has migrated to Core.
+
+The [native bindings](docs/toolkit-archive-bindings.md) call that Rust code
+directly: Python does not shell out to `lox`, and Kotlin uses the same Java 22+
+FFM API as Java. The heads are intentionally not feature-identical:
+
+| Capability | CLI | Rust Core | Python | Java / Kotlin |
+|---|---|---|---|---|
+| LoxCC / backup ZIP codecs | Extract/compress files | Byte codecs | Native byte APIs | Same native byte APIs |
+| Configuration inventory | Rooms, controls, devices, users, moods and more | Typed parsers and selected inspections | Selected native inventories | Same selected inventories |
+| Structural diff and offline overlays | File diff and overlay workflows | Typed diff, three-way merge and supplied fragments | Native diff/merge APIs | Same native diff/merge APIs |
+| Statistics | Acquire/list/read/download | Parse index/series, resolve identity, merge months | Offline parsing/selection/merge | Same offline APIs |
+| Catalogs and color | CLI selection and color commands | Typed catalogs, selectors and codecs | Native catalogs/selectors/codecs | Same native APIs |
+| State-event payloads | Not a general event subscription CLI | Numeric, text, Daytimer and Weather decoders | Complete-payload decoders | Same complete-payload decoders |
+| Selected configuration writes | Broadest editing surface | Selected typed transactions | Offline Unwire and control-to-room move | Same selected transactions |
+| SequenceController programs | Read and write | Supported text read | Native text read | Same native text read |
+| Miniserver HTTP state | Live read/write | Shared read runtime; writes/session policy still CLI-owned | No control transport | No control transport |
+| Miniserver date/time | Auxiliary `live time` | Clock client, cancellation and shutdown | Native sync/async clock handles | Same runtime via Java/Kotlin futures |
+| Deployment, contexts and full authentication | CLI-owned workflows | Reusable primitives, not complete workflows | Not exposed | Not exposed |
+
+For example, after building/installing the matching native Python package, inspect
+the same offline files without invoking the CLI:
+
+```python
+from pathlib import Path
+import lox_archive
+
+before = lox_archive.parse_config_summary(Path("project.Loxone").read_bytes())
+after = lox_archive.parse_config_summary(Path("edited.Loxone").read_bytes())
+changes = lox_archive.diff_configs(before, after)
+print(changes.has_changes)
+```
+
+The bindings are experimental, source-built packages with verified Windows AMD64
+Python / Java 22 / Kotlin artifacts, not a general PyPI/Maven release or stable
+ABI. Other platforms, full CLI parity, WebSocket subscriptions and native Config
+or hardware equivalence are not claimed. See the binding guide's
+[capability matrix](docs/toolkit-archive-bindings.md#actually-exposed-capabilities)
+for exact APIs, supported subsets and build instructions.
 
 ## How It Works
 
