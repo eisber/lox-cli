@@ -92,6 +92,10 @@ impl SessionEndpoints {
         self.http.as_str()
     }
 
+    pub(super) fn http_route(&self) -> &Url {
+        &self.http
+    }
+
     pub fn websocket_url(&self) -> &str {
         self.websocket.as_str()
     }

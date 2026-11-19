@@ -1555,11 +1555,34 @@ become `/`. Do not put credentials in path segments or log the returned URL
 strings; error and debug output omit the routes.
 
 `ProxyPolicy::Direct` or `ProxyPolicy::System` must be selected explicitly.
-This only records intent: parsing does not inspect the environment, configure
-a proxy, check TLS or authorize either route to receive credentials. A future
-transport must enforce the selected policy or reject it. No CLI, clock/control
-read, token, WebSocket, Python or JVM caller uses this boundary yet; no
-transport, authentication, discovery or stable foreign ABI is supplied.
+Parsing only records intent: it does not inspect the environment, configure a
+proxy, check TLS or authorize either route to receive credentials.
+
+The doc-hidden Rust `runtime::session_http::SessionHttpClient` consumes that
+policy and binds to the admitted canonical HTTP URL. `get_status()` sends an
+unauthenticated GET to that scheme, host, port and path; it takes no request
+URL, headers, body or credentials from the caller. `Direct` explicitly disables
+proxies; `System` is refused with `UnsupportedProxyPolicy` before client
+construction, not approximated with environment variables. HTTPS uses
+reqwest's strict default certificate and hostname validation; HTTP remains
+plaintext. There is no redirect following, including same-origin redirects.
+Ordinary HTTP responses, including valid 3xx and HTTP errors, yield a
+`StatusCode` without exposing headers or consuming the response body (the HTTP
+stack may buffer bytes while receiving headers). If reqwest rejects a malformed
+`Location` while parsing redirect metadata before applying the no-follow
+policy, the result is `SessionHttpError::Transport(TransportFailure::Request)`,
+not a status. No redirect is attempted in either case. Client debug output and
+typed failures omit both routes and backend error details.
+
+The GET has a ten-second request timeout, with reqwest retries disabled. The
+async client uses the caller's Tokio runtime with I/O and time enabled; it
+owns no runtime thread, and dropping the future stops waiting for the result.
+This does not promise synchronous socket teardown, filter dependency tracing,
+pin DNS or establish device identity. The WebSocket route is not contacted;
+neither matching authorities nor successful TLS/status confers credential
+eligibility. There is no WebSocket or system proxy support, firmware or
+capability discovery, authentication, stable ABI, or migration of existing CLI,
+clock/control, token, Python or JVM callers.
 
 ## Optional clock runtime
 
