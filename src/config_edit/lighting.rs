@@ -3,12 +3,16 @@
 use std::collections::BTreeMap;
 
 use anyhow::Result;
+use lox_core::configuration::editor::{
+    LightingInspection as StoredLightingInspection, LightingInspectionError,
+    LightingStorage as StoredLightingStorage, StoredLightingMood,
+};
 use serde::Serialize;
 use xmltree::{Element, XMLNode};
 
 use super::lighting_metadata::LightingMoodIdentity;
 use super::schema::{Diagnostic, StoredValue};
-use super::{ConfigEditor, MoodInfo};
+use super::{ConfigEditor, MoodInfo, editor_error};
 
 type Attributes = BTreeMap<String, String>;
 
@@ -17,6 +21,16 @@ pub struct LightingStorage {
     pub element: String,
     pub attributes: Attributes,
     pub children: Vec<LightingStorage>,
+}
+
+impl From<StoredLightingStorage> for LightingStorage {
+    fn from(storage: StoredLightingStorage) -> Self {
+        Self {
+            element: storage.element,
+            attributes: storage.attributes,
+            children: storage.children.into_iter().map(Into::into).collect(),
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -784,16 +798,10 @@ impl ConfigEditor {
     }
 
     pub fn inspect_lighting(&self, selector: &str) -> Result<LightingInspection> {
-        let path = self.require_one(selector)?;
-        let block = self.get_element(&path);
-        if block.attributes.get("Type").map(String::as_str) != Some("LightController2") {
-            return Err(Diagnostic::new(
-                "wrong_block_type",
-                selector,
-                "Lighting inspection requires LightController2. Use `lox config controls FILE --type LightController2` to find one.",
-            )
-            .into());
-        }
+        let stored = self
+            .kernel
+            .inspect_lighting_selected(selector)
+            .map_err(|error| lighting_inspection_error(error, selector))?;
         let mut diagnostics = vec![
             Diagnostic::new(
                 "unverified_lighting_contract",
@@ -811,22 +819,18 @@ impl ConfigEditor {
                 "Use `config lighting set-mood-level` for supported numeric editor kinds; it validates the target before writing. `config set-mood-color` remains a raw packed-value edit, not a mode-aware equivalent, even for a color-classified output.",
             ),
         ];
-        let collections: Vec<_> = block
-            .children
-            .iter()
-            .filter_map(XMLNode::as_element)
-            .filter(|element| element.name == "LightscenesC")
-            .collect();
-        let summaries = self.list_moods(selector)?;
-        let mood_elements: Vec<_> = Self::iter_elements(block)
-            .into_iter()
-            .filter(|element| element.name == "LightsceneC")
-            .collect();
+        let collection_issues = collection_diagnostics(&stored, selector);
         let mut moods = Vec::new();
-        for (summary, element) in summaries.into_iter().zip(mood_elements) {
-            check_identity(element, "UUID", "LightsceneC", &mut diagnostics);
+        for mood in stored.moods {
+            let summary: MoodInfo = mood.summary.into();
+            check_identity(
+                !summary.uuid.is_empty(),
+                "UUID",
+                "LightsceneC",
+                &mut diagnostics,
+            );
             for key in ["SID", "CID"] {
-                if element
+                if mood
                     .attributes
                     .get(key)
                     .is_some_and(|raw| raw.parse::<i64>().is_err())
@@ -838,188 +842,120 @@ impl ConfigEditor {
                     ));
                 }
             }
-            let direct = matches!(collections.as_slice(), [collection] if collection.children
-                .iter()
-                .filter_map(XMLNode::as_element)
-                .any(|child| std::ptr::eq(child, element)));
-            let mut outputs: Vec<_> = element
-                .attributes
-                .iter()
-                .filter_map(|(key, stored)| {
-                    storage_index(key, "Q").map(|index| {
-                        let editor = inspect_mood_editor(block, element, index, stored, direct);
-                        if let Some(issue) = &editor.issue {
-                            let mut issue = issue.clone();
-                            issue.path = format!(
-                                "mood '{}' ({}) / {}",
-                                summary.name, summary.uuid, issue.path
-                            );
-                            diagnostics.push(issue);
-                        }
-                        LightingMoodOutput {
-                            key: key.clone(),
-                            index,
-                            stored: stored.clone(),
-                            unit: None,
-                            editor,
-                        }
-                    })
-                })
-                .collect();
+            let mut outputs = Vec::new();
+            for output in mood.outputs {
+                let editor = inspect_mood_editor(
+                    &stored.attributes,
+                    &mood.attributes,
+                    output.index,
+                    &output.stored,
+                    mood.in_sole_direct_collection,
+                );
+                if let Some(issue) = &editor.issue {
+                    let mut issue = issue.clone();
+                    issue.path = format!(
+                        "mood '{}' ({}) / {}",
+                        summary.name, summary.uuid, issue.path
+                    );
+                    diagnostics.push(issue);
+                }
+                outputs.push(LightingMoodOutput {
+                    key: output.key,
+                    index: output.index,
+                    stored: output.stored,
+                    unit: None,
+                    editor,
+                });
+            }
             outputs.sort_by_key(|output| output.index);
             moods.push(LightingMood {
                 summary,
-                attributes: attributes(element),
+                attributes: mood.attributes,
                 outputs,
             });
         }
         let mut channels = Vec::new();
-        for co in block.children.iter().filter_map(XMLNode::as_element) {
-            let Some((key, index)) = co.attributes.get("K").and_then(|key| {
-                (co.name == "Co")
-                    .then(|| storage_index(key, "AQ").map(|index| (key, index)))
-                    .flatten()
-            }) else {
-                continue;
-            };
-            check_identity(co, "U", key, &mut diagnostics);
-            let uuid = nonempty(co, "U");
-            let mut downstream = Vec::new();
-            if let Some(uuid) = &uuid {
-                let occurrences = Self::iter_elements(&self.root)
-                    .into_iter()
-                    .filter(|element| element.attributes.get("U") == Some(uuid))
-                    .count();
-                if occurrences != 1 {
+        for channel in stored.channels {
+            let key = channel.key;
+            check_identity(channel.uuid.is_some(), "U", &key, &mut diagnostics);
+            if let (Some(uuid), Some(occurrences)) = (&channel.uuid, channel.uuid_occurrences)
+                && occurrences != 1
+            {
+                diagnostics.push(Diagnostic::new(
+                    "ambiguous_connector_uuid",
+                    &key,
+                    format!("Connector U={uuid} appears {occurrences} times; downstream references cannot be uniquely attributed."),
+                ));
+            }
+            for target in &channel.downstream {
+                if target.block_uuid.is_none() || target.connector_uuid.is_none() {
                     diagnostics.push(Diagnostic::new(
-                        "ambiguous_connector_uuid",
-                        key,
-                        format!("Connector U={uuid} appears {occurrences} times; downstream references cannot be uniquely attributed."),
-                    ));
-                }
-                collect_targets(&self.root, uuid, None, None, &mut downstream);
-                for target in &downstream {
-                    if target.block_uuid.is_none() || target.connector_uuid.is_none() {
-                        diagnostics.push(Diagnostic::new(
-                            "unresolved_wire_target",
-                            key,
-                            "A matching In reference has no complete owning block/connector UUID. It is reported, not treated as a resolved actor.",
-                        ));
-                    }
+                    "unresolved_wire_target",
+                    &key,
+                    "A matching In reference has no complete owning block/connector UUID. It is reported, not treated as a resolved actor.",
+                ));
                 }
             }
             channels.push(LightingChannel {
-                key: key.clone(),
-                index,
-                uuid,
-                attributes: attributes(co),
+                key,
+                index: channel.index,
+                uuid: channel.uuid,
+                attributes: channel.attributes,
                 role: None,
-                downstream,
+                downstream: channel
+                    .downstream
+                    .into_iter()
+                    .map(|wire| LightingWireTarget {
+                        block_uuid: wire.block_uuid,
+                        block_type: wire.block_type,
+                        block_title: wire.block_title,
+                        connector_uuid: wire.connector_uuid,
+                        connector_key: wire.connector_key,
+                        wire_attributes: wire.wire_attributes,
+                    })
+                    .collect(),
             });
         }
         channels.sort_by_key(|channel| channel.index);
-        let containers = block
-            .children
-            .iter()
-            .filter_map(XMLNode::as_element)
-            .filter(|element| element.name == "LightscenesC")
-            .count();
-        if containers != 1 {
-            diagnostics.push(Diagnostic::new(
-                "unsupported_mood_container_shape",
-                selector,
-                format!("Expected one direct LightscenesC container, found {containers}; discovered mood records remain raw read-only data."),
-            ));
-        } else if let Some(collection) = block.get_child("LightscenesC") {
-            inspect_duplicate_mood_ids(collection, &mut diagnostics);
-            let scenes = direct_mood_count(collection);
-            let stored = collection
-                .attributes
-                .get("Num")
-                .and_then(|raw| raw.parse::<i32>().ok());
-            let count_matches =
-                stored.and_then(|count| usize::try_from(count).ok()) == Some(scenes);
-            if !count_matches {
-                diagnostics.push(Diagnostic::new(
-                    "inconsistent_mood_count",
-                    "LightscenesC/@Num",
-                    format!(
-                        "Stored Num does not match {scenes} direct LightsceneC records. Use `lox config lighting recount-moods FILE BLOCK` to repair only Num; Outputs and sparse Qn remain untouched."
-                    ),
-                ));
-            }
-            if stored == Some(0) && scenes == 0 {
-                diagnostics.push(Diagnostic::new(
-                    "native_empty_mood_collection_reinitialized",
-                    "LightscenesC",
-                    "Config 17.2.10.21 reconciles an empty native scene vector after nested serialization on both read and write, creating default scenes in memory. An empty Num=0 collection is not a native load/save no-op. Inspection leaves all stored data unchanged.",
-                ));
-            }
-            if count_matches {
-                for (index, scene) in collection
-                    .children
-                    .iter()
-                    .filter_map(XMLNode::as_element)
-                    .filter(|element| element.name == "LightsceneC")
-                    .enumerate()
-                {
-                    if scene
-                        .attributes
-                        .get("SID")
-                        .and_then(|raw| raw.parse::<i32>().ok())
-                        == Some(0)
-                    {
-                        diagnostics.push(Diagnostic::new(
-                            "native_zero_mood_sid_reconciled",
-                            &format!("LightscenesC/LightsceneC[{}]/@SID", index + 1),
-                            "Stored Num matches the direct scene count. Config 17.2.10.21 can replace a loaded zero SID during reconciliation after nested serialization on both read and write. The allocator searches 1..99 and can return zero when exhausted; this inspector neither allocates an ID nor simulates native saving.",
-                        ));
-                    }
-                }
-            }
-        }
-        check_identity(block, "U", selector, &mut diagnostics);
-        let document_versions = Self::iter_elements(&self.root)
-            .into_iter()
-            .filter(|element| {
-                element.name == "ControlList"
-                    || element.attributes.get("Type").map(String::as_str) == Some("Document")
-            })
-            .map(|element| {
-                element
-                    .attributes
-                    .iter()
-                    .filter(|(key, _)| matches!(key.as_str(), "Version" | "ConfigVersion" | "V"))
-                    .map(|(key, value)| (key.clone(), value.clone()))
-                    .collect()
-            })
-            .collect();
+        diagnostics.extend(collection_issues);
+        check_identity(stored.uuid.is_some(), "U", selector, &mut diagnostics);
         Ok(LightingInspection {
             status: "read_only_unverified",
             read_only: true,
             gui_verified: false,
             recovery_version: "17.2.10.21",
             recovery_target_sha256: "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3",
-            document_versions,
-            uuid: nonempty(block, "U"),
-            title: nonempty(block, "Title"),
-            attributes: attributes(block),
+            document_versions: stored.document_versions,
+            uuid: stored.uuid,
+            title: stored.title,
+            attributes: stored.attributes,
             channels,
             moods,
-            nested_storage: block
-                .children
-                .iter()
-                .filter_map(XMLNode::as_element)
-                .filter(|element| element.name != "Co")
-                .map(storage)
-                .collect(),
+            nested_storage: stored.nested_storage.into_iter().map(Into::into).collect(),
             diagnostics,
         })
     }
 }
 
+fn lighting_inspection_error(error: LightingInspectionError, selector: &str) -> anyhow::Error {
+    match error {
+        LightingInspectionError::Edit(error) => editor_error(error),
+        LightingInspectionError::NotLightController { .. } => Diagnostic::new(
+            "wrong_block_type",
+            selector,
+            "Lighting inspection requires LightController2. Use `lox config controls FILE --type LightController2` to find one.",
+        )
+        .into(),
+        error => error.into(),
+    }
+}
+
 fn mood_output_width(mood: &Element, path: &str) -> Result<i32, Diagnostic> {
-    match mood.attributes.get("Outputs") {
+    stored_mood_output_width(mood.attributes.get("Outputs").map(String::as_str), path)
+}
+
+fn stored_mood_output_width(stored: Option<&str>, path: &str) -> Result<i32, Diagnostic> {
+    match stored {
         None => Ok(12),
         Some(raw) => match raw.parse::<i32>() {
             Ok(0) => Ok(12),
@@ -1034,6 +970,14 @@ fn mood_output_width(mood: &Element, path: &str) -> Result<i32, Diagnostic> {
 }
 
 fn classify_mood_editor(block: &Element, output: usize, type_tag: i32) -> LightingMoodEditor {
+    classify_stored_mood_editor(output, type_tag, |key| block.attributes.get(key).cloned())
+}
+
+fn classify_stored_mood_editor(
+    output: usize,
+    type_tag: i32,
+    stored_capability: impl FnOnce(&str) -> Option<String>,
+) -> LightingMoodEditor {
     let mut editor = LightingMoodEditor {
         kind: match type_tag {
             1..=3 | 7 => LightingEditorKind::Numeric,
@@ -1046,7 +990,7 @@ fn classify_mood_editor(block: &Element, output: usize, type_tag: i32) -> Lighti
     };
     if type_tag == 6 {
         let key = format!("CapAI{}", output - 1);
-        let stored = block.attributes.get(&key).cloned();
+        let stored = stored_capability(&key);
         let effective = match stored.as_deref() {
             None => Some(0),
             Some(raw) => raw.parse::<u16>().ok(),
@@ -1073,8 +1017,8 @@ fn classify_mood_editor(block: &Element, output: usize, type_tag: i32) -> Lighti
 }
 
 fn inspect_mood_editor(
-    block: &Element,
-    mood: &Element,
+    block: &Attributes,
+    mood: &Attributes,
     output: usize,
     raw: &str,
     direct: bool,
@@ -1100,7 +1044,7 @@ fn inspect_mood_editor(
             "Editor classification requires a stored signed-32-bit decimal; opaque data is retained.",
         ))
     } else {
-        match mood_output_width(mood, &key) {
+        match stored_mood_output_width(mood.get("Outputs").map(String::as_str), &key) {
             Err(issue) => Some(issue),
             Ok(width) if output > usize::try_from(width).unwrap() => Some(Diagnostic::new(
                 "unsupported_mood_output_width",
@@ -1117,7 +1061,9 @@ fn inspect_mood_editor(
             capability: None,
             issue: Some(issue),
         },
-        None => classify_mood_editor(block, output, type_tag.unwrap()),
+        None => {
+            classify_stored_mood_editor(output, type_tag.unwrap(), |key| block.get(key).cloned())
+        }
     }
 }
 
@@ -1130,45 +1076,72 @@ pub(super) fn direct_mood_count(collection: &Element) -> usize {
         .count()
 }
 
-fn attributes(element: &Element) -> Attributes {
-    element
-        .attributes
-        .iter()
-        .map(|(key, value)| (key.clone(), value.clone()))
-        .collect()
-}
-
-fn storage(element: &Element) -> LightingStorage {
-    LightingStorage {
-        element: element.name.clone(),
-        attributes: attributes(element),
-        children: element
-            .children
-            .iter()
-            .filter_map(XMLNode::as_element)
-            .map(storage)
-            .collect(),
+fn collection_diagnostics(stored: &StoredLightingInspection, selector: &str) -> Vec<Diagnostic> {
+    let containers = stored.direct_scene_collection_count;
+    if containers != 1 {
+        return vec![Diagnostic::new(
+            "unsupported_mood_container_shape",
+            selector,
+            format!(
+                "Expected one direct LightscenesC container, found {containers}; discovered mood records remain raw read-only data."
+            ),
+        )];
     }
-}
-
-fn nonempty(element: &Element, key: &str) -> Option<String> {
-    element
+    let Some(collection) = stored.sole_scene_collection else {
+        return Vec::new();
+    };
+    let direct_moods: Vec<_> = stored
+        .moods
+        .iter()
+        .filter(|mood| mood.in_sole_direct_collection)
+        .collect();
+    let mut diagnostics = Vec::new();
+    inspect_duplicate_mood_ids(&direct_moods, &mut diagnostics);
+    let scenes = direct_moods.len();
+    let count = stored.nested_storage[collection]
         .attributes
-        .get(key)
-        .filter(|value| !value.is_empty())
-        .cloned()
+        .get("Num")
+        .and_then(|raw| raw.parse::<i32>().ok());
+    let count_matches = count.and_then(|count| usize::try_from(count).ok()) == Some(scenes);
+    if !count_matches {
+        diagnostics.push(Diagnostic::new(
+            "inconsistent_mood_count",
+            "LightscenesC/@Num",
+            format!(
+                "Stored Num does not match {scenes} direct LightsceneC records. Use `lox config lighting recount-moods FILE BLOCK` to repair only Num; Outputs and sparse Qn remain untouched."
+            ),
+        ));
+    }
+    if count == Some(0) && scenes == 0 {
+        diagnostics.push(Diagnostic::new(
+            "native_empty_mood_collection_reinitialized",
+            "LightscenesC",
+            "Config 17.2.10.21 reconciles an empty native scene vector after nested serialization on both read and write, creating default scenes in memory. An empty Num=0 collection is not a native load/save no-op. Inspection leaves all stored data unchanged.",
+        ));
+    }
+    if count_matches {
+        for (index, scene) in direct_moods.into_iter().enumerate() {
+            if scene
+                .attributes
+                .get("SID")
+                .and_then(|raw| raw.parse::<i32>().ok())
+                == Some(0)
+            {
+                diagnostics.push(Diagnostic::new(
+                    "native_zero_mood_sid_reconciled",
+                    &format!("LightscenesC/LightsceneC[{}]/@SID", index + 1),
+                    "Stored Num matches the direct scene count. Config 17.2.10.21 can replace a loaded zero SID during reconciliation after nested serialization on both read and write. The allocator searches 1..99 and can return zero when exhausted; this inspector neither allocates an ID nor simulates native saving.",
+                ));
+            }
+        }
+    }
+    diagnostics
 }
 
-fn inspect_duplicate_mood_ids(collection: &Element, diagnostics: &mut Vec<Diagnostic>) {
+fn inspect_duplicate_mood_ids(moods: &[&StoredLightingMood], diagnostics: &mut Vec<Diagnostic>) {
     for (key, code) in [("SID", "duplicate_mood_sid"), ("CID", "duplicate_mood_cid")] {
         let mut first_records = BTreeMap::new();
-        for (index, mood) in collection
-            .children
-            .iter()
-            .filter_map(XMLNode::as_element)
-            .filter(|element| element.name == "LightsceneC")
-            .enumerate()
-        {
+        for (index, mood) in moods.iter().enumerate() {
             let Some((raw, value)) = mood.attributes.get(key).and_then(|raw| {
                 raw.parse::<i32>()
                     .ok()
@@ -1196,54 +1169,12 @@ fn inspect_duplicate_mood_ids(collection: &Element, diagnostics: &mut Vec<Diagno
     }
 }
 
-fn check_identity(element: &Element, key: &str, path: &str, diagnostics: &mut Vec<Diagnostic>) {
-    if nonempty(element, key).is_none() {
+fn check_identity(present: bool, key: &str, path: &str, diagnostics: &mut Vec<Diagnostic>) {
+    if !present {
         diagnostics.push(Diagnostic::new(
             "missing_identity",
             path,
             format!("Missing or empty @{key}; no replacement ID is generated."),
         ));
-    }
-}
-
-fn storage_index(key: &str, prefix: &str) -> Option<usize> {
-    let suffix = key.strip_prefix(prefix)?;
-    if suffix.is_empty()
-        || !suffix.bytes().all(|byte| byte.is_ascii_digit())
-        || suffix.starts_with('0')
-    {
-        return None;
-    }
-    suffix.parse().ok()
-}
-
-fn collect_targets(
-    element: &Element,
-    source_uuid: &str,
-    block: Option<&Element>,
-    connector: Option<&Element>,
-    targets: &mut Vec<LightingWireTarget>,
-) {
-    let (block, connector) = if element.name == "C" {
-        (Some(element), None)
-    } else if element.name == "Co" {
-        (block, Some(element))
-    } else {
-        (block, connector)
-    };
-    if element.name == "In"
-        && element.attributes.get("Input").map(String::as_str) == Some(source_uuid)
-    {
-        targets.push(LightingWireTarget {
-            block_uuid: block.and_then(|block| nonempty(block, "U")),
-            block_type: block.and_then(|block| nonempty(block, "Type")),
-            block_title: block.and_then(|block| nonempty(block, "Title")),
-            connector_uuid: connector.and_then(|co| nonempty(co, "U")),
-            connector_key: connector.and_then(|co| nonempty(co, "K")),
-            wire_attributes: attributes(element),
-        });
-    }
-    for child in element.children.iter().filter_map(XMLNode::as_element) {
-        collect_targets(child, source_uuid, block, connector, targets);
     }
 }

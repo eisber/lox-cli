@@ -1,6 +1,6 @@
 use super::{EditError, legacy::State};
 use std::{error::Error, fmt};
-use xmltree::Element;
+use xmltree::{Element, XMLNode};
 
 /// One stored light scene ("mood"), without interpreting its output values.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -71,6 +71,16 @@ pub fn list_moods(bytes: &[u8], selector: &str) -> Result<Vec<MoodInfo>, MoodInv
 
 impl State {
     pub fn list_moods_selected(&self, selector: &str) -> Result<Vec<MoodInfo>, MoodInventoryError> {
+        let element = self.select_light_controller(selector)?;
+        let mut moods = Vec::new();
+        visit_moods(element, &mut |mood| moods.push(mood_summary(mood)));
+        Ok(moods)
+    }
+
+    pub(super) fn select_light_controller(
+        &self,
+        selector: &str,
+    ) -> Result<&Element, MoodInventoryError> {
         let path = self
             .require_one(selector)
             .map_err(|error| MoodInventoryError::Edit(error.into()))?;
@@ -82,26 +92,25 @@ impl State {
                 block_type,
             });
         }
+        Ok(element)
+    }
+}
 
-        fn collect(element: &Element, moods: &mut Vec<MoodInfo>) {
-            if element.name == "LightsceneC" {
-                moods.push(MoodInfo {
-                    name: element.attributes.get("Name").cloned().unwrap_or_default(),
-                    uuid: element.attributes.get("UUID").cloned().unwrap_or_default(),
-                    sid: element.attributes.get("SID").and_then(|s| s.parse().ok()),
-                    cid: element.attributes.get("CID").and_then(|s| s.parse().ok()),
-                    q1: element.attributes.get("Q1").cloned(),
-                });
-            }
-            for child in &element.children {
-                if let Some(child) = child.as_element() {
-                    collect(child, moods);
-                }
-            }
-        }
+pub(super) fn visit_moods(element: &Element, visit: &mut impl FnMut(&Element)) {
+    if element.name == "LightsceneC" {
+        visit(element);
+    }
+    for child in element.children.iter().filter_map(XMLNode::as_element) {
+        visit_moods(child, visit);
+    }
+}
 
-        let mut moods = Vec::new();
-        collect(element, &mut moods);
-        Ok(moods)
+pub(super) fn mood_summary(element: &Element) -> MoodInfo {
+    MoodInfo {
+        name: element.attributes.get("Name").cloned().unwrap_or_default(),
+        uuid: element.attributes.get("UUID").cloned().unwrap_or_default(),
+        sid: element.attributes.get("SID").and_then(|s| s.parse().ok()),
+        cid: element.attributes.get("CID").and_then(|s| s.parse().ok()),
+        q1: element.attributes.get("Q1").cloned(),
     }
 }

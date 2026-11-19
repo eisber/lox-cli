@@ -63,14 +63,24 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 - Optional `configuration-editor`: `configuration::editor::list_moods(bytes,
   selector)` reads the selected `LightController2` through the same cached
-  producer used by `lox config moods`, Lighting inspection and mood creation
-  planning. It returns owned `MoodInfo` records in depth-first document order,
-  including nested records and duplicates. Missing and empty names/UUIDs both
-  become empty strings; SID/CID are optional `i64`s, and absent `Q1` is distinct
-  from an empty stored value. `MoodInventoryError` wraps editor load and
+  selector and mood traversal used by `lox config moods`, Lighting inspection
+  and mood creation planning. It returns owned `MoodInfo` records in depth-first
+  document order, including nested records and duplicates. Missing and empty
+  names/UUIDs both become empty strings; SID/CID are optional `i64`s, and absent
+  `Q1` is distinct from an empty stored value. `MoodInventoryError` wraps editor load and
   selection errors and reports a separately typed wrong-controller refusal.
   The shared loader's lox-n37w limitation is unchanged. This read does not
   decode colors, alter configuration, validate native behavior or add bindings.
+
+- Optional `configuration-editor`: `configuration::editor::inspect_lighting(bytes,
+  selector)` shares the stored projection used by `lox config lighting inspect`.
+  It reads one legacy-selected `LightController2`: controller attributes,
+  indexed `Co` channels and exact downstream `In` references, mood attributes
+  and stored `Qn`, nested non-connector elements, and document version fields.
+  Returned strings are from the shared loader, not raw XML bytes (lox-n37w).
+  Editor classification, diagnostics, recovery annotations and output
+  formatting stay with the CLI. This operation does not edit, decode colors,
+  infer physical roles, validate native behavior or add foreign bindings.
 
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_status_monitor` reads one standalone,
