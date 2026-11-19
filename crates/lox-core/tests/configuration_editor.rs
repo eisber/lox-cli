@@ -2267,4 +2267,217 @@ mod load_manager {
             ));
         }
     }
+
+    #[cfg(feature = "configuration-xml")]
+    mod name {
+        use super::{EditError, Failure, SelectionError, inspect};
+        use chrono::{DateTime, FixedOffset};
+        use lox_core::configuration::editor::{
+            LoadManagerNameChange, LoadManagerNameError as Refusal,
+            set_load_manager_load_name as set_name,
+        };
+
+        fn clock() -> DateTime<FixedOffset> {
+            DateTime::parse_from_rfc3339("2009-01-02T01:59:59+02:00").unwrap()
+        }
+
+        fn document() -> String {
+            let rest: String = [3, 1, 2, 4, 6, 7, 8, 9, 10, 11]
+                .into_iter()
+                .map(|index| format!(r#"<Load ioIdx="{index}"/>"#))
+                .collect();
+            format!(
+                "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+                <Loxone><C Type=\"Document\" Date=\"old\" DateS=\"86400\">\
+                <C Type=\"Place\" U=\"room\" Title=\"Workshop\"/>\
+                <C Type=\"LoadShed\" U=\"manager\" Title=\"Loads\" WF=\"16384\">\
+                <IoData Pr=\"room\"/><Co K=\"AQl1\" U=\"wire\" 12hTF=\"true\"/>\
+                <Load ioIdx=\"05\" nm=\"Five\" pwr=\"2.5000e0\"/>\
+                <Between/><Other><Load ioIdx=\"invalid\" nm=\"Nested\"/></Other>\
+                <Load nm=\" A &amp; B \" pwr=\"invalid\" minOn=\"+0045\" Future=\"\"><Extra U=\"keep\"/></Load>\
+                {rest}</C></C></Loxone>\r\n"
+            )
+        }
+
+        #[test]
+        fn edits_the_resolved_record_without_changing_order_or_other_data() {
+            let xml = document();
+            let selector = "Loads [Work]";
+            let mut expected = inspect(xml.as_bytes(), selector).unwrap();
+            let name = "  Wärmepumpe 東京 🔌 & \"Haus\" <ok>  ";
+            let result = set_name(xml.as_bytes(), selector, 0, name, &clock()).unwrap();
+            assert_eq!(
+                result.change,
+                LoadManagerNameChange {
+                    io_index: 0,
+                    before: Some(" A & B ".into()),
+                    after: Some(name.into()),
+                    changed: true,
+                }
+            );
+            assert_eq!(expected.loads[1].io_index, 0);
+            expected.loads[1]
+                .attributes
+                .insert("nm".into(), name.into());
+            assert_eq!(result.inspection, expected);
+            assert_eq!(inspect(&result.bytes, selector).unwrap(), expected);
+            assert!(result.document_stamped);
+            let saved = std::str::from_utf8(&result.bytes).unwrap();
+            assert!(saved.starts_with("\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"));
+            assert!(saved.ends_with("</Loxone>\r\n"));
+            assert!(saved.contains(r#"Date="2009-01-02 02:00:01" DateS="86401""#));
+            let positions = [
+                r#"<Co K="AQl1" U="wire" 12hTF="true"/>"#,
+                r#"<Load ioIdx="05" nm="Five" pwr="2.5000e0"/>"#,
+                "<Between></Between>",
+                r#"<Load ioIdx="invalid" nm="Nested"/>"#,
+                r#"<Load nm="  Wärmepumpe 東京 🔌 &amp; &quot;Haus&quot; "#,
+                r#"<Extra U="keep"/>"#,
+                r#"<Load ioIdx="3"/>"#,
+            ]
+            .map(|part| saved.find(part).unwrap());
+            assert!(positions.windows(2).all(|pair| pair[0] < pair[1]));
+        }
+
+        #[test]
+        fn clear_omits_nonempty_name_and_exact_noops_return_original_bytes() {
+            let xml = document();
+            let without_document = xml
+                .replace(r#"<C Type="Document" Date="old" DateS="86400">"#, "")
+                .replace("</C></C></Loxone>", "</C></Loxone>");
+            let result = set_name(without_document.as_bytes(), "Loads", 0, "", &clock()).unwrap();
+            assert!(result.change.changed);
+            assert_eq!(result.change.before.as_deref(), Some(" A & B "));
+            assert_eq!(result.change.after, None);
+            assert!(!result.document_stamped);
+            assert!(!result.inspection.loads[1].attributes.contains_key("nm"));
+            assert_eq!(inspect(&result.bytes, "Loads").unwrap(), result.inspection);
+
+            for (stored, request, observed) in [
+                (r#" nm=" A &#38; B ""#, " A & B ", Some(" A & B ")),
+                (r#" nm="""#, "", Some("")),
+                ("", "", None),
+            ] {
+                let source = xml.replacen(r#" nm=" A &amp; B ""#, stored, 1);
+                let result = set_name(source.as_bytes(), "Loads", 0, request, &clock()).unwrap();
+                assert!(!result.change.changed);
+                assert_eq!(result.change.before.as_deref(), observed);
+                assert_eq!(result.change.after.as_deref(), observed);
+                assert_eq!(
+                    result.inspection.loads[1]
+                        .attributes
+                        .get("nm")
+                        .map(String::as_str),
+                    observed
+                );
+                assert!(!result.document_stamped);
+                assert_eq!(result.bytes, source.as_bytes());
+            }
+        }
+
+        #[test]
+        fn orders_request_load_selection_scope_and_shape_refusals() {
+            let check = |xml: &str, selector: &str, index, name: &str| {
+                set_name(xml.as_bytes(), selector, index, name, &clock()).unwrap_err()
+            };
+            let malformed = "<Loxone><C></Loxone>";
+            assert!(matches!(
+                check(malformed, "Missing", 12, "\t"),
+                Refusal::InvalidRequestedIoIndex { io_index: 12 }
+            ));
+            assert!(matches!(
+                check(malformed, "Missing", 0, "\t"),
+                Refusal::InvalidName
+            ));
+            assert!(matches!(
+                check(malformed, "Missing", 0, "New"),
+                Refusal::Edit(EditError::Load(_))
+            ));
+            let xml = document();
+            assert!(matches!(
+                check(&xml, "Missing", 0, "New"),
+                Refusal::Inspection(Failure::Edit(EditError::Selection(
+                    SelectionError::NotFound { .. }
+                )))
+            ));
+            assert!(matches!(
+                check(&xml, "uuid:room", 0, "New"),
+                Refusal::Inspection(Failure::NotLoadManager { .. })
+            ));
+            let duplicate = xml.replace(r#"ioIdx="05""#, r#"ioIdx="000""#);
+            assert!(matches!(
+                check(&duplicate, "Loads", 0, "New"),
+                Refusal::Inspection(Failure::DuplicateIoIndex { io_index: 0 })
+            ));
+            let inherited = duplicate.replace(r#"WF="16384""#, r#"IfT="false""#);
+            assert!(matches!(
+                check(&inherited, "Loads", 0, " A & B "),
+                Refusal::TemplateOrInherited
+            ));
+            let namespaced = xml.replace(r#" nm=" A"#, r#" xml:nm=" A"#);
+            assert!(matches!(
+                check(&namespaced, "Missing", 0, "New"),
+                Refusal::NamespacedXml
+            ));
+            let nonowning = xml
+                .replace(
+                    r#"<C Type="Document" Date="old" DateS="86400">"#,
+                    r#"<C Type="Document" Date="old" DateS="86400"/>"#,
+                )
+                .replace("</C></C></Loxone>", "</C></Loxone>");
+            assert!(matches!(
+                check(&nonowning, "Loads", 0, ""),
+                Refusal::DocumentScope
+            ));
+        }
+
+        #[test]
+        fn rejects_changed_names_that_cannot_round_trip_exactly() {
+            let xml = document();
+            for name in ["at 7am=on", "at _12hTF=on"] {
+                assert!(matches!(
+                    set_name(xml.as_bytes(), "Loads", 0, name, &clock()),
+                    Err(Refusal::NameTextCollision)
+                ));
+            }
+            let stored = xml.replacen(" A &amp; B ", "at _12hTF=on", 1);
+            let noop = set_name(stored.as_bytes(), "Loads", 0, "at _12hTF=on", &clock()).unwrap();
+            assert!(!noop.change.changed);
+            assert_eq!(noop.bytes, stored.as_bytes());
+        }
+
+        #[test]
+        fn refuses_non_1_0_or_untrustworthy_declarations_even_for_a_disjoint_name() {
+            let xml = document();
+            let disjoint = xml.replacen(r#"nm="Five""#, r#"nm="&#x1;""#, 1);
+            let xml_1_1 = disjoint.replacen("1.0", "1.1", 1);
+            let before = inspect(xml_1_1.as_bytes(), "Loads").unwrap();
+            assert_eq!(before.loads[0].attributes["nm"], "\u{1}");
+            for name in ["New", " A & B "] {
+                assert!(matches!(
+                    set_name(xml_1_1.as_bytes(), "Loads", 0, name, &clock()),
+                    Err(Refusal::UnsupportedXml)
+                ));
+            }
+
+            for declaration in [
+                r#"<?xml version="1.2"?>"#,
+                r#"<?xml encoding="utf-8"?>"#,
+                r#"<?xml version="1.0" version="1.1"?>"#,
+                r#"<?xml version="1.0"?><?xml version="1.1"?>"#,
+            ] {
+                let xml = xml.replacen(r#"<?xml version="1.0" encoding="utf-8"?>"#, declaration, 1);
+                assert!(matches!(
+                    set_name(xml.as_bytes(), "Loads", 0, "New", &clock()),
+                    Err(Refusal::UnsupportedXml)
+                ));
+            }
+
+            let xml_1_0 = disjoint.replacen("&#x1;", "&#x41;", 1);
+            let result = set_name(xml_1_0.as_bytes(), "Loads", 0, "New", &clock()).unwrap();
+            assert_eq!(result.inspection.loads[0].attributes["nm"], "A");
+            assert_eq!(result.inspection.loads[1].attributes["nm"], "New");
+            assert_eq!(inspect(&result.bytes, "Loads").unwrap(), result.inspection);
+        }
+    }
 }
