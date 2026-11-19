@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Loxone>
+	<C Type="Document" Date="2009-01-02 00:00:00" DateS="86400" 12hTF="true">
+		<C Type="Page">
+			<C Type="DayTimer" U="ABCDEF00-0000-0004-FFFF000000000000" Title="Schedule" Analog="false" DefValue="+00" N="+02" Modes="ABCDEF01-ABCD-0004-15000000ABCDEF00,00000000-0000-0005-1500000000000000" Unknown="KeEp">
+				<Entry To="180" Ix="+01" V="+004" NeedActivate="TrUe"/>
+				<Co K="AQ" U="wire">
+					<In Input="source"/>
+				</Co>
+				<Entry To="180" V="+005" Marker="entfernt &amp; 灯"/>
+				<Unknown Preserve="yes">
+					<Entry To="300"/>
+				</Unknown>
+			</C>
+		</C>
+		<C Type="Mode" U="abcdef01-abcd-0004-1500-0000abcdef00"/>
+		<C Type="Mode" U="00000000-0000-0005-1500000000000000"/>
+	</C>
+</Loxone>
