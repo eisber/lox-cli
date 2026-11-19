@@ -70,54 +70,61 @@ pub enum OverlayError {
     UnsupportedCoreVariant,
 }
 
+impl OverlayErrorFrame {
+    pub(crate) fn project(value: &core::OverlayError) -> Option<Self> {
+        const { assert!(usize::BITS <= u64::BITS) };
+        Some(match value {
+            core::OverlayError::DocumentUtf8 { source } => OverlayErrorFrame::DocumentUtf8 {
+                valid_up_to: source.valid_up_to() as u64,
+                error_len: source.error_len().map(|n| n as u64),
+            },
+            core::OverlayError::Utf8 { source } => OverlayErrorFrame::Utf8 {
+                valid_up_to: source.valid_up_to() as u64,
+                error_len: source.error_len().map(|n| n as u64),
+            },
+            core::OverlayError::StringUtf8 { source } => OverlayErrorFrame::StringUtf8 {
+                bytes: source.as_bytes().to_vec(),
+                valid_up_to: source.utf8_error().valid_up_to() as u64,
+                error_len: source.utf8_error().error_len().map(|n| n as u64),
+            },
+            core::OverlayError::Xml { source, context } => OverlayErrorFrame::Xml {
+                context: (*context).into(),
+                source_message: source.to_string(),
+            },
+            core::OverlayError::Attribute { source, context } => OverlayErrorFrame::Attribute {
+                context: (*context).into(),
+                source_message: source.to_string(),
+            },
+            core::OverlayError::DuplicateUuid { id } => {
+                OverlayErrorFrame::DuplicateUuid { id: id.clone() }
+            }
+            core::OverlayError::MissingControlType => OverlayErrorFrame::MissingControlType,
+            core::OverlayError::UnexpectedClosingTag => OverlayErrorFrame::UnexpectedClosingTag,
+            core::OverlayError::Dtd => OverlayErrorFrame::Dtd,
+            core::OverlayError::OutsideRoot => OverlayErrorFrame::OutsideRoot,
+            core::OverlayError::IncompleteRoot => OverlayErrorFrame::IncompleteRoot,
+            core::OverlayError::ShellConflict { id } => {
+                OverlayErrorFrame::ShellConflict { id: id.clone() }
+            }
+            core::OverlayError::ControlConflict { id } => {
+                OverlayErrorFrame::ControlConflict { id: id.clone() }
+            }
+            core::OverlayError::Placement => OverlayErrorFrame::Placement,
+            core::OverlayError::MergedConsistency { .. } => OverlayErrorFrame::MergedConsistency,
+            _ => return None,
+        })
+    }
+}
+
 impl From<core::OverlayError> for OverlayError {
     fn from(error: core::OverlayError) -> Self {
-        const { assert!(usize::BITS <= u64::BITS) };
         let mut frames = Vec::new();
         let mut current = Some(&error);
         while let Some(value) = current {
-            frames.push(match value {
-                core::OverlayError::DocumentUtf8 { source } => OverlayErrorFrame::DocumentUtf8 {
-                    valid_up_to: source.valid_up_to() as u64,
-                    error_len: source.error_len().map(|n| n as u64),
-                },
-                core::OverlayError::Utf8 { source } => OverlayErrorFrame::Utf8 {
-                    valid_up_to: source.valid_up_to() as u64,
-                    error_len: source.error_len().map(|n| n as u64),
-                },
-                core::OverlayError::StringUtf8 { source } => OverlayErrorFrame::StringUtf8 {
-                    bytes: source.as_bytes().to_vec(),
-                    valid_up_to: source.utf8_error().valid_up_to() as u64,
-                    error_len: source.utf8_error().error_len().map(|n| n as u64),
-                },
-                core::OverlayError::Xml { source, context } => OverlayErrorFrame::Xml {
-                    context: (*context).into(),
-                    source_message: source.to_string(),
-                },
-                core::OverlayError::Attribute { source, context } => OverlayErrorFrame::Attribute {
-                    context: (*context).into(),
-                    source_message: source.to_string(),
-                },
-                core::OverlayError::DuplicateUuid { id } => {
-                    OverlayErrorFrame::DuplicateUuid { id: id.clone() }
-                }
-                core::OverlayError::MissingControlType => OverlayErrorFrame::MissingControlType,
-                core::OverlayError::UnexpectedClosingTag => OverlayErrorFrame::UnexpectedClosingTag,
-                core::OverlayError::Dtd => OverlayErrorFrame::Dtd,
-                core::OverlayError::OutsideRoot => OverlayErrorFrame::OutsideRoot,
-                core::OverlayError::IncompleteRoot => OverlayErrorFrame::IncompleteRoot,
-                core::OverlayError::ShellConflict { id } => {
-                    OverlayErrorFrame::ShellConflict { id: id.clone() }
-                }
-                core::OverlayError::ControlConflict { id } => {
-                    OverlayErrorFrame::ControlConflict { id: id.clone() }
-                }
-                core::OverlayError::Placement => OverlayErrorFrame::Placement,
-                core::OverlayError::MergedConsistency { .. } => {
-                    OverlayErrorFrame::MergedConsistency
-                }
-                _ => return Self::UnsupportedCoreVariant,
-            });
+            let Some(frame) = OverlayErrorFrame::project(value) else {
+                return Self::UnsupportedCoreVariant;
+            };
+            frames.push(frame);
             current = value
                 .source()
                 .and_then(|source| source.downcast_ref::<core::OverlayError>());

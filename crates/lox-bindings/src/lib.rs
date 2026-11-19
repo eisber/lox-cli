@@ -16,6 +16,7 @@ mod control_catalog;
 mod custom_listing;
 mod daytimer_state;
 mod firmware_metadata;
+mod fragment_application;
 mod mqtt_catalog;
 mod numeric_state;
 mod runtime_overlay;

@@ -29,13 +29,14 @@ all validation, codec math and wire rendering also remain in Core.
 | Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
-| Byte-preserving runtime overlay and three-way merge | Optional `configuration::runtime_overlay` (`configuration-xml`); `merge_overlays`, `three_way` and the existing `validate_document` precondition share one private byte-span kernel and typed errors | Existing acquisition/patch/preparation producers delegate; file/network/baseline/deployment policy and legacy error presentation stay head-owned; no whole-command count increase or safe-deployment claim | Source-only unvalidated `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` ordered typed frames; no fragment-application/validation export | Source-only unvalidated `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused.frames()`; SAME generated Java22 API in Kotlin; no fragment-application/validation export |
+| Byte-preserving offline three-way merge | Optional `configuration::runtime_overlay::three_way` (`configuration-xml`) | Existing patch/preparation callers unchanged; no deployment claim | Verified at published main `2603542`: `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` | Verified at published main `2603542`: `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused`; SAME Java22 API in Kotlin |
+| Offline application of supplied LoxCC fragments | Optional `configuration::runtime_overlay::merge_overlays` (`configuration-xml`); existing filename-keyed transaction | Existing CLI acquisition, duplicate guard and merge caller unchanged | Source-only, unrun `merge_overlays(base: bytes, fragments: list[LoxccFragment]) -> bytes`; typed `FragmentApplicationError` | Source-only, unrun `LoxArchive.mergeOverlays(byte[], List<LoxccFragment>) -> byte[]`; checked `FragmentApplicationException`; SAME Java22 API in Kotlin |
 | Strict successful `/sys/custom` FTP listing interpretation | Default `configuration::custom_listing::parse_custom_listing`; sorted raw owned names with duplicates, atomic typed row-index errors, exact legacy whitespace/suffix/type-letter quirks; not backup or fragment-filename validation | Actual `ftp::list_custom_changes` called by `custom_overlay::acquire` delegates inside the same retry closure; exact static-str/String diagnostics and quit/error timing retained; transport failures are not empty listings; no whole-command count increase | Source-only unvalidated candidate `parse_custom_listing(list[str]) -> list[str]`; typed `CustomListingError` | Source-only unvalidated candidate `LoxArchive.parseCustomListing(List<String>) -> List<String>`; checked `CustomListingException`; SAME generated Java22 API in Kotlin |
 | Other XML mutations, semantic validation, deployment, sidecars/trust | No further functional transaction beyond the rows above | Existing CLI behavior unchanged; other legacy editor and trust/deployment behavior remains head-owned | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
 | Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); ordered finite rows, typed errors, timestamps remain opaque | `stats get` shares decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | `parse_statistics_series(str) -> StatSeries`; typed `StatRow` and `StatisticsError` | `LoxArchive.parseStatisticsSeries(String) -> StatSeries`; owned `List<StatRow>` / `double[]` and checked `StatisticsException`; Kotlin uses the same Java 22 API |
 | Supplied statistics-index identity resolution | Published optional `statistics::resolve_identity` (`statistics-xml`); raw UUID result and typed identity errors | Actual `stats get` already shares Core selection before separate acquisition/group/month/output logic; unchanged | `resolve_statistics_identity(list[StatEntry], str) -> str`; typed `StatisticResolutionError` | `LoxArchive.resolveStatisticsIdentity(List<StatEntry>, String) -> String`; checked `StatisticResolutionException`; Kotlin uses the same Java 22 API |
-| Caller-ordered statistics month merge | Published optional `statistics::merge_months` (`statistics-xml`); existing independent Core contract | Existing CLI caller unchanged | Source-only unvalidated `merge_statistics_months(list[StatMonthPart]) -> StatSeries`; typed `StatisticsMergeError.OutputMismatch` | Source-only unvalidated `LoxArchive.mergeStatisticsMonths(List<StatMonthPart>) -> StatSeries`; checked `StatisticsMergeException.OutputMismatch`; Kotlin uses the same Java 22 API |
+| Caller-ordered statistics month merge | Published optional `statistics::merge_months` (`statistics-xml`); existing independent Core contract | Existing CLI caller unchanged | Verified at published main `2603542`: `merge_statistics_months(list[StatMonthPart]) -> StatSeries`; typed `StatisticsMergeError.OutputMismatch` | Verified at published main `2603542`: `LoxArchive.mergeStatisticsMonths(List<StatMonthPart>) -> StatSeries`; checked `StatisticsMergeException.OutputMismatch`; Kotlin uses the same Java 22 API |
 | Read-only HTML statistics index catalog | Published optional `statistics::parse_index` (`statistics-xml`); infallible existing omissions, raw fields, order and duplicates | Existing index producer unchanged | Candidate `parse_statistics_index(str) -> list[StatEntry]` | Candidate `LoxArchive.parseStatisticsIndex(String) -> List<StatEntry>`; SAME generated Java API in Kotlin |
 | Offline firmware metadata and comparison | Published optional `firmware_metadata` (`firmware-metadata`); strict XML, numeric versions, Gregorian dates and explicit-date observations | Existing CLI unchanged; no updater or device contact | Candidate `parse_firmware_version`, `compare_firmware_versions`, `parse_firmware_metadata`, `assess_firmware_metadata`; typed records/enums/errors | Candidate corresponding `LoxArchive` methods; SAME generated Java22 FFM API in Kotlin |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
@@ -331,7 +332,7 @@ perform identity selection, HTML index parsing, month merge, statistics
 acquisition or binary statistics decoding. It adds no CLI command and does not
 change the supported platform boundaries.
 
-### Caller-ordered statistics month merge source candidate
+### Caller-ordered statistics month merge
 
 `merge_statistics_months` consumes supplied `StatMonthPart { month, series }`
 records, reusing the owned `StatSeries` and `StatRow` DTOs. It calls
@@ -351,8 +352,8 @@ The Rust boundary moves the `f64` values unchanged; unlike XML parsing, this
 operation does not reject nonfinite values. Source tests require the generated
 Python API and the same Java 22/Kotlin API (owned `double[]` / `DoubleArray`)
 to round-trip raw witnesses for signed zero, a subnormal, both infinities and
-noncanonical quiet NaNs. Foreign bit preservation is not qualified until those
-tests run successfully on the actual generated artifacts.
+noncanonical quiet NaNs. Foreign bit preservation was verified on the matching
+generated/native artifacts at published main `2603542`.
 
 This slice adds five checks to the SDK builder. It must show live1/free0 on
 actual large success and checked-error RustBuffers using the unchanged
@@ -360,8 +361,9 @@ actual large success and checked-error RustBuffers using the unchanged
 buffers with 64 distinct host objects retained per branch per language without
 requested GC. The builder includes the qualification logs in `ARTIFACTS.json`
 and emits the mechanism receipt with the tested DLL hash only after all three
-language tests pass. Published counts remain CLI 16, Python 27 and Java/Kotlin
-27, with two historical and zero new native Config qualifications.
+language tests pass. With the verified three-way and month operations at that
+published main, counts are CLI 16, Python 29 and Java/Kotlin 29, with two
+historical and zero new native Config qualifications.
 
 ### Read-only HTML statistics index candidate
 
@@ -663,10 +665,10 @@ The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
 
-## Source-only offline three-way projection
+## Offline three-way projection
 
-This candidate is **uncompiled and unqualified**. Only `three_way` is exported;
-`merge_overlays` and `validate_document` remain Core-only APIs. All validation,
+`three_way` was verified on the matching generated/native artifacts at
+published main `2603542`. There is no `validate_document` export. All validation,
 semantic comparison, placement and selected-byte preservation stay in Core.
 Inputs and output are owned byte buffers, not strings, XML trees or handles.
 There is no acquisition, I/O, network, schema, sidecar, baseline, permission,
@@ -723,8 +725,50 @@ The new callers include the two-frame witness, byte ownership and typed native
 boundaries. HeapWalk sources calibrate actual returned success/error RustBuffers
 with the unchanged 128-byte-prefix/minimum-64000 matcher (live1/free0), then
 retain host outputs/errors over 64 calls per branch without requesting GC.
-These are **test sources and future proof steps, not passing execution claims**.
-Compiler, native, package and test validation remain unrun pending admission.
+The three-way and month-merge checks passed on the matching artifacts at
+published main `2603542`; that receipt does not cover fragment application.
+
+## Source-only offline LoxCC fragment application
+
+This preflight is **unrun**. `merge_overlays` accepts the exact base bytes and
+caller-supplied `LoxccFragment { name, data }` entries, with compressed bytes in
+`data`. The Python record takes keywords (`name=`, `data=`); Java/Kotlin use
+the same generated record with `byte[]` / `ByteArray`. The sequence is not
+an application order. It retains duplicate entries until the adapter rejects
+the lowest exact repeated filename as `DuplicateFilename`, as in the CLI's
+sorted listing. A generated map could collapse repeated strings on lift.
+Core receives a `BTreeMap` of exact unique keys, applies them in filename order,
+and itself refuses normalized UUID aliases.
+
+Empty input passes the base bytes through exactly, including malformed XML or
+UTF-8. Nonempty input delegates once to Core. Standalone fragment checks,
+length and CRC validation, replacement of selected spans, unique
+`AutopilotRule` placement on `Page` with `SpNo="1"`, and atomic refusal are
+Core behavior. No I/O, acquisition, schema or deployment check is performed.
+
+`FragmentApplicationError.Refused` / checked
+`FragmentApplicationException.Refused` preserves ordered domain frames. The
+common parser frames reuse the published `OverlayErrorFrame` inside `Overlay`;
+the published three-way error type is unchanged. For example, a short LoxCC
+header produces `FragmentRead(name)`, `Archive`, then
+`ArchiveHeaderTooShort(actual)`. Invalid magic and both back-reference errors
+retain their native numeric fields. ZIP errors are not reachable through this
+raw codec call. `UuidConsistency(name)` retains the ordered inner Core frame,
+such as `DuplicateUuid(id)`. Unsupported causes reject the entire projection
+rather than returning an incomplete chain.
+
+The five additive SDK steps retain all 157 published steps. The new proof
+sources cover owned large nonempty success and six named refusals (four codec
+causes, integrity failure and the UUID consistency chain). They use the
+unchanged HeapWalk primitive: the established 128-byte/minimum-64000 success
+match, and the published MQTT short-buffer pattern with a prefix that includes
+bytes of the actual filename and a minimum equal to the actual error length. The steps
+require live1/free0, then no matching native allocations with 64 distinct
+host results or errors retained, without requested GC. Small empty bypass
+and other short or payload-free branches have no separate native allocation
+attribution claim. Test sources, log paths and an after-success mechanism
+receipt are not qualification; compiler, generation, SDK and package
+execution for this operation remain unrun.
 
 ## Offline color heads
 
