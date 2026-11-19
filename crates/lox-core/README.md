@@ -50,7 +50,7 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   quoted-text/digit-name limitation (lox-n37w) remains; raw-byte/lossless foreign
   XML preservation is not claimed. Default Core dependencies are unchanged.
 
-- Source candidate, optional `configuration-editor`: `configuration::editor::principal_permissions`
+- Optional `configuration-editor`: `configuration::editor::principal_permissions`
   reads one explicitly selected `User` or `UserGroup` from caller-supplied XML
   bytes. It returns owned entries from the first direct `PH`, retaining optional
   `REF`/`ACT`/`TIM` and first exact `C U` title/type metadata. Title selection is
@@ -59,7 +59,9 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   from missing and ambiguous selection. `config user-perms` uses this read
   with its existing diagnostics and output formats. The shared loader's
   lox-n37w limitation is unchanged. No writes, inheritance, effective access
-  decisions, new bulk read or foreign bindings are provided.
+  decisions or new bulk read are provided. The
+  [foreign binding projection](../../docs/toolkit-archive-bindings.md#offline-selected-principal-direct-permissions-candidate)
+  is a source-only candidate, not qualified by the Core read.
 
 - Optional `configuration-editor`: `configuration::editor::list_moods(bytes,
   selector)` reads the selected `LightController2` through the same cached

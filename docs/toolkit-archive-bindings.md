@@ -23,7 +23,8 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only control inventory from raw XML bytes | Optional `configuration::controls::parse_controls` (`configuration-xml`); existing filters and pending associations | `config controls` shares inventory; I/O, limits and presentation stay in CLI | `parse_controls(bytes, type_filter, room_filter) -> list[XmlControlInfo]` | `LoxArchive.parseControls(byte[], String, String) -> List<XmlControlInfo>`; nullable filters |
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
 | Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Verified at `0adc6a9`: `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Verified at `0adc6a9`: `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java 22 API in Kotlin |
-| Offline selected Lighting mood inventory | Published optional `configuration::editor::list_moods` (`configuration-editor`) at `1746c9b`; stored rows only | Existing `lox config moods` shares the Core traversal; file I/O, DTO and rendering stay in CLI | Source-only, unrun `list_moods(MoodInventoryRequest(bytes=..., selector=...)) -> list[MoodInfo]`; typed `MoodInventoryError` | Source-only, unrun `LoxArchive.listMoods(MoodInventoryRequest) -> List<MoodInfo>`; checked `MoodInventoryException`; same Java 22 API in Kotlin |
+| Offline selected Lighting mood inventory | Published optional `configuration::editor::list_moods` (`configuration-editor`) at `1746c9b`; stored rows only | Existing `lox config moods` shares the Core traversal; file I/O, DTO and rendering stay in CLI | Verified at `8b36cb2`: `list_moods(MoodInventoryRequest(bytes=..., selector=...)) -> list[MoodInfo]`; typed `MoodInventoryError` | Verified at `8b36cb2`: `LoxArchive.listMoods(MoodInventoryRequest) -> List<MoodInfo>`; checked `MoodInventoryException`; same Java 22 API in Kotlin |
+| Offline selected principal direct permissions | Published optional `configuration::editor::principal_permissions` (`configuration-editor`); ordered direct entries and typed failures | Existing `lox config user-perms` uses Core; file I/O, diagnostics and presentation stay in CLI | Source-only, unrun `principal_permissions(PrincipalPermissionsRequest(bytes=..., selector=..., kind=...)) -> PrincipalPermissions`; typed `PrincipalPermissionsError` | Source-only, unrun `LoxArchive.principalPermissions(PrincipalPermissionsRequest) -> PrincipalPermissions`; checked `PrincipalPermissionsException`; same Java 22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Candidate `parse_users(bytes) -> list[XmlUserInfo]` | Candidate `LoxArchive.parseUsers(byte[]) -> List<XmlUserInfo>`; SAME Java API in Kotlin |
 | Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
@@ -216,9 +217,9 @@ unpaired-surrogate inputs without retaining a marked XML input buffer.
 Empty success is a value check only. This does not qualify other platforms
 or native Loxone Config workflows.
 
-### Offline selected Lighting mood inventory candidate
+### Offline selected Lighting mood inventory
 
-The source-only binding projects the published Core reader. Core loads the
+The binding projects the published Core reader. Core loads the
 supplied XML and resolves the legacy selector before requiring exact
 `LightController2`. The result is a list of stored `LightsceneC` records in
 depth-first document order, retaining duplicates even under nested containers.
@@ -236,15 +237,54 @@ This is not raw mood-color observation, full Lighting inspection, membership
 or editing, runtime mood activation, deployment, or a native Config workflow.
 
 One `MoodInventoryRequest` places XML bytes before the selector in a single
-generated lowering transaction. The new, **unrun** installed-artifact checks
-calibrate this export's original success and error RustBuffers on Windows AMD64
-CPython 3.13 (GIL) and Java 22, also called from Kotlin. They check that 64
-distinct retained host values per branch do not retain matching native
-buffers. A separate mood-specific marked XML input checks the original
-length-prefixed request and strict pre-call lone-surrogate rejection without
-retaining matching buffers. Empty success is a value check only. The published
-Core and ProgramText evidence does not establish a MoodInventory SDK result,
-ABI stability or other-platform support.
+generated lowering transaction. At published main `8b36cb2`, all 174 SDK steps
+passed using fresh installed artifacts on Windows AMD64 with CPython 3.13
+(GIL), Java 22, and Kotlin on the same Java API. Each language calibrated the
+actual RustBuffer for nonempty results and each of the four reachable typed
+errors, then held 64 distinct host values per case without retaining a
+matching native buffer or requesting GC. A separate marked XML input verified
+that 64 pre-call lone-surrogate rejections per language retained no matching
+input buffer. Empty success is a value check only. This does not qualify other
+platforms or native Loxone Config workflows.
+
+### Offline selected principal direct permissions candidate
+
+The source-only binding projects the same read as `lox config user-perms`.
+The caller supplies configuration XML bytes, a selector and a `PrincipalKind`
+(`User` or `UserGroup`). Core matches the title exactly, ignoring case, or
+compares the value after a lowercase `uuid:` prefix exactly. An omitted title
+or UUID is empty text in the selected identity. The shared loader's
+quoted-text/digit-name limitation (`lox-n37w`) is unchanged.
+
+Only direct `PRM` children of the first direct `PH` contribute, in order,
+including duplicates; `NUM` is ignored. Rows retain nullable `reference`,
+`act`, and `tim`, so missing is distinct from empty. Nullable `title` and
+`element_type` come from the first `C` with an exact matching `U`. For that
+lookup alone, an absent `REF` acts as empty. A selected principal can have
+zero rows. Unlike the CLI presentation, the binding does not replace an
+absent `REF` with an empty UUID. This is a read of stored entries, not
+inherited or effective access, policy interpretation, credential access,
+mutation, or file I/O.
+
+`Load` retains the Core editor message and original parser cause text
+(`source_message` / `sourceMessage()`). `NotFound` retains the kind, original
+selector and sorted/deduplicated titles; `Ambiguous` retains the kind,
+original selector and document-ordered UUIDs including duplicates and empty
+values. All values are owned; host UTF-8 encoding refusals are not Core
+selection errors.
+
+One `PrincipalPermissionsRequest` places bytes before the selector in a
+single generated lowering transaction. The new, **unrun** installed-artifact
+checks target Windows x64 CPython 3.13 (GIL), Java 22 and Kotlin using the same
+Java API. Each language checks this export's actual nonempty success and
+three named error RustBuffers with live/freed calibration, retains 64
+distinct host values or errors per case without requesting GC, and checks for
+zero matching native buffers. A separate marked XML request calibrates input
+ownership and checks 64 strict pre-call lone-surrogate rejections per
+language. Empty results/diagnostic collections and absent fields are
+value checks, not separate allocation claims. ProgramText's evidence does
+not qualify this projection. No installed artifact, other platform, native
+Config behavior or stable binary ABI is qualified here.
 
 ### Offline MQTT topic catalog candidate
 

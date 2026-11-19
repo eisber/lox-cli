@@ -90,6 +90,7 @@ Step 'weather-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 
 Step 'statistics-series-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'statistics-xml', '--test', 'statistics_series', '--locked', '--offline')
 Step 'device-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'device_inventory', '--locked', '--offline')
 Step 'user-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'user_inventory', '--locked', '--offline')
+Step 'principal-permissions-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'principal_permissions_', '--locked', '--offline')
 Step 'program-text-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'program_reader_', '--locked', '--offline')
 Step 'mood-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'mood_inventory_', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
@@ -526,6 +527,22 @@ Step 'kotlin-mood-inventory-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;
     proof = 'Installed list_moods nonempty success and Load/NotFound/Ambiguous/NotLightController RustBuffers: calibrated live address and prefix count 1, freed address and count 0, and 64 distinct retained host values per branch with zero matching native allocations, independently in Python, Java and Kotlin without requested GC. A distinct MoodInventoryRequest XML prefix calibrated live1/free0, then 64 pre-call lone-surrogate rejections per language retained zero matching native inputs. Empty inventory is a value check only.'
 } | ConvertTo-Json | Set-Content "$Output\MOOD-INVENTORY-MECHANISM.json" -Encoding utf8
 
+Step 'python-principal-permissions-smoke' $VenvPython @('-I', '-B', 'tests\bindings\principal_permissions_smoke.py', "$Probe.dll")
+Step 'javac-principal-permissions-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\PrincipalPermissionsSmoke.java')
+Step 'java-principal-permissions-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.PrincipalPermissionsSmoke'))
+$PrincipalPermissionsKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-principal-permissions-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\PrincipalPermissionsSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-principal-permissions.args", $PrincipalPermissionsKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-principal-permissions-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-principal-permissions.args")
+Step 'kotlin-principal-permissions-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-principal-permissions-smoke.jar", 'PrincipalPermissionsSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Installed principal_permissions nonempty success and Load/NotFound/Ambiguous RustBuffers: calibrated live address and prefix count 1, freed address and count 0, and 64 distinct retained host values per case with zero matching native allocations, independently in Python, Java and Kotlin without requested GC. A principal-permissions-specific marked request prefix calibrated live1/free0, then 64 strict pre-call lone-surrogate rejections per language retained zero matching native inputs. Empty success/diagnostics and individual absent fields are value checks, not separately attributed allocations.'
+} | ConvertTo-Json | Set-Content "$Output\PRINCIPAL-PERMISSIONS-MECHANISM.json" -Encoding utf8
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -556,6 +573,7 @@ $Artifacts += Get-Item "$Output\rust-focused.log", "$Output\python-statistics-mo
 $Artifacts += Get-Item "$Output\python-fragment-application-smoke.log", "$Output\javac-fragment-application-smoke.log", "$Output\java-fragment-application-smoke.log", "$Output\kotlinc-fragment-application-smoke.log", "$Output\kotlin-fragment-application-smoke.log", "$Output\FRAGMENT-APPLICATION-MECHANISM.json"
 $Artifacts += Get-Item "$Output\program-text-core-focused.log", "$Output\python-program-text-smoke.log", "$Output\javac-program-text-smoke.log", "$Output\java-program-text-smoke.log", "$Output\kotlinc-program-text-smoke.log", "$Output\kotlin-program-text-smoke.log", "$Output\PROGRAM-TEXT-MECHANISM.json"
 $Artifacts += Get-Item "$Output\mood-inventory-core-focused.log", "$Output\python-mood-inventory-smoke.log", "$Output\javac-mood-inventory-smoke.log", "$Output\java-mood-inventory-smoke.log", "$Output\kotlinc-mood-inventory-smoke.log", "$Output\kotlin-mood-inventory-smoke.log", "$Output\MOOD-INVENTORY-MECHANISM.json"
+$Artifacts += Get-Item "$Output\principal-permissions-core-focused.log", "$Output\python-principal-permissions-smoke.log", "$Output\javac-principal-permissions-smoke.log", "$Output\java-principal-permissions-smoke.log", "$Output\kotlinc-principal-permissions-smoke.log", "$Output\kotlin-principal-permissions-smoke.log", "$Output\PRINCIPAL-PERMISSIONS-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"
