@@ -404,6 +404,115 @@ fn program_reader_typed_load_selection_and_exact_type_error_priority() {
 }
 
 #[test]
+fn mood_inventory_keeps_recursive_order_duplicates_and_legacy_field_defaults() {
+    use lox_core::configuration::editor::{MoodInfo, list_moods};
+
+    let xml = br#"<Root xmlns:ext="urn:future">
+      <C Type="Place" U="r" Title="Kitchen"/>
+      <C Type="LightController2" U="lc" Title="Kitchen lamps" gid="light">
+        <IoData Pr="r"/>
+        <Unknown>
+          <LightsceneC Name="Outer" UUID="same" SID="+002" CID="-3" Q1="00037">
+            <LightsceneC Name="Inner" UUID="same" SID="2" CID=" 3" Q1=""/>
+          </LightsceneC>
+        </Unknown>
+        <LightscenesC Num="99">
+          <LightsceneC SID="9223372036854775808" CID="future" Q2="ignored"/>
+          <ext:LightsceneC Name="" UUID="" SID="" Q1="opaque&amp;unparsed"/>
+          <lightscenec Name="wrong spelling"/>
+        </LightscenesC>
+      </C>
+      <C Type="LightController2" U="lc" Title="Kitchen lamps">
+        <LightsceneC Name="mirror"/>
+      </C>
+      <C Type="LightController2" U="empty"/>
+    </Root>"#;
+    let expected = vec![
+        MoodInfo {
+            name: "Outer".into(),
+            uuid: "same".into(),
+            sid: Some(2),
+            cid: Some(-3),
+            q1: Some("00037".into()),
+        },
+        MoodInfo {
+            name: "Inner".into(),
+            uuid: "same".into(),
+            sid: Some(2),
+            cid: None,
+            q1: Some(String::new()),
+        },
+        MoodInfo {
+            name: String::new(),
+            uuid: String::new(),
+            sid: None,
+            cid: None,
+            q1: None,
+        },
+        MoodInfo {
+            name: String::new(),
+            uuid: String::new(),
+            sid: None,
+            cid: None,
+            q1: Some("opaque&unparsed".into()),
+        },
+    ];
+    for selector in ["uuid:lc", "gid:LIGHT", "Lamps [kit]"] {
+        assert_eq!(list_moods(xml, selector).unwrap(), expected);
+    }
+    assert!(list_moods(xml, "uuid:empty").unwrap().is_empty());
+}
+
+#[test]
+fn mood_inventory_retains_load_and_selection_causes_before_exact_type_refusal() {
+    use lox_core::configuration::editor::{MoodInventoryError, list_moods};
+
+    let xml = br#"<Root>
+      <C Type="And" U="a" Title="Lamps"/>
+      <C Type="LightController2" U="b" Title="Lamps"/>
+      <C Type="lightcontroller2" U="case" Title="Different title"/>
+      <C U="sparse"/>
+    </Root>"#;
+    let ambiguous = list_moods(xml, "Lamps").unwrap_err();
+    assert!(matches!(
+        ambiguous
+            .source()
+            .and_then(|cause| cause.downcast_ref::<EditError>())
+            .and_then(Error::source)
+            .and_then(|cause| cause.downcast_ref::<SelectionError>()),
+        Some(SelectionError::Ambiguous { matches, .. })
+            if matches.len() == 2 && matches[0].block_type == "And"
+    ));
+    assert!(matches!(
+        list_moods(xml, "uuid:CASE"),
+        Err(MoodInventoryError::Edit(EditError::Selection(
+            SelectionError::NotFound { selector, .. }
+        ))) if selector == "uuid:CASE"
+    ));
+    assert!(matches!(
+        list_moods(xml, "uuid:case"),
+        Err(MoodInventoryError::NotLightController { selector, block_type })
+            if selector == "uuid:case" && block_type == "lightcontroller2"
+    ));
+    assert!(matches!(
+        list_moods(xml, "uuid:sparse"),
+        Err(MoodInventoryError::NotLightController { block_type, .. }) if block_type.is_empty()
+    ));
+
+    let load = list_moods(b"<C A='1' A='2'/>", "Lamps").unwrap_err();
+    assert!(matches!(
+        load.source()
+            .and_then(|cause| cause.downcast_ref::<EditError>()),
+        Some(EditError::Load(_))
+    ));
+    assert!(
+        load.source()
+            .and_then(Error::source)
+            .is_some_and(|cause| cause.is::<xmltree::ParseError>())
+    );
+}
+
+#[test]
 fn selected_description_preserves_direct_raw_observations_and_last_precedence() {
     use lox_core::configuration::editor::describe_element;
     let xml = include_bytes!("fixtures/element-description.Loxone");

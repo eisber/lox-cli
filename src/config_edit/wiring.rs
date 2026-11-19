@@ -2,7 +2,7 @@ use super::lighting::LightingMoodCreationPreview;
 use super::schema::Diagnostic;
 use super::{ConfigEditor, MoodInfo, MqttTopic, WireInfo};
 use anyhow::Result;
-use lox_core::configuration::editor::UnwireError;
+use lox_core::configuration::editor::{MoodInventoryError, UnwireError};
 use serde::Serialize;
 use std::collections::BTreeMap;
 use xmltree::Element;
@@ -1249,38 +1249,14 @@ impl ConfigEditor {
     }
 
     /// List the light scenes ("moods") defined on a LightController2.
-    ///
-    /// Moods are stored as `<LightsceneC>` children of the controller's
-    /// `<LightscenesC>` element. Each carries a `Name`, `UUID`, scene id (`SID`)
-    /// and the per-output values `Q1..Qn`.
     pub fn list_moods(&self, selector: &str) -> Result<Vec<MoodInfo>> {
-        let path = self.require_one(selector)?;
-        let elem = self.get_element(&path);
-        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
-        if block_type != "LightController2" {
-            anyhow::bail!(
-                "'{selector}' is a {block_type}, not a LightController2 — moods only exist on light controllers"
-            );
-        }
-        let mut moods = Vec::new();
-        fn collect(elem: &Element, out: &mut Vec<MoodInfo>) {
-            if elem.name == "LightsceneC" {
-                out.push(MoodInfo {
-                    name: elem.attributes.get("Name").cloned().unwrap_or_default(),
-                    uuid: elem.attributes.get("UUID").cloned().unwrap_or_default(),
-                    sid: elem.attributes.get("SID").and_then(|s| s.parse().ok()),
-                    cid: elem.attributes.get("CID").and_then(|s| s.parse().ok()),
-                    q1: elem.attributes.get("Q1").cloned(),
-                });
-            }
-            for child in &elem.children {
-                if let Some(e) = child.as_element() {
-                    collect(e, out);
-                }
-            }
-        }
-        collect(elem, &mut moods);
-        Ok(moods)
+        self.kernel
+            .list_moods_selected(selector)
+            .map(|moods| moods.into_iter().map(MoodInfo::from).collect())
+            .map_err(|error| match error {
+                MoodInventoryError::Edit(error) => super::editor_error(error),
+                error @ MoodInventoryError::NotLightController { .. } => anyhow::anyhow!("{error}"),
+            })
     }
 
     /// Create a brand-new mood (`LightsceneC`) on a `LightController2`.

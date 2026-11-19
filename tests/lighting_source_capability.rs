@@ -29,6 +29,59 @@ fn fixture_bytes(xml: &str) -> Vec<u8> {
 }
 
 #[test]
+fn moods_cli_keeps_legacy_json_and_selector_diagnostics_without_writing() {
+    let dir = tempfile::Builder::new()
+        .prefix("moods-inventory-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = fixture_bytes(
+        r#"<Root>
+  <C Type="LightController2" U="light" Title="Lamps">
+    <Unknown><LightsceneC Name="Nested" UUID="same" SID="+02" Q1=""/></Unknown>
+    <LightscenesC Num="0"><LightsceneC UUID="same" SID="bad" CID="+09"/></LightscenesC>
+  </C>
+  <C Type="And" U="wrong" Title="Lamps"/>
+</Root>"#,
+    );
+    fs::write(&input, &before).unwrap();
+    let run = |selector: &str, extra: &[&str]| {
+        lox()
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .args(["config", "moods"])
+            .arg(&input)
+            .arg(selector)
+            .args(extra)
+            .assert()
+    };
+
+    let success = run("uuid:light", &["--json", "--trace-id", "moods-inventory"]).success();
+    let output: serde_json::Value = serde_json::from_slice(&success.get_output().stdout).unwrap();
+    assert_eq!(
+        output,
+        serde_json::json!({
+            "moods": [
+                {"name": "Nested", "uuid": "same", "sid": 2, "cid": null, "q1": ""},
+                {"name": "", "uuid": "same", "sid": null, "cid": 9, "q1": null},
+            ],
+            "trace_id": "moods-inventory",
+        })
+    );
+    for (selector, message) in [
+        (
+            "uuid:wrong",
+            "'uuid:wrong' is a And, not a LightController2 — moods only exist on light controllers",
+        ),
+        ("Lamps", "Selector 'Lamps' matches 2 elements (expected 1):"),
+    ] {
+        let failure = run(selector, &[]).failure();
+        let stderr = String::from_utf8_lossy(&failure.get_output().stderr);
+        assert!(stderr.contains(message), "{stderr}");
+    }
+    assert_eq!(fs::read(&input).unwrap(), before);
+}
+
+#[test]
 fn lighting_raw_color_cli_dry_run_matches_existing_parser_writer_and_destinations() {
     let dir = tempfile::Builder::new()
         .prefix("raw-color-preview-")
