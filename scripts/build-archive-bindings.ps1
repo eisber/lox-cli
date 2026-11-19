@@ -96,6 +96,7 @@ Step 'mood-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--featur
 Step 'central-light-links-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'central_light_links::', '--locked', '--offline')
 Step 'unwire-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'unwire_', '--locked', '--offline')
 Step 'lighting-inspection-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'lighting_inspection::', '--locked', '--offline')
+Step 'bootstrap-preflight-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'runtime-blocking', '--test', 'session_http', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
@@ -110,6 +111,7 @@ Step 'python-smoke' $VenvPython @('-I', 'tests\bindings\archive_smoke.py', '--fi
 Step 'python-control-smoke' $VenvPython @('-I', '-B', 'tests\bindings\control_smoke.py')
 Step 'python-config-inspection-smoke' $VenvPython @('-I', '-B', 'tests\bindings\config_inspection_smoke.py')
 $InstalledDll = "$Output\venv\Lib\site-packages\lox_archive\lox_archive.dll"
+$BootstrapDllSha256 = (Get-FileHash -LiteralPath $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
 Step 'java-generate' $JavaGenerator @('generate', '--no-format', '--out-dir', "$Output\generated-java", $InstalledDll)
 Step 'java-correction-guards' $Python @('-I', '-B', 'tests\bindings\test_java_generator_correction.py', '--generated-dir', "$Output\generated-java", '--scratch', "$Output\correction-guard-tests")
 Step 'java-generator-correction' $Python @('-I', '-B', 'scripts\patch-archive-java-generator.py', '--generated-dir', "$Output\generated-java", '--generator-version', '0.5.2', '--receipt', "$Output\java-generator-correction.json")
@@ -455,6 +457,18 @@ Step 'clock-head-smokes' $VenvPython @('-I', '-B', 'tests\bindings\clock_smoke.p
     '--kotlin-jar', "$Output\jvm\kotlin-clock-smoke.jar", '--native-dir', "$Output\jvm\native",
     '--heap-probe', "$Probe.dll")
 
+Step 'javac-bootstrap-preflight-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\BootstrapPreflightSmoke.java')
+$BootstrapKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + $ApiJar.Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-bootstrap-preflight-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\BootstrapPreflightSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-bootstrap-preflight.args", $BootstrapKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-bootstrap-preflight-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-bootstrap-preflight.args")
+Step 'bootstrap-preflight-head-smokes' $VenvPython @('-I', '-B', 'tests\bindings\bootstrap_preflight_smoke.py',
+    '--output', $Output, '--java', $Java, '--api-jar', $ApiJar, '--classes', "$Output\jvm\test-classes",
+    '--kotlin-jar', "$Output\jvm\kotlin-bootstrap-preflight-smoke.jar",
+    '--wheel-dll', $InstalledDll, '--dll-sha256', $BootstrapDllSha256)
+
 Step 'python-config-diff-smoke' $VenvPython @('-I', '-B', 'tests\bindings\config_diff_smoke.py', "$Probe.dll")
 Step 'javac-config-diff-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ConfigDiffSmoke.java', 'tests\bindings\NativeConfigDiffProbe.java')
 Step 'java-config-diff-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ConfigDiffSmoke'))
@@ -635,6 +649,7 @@ $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archiv
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
 $Artifacts += Get-Item "$Output\java-generator-correction.json"
 $Artifacts += Get-Item "$Output\CLOCK-PROOF.json", "$Output\clock-java.log", "$Output\clock-kotlin.log"
+$Artifacts += Get-Item "$Output\BOOTSTRAP-PREFLIGHT-PROOF.json", "$Output\bootstrap-preflight-head-smokes.log", "$Output\bootstrap-preflight-java.log", "$Output\bootstrap-preflight-kotlin.log", "$Output\bootstrap-preflight-core-focused.log", "$Output\javac-bootstrap-preflight-smoke.log", "$Output\kotlinc-bootstrap-preflight-smoke.log"
 $Artifacts += Get-Item "$Output\python-control-smoke.log", "$Output\java-control-smoke.log", "$Output\kotlin-control-smoke.log"
 $Artifacts += Get-Item "$Output\python-config-inspection-smoke.log", "$Output\java-config-inspection-smoke.log", "$Output\kotlin-config-inspection-smoke.log"
 $Artifacts += Get-Item "$Output\python-xml-controls-smoke.log", "$Output\java-xml-controls-smoke.log", "$Output\kotlin-xml-controls-smoke.log"

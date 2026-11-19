@@ -56,6 +56,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Application binary-message header observation/encoding | Default `message_header`; exact eight-byte header, known-type classification and lossless raw fields, unsigned size and estimated bit; no transport, payload validation or dispatch | Unsupported; new Rust-only primitive, no migrated caller | Unsupported | Unsupported |
 | Complete text-state table payload decoding | Default `text_state::decode_text_state_payload`; state/icon `StateUuid`, byte count and exact UTF-8 text; strict atomic bounds/UTF-8 errors, ignored four-byte-alignment padding | Unsupported; no existing decoder/caller migrated or new command | Candidate `decode_text_state_payload(bytes) -> list[TextState]`; only with matching published artifacts | Candidate `LoxArchive.decodeTextStatePayload(byte[]) -> List<TextState>`; Kotlin uses the same Java API |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
+| Advisory HTTP bootstrap preflight | Published `SessionHttpClient::bootstrap_preflight`; candidate joined `runtime-blocking` entry | Unchanged; no command added | Source-only `bootstrap_preflight(BootstrapRequest)`; typed `BootstrapError` | Source-only `LoxArchive.bootstrapPreflight(BootstrapRequest)`; checked `BootstrapException`; same Java 22 FFM API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
 | Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Unsupported | Unsupported |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
@@ -1675,6 +1676,47 @@ The runtime composition is private/reversible until both prerequisite source
 changes are actually published and parent-serialized reconciliation receives
 fresh coherent review/gates. A local artifact proof is not a public release or
 authority to publish the composed prerequisite subtree.
+
+## Provisional HTTP bootstrap preflight
+
+The synchronous `bootstrap_preflight(BootstrapRequest)` in generated Python and
+`LoxArchive.bootstrapPreflight(BootstrapRequest)` on the shared Java 22 FFM API
+take owned, explicit HTTP(S) and WS(S) URLs and a `BootstrapProxyPolicy`. Set
+`DIRECT` for the only supported transport; `SYSTEM` is a typed refusal, not
+an ambient proxy fallback. Both URLs must pass Core admission, with no inferred
+WS default; the WS URL is never used for I/O. Pass an HTTP URL whose path is
+exactly `/jdev/cfg/api`. There are no credential fields, custom headers, CLI
+contexts, redirects, retries or TLS verification overrides. Do not put
+sensitive data in URLs or log the request record.
+
+The result has separate `event_slots` and `tls_status` enums. `MISSING`
+means the field was absent; `UNKNOWN` means a present field was not recognized.
+Event slots can report available or unavailable; TLS can report available or
+certificate expired. These are provisional unauthenticated reports, not a local
+TLS result, credential eligibility, firmware identification, or a reservation
+or guarantee of a slot. Typed exceptions distinguish endpoint role and issue,
+proxy/path refusal, worker/executor/client failures, transport kind, HTTP and
+command status, and payload issues. They carry no URL, raw payload, or backend
+exception chain.
+
+Each call blocks until its own native worker completes: one Core HTTP operation,
+then client and Tokio runtime drop and worker join before return. Core's
+ten-second request timeout includes reading the body. It does not time the
+whole call: worker/runtime/client startup and cleanup are outside it, and
+runtime drop waits for platform blocking work such as DNS even if the request
+timed out. There is no hard wall-clock return bound or cancellation handle.
+Async Python should use an explicit worker (`await asyncio.to_thread(...)`);
+Java/Kotlin should dispatch to a caller-owned blocking executor. Cancelling an
+await or future, or interrupting a JVM worker, is not cancellation of the
+native request. Callers must bound their own concurrency.
+
+This slice is source-only pending exact-tree Rust and Windows AMD64 native-head
+verification. The existing harness uses the installed CPython 3.13 (GIL)
+wheel and Java 22/Kotlin on the same generated API and DLL, with original
+scripted loopback data; the new checks cover typed observations/errors, a
+stalled response body in Python, route refusal, and socket EOF/reset. It is
+not device, TLS/DNS behavior qualification, Linux packaging, registry support,
+or a stable ABI.
 
 ## Reproduce the local artifact proof
 

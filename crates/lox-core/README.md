@@ -1580,9 +1580,25 @@ owns no runtime thread, and dropping the future stops waiting for the result.
 This does not promise synchronous socket teardown, filter dependency tracing,
 pin DNS or establish device identity. The WebSocket route is not contacted;
 neither matching authorities nor successful TLS/status confers credential
-eligibility. There is no WebSocket or system proxy support, firmware or
-capability discovery, authentication, stable ABI, or migration of existing CLI,
-clock/control, token, Python or JVM callers.
+eligibility. There is no WebSocket or system proxy support, firmware discovery,
+authentication, stable ABI, or migration of existing CLI, clock/control or token callers.
+
+`SessionHttpClient::bootstrap_preflight()` is the advisory observation for the
+exact HTTP path `/jdev/cfg/api`; other paths are refused before sending. It
+has the same ten-second HTTP deadline (including the body), reads at most 8 KiB
+of payload, and distinguishes missing, unrecognized and reported event-slot
+and TLS values. These unauthenticated reports are not verified capabilities,
+TLS validation results, or event-slot reservations.
+
+With `runtime-blocking`, `runtime::session_http::bootstrap_preflight_blocking(endpoints)`
+forwards this one operation via a new current-thread Tokio worker. It drops the
+HTTP client and runtime and joins the worker before returning; setup and
+worker failures are typed and route-free. The HTTP request/body timeout does
+not cover executor startup or cleanup, including waiting for an in-progress
+system DNS lookup at runtime drop. This is not a hard wall-clock deadline or
+a cancellable call. For asynchronous Rust use the async client; foreign async
+callers must offload to an explicit worker. See the [provisional binding
+surface](../../docs/toolkit-archive-bindings.md#provisional-http-bootstrap-preflight).
 
 ## Optional clock runtime
 
