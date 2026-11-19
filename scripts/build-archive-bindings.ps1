@@ -598,6 +598,26 @@ Step 'kotlin-lighting-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$Ap
     proof = 'Installed full Lighting projection and NotFound/Ambiguous/NotLightController: exact marked payload and address live/free calibration, 64 held host outcomes per branch and zero matching native payloads per language without requested GC. Each language also calibrated the marked XML request and verified 64 strict pre-call lone-surrogate rejections with no matching retained input. Load, small/empty inventories and absent fields are value checks only.'
 } | ConvertTo-Json | Set-Content "$Output\LIGHTING-INSPECTION-MECHANISM.json" -Encoding utf8
 
+Step 'python-set-attribute-smoke' $VenvPython @('-I', '-B', 'tests\bindings\set_attribute_smoke.py', "$Probe.dll")
+Step 'javac-set-attribute-smoke' $Javac @('--release', '22', '-encoding', 'UTF-8', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\SetAttributeSmoke.java')
+Step 'java-set-attribute-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.SetAttributeSmoke'))
+$SetAttributeKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-set-attribute-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\SetAttributeSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-set-attribute.args", $SetAttributeKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-set-attribute-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-set-attribute.args")
+Step 'kotlin-set-attribute-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-set-attribute-smoke.jar", 'SetAttributeSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    wheel_sha256 = (Get-FileHash $Wheels[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    jvm_dll_sha256 = (Get-FileHash "$Output\jvm\native\lox_archive.dll" -Algorithm SHA256).Hash.ToLowerInvariant()
+    java_api_sha256 = (Get-FileHash $ApiJar -Algorithm SHA256).Hash.ToLowerInvariant()
+    probe_sha256 = (Get-FileHash "$Probe.dll" -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Installed set_attribute stamped bytes and Load/NotFound/Ambiguous: actual same-export address live then not live after manual free, separately one then zero matching native prefixes; 64 distinct held host objects and no matching retained prefix per branch and language without requested GC. For each of selector, attribute and value, each language calibrated a distinct marked request and verified 64 strict host UTF-8 rejections with no matching retained input prefix. This does not establish that failed lowering allocated a buffer or that unmarked memory was measured. Short/no-op results, absent/empty fields, empty suggestions and InvalidClock are value checks; Serialize, InvalidUtf8 and Other are not triggered.'
+} | ConvertTo-Json | Set-Content "$Output\SET-ATTRIBUTE-MECHANISM.json" -Encoding utf8
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -632,6 +652,7 @@ $Artifacts += Get-Item "$Output\principal-permissions-core-focused.log", "$Outpu
 $Artifacts += Get-Item "$Output\central-light-links-core-focused.log", "$Output\python-central-light-links-smoke.log", "$Output\javac-central-light-links-smoke.log", "$Output\java-central-light-links-smoke.log", "$Output\kotlinc-central-light-links-smoke.log", "$Output\kotlin-central-light-links-smoke.log", "$Output\CENTRAL-LIGHT-LINKS-MECHANISM.json"
 $Artifacts += Get-Item "$Output\unwire-core-focused.log", "$Output\python-unwire-smoke.log", "$Output\javac-unwire-smoke.log", "$Output\java-unwire-smoke.log", "$Output\kotlinc-unwire-smoke.log", "$Output\kotlin-unwire-smoke.log", "$Output\UNWIRE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\lighting-inspection-core-focused.log", "$Output\python-lighting-inspection-smoke.log", "$Output\javac-lighting-inspection-smoke.log", "$Output\java-lighting-inspection-smoke.log", "$Output\kotlinc-lighting-inspection-smoke.log", "$Output\kotlin-lighting-inspection-smoke.log", "$Output\LIGHTING-INSPECTION-MECHANISM.json"
+$Artifacts += Get-Item "$Output\python-set-attribute-smoke.log", "$Output\javac-set-attribute-smoke.log", "$Output\java-set-attribute-smoke.log", "$Output\kotlinc-set-attribute-smoke.log", "$Output\kotlin-set-attribute-smoke.log", "$Output\SET-ATTRIBUTE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"

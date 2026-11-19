@@ -25,6 +25,7 @@ mod numeric_state;
 mod principal_permissions;
 mod program_text;
 mod runtime_overlay;
+mod set_attribute;
 mod statistics_identity;
 mod statistics_index;
 mod statistics_series;

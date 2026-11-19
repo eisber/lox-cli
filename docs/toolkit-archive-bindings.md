@@ -24,14 +24,14 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
 | Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Verified at `0adc6a9`: `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Verified at `0adc6a9`: `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java 22 API in Kotlin |
 | Offline selected Lighting mood inventory | Published optional `configuration::editor::list_moods` (`configuration-editor`) at `1746c9b`; stored rows only | Existing `lox config moods` shares the Core traversal; file I/O, DTO and rendering stay in CLI | Verified at `8b36cb2`: `list_moods(MoodInventoryRequest(bytes=..., selector=...)) -> list[MoodInfo]`; typed `MoodInventoryError` | Verified at `8b36cb2`: `LoxArchive.listMoods(MoodInventoryRequest) -> List<MoodInfo>`; checked `MoodInventoryException`; same Java 22 API in Kotlin |
-| Offline full stored Lighting inspection | Published optional `configuration::editor::inspect_lighting` (`configuration-editor`) at `c9a68a5`; stored controller, channels, moods, collection shape and document versions | CLI formatting, diagnostics and classification stay in CLI | Unqualified source candidate: `inspect_lighting(LightingInspectionRequest(bytes=..., selector=...)) -> LightingInspection`; typed `LightingInspectionError` | Unqualified source candidate: `LoxArchive.inspectLighting(LightingInspectionRequest) -> LightingInspection`; checked `LightingInspectionException`; same Java 22 API in Kotlin |
+| Offline full stored Lighting inspection | Published optional `configuration::editor::inspect_lighting` (`configuration-editor`) at `c9a68a5`; stored controller, channels, moods, collection shape and document versions | CLI formatting, diagnostics and classification stay in CLI | Verified at `cb52af9`: `inspect_lighting(LightingInspectionRequest(bytes=..., selector=...)) -> LightingInspection`; typed `LightingInspectionError` | Verified at `cb52af9`: `LoxArchive.inspectLighting(LightingInspectionRequest) -> LightingInspection`; checked `LightingInspectionException`; same Java 22 API in Kotlin |
 | Offline selected standalone CentralLight stored links | Published optional `configuration::editor::inspect_central_light_links` (`configuration-editor`) at `19d1d2b`; ordered stored link records and typed graph refusals | Existing `lox config central-light inspect` shares the Core matcher; file I/O and presentation stay in CLI | Verified at `01cb43b`: `inspect_central_light_links(CentralLightLinksRequest(bytes=..., selector=...)) -> CentralLightLinks`; typed `CentralLightLinksError` | Verified at `01cb43b`: `LoxArchive.inspectCentralLightLinks(CentralLightLinksRequest) -> CentralLightLinks`; checked `CentralLightLinksException`; same Java 22 API in Kotlin |
 | Offline selected principal direct permissions | Published optional `configuration::editor::principal_permissions` (`configuration-editor`); ordered direct entries and typed failures | Existing `lox config user-perms` uses Core; file I/O, diagnostics and presentation stay in CLI | Verified at `06d8238`: `principal_permissions(PrincipalPermissionsRequest(bytes=..., selector=..., kind=...)) -> PrincipalPermissions`; typed `PrincipalPermissionsError` | Verified at `06d8238`: `LoxArchive.principalPermissions(PrincipalPermissionsRequest) -> PrincipalPermissions`; checked `PrincipalPermissionsException`; same Java 22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Candidate `parse_users(bytes) -> list[XmlUserInfo]` | Candidate `LoxArchive.parseUsers(byte[]) -> List<XmlUserInfo>`; SAME Java API in Kotlin |
 | Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
-| Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
+| Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Source-only candidate: `set_attribute(SetAttributeRequest(bytes=..., selector=..., attribute=..., value=..., clock=...)) -> SetAttributeOutcome`; typed `SetAttributeError` | Source-only candidate: `LoxArchive.setAttribute(SetAttributeRequest) -> SetAttributeOutcome`; checked `SetAttributeException`; same Java 22 API in Kotlin |
 | Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Verified at `bbfbcc8`: `unwire(UnwireRequest) -> UnwireOutcome`; typed `UnwireError` | Verified at `bbfbcc8`: `LoxArchive.unwire(UnwireRequest) -> UnwireOutcome`; checked `UnwireException`; same Java 22 API in Kotlin |
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
@@ -251,7 +251,7 @@ platforms or native Loxone Config workflows.
 
 ### Offline full stored Lighting inspection
 
-The candidate delegates once to the published `inspect_lighting`, with one
+The binding delegates once to the published `inspect_lighting`, with one
 owned request in wire order XML bytes, UTF-8 selector. Core controls loading,
 legacy selection and the exact `LightController2` type check. The result
 keeps optional controller identity, direct indexed channels, exact downstream
@@ -270,17 +270,19 @@ is a fallback for unexpected Core errors. This is separate from `list_moods`;
 it does not classify editors, interpret colors, derive roles or units, edit
 XML, access files or devices, or validate native Config behavior.
 
-The standalone installed-artifact witness sources under `tests/bindings`
-are unrun. They target only four marked payloads: a full inventory and
-`NotFound`, `Ambiguous`, and `NotLightController`. Each verifies the exact
-expected prefix in a live buffer from this export, reports address liveness
-and matching payload count separately after freeing it, and holds 64 distinct
-host results from the public API without a matching allocation or requested
-GC. A distinct marked request control calibrates the generated converter
-before 64 strict pre-call lone-surrogate rejections per language. The check
-only excludes retained matching inputs; it does not assert that every rejected
-lowering allocated a buffer. Small/empty inventories, `Load`, and absent
-fields are value checks only; `Other` has no specimen.
+At published main `cb52af9`, all 198 SDK steps passed using fresh installed
+artifacts on Windows x64 with CPython 3.13 (GIL), Java 22, and Kotlin on
+the same Java API. The ownership checks cover four marked payloads: a full
+inventory and `NotFound`, `Ambiguous`, and `NotLightController`. Each
+language verified the expected prefix in a live buffer, separately checked
+address liveness and matching payload count after freeing it, and held 64
+distinct host results per case without a matching native allocation or a GC
+request. A separate marked request verified no matching retained input
+after 64 pre-call lone-surrogate rejections per language. This does not
+assert that every rejected lowering allocated a buffer. Small/empty
+inventories, `Load`, and absent fields are value checks only; `Other` has
+no specimen. This does not qualify other platforms, native Loxone Config
+workflows, or a stable binary ABI.
 
 ### Offline selected standalone CentralLight stored links
 
@@ -364,6 +366,42 @@ retained XML input after 64 pre-call lone-surrogate rejections per field per
 language. This does not claim that failing calls allocated a buffer or
 qualify other platforms, native Loxone Config workflows, or a stable binary
 ABI.
+
+### Offline legacy raw attribute edit
+
+The binding delegates once to the published `configuration::editor::set_attribute`
+byte transaction. It requires one match after Core's legacy `C` selector
+deduplicates UUIDs, then inserts or replaces the exact case-sensitive attribute
+name and raw value.
+The selector accepts `uuid:`, `gid:`, `Type:`, title substring and `Title [Room]`
+forms; duplicate nonempty UUIDs retain their first occurrence. An empty value
+is a value, not deletion. There is no attribute-name or value validation, XML
+schema check, reference repair, file I/O, or guarantee that an arbitrary name or
+value yields reloadable XML. This is not the connector/`Def` `set_param`
+transaction and changes neither existing CLI command nor its save policy.
+
+The result owns Core's canonical bytes and reports pre-insertion title/type/UUID,
+attribute name, optional previous value (absent differs from empty), new value,
+and separate `content_changed` and `document_stamped` flags. A canonical no-op
+can normalize input bytes without stamping. Core's BOM, EOL, attribute ordering
+and known quoted-text/digit-name behavior (`lox-n37w`) remain unchanged.
+`SetAttributeClock` takes signed Unix seconds, unsigned subsecond nanoseconds and
+signed seconds east of UTC, like `UnwireClock`. Invalid components are refused
+before Core loading; no machine clock is read. Core alone decides whether to
+stamp and whether to advance an existing `DateS`. Typed refusals carry no revised
+XML: `Load` keeps source text, `NotFound` keeps the query and sorted/deduplicated
+titles, `Ambiguous` keeps the query and ordered identities. `Serialize`,
+`InvalidUtf8` and the defensive `Other` preserve their available source text.
+
+The source-only installed tests use one generated request carrying bytes before
+the three independently fallible UTF-8 strings. Each head exercises each marked
+field's strict lone-surrogate refusal. The intended ownership evidence separates
+the original address immediately after freeing a calibrated buffer from the
+matching-prefix count after repeated high-level calls while host results are held.
+It covers the stamped result and `Load`/`NotFound`/`Ambiguous`, and checks short/no-op
+results and `InvalidClock` as values only. It makes no claim about allocations
+unmatched by the probe, whether a rejected lowering allocated, other platforms,
+or a stable binary ABI. Installed qualification is pending.
 
 ### Offline selected principal direct permissions
 
