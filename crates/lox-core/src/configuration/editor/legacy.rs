@@ -16,7 +16,6 @@ pub struct State {
 }
 
 impl State {
-    #[cfg(feature = "unstable-legacy-cli-editor")]
     pub fn iter_elements(elem: &Element) -> Vec<&Element> {
         let mut result = vec![elem];
         for child in &elem.children {

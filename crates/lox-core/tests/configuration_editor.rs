@@ -4,6 +4,209 @@ use lox_core::configuration::editor::{
 };
 use std::error::Error;
 
+const DAYTIMER_U: &str = "ABCDEF00-0000-0004-FFFF000000000000";
+const MODE_NATIVE: &str = "ABCDEF01-ABCD-0004-15000000ABCDEF00";
+const MODE_RFC: &str = "abcdef01-abcd-0004-1500-0000abcdef00";
+const MODE_B: &str = "00000000-0000-0005-1500000000000000";
+const SELECTED_ENTRY: &str = "\t\t\t\t<Entry To=\"180\" V=\"+005\" Marker=\"remove\"/>\r\n";
+const SURVIVING_ENTRY: &str =
+    "\t\t\t\t<Entry To=\"180\" Ix=\"+01\" V=\"+004\" NeedActivate=\"TrUe\"/>\r\n";
+
+fn daytimer_xml() -> String {
+    format!(
+        "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+         <Loxone>\r\n\
+         \t<C Type=\"Document\" Date=\"2009-01-02 00:00:00\" DateS=\"86400\" 12hTF=\"true\">\r\n\
+         \t\t<C Type=\"Page\">\r\n\
+         \t\t\t<C Type=\"DayTimer\" U=\"{DAYTIMER_U}\" Title=\"Schedule\" Analog=\"false\" DefValue=\"+00\" N=\"+02\" Modes=\"{MODE_NATIVE},{MODE_B}\" Unknown=\"KeEp\">\r\n\
+         {SURVIVING_ENTRY}\
+         \t\t\t\t<Co K=\"AQ\" U=\"wire\">\r\n\
+         \t\t\t\t\t<In Input=\"source\"/>\r\n\
+         \t\t\t\t</Co>\r\n\
+         {SELECTED_ENTRY}\
+         \t\t\t\t<Unknown Preserve=\"yes\">\r\n\
+         \t\t\t\t\t<Entry To=\"300\"/>\r\n\
+         \t\t\t\t</Unknown>\r\n\
+         \t\t\t</C>\r\n\
+         \t\t</C>\r\n\
+         \t\t<C Type=\"Mode\" U=\"{MODE_RFC}\"/>\r\n\
+         \t\t<C Type=\"Mode\" U=\"{MODE_B}\"/>\r\n\
+         \t</C>\r\n\
+         </Loxone>\r\n"
+    )
+}
+
+fn daytimer_clock() -> DateTime<FixedOffset> {
+    DateTime::parse_from_rfc3339("2009-01-01T10:00:00+02:00").unwrap()
+}
+
+#[test]
+fn daytimer_removal_shared_identity_cardinality_and_explicit_stamp() {
+    use lox_core::configuration::editor::remove_daytimer_entry;
+
+    let input = daytimer_xml();
+    let now = daytimer_clock();
+    let selector = format!("uuid:{DAYTIMER_U}");
+    let first = remove_daytimer_entry(input.as_bytes(), &selector, MODE_RFC, 0, 180, &now).unwrap();
+    assert_eq!(first.removal.block_uuid, DAYTIMER_U);
+    assert_eq!(first.removal.requested_mode_uuid, MODE_RFC);
+    assert_eq!(first.removal.stored_mode_uuid, MODE_NATIVE);
+    assert_eq!(first.removal.remaining_entries, 1);
+    assert_eq!(first.removal.removed_attributes["V"], "+005");
+    assert_eq!(first.removal.removed_attributes["Marker"], "remove");
+    assert!(!first.removal.removed_attributes.contains_key("From"));
+    let expected = input
+        .replacen(SELECTED_ENTRY, "", 1)
+        .replacen(" N=\"+02\"", " N=\"1\"", 1)
+        .replacen(
+            "Date=\"2009-01-02 00:00:00\" DateS=\"86400\"",
+            "Date=\"2009-01-02 02:00:01\" DateS=\"86401\"",
+            1,
+        );
+    assert_eq!(first.bytes, expected.as_bytes());
+
+    let last = remove_daytimer_entry(&first.bytes, "Schedule", MODE_B, 0, 180, &now).unwrap();
+    assert_eq!(last.removal.remaining_entries, 0);
+    assert_eq!(last.removal.removed_attributes["NeedActivate"], "TrUe");
+    assert_eq!(
+        last.bytes,
+        expected
+            .replacen(SURVIVING_ENTRY, "", 1)
+            .replacen(" N=\"1\"", "", 1)
+            .replacen(
+                "02:00:01\" DateS=\"86401\"",
+                "02:00:02\" DateS=\"86402\"",
+                1
+            )
+            .as_bytes()
+    );
+}
+
+#[test]
+fn daytimer_removal_page_admission_and_typed_atomic_refusals() {
+    use lox_core::configuration::editor::{DayTimerRemovalError as Failure, remove_daytimer_entry};
+
+    let input = daytimer_xml();
+    let now = daytimer_clock();
+    let remove =
+        |xml: &str| remove_daytimer_entry(xml.as_bytes(), "Schedule", MODE_RFC, 0, 180, &now);
+    let control_rfc = "abcdef00-0000-0004-ffff-000000000000";
+    let program = input
+        .replace("<C Type=\"Page\">", "<C Type=\"Program\"><C Type=\"Page\">")
+        .replace(
+            "\t\t</C>\r\n\t\t<C Type=\"Mode\"",
+            "\t\t</C></C>\r\n\t\t<C Type=\"Mode\"",
+        )
+        .replace(DAYTIMER_U, control_rfc);
+    assert_eq!(
+        remove_daytimer_entry(
+            program.as_bytes(),
+            &format!("uuid:{control_rfc}"),
+            MODE_NATIVE,
+            0,
+            180,
+            &now,
+        )
+        .unwrap()
+        .removal
+        .block_uuid,
+        control_rfc
+    );
+    assert!(
+        remove(
+            &input
+                .replace("<Loxone>\r\n", "")
+                .replace("</Loxone>\r\n", "")
+        )
+        .is_ok()
+    );
+    for outside in [
+        input.replace("Type=\"Page\"", "Type=\"Folder\""),
+        input.replace("Type=\"Page\"", "Type=\"page\""),
+        input.replace("Type=\"Document\"", "Type=\"Folder\""),
+    ] {
+        assert!(matches!(remove(&outside), Err(Failure::OutsidePage)));
+    }
+
+    assert!(matches!(
+        remove(&input.replace("N=\"+02\"", "N=\"3\"")),
+        Err(Failure::EntryCountMismatch)
+    ));
+    assert!(matches!(
+        remove(&input.replace(
+            &format!("{MODE_NATIVE},{MODE_B}"),
+            &format!("{MODE_NATIVE},{MODE_RFC}")
+        )),
+        Err(Failure::DuplicateModes)
+    ));
+    assert!(matches!(
+        remove(&input.replace(SURVIVING_ENTRY, "<Entry From=\"180\" To=\"240\"/>")),
+        Err(Failure::TouchingOrOverlappingEntries)
+    ));
+    let duplicate_mode_object = input.replace(
+        &format!("<C Type=\"Mode\" U=\"{MODE_RFC}\"/>"),
+        &format!("<C Type=\"Mode\" U=\"{MODE_RFC}\"/><C Type=\"Mode\" U=\"{MODE_NATIVE}\"/>"),
+    );
+    assert!(matches!(
+        remove(&duplicate_mode_object),
+        Err(Failure::UnresolvedMode { stored_mode_uuid }) if stored_mode_uuid == MODE_NATIVE
+    ));
+    assert!(matches!(
+        remove(&input.replace("Analog=\"false\"", "Analog=\"true\"")),
+        Err(Failure::AnalogSchedule)
+    ));
+    assert!(matches!(
+        remove_daytimer_entry(
+            input.as_bytes(),
+            "uuid:abcdef00-0000-0004-ffff000000000000",
+            MODE_RFC,
+            0,
+            180,
+            &now
+        ),
+        Err(Failure::Edit(EditError::Selection(
+            SelectionError::NotFound { .. }
+        )))
+    ));
+    let failure = remove("<broken").unwrap_err();
+    assert!(matches!(&failure, Failure::Edit(EditError::Load(_))));
+    assert!(failure.source().and_then(Error::source).is_some());
+}
+
+#[test]
+fn daytimer_removal_refuses_direct_namespaced_entry_lookalikes_without_output() {
+    use lox_core::configuration::editor::{DayTimerRemovalError, remove_daytimer_entry};
+
+    let input = daytimer_xml();
+    let last = input
+        .replace("N=\"+02\"", "N=\"1\"")
+        .replace(SURVIVING_ENTRY, "");
+    let now = daytimer_clock();
+    let remove =
+        |xml: &str| remove_daytimer_entry(xml.as_bytes(), "Schedule", MODE_RFC, 0, 180, &now);
+    assert_eq!(remove(&last).unwrap().removal.remaining_entries, 0);
+
+    for foreign in [
+        r#"<vendor:Entry xmlns:vendor="urn:vendor" To="180"/>"#,
+        r#"<Entry xmlns="urn:vendor" To="180"/>"#,
+    ] {
+        // The legacy match sees local Entry, count 1, and defaults From/Ix to zero.
+        let selected_foreign = last.replace(SELECTED_ENTRY, foreign);
+        assert!(matches!(
+            remove(&selected_foreign),
+            Err(DayTimerRemovalError::NamespacedEntry)
+        ));
+    }
+    let surviving_foreign = input.replace(
+        SURVIVING_ENTRY,
+        r#"<vendor:Entry xmlns:vendor="urn:vendor" To="180" Ix="1"/>"#,
+    );
+    assert!(matches!(
+        remove(&surviving_foreign),
+        Err(DayTimerRemovalError::NamespacedEntry)
+    ));
+}
+
 #[test]
 fn program_reader_first_direct_field_text_and_shared_legacy_selection() {
     use lox_core::configuration::editor::get_program_text;

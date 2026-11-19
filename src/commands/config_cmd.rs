@@ -2902,7 +2902,14 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             };
             let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
             let mut editor = ConfigEditor::load(&data)?;
-            let removed = editor.remove_daytimer_entry(&selector, identity)?;
+            let removed = editor
+                .remove_daytimer_entry_legacy(
+                    &selector,
+                    &identity.mode_uuid,
+                    identity.from_minutes,
+                    identity.to_minutes,
+                )
+                .map_err(crate::config_edit::daytimer::daytimer_removal_error)?;
             save_edited_with_quiet(
                 &mut editor,
                 &file,
@@ -2915,7 +2922,13 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                     serde_json::json!({
                         "ok": true,
                         "saved_to": save_as.as_deref().unwrap_or(&file),
-                        "removed": removed,
+                        "removed": {
+                            "block_uuid": removed.block_uuid,
+                            "entry": identity,
+                            "stored_mode_uuid": removed.stored_mode_uuid,
+                            "removed_attributes": removed.removed_attributes,
+                            "remaining_entries": removed.remaining_entries,
+                        },
                     }),
                 );
             } else if ctx.csv {
@@ -2927,10 +2940,10 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 println!(
                     "{},{},{},{},{},{}",
                     format_args!("\"{}\"", removed.block_uuid.replace('"', "\"\"")),
-                    removed.entry.mode_uuid,
+                    removed.requested_mode_uuid,
                     removed.stored_mode_uuid,
-                    removed.entry.from_minutes,
-                    removed.entry.to_minutes,
+                    removed.from_minutes,
+                    removed.to_minutes,
                     removed.remaining_entries,
                 );
             } else if !ctx.quiet {
