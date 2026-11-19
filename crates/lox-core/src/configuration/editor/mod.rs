@@ -17,6 +17,7 @@ pub mod operating_modes;
 mod permissions;
 mod program;
 mod selector;
+mod status_monitor;
 mod unwire;
 #[cfg(any(test, feature = "unstable-legacy-cli-editor"))]
 mod virtual_input;
@@ -45,6 +46,13 @@ pub use permissions::{
     PrincipalPermissionsError, PrincipalSelectionError, principal_permissions,
 };
 pub use program::{ProgramTextError, get_program_text};
+#[cfg(feature = "unstable-legacy-cli-editor")]
+#[doc(hidden)]
+pub use status_monitor::{MatchedStatusMonitor, status_monitor_identity_key};
+pub use status_monitor::{
+    StatusMonitorInspection, StatusMonitorInspectionError, StatusMonitorState,
+    inspect_status_monitor,
+};
 pub use unwire::{UnwireChange, UnwireError, UnwireOutcome, unwire};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.

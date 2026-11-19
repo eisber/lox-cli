@@ -72,6 +72,17 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   The shared loader's lox-n37w limitation is unchanged. This read does not
   decode colors, alter configuration, validate native behavior or add bindings.
 
+- Source candidate, optional `configuration-editor`:
+  `configuration::editor::inspect_status_monitor` reads one standalone,
+  legacy-selected `C Type="StatusMonitor"` from configuration bytes. It returns
+  owned State observations in record order, with persistent IDs and `OIdx`,
+  configured flags and loader-decoded attributes without defaults. The cached
+  CLI inspect uses the same matcher and projection; priority mutation and
+  reporting remain CLI-owned. `StatusMonitorInspectionError` retains the
+  original editor load or selection cause and distinguishes shape refusals.
+  The shared loader's lox-n37w limitation is unchanged. No write operation,
+  runtime behavior, native validation or foreign binding is provided.
+
 - Optional `configuration-editor`: `configuration::editor::set_attribute(bytes,
   selector, attribute, value, &now)` migrates the existing legacy raw attribute
   operation. Its owned `AttributeChange` captures the selected identity before
