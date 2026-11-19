@@ -24,14 +24,14 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
 | Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Verified at `0adc6a9`: `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Verified at `0adc6a9`: `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java 22 API in Kotlin |
 | Offline selected Lighting mood inventory | Published optional `configuration::editor::list_moods` (`configuration-editor`) at `1746c9b`; stored rows only | Existing `lox config moods` shares the Core traversal; file I/O, DTO and rendering stay in CLI | Verified at `8b36cb2`: `list_moods(MoodInventoryRequest(bytes=..., selector=...)) -> list[MoodInfo]`; typed `MoodInventoryError` | Verified at `8b36cb2`: `LoxArchive.listMoods(MoodInventoryRequest) -> List<MoodInfo>`; checked `MoodInventoryException`; same Java 22 API in Kotlin |
-| Offline selected standalone CentralLight stored links | Published optional `configuration::editor::inspect_central_light_links` (`configuration-editor`) at `19d1d2b`; ordered stored link records and typed graph refusals | Existing `lox config central-light inspect` shares the Core matcher; file I/O and presentation stay in CLI | Source-only, unrun `inspect_central_light_links(CentralLightLinksRequest(bytes=..., selector=...)) -> CentralLightLinks`; typed `CentralLightLinksError` | Source-only, unrun `LoxArchive.inspectCentralLightLinks(CentralLightLinksRequest) -> CentralLightLinks`; checked `CentralLightLinksException`; same Java 22 API in Kotlin |
+| Offline selected standalone CentralLight stored links | Published optional `configuration::editor::inspect_central_light_links` (`configuration-editor`) at `19d1d2b`; ordered stored link records and typed graph refusals | Existing `lox config central-light inspect` shares the Core matcher; file I/O and presentation stay in CLI | Verified at `01cb43b`: `inspect_central_light_links(CentralLightLinksRequest(bytes=..., selector=...)) -> CentralLightLinks`; typed `CentralLightLinksError` | Verified at `01cb43b`: `LoxArchive.inspectCentralLightLinks(CentralLightLinksRequest) -> CentralLightLinks`; checked `CentralLightLinksException`; same Java 22 API in Kotlin |
 | Offline selected principal direct permissions | Published optional `configuration::editor::principal_permissions` (`configuration-editor`); ordered direct entries and typed failures | Existing `lox config user-perms` uses Core; file I/O, diagnostics and presentation stay in CLI | Verified at `06d8238`: `principal_permissions(PrincipalPermissionsRequest(bytes=..., selector=..., kind=...)) -> PrincipalPermissions`; typed `PrincipalPermissionsError` | Verified at `06d8238`: `LoxArchive.principalPermissions(PrincipalPermissionsRequest) -> PrincipalPermissions`; checked `PrincipalPermissionsException`; same Java 22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Candidate `parse_users(bytes) -> list[XmlUserInfo]` | Candidate `LoxArchive.parseUsers(byte[]) -> List<XmlUserInfo>`; SAME Java API in Kotlin |
 | Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
 | Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
-| Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Unsupported | Unsupported |
+| Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Unqualified source candidate: `unwire(UnwireRequest) -> UnwireOutcome`; typed `UnwireError` | Unqualified source candidate: `LoxArchive.unwire(UnwireRequest) -> UnwireOutcome`; checked `UnwireException`; same Java 22 API in Kotlin |
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
 | Byte-preserving offline three-way merge | Optional `configuration::runtime_overlay::three_way` (`configuration-xml`) | Existing patch/preparation callers unchanged; no deployment claim | Verified at published main `2603542`: `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` | Verified at published main `2603542`: `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused`; SAME Java22 API in Kotlin |
@@ -248,9 +248,9 @@ that 64 pre-call lone-surrogate rejections per language retained no matching
 input buffer. Empty success is a value check only. This does not qualify other
 platforms or native Loxone Config workflows.
 
-### Offline selected standalone CentralLight stored links candidate
+### Offline selected standalone CentralLight stored links
 
-The source-only binding projects the published Core reader behind `lox config
+The binding projects the published Core reader behind `lox config
 central-light inspect`. The caller supplies raw configuration XML bytes and a
 legacy selector. Core first loads and selects the element, then checks the
 standalone owner, document and stored link graph. Each result owns the selected
@@ -269,18 +269,66 @@ does not repair `WF`, move or remove links, infer effective links or native
 rows, edit XML, perform file I/O, or act on a running system.
 
 One `CentralLightLinksRequest` places bytes before the selector in a single
-generated lowering transaction. The new, **unrun** installed-artifact checks
-target Windows x64 CPython 3.13 (GIL), Java 22, and Kotlin on the same Java API.
-For nonempty success and the nine named payload-bearing error cases, each
-language calibrates the actual export's live and freed RustBuffer and holds
-64 distinct host objects while checking for no matching native allocation
-without requesting GC. Empty success, payload-free refusals and absent
-marker identity are value-only checks. A separate marked XML request per
-language calibrates the generated input buffer and checks for no retained
-matching buffer after 64 strict pre-call lone-surrogate rejections. This
-does not observe an allocation during the failing call or transfer earlier
-ProgramText evidence. No installed artifact, other platform, native Config
-workflow or stable binary ABI is qualified here.
+generated lowering transaction. At published main `01cb43b`, all 186 SDK
+steps passed using fresh installed artifacts on Windows x64 with CPython
+3.13 (GIL), Java 22, and Kotlin on the same Java API. Each language
+calibrated the actual RustBuffer for a populated result and nine named
+payload-bearing errors, then held 64 distinct host objects per case
+without retaining a matching native buffer or requesting GC. A separate
+marked XML request verified no matching retained input buffer after 64
+pre-call lone-surrogate rejections per language. Empty success, payload-free
+refusals and absent marker identity are value checks, not separate allocation
+claims. This does not qualify other platforms, native Config workflows, or
+a stable binary ABI.
+
+### Offline legacy connector disconnection candidate
+
+The candidate delegates once to the published `configuration::editor::unwire`
+from `d2ffd5d`. `UnwireRequest` owns XML `bytes`, a legacy `selector`, an exact
+case-sensitive `connector`, and a caller-supplied `UnwireClock`. Core removes
+direct `In` children and `Nc` from the first matching direct `Co`. It retains
+`U` when references existed; a second call can therefore clear `U`. Results
+own Core's raw output bytes and report the selected title/type/UUID, connector,
+optional original `U` (absent and empty are distinct), removed-reference
+count, and the separate `content_changed`/`document_stamped` flags. There is
+no byte-to-string conversion in the adapter. Core's canonical serialization,
+BOM and EOL behavior, and the quoted-text/digit-name limitation (`lox-n37w`)
+are unchanged. Errors carry no revised XML. There is no `wire`, file I/O,
+deployment, schema validation or repair of other records.
+
+The clock represents the same `DateTime<FixedOffset>` components used by
+Core: signed Unix seconds, unsigned subsecond nanoseconds and signed seconds
+east of UTC (`long`, `int`, `int` in Java). It uses Chrono's checked timestamp
+and offset constructors, not a local clock, timezone lookup or an RFC 3339
+parser that would drop sub-minute offsets. Unrepresentable components
+are a request-construction refusal (`InvalidClock`) before Core is called,
+not part of XML validation. With a valid clock, Core still decides lazily
+whether to stamp: canonical no-ops may normalize raw bytes without stamping,
+and an edited config without a Document is not stamped. Existing `Date` and
+monotonic `DateS` calculation are unchanged.
+
+Typed refusals expose `Load` with the original parser cause text, `NotFound`
+with the selector and sorted/deduplicated titles, `Ambiguous` with the
+selector and ordered identities, and `ConnectorMissing` with the selected
+identity and requested connector. `Serialize` and `InvalidUtf8` retain Core's
+cause text; `Other` is defensive for editor errors outside this transaction.
+
+The **unrun** Windows x64 CPython 3.13 (GIL), Java 22 and same-API Kotlin
+installed harness schedules per-language live/free calibration using this
+export for a marked stamped result and four named payload-bearing
+error shapes. It holds 64 distinct host objects per case while checking for
+no matching native allocation without requesting GC, and verifies that the
+calibrated refusals return no result bytes. Short/no-op results,
+empty or absent fields, empty title suggestions and payload-free
+`InvalidClock` are value checks only. `Serialize`, `InvalidUtf8` and `Other`
+are projected but not triggered by these fixtures.
+
+The single generated record lowers XML before both string fields. Separate
+marked inputs calibrate the actual generated converter per language, then
+check each lone-surrogate field for strict pre-call rejection and no matching
+retained XML input. This does not claim that failing calls allocated a buffer,
+or transfer ProgramText's evidence. No installed qualification, stable binary
+ABI, or native Loxone Config compatibility is established here.
 
 ### Offline selected principal direct permissions
 

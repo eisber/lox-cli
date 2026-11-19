@@ -29,6 +29,7 @@ mod statistics_index;
 mod statistics_series;
 mod structure_metadata;
 mod text_state;
+mod unwire;
 mod weather_state;
 
 uniffi::setup_scaffolding!();
