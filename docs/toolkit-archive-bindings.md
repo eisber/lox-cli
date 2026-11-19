@@ -24,7 +24,8 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
 | Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Verified at `0adc6a9`: `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Verified at `0adc6a9`: `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java 22 API in Kotlin |
 | Offline selected Lighting mood inventory | Published optional `configuration::editor::list_moods` (`configuration-editor`) at `1746c9b`; stored rows only | Existing `lox config moods` shares the Core traversal; file I/O, DTO and rendering stay in CLI | Verified at `8b36cb2`: `list_moods(MoodInventoryRequest(bytes=..., selector=...)) -> list[MoodInfo]`; typed `MoodInventoryError` | Verified at `8b36cb2`: `LoxArchive.listMoods(MoodInventoryRequest) -> List<MoodInfo>`; checked `MoodInventoryException`; same Java 22 API in Kotlin |
-| Offline selected principal direct permissions | Published optional `configuration::editor::principal_permissions` (`configuration-editor`); ordered direct entries and typed failures | Existing `lox config user-perms` uses Core; file I/O, diagnostics and presentation stay in CLI | Source-only, unrun `principal_permissions(PrincipalPermissionsRequest(bytes=..., selector=..., kind=...)) -> PrincipalPermissions`; typed `PrincipalPermissionsError` | Source-only, unrun `LoxArchive.principalPermissions(PrincipalPermissionsRequest) -> PrincipalPermissions`; checked `PrincipalPermissionsException`; same Java 22 API in Kotlin |
+| Offline selected standalone CentralLight stored links | Published optional `configuration::editor::inspect_central_light_links` (`configuration-editor`) at `19d1d2b`; ordered stored link records and typed graph refusals | Existing `lox config central-light inspect` shares the Core matcher; file I/O and presentation stay in CLI | Source-only, unrun `inspect_central_light_links(CentralLightLinksRequest(bytes=..., selector=...)) -> CentralLightLinks`; typed `CentralLightLinksError` | Source-only, unrun `LoxArchive.inspectCentralLightLinks(CentralLightLinksRequest) -> CentralLightLinks`; checked `CentralLightLinksException`; same Java 22 API in Kotlin |
+| Offline selected principal direct permissions | Published optional `configuration::editor::principal_permissions` (`configuration-editor`); ordered direct entries and typed failures | Existing `lox config user-perms` uses Core; file I/O, diagnostics and presentation stay in CLI | Verified at `06d8238`: `principal_permissions(PrincipalPermissionsRequest(bytes=..., selector=..., kind=...)) -> PrincipalPermissions`; typed `PrincipalPermissionsError` | Verified at `06d8238`: `LoxArchive.principalPermissions(PrincipalPermissionsRequest) -> PrincipalPermissions`; checked `PrincipalPermissionsException`; same Java 22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Candidate `parse_users(bytes) -> list[XmlUserInfo]` | Candidate `LoxArchive.parseUsers(byte[]) -> List<XmlUserInfo>`; SAME Java API in Kotlin |
 | Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
@@ -247,9 +248,43 @@ that 64 pre-call lone-surrogate rejections per language retained no matching
 input buffer. Empty success is a value check only. This does not qualify other
 platforms or native Loxone Config workflows.
 
-### Offline selected principal direct permissions candidate
+### Offline selected standalone CentralLight stored links candidate
 
-The source-only binding projects the same read as `lox config user-perms`.
+The source-only binding projects the published Core reader behind `lox config
+central-light inspect`. The caller supplies raw configuration XML bytes and a
+legacy selector. Core first loads and selects the element, then checks the
+standalone owner, document and stored link graph. Each result owns the selected
+owner's UUID and title, followed by ordered `linkC` records with a 1-based
+position, the reference's original UUID spelling, and the target's stored
+title and type (empty if missing). Graph lookup ignores UUID case; `uuid:`
+selection does not. No links is a successful empty list. The legacy loader
+and its quoted-text/digit-name limitation (`lox-n37w`) are unchanged.
+
+Typed errors preserve the parser cause text, the original selector and
+selection diagnostics, and each current Core graph refusal. Invalid `WF`
+retains the raw value, the integer parse-cause kind, and its text.
+`InconsistentMarker` preserves the optional reported identity. `Other` is
+reserved for unexpected editor errors or future Core variants. The read
+does not repair `WF`, move or remove links, infer effective links or native
+rows, edit XML, perform file I/O, or act on a running system.
+
+One `CentralLightLinksRequest` places bytes before the selector in a single
+generated lowering transaction. The new, **unrun** installed-artifact checks
+target Windows x64 CPython 3.13 (GIL), Java 22, and Kotlin on the same Java API.
+For nonempty success and the nine named payload-bearing error cases, each
+language calibrates the actual export's live and freed RustBuffer and holds
+64 distinct host objects while checking for no matching native allocation
+without requesting GC. Empty success, payload-free refusals and absent
+marker identity are value-only checks. A separate marked XML request per
+language calibrates the generated input buffer and checks for no retained
+matching buffer after 64 strict pre-call lone-surrogate rejections. This
+does not observe an allocation during the failing call or transfer earlier
+ProgramText evidence. No installed artifact, other platform, native Config
+workflow or stable binary ABI is qualified here.
+
+### Offline selected principal direct permissions
+
+The binding projects the same read as `lox config user-perms`.
 The caller supplies configuration XML bytes, a selector and a `PrincipalKind`
 (`User` or `UserGroup`). Core matches the title exactly, ignoring case, or
 compares the value after a lowercase `uuid:` prefix exactly. An omitted title
@@ -274,17 +309,17 @@ values. All values are owned; host UTF-8 encoding refusals are not Core
 selection errors.
 
 One `PrincipalPermissionsRequest` places bytes before the selector in a
-single generated lowering transaction. The new, **unrun** installed-artifact
-checks target Windows x64 CPython 3.13 (GIL), Java 22 and Kotlin using the same
-Java API. Each language checks this export's actual nonempty success and
-three named error RustBuffers with live/freed calibration, retains 64
-distinct host values or errors per case without requesting GC, and checks for
-zero matching native buffers. A separate marked XML request calibrates input
-ownership and checks 64 strict pre-call lone-surrogate rejections per
-language. Empty results/diagnostic collections and absent fields are
-value checks, not separate allocation claims. ProgramText's evidence does
-not qualify this projection. No installed artifact, other platform, native
-Config behavior or stable binary ABI is qualified here.
+single generated lowering transaction. At published main `06d8238`, all 180
+SDK steps passed using fresh installed artifacts on Windows x64 with
+CPython 3.13 (GIL), Java 22, and Kotlin on the same Java API. Each language
+calibrated the actual RustBuffer for nonempty results and the `Load`,
+`NotFound`, and `Ambiguous` errors, then held 64 distinct host values or
+errors per case without retaining a matching native buffer or requesting
+GC. A separate marked XML request verified that 64 pre-call lone-surrogate
+rejections per language retained no matching input buffer. Empty results,
+empty diagnostic collections, and absent fields are value checks, not
+separate allocation claims. This does not qualify other platforms, native
+Config behavior, or a stable binary ABI.
 
 ### Offline MQTT topic catalog candidate
 

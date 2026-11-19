@@ -7,6 +7,7 @@ use std::error::Error;
 
 mod autopilot_catalog;
 mod backup_catalog;
+mod central_light_links;
 mod clock;
 mod color;
 mod configuration;
