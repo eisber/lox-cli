@@ -24,6 +24,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
 | Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Verified at `0adc6a9`: `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Verified at `0adc6a9`: `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java 22 API in Kotlin |
 | Offline selected Lighting mood inventory | Published optional `configuration::editor::list_moods` (`configuration-editor`) at `1746c9b`; stored rows only | Existing `lox config moods` shares the Core traversal; file I/O, DTO and rendering stay in CLI | Verified at `8b36cb2`: `list_moods(MoodInventoryRequest(bytes=..., selector=...)) -> list[MoodInfo]`; typed `MoodInventoryError` | Verified at `8b36cb2`: `LoxArchive.listMoods(MoodInventoryRequest) -> List<MoodInfo>`; checked `MoodInventoryException`; same Java 22 API in Kotlin |
+| Offline full stored Lighting inspection | Published optional `configuration::editor::inspect_lighting` (`configuration-editor`) at `c9a68a5`; stored controller, channels, moods, collection shape and document versions | CLI formatting, diagnostics and classification stay in CLI | Unqualified source candidate: `inspect_lighting(LightingInspectionRequest(bytes=..., selector=...)) -> LightingInspection`; typed `LightingInspectionError` | Unqualified source candidate: `LoxArchive.inspectLighting(LightingInspectionRequest) -> LightingInspection`; checked `LightingInspectionException`; same Java 22 API in Kotlin |
 | Offline selected standalone CentralLight stored links | Published optional `configuration::editor::inspect_central_light_links` (`configuration-editor`) at `19d1d2b`; ordered stored link records and typed graph refusals | Existing `lox config central-light inspect` shares the Core matcher; file I/O and presentation stay in CLI | Verified at `01cb43b`: `inspect_central_light_links(CentralLightLinksRequest(bytes=..., selector=...)) -> CentralLightLinks`; typed `CentralLightLinksError` | Verified at `01cb43b`: `LoxArchive.inspectCentralLightLinks(CentralLightLinksRequest) -> CentralLightLinks`; checked `CentralLightLinksException`; same Java 22 API in Kotlin |
 | Offline selected principal direct permissions | Published optional `configuration::editor::principal_permissions` (`configuration-editor`); ordered direct entries and typed failures | Existing `lox config user-perms` uses Core; file I/O, diagnostics and presentation stay in CLI | Verified at `06d8238`: `principal_permissions(PrincipalPermissionsRequest(bytes=..., selector=..., kind=...)) -> PrincipalPermissions`; typed `PrincipalPermissionsError` | Verified at `06d8238`: `LoxArchive.principalPermissions(PrincipalPermissionsRequest) -> PrincipalPermissions`; checked `PrincipalPermissionsException`; same Java 22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
@@ -31,7 +32,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
 | Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
-| Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Unqualified source candidate: `unwire(UnwireRequest) -> UnwireOutcome`; typed `UnwireError` | Unqualified source candidate: `LoxArchive.unwire(UnwireRequest) -> UnwireOutcome`; checked `UnwireException`; same Java 22 API in Kotlin |
+| Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Verified at `bbfbcc8`: `unwire(UnwireRequest) -> UnwireOutcome`; typed `UnwireError` | Verified at `bbfbcc8`: `LoxArchive.unwire(UnwireRequest) -> UnwireOutcome`; checked `UnwireException`; same Java 22 API in Kotlin |
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
 | Byte-preserving offline three-way merge | Optional `configuration::runtime_overlay::three_way` (`configuration-xml`) | Existing patch/preparation callers unchanged; no deployment claim | Verified at published main `2603542`: `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` | Verified at published main `2603542`: `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused`; SAME Java22 API in Kotlin |
@@ -248,6 +249,39 @@ that 64 pre-call lone-surrogate rejections per language retained no matching
 input buffer. Empty success is a value check only. This does not qualify other
 platforms or native Loxone Config workflows.
 
+### Offline full stored Lighting inspection
+
+The candidate delegates once to the published `inspect_lighting`, with one
+owned request in wire order XML bytes, UTF-8 selector. Core controls loading,
+legacy selection and the exact `LightController2` type check. The result
+keeps optional controller identity, direct indexed channels, exact downstream
+references (including incomplete references and UUID occurrence counts),
+depth-first moods with the existing `MoodInfo` summary, raw indexed `Qn`
+values in loader order, recursive non-`Co` storage, and document version
+observations. Attribute entries retain Core's key order. The optional sole
+collection index addresses the returned top-level storage list (zero-based);
+membership flags and collection counts come from Core. Attribute strings are
+from the loaded DOM, not original XML bytes (`lox-n37w` remains unchanged).
+
+`Load` carries parser cause text, `NotFound` the selector and sorted unique
+titles, `Ambiguous` the selector and ordered title/type/UUID matches, and
+`NotLightController` the selector and stored type (empty if missing). `Other`
+is a fallback for unexpected Core errors. This is separate from `list_moods`;
+it does not classify editors, interpret colors, derive roles or units, edit
+XML, access files or devices, or validate native Config behavior.
+
+The standalone installed-artifact witness sources under `tests/bindings`
+are unrun. They target only four marked payloads: a full inventory and
+`NotFound`, `Ambiguous`, and `NotLightController`. Each verifies the exact
+expected prefix in a live buffer from this export, reports address liveness
+and matching payload count separately after freeing it, and holds 64 distinct
+host results from the public API without a matching allocation or requested
+GC. A distinct marked request control calibrates the generated converter
+before 64 strict pre-call lone-surrogate rejections per language. The check
+only excludes retained matching inputs; it does not assert that every rejected
+lowering allocated a buffer. Small/empty inventories, `Load`, and absent
+fields are value checks only; `Other` has no specimen.
+
 ### Offline selected standalone CentralLight stored links
 
 The binding projects the published Core reader behind `lox config
@@ -281,9 +315,9 @@ refusals and absent marker identity are value checks, not separate allocation
 claims. This does not qualify other platforms, native Config workflows, or
 a stable binary ABI.
 
-### Offline legacy connector disconnection candidate
+### Offline legacy connector disconnection
 
-The candidate delegates once to the published `configuration::editor::unwire`
+The binding delegates once to the published `configuration::editor::unwire`
 from `d2ffd5d`. `UnwireRequest` owns XML `bytes`, a legacy `selector`, an exact
 case-sensitive `connector`, and a caller-supplied `UnwireClock`. Core removes
 direct `In` children and `Nc` from the first matching direct `Co`. It retains
@@ -313,22 +347,23 @@ selector and ordered identities, and `ConnectorMissing` with the selected
 identity and requested connector. `Serialize` and `InvalidUtf8` retain Core's
 cause text; `Other` is defensive for editor errors outside this transaction.
 
-The **unrun** Windows x64 CPython 3.13 (GIL), Java 22 and same-API Kotlin
-installed harness schedules per-language live/free calibration using this
-export for a marked stamped result and four named payload-bearing
-error shapes. It holds 64 distinct host objects per case while checking for
-no matching native allocation without requesting GC, and verifies that the
-calibrated refusals return no result bytes. Short/no-op results,
-empty or absent fields, empty title suggestions and payload-free
-`InvalidClock` are value checks only. `Serialize`, `InvalidUtf8` and `Other`
-are projected but not triggered by these fixtures.
+At published main `bbfbcc8`, all 192 SDK steps passed using fresh installed
+artifacts on Windows x64 with CPython 3.13 (GIL), Java 22, and Kotlin on
+the same Java API. Each language calibrated the actual RustBuffer for a
+stamped result and the `Load`, `NotFound`, `Ambiguous`, and `ConnectorMissing`
+errors, then held 64 distinct host objects per case without retaining a
+matching native buffer or requesting GC. Calibrated refusals returned no
+result bytes. Short/no-op results, empty or absent fields, empty title
+suggestions, and payload-free `InvalidClock` are value checks only.
+`Serialize`, `InvalidUtf8`, and `Other` are projected but not triggered by
+these fixtures.
 
 The single generated record lowers XML before both string fields. Separate
-marked inputs calibrate the actual generated converter per language, then
-check each lone-surrogate field for strict pre-call rejection and no matching
-retained XML input. This does not claim that failing calls allocated a buffer,
-or transfer ProgramText's evidence. No installed qualification, stable binary
-ABI, or native Loxone Config compatibility is established here.
+marked inputs calibrated the generated converter and verified no matching
+retained XML input after 64 pre-call lone-surrogate rejections per field per
+language. This does not claim that failing calls allocated a buffer or
+qualify other platforms, native Loxone Config workflows, or a stable binary
+ABI.
 
 ### Offline selected principal direct permissions
 

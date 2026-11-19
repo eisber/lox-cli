@@ -1,0 +1,22 @@
+<ControlList Version="+0267">
+  <C Type="Document" ConfigVersion="17.2" V="opaque">
+    <C Type="Place" U="den" Title="Study"/>
+    <C Type="LightController2" U="light" gid="primary" Title="Lamps &amp; 灯" CapAI0="+0007">
+      <Co K="AQ10" U="src" Future="keep &amp; stay"/>
+      <Co K="AQ2" U=""/>
+      <Co K="AQ01" U="ignored"/>
+      <IoData Pr="den"/>
+      <LightscenesC Num="99" Outputs="0002">
+        <LightsceneC UUID="same" Name="Direct" SID="bad" CID="+09" Q10="opaque" Q2="+0006" Q1="" Q01="unprojected">
+          <SeqConf Flag="0"><LightsceneC UUID="same" Name="Nested" Q1="-1"/></SeqConf>
+        </LightsceneC>
+      </LightscenesC>
+      <HCL T="2"/>
+    </C>
+    <C Type="And" U="wrong" Title="Lamps &amp; 灯">
+      <Co K="I1" U="in"><In Input="src" FLG="02"/><In Input="SRC"/></Co>
+      <In Input="src" Future="unresolved"/>
+    </C>
+    <C Type="Other" U="src"/>
+  </C>
+</ControlList>

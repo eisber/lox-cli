@@ -95,6 +95,7 @@ Step 'program-text-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features
 Step 'mood-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'mood_inventory_', '--locked', '--offline')
 Step 'central-light-links-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'central_light_links::', '--locked', '--offline')
 Step 'unwire-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'unwire_', '--locked', '--offline')
+Step 'lighting-inspection-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'lighting_inspection::', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
@@ -577,6 +578,26 @@ Step 'kotlin-unwire-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\
     proof = 'Installed unwire changed bytes and Load/NotFound/Ambiguous/ConnectorMissing: same-export native address and prefix live1/free0, 64 distinct held host objects and no matching native buffer per case per language without requested GC. Each language also calibrated two Unwire-specific marked inputs with the generated converter, then found no matching buffer after 64 actual pre-call UTF-8 rejections of each of selector and connector. Short/no-op results, absent/empty fields, empty suggestions and payload-free InvalidClock were checked as values only. Serialize/InvalidUtf8/Other projections were not observed.'
 } | ConvertTo-Json | Set-Content "$Output\UNWIRE-MECHANISM.json" -Encoding utf8
 
+$LightingFixture = "$Output\fixtures\lighting_inspection.xml"
+Copy-Item -LiteralPath 'tests\bindings\lighting_inspection.xml' -Destination $LightingFixture
+Step 'python-lighting-inspection-smoke' $VenvPython @('-I', '-B', 'tests\bindings\lighting_inspection_smoke.py', "$Probe.dll", $LightingFixture)
+Step 'javac-lighting-inspection-smoke' $Javac @('--release', '22', '-encoding', 'UTF-8', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\LightingInspectionSmoke.java')
+Step 'java-lighting-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.LightingInspectionSmoke', $LightingFixture))
+$LightingInspectionKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-lighting-inspection-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\LightingInspectionSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-lighting-inspection.args", $LightingInspectionKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-lighting-inspection-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-lighting-inspection.args")
+Step 'kotlin-lighting-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-lighting-inspection-smoke.jar", 'LightingInspectionSmokeKt', $LightingFixture))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    fixture_sha256 = (Get-FileHash $LightingFixture -Algorithm SHA256).Hash.ToLowerInvariant()
+    probe_sha256 = (Get-FileHash "$Probe.dll" -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Installed full Lighting projection and NotFound/Ambiguous/NotLightController: exact marked payload and address live/free calibration, 64 held host outcomes per branch and zero matching native payloads per language without requested GC. Each language also calibrated the marked XML request and verified 64 strict pre-call lone-surrogate rejections with no matching retained input. Load, small/empty inventories and absent fields are value checks only.'
+} | ConvertTo-Json | Set-Content "$Output\LIGHTING-INSPECTION-MECHANISM.json" -Encoding utf8
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -610,6 +631,7 @@ $Artifacts += Get-Item "$Output\mood-inventory-core-focused.log", "$Output\pytho
 $Artifacts += Get-Item "$Output\principal-permissions-core-focused.log", "$Output\python-principal-permissions-smoke.log", "$Output\javac-principal-permissions-smoke.log", "$Output\java-principal-permissions-smoke.log", "$Output\kotlinc-principal-permissions-smoke.log", "$Output\kotlin-principal-permissions-smoke.log", "$Output\PRINCIPAL-PERMISSIONS-MECHANISM.json"
 $Artifacts += Get-Item "$Output\central-light-links-core-focused.log", "$Output\python-central-light-links-smoke.log", "$Output\javac-central-light-links-smoke.log", "$Output\java-central-light-links-smoke.log", "$Output\kotlinc-central-light-links-smoke.log", "$Output\kotlin-central-light-links-smoke.log", "$Output\CENTRAL-LIGHT-LINKS-MECHANISM.json"
 $Artifacts += Get-Item "$Output\unwire-core-focused.log", "$Output\python-unwire-smoke.log", "$Output\javac-unwire-smoke.log", "$Output\java-unwire-smoke.log", "$Output\kotlinc-unwire-smoke.log", "$Output\kotlin-unwire-smoke.log", "$Output\UNWIRE-MECHANISM.json"
+$Artifacts += Get-Item "$Output\lighting-inspection-core-focused.log", "$Output\python-lighting-inspection-smoke.log", "$Output\javac-lighting-inspection-smoke.log", "$Output\java-lighting-inspection-smoke.log", "$Output\kotlinc-lighting-inspection-smoke.log", "$Output\kotlin-lighting-inspection-smoke.log", "$Output\LIGHTING-INSPECTION-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"
