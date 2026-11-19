@@ -225,6 +225,31 @@ fn central_light_links_cli_mixed_visibility_refuses_selection_and_raw_boundaries
 }
 
 #[test]
+fn central_light_inspection_keeps_selection_and_graph_diagnostics() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let original = fixture().replace("268451840", "16384");
+    let ambiguous = original.replace(r#"Title="A""#, r#"Title="Central shadow""#);
+
+    for (xml, selector, diagnostic) in [
+        (&ambiguous, "Central", "Selector 'Central' matches 2 elements (expected 1):".into()),
+        (&original, "Office", "'Office' is not a plain CentralLight. Use `lox config controls FILE --type CentralLight`; nothing was changed.".into()),
+        (&original, "Central", format!("Inconsistent document linked-function WF marker on '{}'. Repair the linkC reference graph in Loxone Config first; nothing was changed.", id(10))),
+    ] {
+        fs::write(&input, xml).unwrap();
+        assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "central-light", "inspect"])
+            .arg(&input)
+            .arg(selector)
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(diagnostic));
+        assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+    }
+}
+
+#[test]
 fn central_light_links_cli_removal_saves_marker_deltas_and_last_link_without_defaults() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");

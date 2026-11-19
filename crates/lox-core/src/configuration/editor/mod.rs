@@ -6,6 +6,7 @@
 //! No file, clock, home directory, terminal or process state is accessed.
 
 mod attribute;
+mod central_light_links;
 mod control_move;
 mod daytimer;
 mod description;
@@ -27,6 +28,9 @@ use chrono::{DateTime, FixedOffset};
 use std::{error::Error, fmt};
 
 pub use attribute::{AttributeChange, SetAttributeOutcome, set_attribute};
+pub use central_light_links::{
+    CentralLightLink, CentralLightLinks, CentralLightLinksError, inspect_central_light_links,
+};
 #[cfg(feature = "unstable-legacy-cli-editor")]
 #[doc(hidden)]
 pub use control_move::ControlMovePlan;
@@ -54,6 +58,13 @@ pub use status_monitor::{
     inspect_status_monitor,
 };
 pub use unwire::{UnwireChange, UnwireError, UnwireOutcome, unwire};
+
+/// Existing graph primitives used by the legacy binary's link removal code.
+#[cfg(feature = "unstable-legacy-cli-editor")]
+#[doc(hidden)]
+pub mod legacy_central_light_links {
+    pub use super::central_light_links::{LINKED, collect_controls, flags, identity, links};
+}
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///

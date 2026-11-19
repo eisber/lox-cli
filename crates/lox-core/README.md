@@ -83,6 +83,18 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   The shared loader's lox-n37w limitation is unchanged. No write operation,
   runtime behavior, native validation or foreign binding is provided.
 
+- Source candidate, optional `configuration-editor`:
+  `configuration::editor::inspect_central_light_links(bytes, selector)` shares
+  the cached `lox config central-light inspect` matcher. It returns owned
+  references in stored `linkC` order, with their original UUID spelling and
+  stored target titles and types (empty when absent). It selects one plain
+  `CentralLight` in one plain, non-Template owning Document with a direct
+  `IoData Visu="true"`. It refuses invalid or ambiguous references and
+  inconsistent document-wide `WF` markers without repairing them.
+  `CentralLightLinksError` preserves typed editor causes without extending
+  `EditError`. This is not a native row inventory, a write/repair operation or
+  a foreign binding. The shared loader's lox-n37w limitation is unchanged.
+
 - Optional `configuration-editor`: `configuration::editor::set_attribute(bytes,
   selector, attribute, value, &now)` migrates the existing legacy raw attribute
   operation. Its owned `AttributeChange` captures the selected identity before

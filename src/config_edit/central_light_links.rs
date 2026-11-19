@@ -1,12 +1,12 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use anyhow::{Result, bail};
+use lox_core::configuration::editor::{self, CentralLightLinksError, legacy_central_light_links};
 use serde::Serialize;
 use xmltree::Element;
 
-use super::ConfigEditor;
-
-const LINKED: u32 = 0x1000_0000;
+use super::{ConfigEditor, editor_error};
+use legacy_central_light_links::{LINKED, collect_controls};
 
 #[derive(Debug, Clone, Copy)]
 pub enum CentralLightLinkDirection {
@@ -48,7 +48,20 @@ pub struct CentralLightLinkRemoval {
 impl ConfigEditor {
     pub fn inspect_central_light_links(&self, selector: &str) -> Result<CentralLightLinks> {
         let (_, inspection) = self.central_light_links(selector)?;
-        Ok(inspection)
+        Ok(CentralLightLinks {
+            uuid: inspection.uuid,
+            title: inspection.title,
+            links: inspection
+                .links
+                .into_iter()
+                .map(|link| CentralLightLink {
+                    position: link.position,
+                    uuid: link.uuid,
+                    title: link.title,
+                    control_type: link.control_type,
+                })
+                .collect(),
+        })
     }
 
     pub fn move_central_light_link(
@@ -190,177 +203,50 @@ impl ConfigEditor {
         Ok(result)
     }
 
-    fn central_light_links(&self, selector: &str) -> Result<(Vec<usize>, CentralLightLinks)> {
-        let path = self.require_one(selector)?;
-        let owner = self.get_element(&path);
-        if owner.name != "C"
-            || owner.attributes.get("Type").map(String::as_str) != Some("CentralLight")
-            || owner.namespace.is_some()
-            || owner.prefix.is_some()
-        {
-            bail!(
-                "'{selector}' is not a plain CentralLight. Use `lox config controls FILE --type CentralLight`; nothing was changed."
-            );
-        }
-        let documents = self.find_elements("Type:Document");
-        if documents.len() != 1 || !path.starts_with(&documents[0]) {
-            bail!("CentralLight links require one owning Document; nothing was changed.");
-        }
-        let document = self.get_element(&documents[0]);
-        if document.name != "C" || document.namespace.is_some() || document.prefix.is_some() {
-            bail!("CentralLight links require a plain owning Document; nothing was changed.");
-        }
-        if document
-            .children
-            .iter()
-            .filter_map(|child| child.as_element())
-            .any(|child| child.name == "Template")
-        {
-            bail!(
-                "CentralLight links do not support Document Template configurations: native accepted-list propagation is not implemented. Use a standalone document; nothing was changed."
-            );
-        }
-        let io: Vec<_> = owner
-            .children
-            .iter()
-            .filter_map(|child| child.as_element())
-            .filter(|child| child.name == "IoData")
-            .collect();
-        if io.len() != 1
-            || io[0].attributes.get("Visu").map(String::as_str) != Some("true")
-            || io[0].namespace.is_some()
-            || io[0].prefix.is_some()
-        {
-            bail!(
-                "CentralLight links require one direct IoData with explicit Visu=\"true\". Native fallback capability and parent-owner redirection are unsupported; nothing was changed."
-            );
-        }
-        let uuid = owner.attributes.get("U").ok_or_else(|| {
-            anyhow::anyhow!("CentralLight has no U identity; nothing was changed.")
-        })?;
-        let owner_key = identity(uuid)?;
-        let mut controls = Vec::new();
-        collect_controls(document, &mut controls);
-        let mut by_uuid: HashMap<String, Vec<&Element>> = HashMap::new();
-        for control in &controls {
-            if let Some(key) = control
-                .attributes
-                .get("U")
-                .and_then(|raw| identity(raw).ok())
-            {
-                by_uuid.entry(key).or_default().push(control);
-            }
-        }
-        resolve(&by_uuid, &owner_key)?;
-        let mut referenced = HashSet::new();
-        for control in &controls {
-            for link in links(control)? {
-                let key = identity(link)?;
-                resolve(&by_uuid, &key)?;
-                referenced.insert(key);
-            }
-        }
-        // Native accept recomputes this marker document-wide. Membership is
-        // unchanged by a move, so require a graph needing no incidental repair.
-        for control in &controls {
-            let marked = flags(control)? & LINKED != 0;
-            let expected = control
-                .attributes
-                .get("U")
-                .and_then(|raw| identity(raw).ok())
-                .is_some_and(|key| referenced.contains(&key));
-            if marked != expected {
-                bail!(
-                    "Inconsistent document linked-function WF marker on '{}'. Repair the linkC reference graph in Loxone Config first; nothing was changed.",
-                    control.attributes.get("U").map_or("(no U)", String::as_str)
-                );
-            }
-        }
-        let mut result = Vec::new();
-        for (index, link) in links(owner)?.into_iter().enumerate() {
-            let control = resolve(&by_uuid, &identity(link)?)?;
-            result.push(CentralLightLink {
-                position: index + 1,
-                uuid: link.into(),
-                title: control.attributes.get("Title").cloned().unwrap_or_default(),
-                control_type: control.attributes.get("Type").cloned().unwrap_or_default(),
-            });
-        }
-        Ok((
-            path,
-            CentralLightLinks {
-                uuid: uuid.clone(),
-                title: owner.attributes.get("Title").cloned().unwrap_or_default(),
-                links: result,
-            },
-        ))
+    fn central_light_links(
+        &self,
+        selector: &str,
+    ) -> Result<(Vec<usize>, editor::CentralLightLinks)> {
+        self.kernel
+            .match_central_light_links(selector)
+            .map_err(central_light_links_error)
     }
 }
 
-fn collect_controls<'a>(element: &'a Element, controls: &mut Vec<&'a Element>) {
-    if element.name == "C" {
-        controls.push(element);
-    }
-    for child in element
-        .children
-        .iter()
-        .filter_map(|child| child.as_element())
-    {
-        collect_controls(child, controls);
-    }
-}
+fn central_light_links_error(error: CentralLightLinksError) -> anyhow::Error {
+    use CentralLightLinksError::*;
 
-fn resolve<'a>(controls: &HashMap<String, Vec<&'a Element>>, key: &str) -> Result<&'a Element> {
-    match controls.get(key).map(Vec::as_slice) {
-        Some([control]) if control.namespace.is_none() && control.prefix.is_none() => Ok(control),
-        _ => bail!(
-            "Linked-function UUID '{key}' does not resolve to exactly one plain control. Dangling/ambiguous references and native refresh repair are unsupported; nothing was changed."
-        ),
+    let detail = match &error {
+        NotPlainCentralLight { .. } => ". Use `lox config controls FILE --type CentralLight`",
+        DocumentTemplate => {
+            ": native accepted-list propagation is not implemented. Use a standalone document"
+        }
+        NotDirectVisibleOwner => {
+            ". Native fallback capability and parent-owner redirection are unsupported"
+        }
+        InvalidIdentity { .. } => ". Select an existing linked-function U, not a row number",
+        UnresolvedControl { .. } => {
+            ". Dangling/ambiguous references and native refresh repair are unsupported"
+        }
+        InconsistentMarker { .. } => ". Repair the linkC reference graph in Loxone Config first",
+        _ => "",
+    };
+    match error {
+        Edit(error) => editor_error(error),
+        error => anyhow::anyhow!("{error}{detail}; nothing was changed."),
     }
 }
 
 fn links(control: &Element) -> Result<Vec<&str>> {
-    let raw = control.attributes.get("linkC").map_or("", String::as_str);
-    if raw.is_empty() {
-        return Ok(Vec::new());
-    }
-    let mut seen = HashSet::new();
-    let mut result = Vec::new();
-    for link in raw.split(',') {
-        if !seen.insert(identity(link)?) {
-            bail!("Duplicate linked-function UUID '{link}'; nothing was changed.");
-        }
-        result.push(link);
-    }
-    Ok(result)
+    legacy_central_light_links::links(control).map_err(central_light_links_error)
 }
 
 fn flags(control: &Element) -> Result<u32> {
-    match control.attributes.get("WF") {
-        None => Ok(0),
-        Some(raw) => raw
-            .parse()
-            .map_err(|_| anyhow::anyhow!("Unsupported decimal WF '{raw}'; nothing was changed.")),
-    }
+    legacy_central_light_links::flags(control).map_err(central_light_links_error)
 }
 
 fn identity(raw: &str) -> Result<String> {
-    if raw.len() == 35
-        && raw.bytes().enumerate().all(|(index, byte)| {
-            if [8, 13, 18].contains(&index) {
-                byte == b'-'
-            } else {
-                byte.is_ascii_hexdigit()
-            }
-        })
-        && raw.bytes().any(|byte| byte != b'0' && byte != b'-')
-    {
-        Ok(raw.to_ascii_lowercase())
-    } else {
-        bail!(
-            "'{raw}' is not a nonzero native UUID (8-4-4-16 hexadecimal digits). Select an existing linked-function U, not a row number; nothing was changed."
-        )
-    }
+    legacy_central_light_links::identity(raw).map_err(central_light_links_error)
 }
 
 #[cfg(test)]
