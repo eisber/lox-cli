@@ -40,6 +40,8 @@ pub mod load_manager;
 mod mqtt_catalog_tests;
 pub mod operating_modes;
 mod permissions;
+#[cfg(test)]
+mod program_reader_tests;
 mod properties;
 mod rooms;
 pub mod schema;

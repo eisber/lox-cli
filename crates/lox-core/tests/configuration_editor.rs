@@ -5,6 +5,68 @@ use lox_core::configuration::editor::{
 use std::error::Error;
 
 #[test]
+fn program_reader_first_direct_field_text_and_shared_legacy_selection() {
+    use lox_core::configuration::editor::get_program_text;
+    let xml = br#"<Root Date="fixed" DateS="99"><C Type="Place" U="r" Title="Kitchen"/>
+<C Type="SequenceController" U="s" Title="Program" gid="g" foreign="keep"><IoData Pr="r"/>
+<Unknown><Field Name="Configuration">nested</Field></Unknown><Field Name="configuration">wrong</Field>
+<Field Name="Configuration">first<Nested>hidden</Nested>second<![CDATA[hidden]]>third</Field>
+<Field Name="Configuration">later</Field></C>
+<C Type="SequenceController" U="s" Title="Program"><Field Name="Configuration">mirror</Field></C>
+<C Type="SequenceController" U="empty" Title="Empty"><Field Name="configuration">wrong</Field></C></Root>"#;
+    let before = xml.to_vec();
+    for selector in ["uuid:s", "gid:g", "Program [Kitchen]"] {
+        assert_eq!(get_program_text(xml, selector).unwrap(), "firstsecondthird");
+    }
+    assert_eq!(get_program_text(xml, "Empty").unwrap(), "");
+    assert_eq!(xml.as_slice(), before);
+    let legacy = br#"<C Type="SequenceController" U="s" 12hTF="true"><Field Name="Configuration">text 12hTF=value</Field></C>"#;
+    assert_eq!(
+        get_program_text(legacy, "uuid:s").unwrap(),
+        "text _12hTF=value"
+    );
+}
+
+#[test]
+fn program_reader_typed_load_selection_and_exact_type_error_priority() {
+    use lox_core::configuration::editor::{ProgramTextError, get_program_text};
+    let xml = br#"<Root><C Type="And" U="a" Title="Program"/><C Type="SequenceController" U="b" Title="Program"/><C Type="sequencecontroller" U="c" Title="Wrong"/><C U="sparse"/></Root>"#;
+    assert!(matches!(
+        get_program_text(xml, "Program")
+            .unwrap_err()
+            .source()
+            .and_then(|cause| cause.downcast_ref::<EditError>()),
+        Some(EditError::Selection(SelectionError::Ambiguous { .. }))
+    ));
+    assert!(matches!(
+        get_program_text(xml, "missing"),
+        Err(ProgramTextError::Edit(EditError::Selection(
+            SelectionError::NotFound { .. }
+        )))
+    ));
+    assert!(
+        matches!(get_program_text(xml, "Wrong"), Err(ProgramTextError::Unsupported { element }) if element.block_type == "sequencecontroller")
+    );
+    assert!(
+        matches!(get_program_text(xml, "uuid:sparse"), Err(ProgramTextError::Unsupported { element }) if element.block_type.is_empty() && element.title.is_empty())
+    );
+    let error = get_program_text(b"<C A='1' A='2'/>", "missing").unwrap_err();
+    assert!(
+        error
+            .source()
+            .and_then(|cause| cause.downcast_ref::<EditError>())
+            .and_then(Error::source)
+            .unwrap()
+            .downcast_ref::<xmltree::ParseError>()
+            .is_some()
+    );
+    let ProgramTextError::Edit(EditError::Load(cause)) = error else {
+        panic!("load must precede selection")
+    };
+    assert!(cause.into_inner().downcast::<xmltree::ParseError>().is_ok());
+}
+
+#[test]
 fn selected_description_preserves_direct_raw_observations_and_last_precedence() {
     use lox_core::configuration::editor::describe_element;
     let xml = include_bytes!("fixtures/element-description.Loxone");

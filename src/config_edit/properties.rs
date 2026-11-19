@@ -1,5 +1,6 @@
 use super::{ConfigEditor, ConfigSurfaceEntry, ElementDescription};
 use anyhow::{Result, bail};
+use lox_core::configuration::editor::ProgramTextError;
 use std::collections::{BTreeMap, BTreeSet};
 use xmltree::Element;
 
@@ -217,47 +218,9 @@ impl ConfigEditor {
     /// Read the program text from a SequenceController block's
     /// `<Field Name="Configuration">` element.
     pub fn get_program_text(&self, selector: &str) -> Result<String> {
-        let path = self.require_one(selector)?;
-        let elem = self.get_element(&path);
-        let title = elem.attributes.get("Title").cloned().unwrap_or_default();
-        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
-
-        if block_type != "SequenceController" {
-            bail!(
-                "'{}' is a {} — get-program is only for SequenceController blocks",
-                title,
-                block_type
-            );
-        }
-
-        // Look for <Field Name="Configuration">...</Field>
-        for child in &elem.children {
-            if let Some(field) = child.as_element()
-                && field.name == "Field"
-                && field
-                    .attributes
-                    .get("Name")
-                    .map(|n| n == "Configuration")
-                    .unwrap_or(false)
-            {
-                // Get text content
-                let text = field
-                    .children
-                    .iter()
-                    .filter_map(|c| {
-                        if let xmltree::XMLNode::Text(t) = c {
-                            Some(t.as_str())
-                        } else {
-                            None
-                        }
-                    })
-                    .collect::<Vec<_>>()
-                    .join("");
-                return Ok(text);
-            }
-        }
-
-        Ok(String::new())
+        self.kernel
+            .program_text_selected(selector)
+            .map_err(program_text_error)
     }
 
     /// Write program text to a SequenceController block's
@@ -336,5 +299,12 @@ impl ConfigEditor {
             if seqs == 1 { "" } else { "s" },
             title,
         ))
+    }
+}
+
+pub(super) fn program_text_error(error: ProgramTextError) -> anyhow::Error {
+    match error {
+        ProgramTextError::Edit(error) => super::editor_error(error),
+        error @ ProgramTextError::Unsupported { .. } => anyhow::anyhow!("{error}"),
     }
 }

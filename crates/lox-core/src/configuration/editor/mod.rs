@@ -12,6 +12,7 @@ pub(super) mod legacy;
 #[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
 #[doc(hidden)]
 pub mod operating_modes;
+mod program;
 mod selector;
 #[cfg(any(test, feature = "unstable-legacy-cli-editor"))]
 mod virtual_input;
@@ -28,6 +29,7 @@ pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelecto
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
 };
+pub use program::{ProgramTextError, get_program_text};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///
