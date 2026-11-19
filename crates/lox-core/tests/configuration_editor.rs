@@ -1098,6 +1098,177 @@ mod lighting_inspection {
         assert_eq!(missing.uuid_occurrences, None);
     }
 
+    #[cfg(feature = "configuration-xml")]
+    mod lighting_mood_count {
+        use chrono::{DateTime, FixedOffset};
+        use lox_core::configuration::editor::{
+            EditError, LightingMoodCountChange, LightingMoodCountError as Refusal, SelectionError,
+            recount_lighting_moods as recount,
+        };
+
+        const COLLECTION: &str = r#"<LightscenesC Num="future" Outputs="0003" FC="opaque"><!-- <x:LightsceneC Num='91'/> --><LightsceneC UUID="first" SID="+02" CID="09" Q1="00037" Q10="opaque" Outputs="2"><Empty/></LightsceneC><Opaque><![CDATA[<LightsceneC xml:Name='lookalike'/>]]><LightsceneC Num="91"/></Opaque><LightsceneC/></LightscenesC>"#;
+
+        fn document() -> String {
+            format!(
+                "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+                 <ControlList><C Type=\"Document\" Date=\"old\" DateS=\"86400\" NumO=\"99\">\
+                 <C Type=\"Place\" U=\"room\" Title=\"Office\"/><C Type=\"Program\"><C Type=\"Page\">\
+                 <C Type=\"LightController2\" U=\"lamp\" Title=\"Lamps\"><IoData Pr=\"room\"/>\
+                 {COLLECTION}<LSConfig OpM=\"opaque\"/><HCL T=\"2\"/></C>\
+                 <C Type=\"LightController2\" U=\"other\" Title=\"Lamps\"><LightscenesC Num=\"70\"/></C>\
+                 </C></C></C></ControlList>\r\n"
+            )
+        }
+
+        fn clock() -> DateTime<FixedOffset> {
+            DateTime::parse_from_rfc3339("2009-01-02T01:59:59+02:00").unwrap()
+        }
+
+        #[test]
+        fn repairs_only_the_direct_stored_count_and_stamps_owning_document() {
+            let xml = document();
+            let result = recount(xml.as_bytes(), "Lamps [Off]", &clock()).unwrap();
+            assert_eq!(
+                result.change,
+                LightingMoodCountChange {
+                    before: Some("future".into()),
+                    before_effective: None,
+                    after: "2".into(),
+                    scenes: 2,
+                    changed: true,
+                }
+            );
+            assert!(result.document_stamped);
+            let saved = std::str::from_utf8(&result.bytes).unwrap();
+            assert!(saved.starts_with("\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"));
+            assert!(saved.ends_with("</ControlList>\r\n"));
+            assert!(!saved.replace("\r\n", "").contains('\n'));
+            assert!(saved.contains("<Empty></Empty>"));
+            assert!(saved.contains("<LightsceneC></LightsceneC>"));
+            assert!(saved.contains(r#"<LightsceneC Num="91"/>"#));
+            let expected = xml.replace(r#"Num="future""#, r#"Num="2""#).replace(
+                r#"Date="old" DateS="86400""#,
+                r#"Date="2009-01-02 02:00:01" DateS="86401""#,
+            );
+            let parse = |text: &str| {
+                xmltree::Element::parse(text.trim_start_matches('\u{feff}').as_bytes()).unwrap()
+            };
+            assert_eq!(parse(saved), parse(&expected));
+            let repeated = recount(&result.bytes, "uuid:lamp", &clock()).unwrap();
+            assert!(!repeated.change.changed);
+            assert!(!repeated.document_stamped);
+            assert_eq!(repeated.bytes, result.bytes);
+        }
+
+        #[test]
+        fn inserts_and_repairs_zero_in_fragments_but_never_serializes_equivalent_values() {
+            for (attr, before, effective, after) in [
+                ("", None, None, "0"),
+                (r#" Num="""#, Some(""), None, "0"),
+                (r#" Num="2147483648""#, Some("2147483648"), None, "0"),
+                (r#" Num="-1""#, Some("-1"), Some(-1), "0"),
+                (" Num = '&#43;000'", Some("+000"), Some(0), "+000"),
+                (r#" Num="-0""#, Some("-0"), Some(0), "-0"),
+            ] {
+                let xml = format!(
+                    r#"<C Type="LightController2" U="lamp"><LightscenesC{attr}/><Empty/></C>"#
+                );
+                let result = recount(xml.as_bytes(), "uuid:lamp", &clock()).unwrap();
+                assert_eq!(result.change.before.as_deref(), before);
+                assert_eq!(result.change.before_effective, effective);
+                assert_eq!(result.change.after, after);
+                assert_eq!(result.change.scenes, 0);
+                assert_eq!(result.change.changed, effective != Some(0));
+                assert!(!result.document_stamped);
+                if result.change.changed {
+                    let saved = std::str::from_utf8(&result.bytes).unwrap();
+                    assert!(saved.contains(r#"<LightscenesC Num="0"/>"#));
+                    assert!(saved.contains("<Empty></Empty>"));
+                    assert!(!saved.contains("DateS"));
+                } else {
+                    assert_eq!(result.bytes, xml.as_bytes());
+                }
+            }
+
+            let xml = document().replace(r#"Num="future""#, "Num = '+0002'");
+            let result = recount(xml.as_bytes(), "uuid:lamp", &clock()).unwrap();
+            assert_eq!(result.change.after, "+0002");
+            assert!(!result.change.changed);
+            assert!(!result.document_stamped);
+            assert_eq!(result.bytes, xml.as_bytes());
+        }
+
+        #[test]
+        fn types_load_selection_type_and_direct_container_refusals() {
+            let fail =
+                |xml: &str, selector| recount(xml.as_bytes(), selector, &clock()).unwrap_err();
+            assert!(matches!(
+                fail("<ControlList><C", "missing"),
+                Refusal::Edit(EditError::Load(_))
+            ));
+            let xml = document().replace(
+                r#"Type="LightController2" U="other""#,
+                r#"Type="And" U="other""#,
+            );
+            assert!(matches!(
+                fail(&xml, "Lamps"),
+                Refusal::Edit(EditError::Selection(SelectionError::Ambiguous { .. }))
+            ));
+            assert!(matches!(fail(&xml, "uuid:other"), Refusal::WrongBlockType));
+            assert!(matches!(
+                fail(&xml, "uuid:missing"),
+                Refusal::Edit(EditError::Selection(SelectionError::NotFound { .. }))
+            ));
+            for (storage, found) in [
+                ("<Nested><LightscenesC/></Nested>".to_owned(), 0),
+                (format!("<LightscenesC/>{COLLECTION}"), 2),
+            ] {
+                let xml = xml.replace(COLLECTION, &storage);
+                assert!(matches!(
+                    fail(&xml, "uuid:lamp"),
+                    Refusal::ContainerCount { found: actual } if actual == found
+                ));
+            }
+        }
+
+        #[test]
+        fn refuses_unsupported_xml_and_nonordinary_ownership_even_on_noop() {
+            let xml = document().replace(r#"Num="future""#, r#"Num="+02""#);
+            let fail = |xml: String| recount(xml.as_bytes(), "uuid:lamp", &clock()).unwrap_err();
+            for namespaced in [
+                xml.replace(r#"Num="+02""#, r#"xml:Num="+02""#),
+                xml.replace("<ControlList>", r#"<ControlList xmlns="urn:default">"#),
+                xml.replace("<LightsceneC/>", r#"<x:LightsceneC xmlns:x="urn:mood"/>"#),
+            ] {
+                assert!(matches!(fail(namespaced), Refusal::NamespacedXml));
+            }
+            for unsupported in [
+                xml.replace("<ControlList>", "<!DOCTYPE ControlList><ControlList>"),
+                xml.replace("</ControlList>", "</ControlList><Hidden/>"),
+            ] {
+                assert!(matches!(fail(unsupported), Refusal::UnsupportedXml));
+            }
+            for template in [
+                xml.replace(r#"NumO="99">"#, r#"NumO="99"><Template/>"#),
+                xml.replace(r#"NumO="99">"#, r#"NumO="99"><C Type="DocumentTemplate"/>"#),
+                xml.replace(r#"Type="Program""#, r#"Type="DocumentTemplate""#),
+                xml.replace(r#"Type="Page""#, r#"Type="Page" WF="536870912""#),
+                xml.replace(r#"Type="Page""#, r#"Type="Page" uuidParent="inherited""#),
+                xml.replace(r#"U="lamp""#, r#"U="lamp" IfT="false""#),
+            ] {
+                assert!(matches!(fail(template), Refusal::TemplateOrInherited));
+            }
+            for document in [
+                xml.replace("</ControlList>", r#"<C Type="Document"/></ControlList>"#),
+                format!(
+                    r#"<ControlList><C Type="Document"/><C Type="LightController2" U="lamp">{COLLECTION}</C></ControlList>"#
+                ),
+            ] {
+                assert!(matches!(fail(document), Refusal::DocumentScope));
+            }
+        }
+    }
+
     #[test]
     fn keeps_shape_observations_and_typed_load_selection_and_type_failures() {
         let xml = br#"<Root><C Type="LightController2" U="light">
