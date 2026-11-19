@@ -195,6 +195,12 @@ fn operating_mode_add_json_quiet_and_unsupported_options() {
         .success();
     let json: serde_json::Value = serde_json::from_slice(&result.get_output().stdout).unwrap();
     assert_eq!(json["added"]["mode"], -7);
+    let written = std::fs::read_to_string(&file).unwrap();
+    assert_eq!(json["added"]["title"], "Evening");
+    for field in ["uuid", "input_uuid", "output_uuid"] {
+        let uuid = json["added"][field].as_str().unwrap();
+        assert_eq!(written.matches(&format!(r#"U="{uuid}""#)).count(), 1);
+    }
     lox()
         .args(["-q", "config", "add", "--type", "Mode", "--title", "Night"])
         .arg(&file)
@@ -219,6 +225,26 @@ fn operating_mode_add_json_quiet_and_unsupported_options() {
         .arg(&file)
         .assert()
         .failure();
+    assert_eq!(std::fs::read(&file).unwrap(), before);
+    assert_eq!(std::fs::read(&destination).unwrap(), b"untouched");
+
+    lox()
+        .args([
+            "config",
+            "add",
+            "--type",
+            "Mode",
+            "--title",
+            "evening",
+            "--save-as",
+        ])
+        .arg(&destination)
+        .arg(&file)
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "An operating mode named 'evening' already exists; nothing was changed.",
+        ));
     assert_eq!(std::fs::read(&file).unwrap(), before);
     assert_eq!(std::fs::read(&destination).unwrap(), b"untouched");
 }

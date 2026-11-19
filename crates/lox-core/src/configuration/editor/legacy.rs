@@ -16,6 +16,47 @@ pub struct State {
 }
 
 impl State {
+    #[cfg(feature = "unstable-legacy-cli-editor")]
+    pub fn iter_elements(elem: &Element) -> Vec<&Element> {
+        let mut result = vec![elem];
+        for child in &elem.children {
+            if let Some(e) = child.as_element() {
+                result.extend(Self::iter_elements(e));
+            }
+        }
+        result
+    }
+
+    #[cfg(feature = "unstable-legacy-cli-editor")]
+    pub fn normalize_loxone_uuid(raw: &str) -> Option<u128> {
+        let groups: Vec<_> = raw.split('-').collect();
+        let lengths: Vec<_> = groups.iter().map(|group| group.len()).collect();
+        if !matches!(lengths.as_slice(), [8, 4, 4, 16] | [8, 4, 4, 4, 12])
+            || !groups
+                .iter()
+                .all(|group| group.bytes().all(|byte| byte.is_ascii_hexdigit()))
+        {
+            return None;
+        }
+        u128::from_str_radix(&groups.concat(), 16).ok()
+    }
+
+    #[cfg(feature = "unstable-legacy-cli-editor")]
+    pub fn format_loxone_uuid(serial: &str, random: u64) -> String {
+        let suffix = if serial.is_empty() {
+            "000000000000"
+        } else {
+            serial
+        };
+        format!(
+            "{:08x}-{:04x}-{:04x}-ffff{}",
+            (random >> 32) as u32,
+            (random >> 16) as u16,
+            random as u16,
+            suffix,
+        )
+    }
+
     #[cfg(feature = "configuration-xml")]
     pub fn mqtt_topics(&self) -> Vec<super::super::mqtt::MqttTopic> {
         super::super::mqtt::from_root(&self.root)

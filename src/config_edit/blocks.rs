@@ -366,19 +366,7 @@ impl ConfigEditor {
 
     /// Generate a Loxone-format UUID: {8hex}-{4hex}-{4hex}-ffff{12hex_serial}
     pub fn loxone_uuid(serial: &str) -> String {
-        let r: u64 = rand::random();
-        let suffix = if serial.is_empty() {
-            "000000000000".to_string()
-        } else {
-            serial.to_string()
-        };
-        format!(
-            "{:08x}-{:04x}-{:04x}-ffff{}",
-            (r >> 32) as u32,
-            (r >> 16) as u16,
-            r as u16,
-            suffix,
-        )
+        lox_core::configuration::editor::LegacyState::format_loxone_uuid(serial, rand::random())
     }
 
     /// Return the IName prefix for element types that require hardware registration.

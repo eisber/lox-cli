@@ -9,16 +9,7 @@ use uuid::Uuid;
 use super::schema::Diagnostic;
 
 pub(super) fn native_identity(raw: &str) -> Option<Uuid> {
-    let groups: Vec<_> = raw.split('-').collect();
-    let lengths: Vec<_> = groups.iter().map(|group| group.len()).collect();
-    if !matches!(lengths.as_slice(), [8, 4, 4, 16] | [8, 4, 4, 4, 12])
-        || !groups
-            .iter()
-            .all(|group| group.bytes().all(|byte| byte.is_ascii_hexdigit()))
-    {
-        return None;
-    }
-    Uuid::parse_str(&groups.concat()).ok()
+    lox_core::configuration::editor::LegacyState::normalize_loxone_uuid(raw).map(Uuid::from_u128)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
