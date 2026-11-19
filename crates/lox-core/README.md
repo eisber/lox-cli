@@ -50,6 +50,19 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   lox-n37w quoted-text/digit-name limitation remains. This is a Rust-only legacy
   byte transaction, not a native Config contract or a new Python/JVM capability.
 
+- Optional `configuration-editor`: `configuration::editor::unwire(bytes,
+  selector, connector, &now)` returns an owned `UnwireOutcome` with an
+  `UnwireChange`, or `UnwireError` (connector refusal or an existing `EditError`).
+  The existing `config control unwire` producer and cached editor use the same
+  mutation. It removes direct `In` references and `Nc` from the first matching
+  direct `Co`; `U` is retained when references existed, otherwise removed.
+  Consequently a second call after reference removal can clear the retained
+  `U`; only subsequent canonical no-ops avoid stamping. Other ports, mirrors,
+  nested references and block flags are not repaired. Explicit-clock byte
+  transactions reuse the existing BOM/EOL normalization and monotonic stamp.
+  The legacy loader limitation (lox-n37w) is unchanged. `wire` remains a
+  CLI-only mutation; this does not add endpoint validation or foreign bindings.
+
 - Optional `configuration-xml`: `configuration::mqtt::list_topics(&[u8])`
   returns owned `MqttTopic` records with typed `MqttDirection`. The actual
   `lox config mqtt topics` producer and cached CLI editor share this one walker.

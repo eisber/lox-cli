@@ -48,6 +48,8 @@ pub mod schema;
 mod selector;
 pub mod status_monitor;
 mod template;
+#[cfg(test)]
+mod unwire_tests;
 mod validation;
 mod virtual_input_format;
 mod wiring;

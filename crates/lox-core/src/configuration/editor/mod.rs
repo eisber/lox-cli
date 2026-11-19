@@ -1,4 +1,4 @@
-//! Legacy-compatible, headless parameter, raw attribute and control-room transactions.
+//! Legacy-compatible, headless parameter, raw attribute, control-room and connector transactions.
 //!
 //! This is not a native Config validator or a lossless arbitrary-XML editor.
 //! Loading and canonical serialization intentionally retain the CLI's existing
@@ -14,6 +14,7 @@ pub(super) mod legacy;
 pub mod operating_modes;
 mod program;
 mod selector;
+mod unwire;
 #[cfg(any(test, feature = "unstable-legacy-cli-editor"))]
 mod virtual_input;
 mod write;
@@ -30,6 +31,7 @@ pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
 };
 pub use program::{ProgramTextError, get_program_text};
+pub use unwire::{UnwireChange, UnwireError, UnwireOutcome, unwire};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///
