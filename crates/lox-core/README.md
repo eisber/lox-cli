@@ -1539,6 +1539,28 @@ These APIs do not establish that an archive is safe to deploy. Strict
 verification/resource limits would require a separately designed explicit
 policy, not a silent change to this compatibility codec.
 
+## Provisional session endpoints
+
+The existing `runtime` feature includes the Rust-only
+`runtime::session_endpoints::SessionEndpoints::parse(http, websocket, proxy_policy)`
+boundary. Supply both absolute routes explicitly, for example
+`http://192.0.2.10:8080/site` and `ws://[2001:db8::10]:8080/site/ws/rfc6455`.
+HTTP(S) and WS(S) schemes are checked by role; there is no scheme, authority,
+port, or WebSocket path inference from the other route. Canonical URLs accept
+ASCII hostnames, dotted-decimal IPv4 and bracketed IPv6, with optional
+nonzero ports. Canonical serialization omits scheme-default ports. Paths
+permit literal ASCII unreserved characters and `/`; empty interior and dot
+segments, escapes, userinfo, queries and fragments are rejected. Omitted paths
+become `/`. Do not put credentials in path segments or log the returned URL
+strings; error and debug output omit the routes.
+
+`ProxyPolicy::Direct` or `ProxyPolicy::System` must be selected explicitly.
+This only records intent: parsing does not inspect the environment, configure
+a proxy, check TLS or authorize either route to receive credentials. A future
+transport must enforce the selected policy or reject it. No CLI, clock/control
+read, token, WebSocket, Python or JVM caller uses this boundary yet; no
+transport, authentication, discovery or stable foreign ABI is supplied.
+
 ## Optional clock runtime
 
 ```toml

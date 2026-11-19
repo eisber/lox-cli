@@ -1,4 +1,4 @@
-//! Read-only HTTP clock/control observations, validation and resource lifetime.
+//! Read-only HTTP clock/control observations and provisional session endpoints.
 //!
 //! Requires a Tokio executor with I/O and time enabled, or the explicitly created
 //! `ClockDriver` / `ControlReadDriver` (`runtime-blocking`). There are no subscriptions. Ordinary
@@ -10,6 +10,10 @@ mod clock;
 mod control_read;
 mod http;
 mod model;
+
+// Provisional Rust boundary; no foreign ABI or transport uses it yet.
+#[doc(hidden)]
+pub mod session_endpoints;
 
 #[cfg(feature = "runtime-blocking")]
 mod blocking;
