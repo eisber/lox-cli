@@ -7,7 +7,7 @@
 use crate::message_header::{MessageType, decode_message_header};
 use std::fmt;
 
-const MAX_REPLY_BYTES: usize = 16 * 1024;
+pub(super) const MAX_REPLY_BYTES: usize = 16 * 1024;
 
 /// A complete WebSocket message, not bytes from an individual wire fragment.
 pub enum AuthReplyMessage<'a> {
@@ -74,6 +74,14 @@ pub fn admit_exact_text_reply<'a>(
     header: AuthReplyMessage<'_>,
     payload: Option<AuthReplyMessage<'a>>,
 ) -> Result<AuthReplyText<'a>, AuthReplyFramingError> {
+    let size = admit_exact_text_header(header)?;
+    let payload = payload.ok_or(AuthReplyFramingError::MissingPayload)?;
+    admit_exact_text_payload(size, payload)
+}
+
+pub(super) fn admit_exact_text_header(
+    header: AuthReplyMessage<'_>,
+) -> Result<usize, AuthReplyFramingError> {
     use AuthReplyFramingError as Error;
 
     let AuthReplyMessage::Binary(bytes) = header else {
@@ -90,9 +98,15 @@ pub fn admit_exact_text_reply<'a>(
     if !(1..=MAX_REPLY_BYTES).contains(&size) {
         return Err(Error::SizeOutsideLimit);
     }
-    let Some(payload) = payload else {
-        return Err(Error::MissingPayload);
-    };
+    Ok(size)
+}
+
+pub(super) fn admit_exact_text_payload(
+    size: usize,
+    payload: AuthReplyMessage<'_>,
+) -> Result<AuthReplyText<'_>, AuthReplyFramingError> {
+    use AuthReplyFramingError as Error;
+
     let AuthReplyMessage::Text(text) = payload else {
         return Err(Error::PayloadMessageKind);
     };
