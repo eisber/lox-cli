@@ -1,10 +1,10 @@
-//! Read-only HTTP clock/control observations and provisional session transport.
+//! Read-only HTTP clock/control observations and provisional session components.
 //!
-//! Requires a Tokio executor with I/O and time enabled, or the explicitly created
-//! `ClockDriver` / `ControlReadDriver` (`runtime-blocking`). There are no subscriptions. Ordinary
-//! diagnostic callbacks are opt-in and payload-free. The explicit CLI legacy
-//! policy separately permits raw body observation. All observers are synchronous
-//! and must not block or panic.
+//! HTTP observations require a Tokio executor with I/O and time enabled, or the
+//! explicitly created `ClockDriver` / `ControlReadDriver` (`runtime-blocking`).
+//! There are no subscriptions. Ordinary diagnostic callbacks are opt-in and
+//! payload-free. The explicit CLI legacy policy separately permits raw body
+//! observation. All observers are synchronous and must not block or panic.
 
 mod clock;
 mod control_read;
@@ -16,6 +16,8 @@ mod model;
 pub mod session_endpoints;
 #[doc(hidden)]
 pub mod session_http;
+#[doc(hidden)]
+pub mod session_token;
 
 #[cfg(feature = "runtime-blocking")]
 mod blocking;
