@@ -11,6 +11,8 @@ use std::fmt;
 #[cfg(feature = "auth-hash")]
 use std::sync::Arc;
 
+const COMMAND_PREFIX: &str = "jdev/sys/getkey2/";
+
 /// Expected full `getkey2` command, including an encoded principal.
 pub struct GetKey2Command {
     encoded: String,
@@ -24,7 +26,7 @@ impl GetKey2Command {
     pub fn for_principal(principal: &str) -> Result<Self, AuthPathComponentError> {
         let component = AuthPathComponent::encode(principal)?;
         Ok(Self {
-            encoded: format!("jdev/sys/getkey2/{}", component.as_encoded_str()),
+            encoded: format!("{COMMAND_PREFIX}{}", component.as_encoded_str()),
             #[cfg(feature = "auth-hash")]
             principal: Arc::from(principal),
         })
@@ -38,6 +40,11 @@ impl GetKey2Command {
     #[cfg(feature = "auth-hash")]
     pub(super) fn clone_principal(&self) -> Arc<str> {
         Arc::clone(&self.principal)
+    }
+
+    #[cfg(feature = "runtime-websocket-encrypted-loopback")]
+    pub(super) fn encoded_principal(&self) -> &str {
+        &self.encoded[COMMAND_PREFIX.len()..]
     }
 }
 
@@ -80,9 +87,16 @@ pub fn admit_getkey2(
     reply: &AuthReplyText<'_>,
     expected: &GetKey2Command,
 ) -> Result<LoginChallenge, AuthChallengeEnvelopeError> {
+    admit_matching_getkey2(reply, |control| control == expected.as_str())
+}
+
+pub(super) fn admit_matching_getkey2(
+    reply: &AuthReplyText<'_>,
+    matches_control: impl FnOnce(&str) -> bool,
+) -> Result<LoginChallenge, AuthChallengeEnvelopeError> {
     use AuthChallengeEnvelopeError as Error;
 
-    let value = admit_value(reply, expected.as_str()).map_err(|error| match error {
+    let value = admit_value(reply, matches_control).map_err(|error| match error {
         EnvelopeError::InvalidEnvelope => Error::InvalidEnvelope,
         EnvelopeError::EchoMismatch => Error::EchoMismatch,
         EnvelopeError::StatusNotAccepted => Error::StatusNotAccepted,

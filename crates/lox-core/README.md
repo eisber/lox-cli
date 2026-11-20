@@ -1783,6 +1783,27 @@ session. Other clients describe different control prefixes, and the vendor's
 general newer-TLS guidance and specific `getjwt` encryption instruction
 differ. No dispatch or firmware behavior is inferred.
 
+`runtime-websocket-encrypted-loopback` adds `acquire_loopback_jwt` under
+`runtime::session_websocket::encrypted_loopback`. It is a one-shot synthetic
+acquisition, restricted to direct WSS on a numeric loopback address, with a
+separately supplied RSA public key (SPKI DER). On one socket it sends an
+RSA PKCS#1 v1.5 key exchange, checks the exact ciphertext acknowledgment,
+then sends encrypted `getkey2` and `getjwt` with a fresh chained salt. The
+[pinned client](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/enc.rs#L180-L209)
+uses NUL-terminated commands with PKCS7; its
+[pinned mock](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/mock/mod.rs#L528-L553)
+uses NUL-terminated, PKCS7-padded encrypted reply controls. The latter must
+decrypt to the exact expected control; plaintext, zero padding and alternate
+acknowledgments are refused, not retried. Strict framing and percent-encoded
+principals remain local choices in this synthetic transcript, not an
+interoperability claim for that upstream or a firmware dialect.
+
+The function uses one deadline and cancellation on the caller's runtime,
+releases the socket on every outcome, and returns only a shape-validated
+opaque grant. It does not retrieve the application key, establish a
+long-lived authenticated session, activate or persist a token, or expose
+the operation in the CLI, Python or JVM.
+
 ### Local WSS fixture
 
 The ignored `local_wss::strict_direct_wss` test runs the production Core connect
@@ -1806,6 +1827,16 @@ With `auth-hash` added, the trusted child also checks the prepared response
 against an independent known answer for an unnormalized synthetic principal.
 Those cases observe the one getkey2 request, then no preparation message and
 socket release on close, drop, algorithm mismatch, or pre-cancelled refusal.
+
+For the encrypted loopback profile, use `runtime-websocket-encrypted-loopback`
+in the same exact test command. The trusted child uses the distinct fixture
+`wrong-ip.key` only for application cryptography, not TLS. It independently
+decodes the three requests, checks the rotated salt and known-answer hash,
+and observes release after the grant, refusal, cancellation, dropping the
+future, or a stalled grant reaching the ten-second deadline. The nine
+additional markers start with `encrypted-acquisition-`. The regular test
+`local_wss::encrypted_loopback::refuses_unqualified_transport_key_and_cancelled_input_before_dial`
+needs no certificates.
 
 The regular fixture check needs no certificates and prints named markers
 for plaintext and overlong encoded request refusal before dialing:
@@ -1930,7 +1961,8 @@ the positive selector inherited. The missing-input run must fail before any
 child starts despite that selector and intact positive inputs. Remove the
 disposable fixture directory after validation. Only an actual pass on an
 exact source tree qualifies IPv4 loopback WSS on that platform; IPv6 needs a
-separate fixture. This does not qualify Linux, SDKs, authentication or devices.
+separate fixture. The opt-in transcript qualifies only the synthetic grant
+exchange, not an authenticated long-lived session, Linux, SDKs or devices.
 
 ## Optional clock runtime
 

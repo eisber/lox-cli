@@ -29,6 +29,8 @@ chrono = { version = "0.4", features = ["clock"], optional = true }
 aes = { version = "0.8", optional = true }
 cbc = { version = "0.1", features = ["alloc"], optional = true }
 base64 = { version = "0.22", optional = true }
+rand = { version = "0.8", optional = true }
+rsa = { version = "0.9", optional = true }
 
 [features]
 default = []
@@ -46,6 +48,7 @@ structure-json = ["dep:serde_json"]
 runtime = ["dep:reqwest", "dep:serde", "dep:serde_json", "dep:tokio"]
 runtime-blocking = ["runtime"]
 runtime-websocket = ["runtime", "dep:tokio-tungstenite", "dep:futures-util", "tokio/net", "serde_json/raw_value"]
+runtime-websocket-encrypted-loopback = ["runtime-websocket", "auth-hash", "dep:aes", "dep:cbc", "dep:base64", "dep:rand", "dep:rsa"]
 
 [dev-dependencies]
 httpmock = "0.7"

@@ -3,8 +3,8 @@
 use super::Cancellation;
 use super::auth_challenge_envelope::{AuthChallengeEnvelopeError, GetKey2Command, admit_getkey2};
 use super::auth_reply_framing::{
-    AuthReplyFramingError, AuthReplyMessage, MAX_REPLY_BYTES, admit_exact_text_header,
-    admit_exact_text_payload,
+    AuthReplyFramingError, AuthReplyMessage, AuthReplyText, MAX_REPLY_BYTES,
+    admit_exact_text_header, admit_exact_text_payload,
 };
 #[cfg(feature = "auth-hash")]
 use super::login_challenge::HashAlgorithm;
@@ -23,6 +23,10 @@ use tokio::net::TcpStream;
 use tokio::time::{Instant, sleep_until};
 use tokio_tungstenite::tungstenite::{Error as WebSocketError, Message, protocol::WebSocketConfig};
 use tokio_tungstenite::{MaybeTlsStream, WebSocketStream, client_async_tls_with_config};
+
+/// Opt-in encrypted acquisition against the local synthetic peer only.
+#[cfg(feature = "runtime-websocket-encrypted-loopback")]
+pub mod encrypted_loopback;
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(10);
 const MAX_GETKEY2_REQUEST_BYTES: usize = 1024;
@@ -121,6 +125,50 @@ impl fmt::Display for GetKey2ExchangeError {
 }
 
 impl std::error::Error for GetKey2ExchangeError {}
+
+mod auth_wire_error {
+    use super::{AuthReplyFramingError, fmt};
+
+    /// Payload-free failure during one bounded authentication request and reply.
+    #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+    pub enum AuthWireError {
+        Send,
+        Receive,
+        Closed,
+        ReplyTooLarge,
+        Framing(AuthReplyFramingError),
+    }
+
+    impl fmt::Display for AuthWireError {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            f.write_str(match self {
+                Self::Send => "authentication request send failed",
+                Self::Receive => "authentication reply receive failed",
+                Self::Closed => "connection closed before authentication reply admission",
+                Self::ReplyTooLarge => "authentication reply exceeds the WebSocket size limit",
+                Self::Framing(error) => {
+                    return write!(f, "authentication reply framing refused: {error}");
+                }
+            })
+        }
+    }
+
+    impl std::error::Error for AuthWireError {}
+}
+
+use auth_wire_error::AuthWireError;
+
+impl GetKey2ExchangeError {
+    fn from_auth_wire(error: AuthWireError) -> Self {
+        match error {
+            AuthWireError::Send => Self::Send,
+            AuthWireError::Receive => Self::Receive,
+            AuthWireError::Closed => Self::Closed,
+            AuthWireError::ReplyTooLarge => Self::ReplyTooLarge,
+            AuthWireError::Framing(error) => Self::Framing(error),
+        }
+    }
+}
 
 /// Retains the same verified connection and its admitted pre-auth challenge.
 /// This provisional handle grants no frame I/O or authenticated session access.
@@ -352,36 +400,26 @@ impl SessionWebSocket {
         }
 
         let deadline = Instant::now() + CONNECT_TIMEOUT;
-        let config = WebSocketConfig {
-            max_message_size: Some(MAX_REPLY_BYTES),
-            max_frame_size: Some(MAX_REPLY_BYTES),
-            ..WebSocketConfig::default()
-        };
         let attempt = async {
-            let mut connection =
-                Self::connect_configured(endpoints, cancellation, Some(config), Some(deadline))
-                    .await
-                    .map_err(|error| match error {
-                        SessionWebSocketError::Cancelled => Error::Cancelled,
-                        SessionWebSocketError::Timeout => Error::Timeout,
-                        error => Error::Connect(error),
-                    })?;
+            let mut connection = Self::connect_auth(endpoints, cancellation, deadline)
+                .await
+                .map_err(|error| match error {
+                    SessionWebSocketError::Cancelled => Error::Cancelled,
+                    SessionWebSocketError::Timeout => Error::Timeout,
+                    error => Error::Connect(error),
+                })?;
             if !connection.has_verified_tls() {
                 return Err(Error::VerifiedWssRequired);
             }
             check_exchange_active(cancellation, deadline)?;
 
-            connection
-                .socket
-                .send(Message::Text(command.as_str().to_owned()))
+            let challenge = connection
+                .exchange_auth_reply(command.as_str().to_owned(), |reply| {
+                    admit_getkey2(reply, command)
+                })
                 .await
-                .map_err(|_| Error::Send)?;
-            let header = connection.read_getkey2_message().await?;
-            let size = admit_exact_text_header(reply_message(&header)).map_err(Error::Framing)?;
-            let payload = connection.read_getkey2_message().await?;
-            let reply =
-                admit_exact_text_payload(size, reply_message(&payload)).map_err(Error::Framing)?;
-            let challenge = admit_getkey2(&reply, command).map_err(Error::Envelope)?;
+                .map_err(Error::from_auth_wire)?
+                .map_err(Error::Envelope)?;
             Ok(PendingLoginChallenge {
                 connection,
                 challenge,
@@ -399,8 +437,40 @@ impl SessionWebSocket {
         result
     }
 
-    async fn read_getkey2_message(&mut self) -> Result<Message, GetKey2ExchangeError> {
-        use GetKey2ExchangeError as Error;
+    async fn connect_auth(
+        endpoints: &SessionEndpoints,
+        cancellation: &Cancellation,
+        deadline: Instant,
+    ) -> Result<Self, SessionWebSocketError> {
+        let config = WebSocketConfig {
+            max_message_size: Some(MAX_REPLY_BYTES),
+            max_frame_size: Some(MAX_REPLY_BYTES),
+            ..WebSocketConfig::default()
+        };
+        Self::connect_configured(endpoints, cancellation, Some(config), Some(deadline)).await
+    }
+
+    async fn exchange_auth_reply<T>(
+        &mut self,
+        command: String,
+        admit: impl FnOnce(&AuthReplyText<'_>) -> T,
+    ) -> Result<T, AuthWireError> {
+        use AuthWireError as Error;
+
+        self.socket
+            .send(Message::Text(command))
+            .await
+            .map_err(|_| Error::Send)?;
+        let header = self.read_auth_message().await?;
+        let size = admit_exact_text_header(reply_message(&header)).map_err(Error::Framing)?;
+        let payload = self.read_auth_message().await?;
+        let reply =
+            admit_exact_text_payload(size, reply_message(&payload)).map_err(Error::Framing)?;
+        Ok(admit(&reply))
+    }
+
+    async fn read_auth_message(&mut self) -> Result<Message, AuthWireError> {
+        use AuthWireError as Error;
 
         match self.socket.next().await {
             Some(
