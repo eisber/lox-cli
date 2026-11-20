@@ -18,6 +18,8 @@ pub mod session_endpoints;
 pub mod session_http;
 #[doc(hidden)]
 pub mod session_token;
+#[doc(hidden)]
+pub mod token_command_profile;
 
 #[cfg(feature = "runtime-blocking")]
 mod blocking;

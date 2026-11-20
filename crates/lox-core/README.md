@@ -1479,6 +1479,50 @@ No native-device or cross-firmware authentication qualification is implied.
 Run `cargo test -p lox-core --features auth-hash authentication` and
 `cargo test -p lox-cli --bin lox auth_hash_` for these regressions.
 
+## Provisional token command recommendations
+
+The doc-hidden Rust `runtime::token_command_profile` selector takes a numeric
+`(major, minor)` from the caller's already-established firmware version.
+Pass `None` if either component is missing. A caller already using
+`FirmwareVersion` can take the first two values from `components()`; the
+selector neither parses version text nor enables the firmware XML feature.
+Unauthenticated bootstrap observations do not establish firmware for this policy.
+
+| Firmware | Recommended acquisition | Same-format refresh recommendation |
+|---|---|---|
+| Before 9.0 or incomplete/unknown | Refused | Refused |
+| 9.x, 10.0, 10.1 | `gettoken` | `refreshtoken` (legacy only) |
+| 10.2 and later | `getjwt` | `refreshjwt` (JWT only) |
+
+This is a release-threshold policy, not proof of support on a particular
+device or firmware. Refresh rejects unknown and mismatched token formats in
+both directions; it does not use the vendor's legacy-to-JWT refresh behavior
+or try legacy refresh on the JWT profile. Commands are fixed labels, not
+paths. The selector does not authenticate, send requests, or retry with
+different permission, command, argument, or transport choices.
+
+The vendor's [Communicating with the Miniserver, v16.0, pp. 29–31](https://www.loxone.com/wp-content/uploads/datasheets/CommunicatingWithMiniserver.pdf)
+([pinned local extract, lines 735–808](https://github.com/eisber/lox-cli/blob/16a61daedfcb227cdc49e046931be42438d7621c/docs/datasheets/extracted/CommunicatingWithMiniserver.md#L735-L808))
+places legacy token availability at 9.0 and adds separate JWT acquisition and
+refresh commands at 10.2. Its 10.0 note concerns authentication with an
+already-issued token, not acquisition or refresh. The
+[pinned crosswalk](../../docs/knowledge/upstream-crosswalk.md) records the same
+acquisition split in [rs-loxone's command selection](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/commands.rs#L26-L70)
+and contrasts it with the [local CLI's fixed `gettoken`](https://github.com/eisber/lox-cli/blob/16a61daedfcb227cdc49e046931be42438d7621c/src/token.rs#L268-L280).
+The [base CLI refresh arm](https://github.com/eisber/lox-cli/blob/16a61daedfcb227cdc49e046931be42438d7621c/src/commands/config_cmd.rs#L424-L429)
+uses `refreshtoken`. Those implementations are not device evidence or proof
+that legacy refresh works throughout the recommended range. The existing CLI
+paths are unchanged.
+
+The vendor's general 11.2 note makes acquisition encryption optional, while
+its `getjwt` instructions categorically require encryption. That conflict is
+unresolved; this policy does not infer a plaintext or application encryption
+rule. The vendor describes JWT refresh over WebSocket and leaves HTTP support
+unverified; the local CLI's HTTP legacy refresh does not establish HTTP JWT
+refresh support. The existing APP and CONFIG credential profiles are distinct
+and cannot be chosen by these labels. Channel and request body/argument
+policy are deferred.
+
 ## In-memory control resolution
 
 ```rust
