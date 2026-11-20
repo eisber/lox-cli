@@ -13,6 +13,8 @@ mod model;
 
 // Provisional Rust session components; no foreign ABI.
 #[doc(hidden)]
+pub mod auth_path_component;
+#[doc(hidden)]
 pub mod session_endpoints;
 #[doc(hidden)]
 pub mod session_http;
