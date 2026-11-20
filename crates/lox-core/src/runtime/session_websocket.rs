@@ -2,9 +2,10 @@
 
 use super::Cancellation;
 use super::session_endpoints::{ProxyPolicy, SessionEndpoints};
+use super::session_token::{TokenAccess, TokenLookup, TokenSlot, TokenSubject};
 use std::fmt;
 use std::net::{IpAddr, SocketAddr};
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 use tokio::net::TcpStream;
 use tokio::time::{Instant, sleep_until};
 use tokio_tungstenite::tungstenite::Error as WebSocketError;
@@ -44,11 +45,38 @@ impl fmt::Display for SessionWebSocketError {
 
 impl std::error::Error for SessionWebSocketError {}
 
+/// A token eligibility refusal without routes, principals, tokens or backend details.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum SessionWebSocketTokenError {
+    UnverifiedTransport,
+    RouteMismatch,
+    SubjectMismatch,
+    Empty,
+    Expired,
+    UnknownExpiry,
+}
+
+impl fmt::Display for SessionWebSocketTokenError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::UnverifiedTransport => "token eligibility requires verified WebSocket TLS",
+            Self::RouteMismatch => "token subject route does not match the WebSocket connection",
+            Self::SubjectMismatch => "token slot subject mismatch",
+            Self::Empty => "token slot is empty",
+            Self::Expired => "token has expired",
+            Self::UnknownExpiry => "token expiry is unknown",
+        })
+    }
+}
+
+impl std::error::Error for SessionWebSocketTokenError {}
+
 /// The sole owner of an upgraded, unauthenticated connection. No frames are
 /// exposed or driven after the upgrade, and there is no session worker.
 #[must_use = "dropping the WebSocket handle releases the connection"]
 pub struct SessionWebSocket {
     socket: WebSocketStream<MaybeTlsStream<TcpStream>>,
+    endpoints: SessionEndpoints,
 }
 
 impl SessionWebSocket {
@@ -97,7 +125,10 @@ impl SessionWebSocket {
                     }
                     _ => Error::Upgrade,
                 })?;
-            Ok(Self { socket })
+            Ok(Self {
+                socket,
+                endpoints: endpoints.clone(),
+            })
         };
         let result = tokio::select! {
             biased;
@@ -113,6 +144,41 @@ impl SessionWebSocket {
             return Err(Error::Timeout);
         }
         result
+    }
+
+    /// Borrows an existing token for this direct connection only. The returned
+    /// access borrows both the handle and the slot. The admitted HTTP route is
+    /// a scope label only; no HTTP trust is established or consulted.
+    ///
+    /// TLS verifies the WebSocket server name and certificate, not a device or
+    /// user identity. The check does not probe liveness, authenticate, send
+    /// frames or refresh the token. Expiry uses the supplied `now`, as in the
+    /// slot's ordinary lookup. This is a provisional Rust-only API.
+    pub fn eligible_token<'a>(
+        &'a self,
+        slot: &'a TokenSlot,
+        subject: &TokenSubject<'_>,
+        now: SystemTime,
+    ) -> Result<TokenAccess<'a>, SessionWebSocketTokenError> {
+        use SessionWebSocketTokenError as Error;
+
+        // Only connect can construct the handle: it upgrades via the default
+        // verified connector on a directly dialed TCP stream.
+        if self.endpoints.websocket_route().scheme() != "wss"
+            || !matches!(self.socket.get_ref(), MaybeTlsStream::Rustls(_))
+        {
+            return Err(Error::UnverifiedTransport);
+        }
+        if !self.endpoints.same_scope(subject.endpoints()) {
+            return Err(Error::RouteMismatch);
+        }
+        match slot.lookup(subject, now) {
+            TokenLookup::Match(access) => Ok(access),
+            TokenLookup::Empty => Err(Error::Empty),
+            TokenLookup::SubjectMismatch => Err(Error::SubjectMismatch),
+            TokenLookup::Expired => Err(Error::Expired),
+            TokenLookup::UnknownExpiry => Err(Error::UnknownExpiry),
+        }
     }
 
     /// Releases the owned connection immediately, as dropping the handle does.

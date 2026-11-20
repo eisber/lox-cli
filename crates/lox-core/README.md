@@ -1649,8 +1649,8 @@ surface](../../docs/toolkit-archive-bindings.md#provisional-http-bootstrap-prefl
 
 The opt-in `runtime-websocket` feature adds the doc-hidden Rust
 `runtime::session_websocket::SessionWebSocket::connect(&endpoints, &cancellation)`.
-It ignores the HTTP route and attempts an unauthenticated upgrade using the
-exact canonical WebSocket scheme, authority, port and path. `System` proxy
+It does not contact the HTTP route and attempts an unauthenticated upgrade using
+the exact canonical WebSocket scheme, authority, port and path. `System` proxy
 policy is refused before dialing; `Direct` never consults proxy settings.
 Plaintext `ws` is only for numeric loopback (IPv4 `127.0.0.0/8` or IPv6 `::1`),
 not even the DNS name `localhost`. `wss` uses the transport's default
@@ -1672,11 +1672,23 @@ opaque handle owns the connection; explicit `close()` or drop releases it withou
 sending a Close frame or waiting for the peer. Cancellation is not monitored
 after connect. There is no frame I/O API, auth, reconnect, CLI change or foreign ABI.
 
+The provisional Rust-only `SessionWebSocket::eligible_token` checks the actual
+Rustls stream on this owned direct `wss` handle, then matches the requested
+subject against the admitted canonical HTTP and WebSocket routes and proxy
+intent. The HTTP route is only a scope label, not evidence of HTTP trust. The
+token slot must independently match the exact subject (including principal)
+and hold a token whose known expiry is strictly after the supplied time. The
+operation returns a token access borrowing the handle and the slot, or a typed,
+redacted refusal. Plaintext is never eligible, even on loopback. This is not a
+separate trust proof, device identity, user authentication or a liveness
+probe. It sends nothing and does not acquire or refresh tokens.
+
 ### Direct WebSocket loopback qualification
 
 Run the additional ignored checks on a host with an operational IPv6 loopback
 interface. The IPv6 check uses plaintext on literal `[::1]`, verifies the
-upgrade route and Host header, and observes release after both close and drop.
+upgrade route and Host header, checks plaintext token refusal, and observes
+release after both close and drop.
 The deadline check lets an IPv4 peer receive the upgrade request without
 answering, then checks the typed timeout and socket release. It uses the real
 ten-second production deadline, not a paused Tokio clock.
@@ -1692,12 +1704,13 @@ The ignored `local_wss::strict_direct_wss` test runs the production Core connect
 against an IPv4 loopback TLS/WebSocket server. The three children always dial
 `127.0.0.1` on a fresh ephemeral port: one uses a trusted leaf with that IP SAN,
 one uses the same CA but a leaf valid for `127.0.0.2`, and one reuses the first
-leaf with an unrelated root as the only trust anchor. The negative cases
-require distinct client TLS alerts before any WebSocket upgrade; all cases
-observe socket release. The parent checks every required file before starting
-any child. It ignores any inherited case selector, sets the intended case and
-`SSL_CERT_FILE` in each child, and removes `SSL_CERT_DIR` and proxy variables
-there. The real trust store is unchanged.
+leaf with an unrelated root as the only trust anchor. The trusted case checks
+token eligibility and scope refusals with a synthetic token, without sending
+application bytes. The negative cases require distinct client TLS alerts before
+any WebSocket upgrade; all cases observe socket release. The parent checks every
+required file before starting any child. It ignores any inherited case selector,
+sets the intended case and `SSL_CERT_FILE` in each child, and removes
+`SSL_CERT_DIR` and proxy variables there. The real trust store is unchanged.
 
 On Windows, run this PowerShell recipe from the repository root with Git for
 Windows OpenSSL and an already provisioned offline Cargo cache. Use a fresh,

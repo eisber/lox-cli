@@ -2,10 +2,13 @@
 
 use lox_core::runtime::Cancellation;
 use lox_core::runtime::session_endpoints::{ProxyPolicy, SessionEndpoints};
-use lox_core::runtime::session_websocket::{SessionWebSocket, SessionWebSocketError};
+use lox_core::runtime::session_token::{TokenExpiry, TokenSlot, TokenSubject};
+use lox_core::runtime::session_websocket::{
+    SessionWebSocket, SessionWebSocketError, SessionWebSocketTokenError,
+};
 use std::io::ErrorKind;
 use std::net::{SocketAddr, TcpListener as ProbeListener};
-use std::time::Duration;
+use std::time::{Duration, UNIX_EPOCH};
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::time::{Instant, timeout};
@@ -16,6 +19,7 @@ use tokio_tungstenite::tungstenite::handshake::server::{
 
 const FIXTURE_DEADLINE: Duration = Duration::from_secs(5);
 const WS_PATH: &str = "/fixture/site/ws";
+const MOCK_TOKEN: &str = "opaque synthetic WebSocket token";
 
 fn probe_listener() -> ProbeListener {
     let listener = ProbeListener::bind("127.0.0.1:0").unwrap();
@@ -92,6 +96,14 @@ async fn assert_upgrade_and_release(bind: &str) {
         let ws = server.local_addr().unwrap();
         let endpoints = direct(ws, http.local_addr().unwrap());
         let cancellation = Cancellation::new();
+        let subject = TokenSubject::new(&endpoints, "fixture account").unwrap();
+        let mut slot = TokenSlot::new(&subject);
+        slot.replace(
+            &subject,
+            MOCK_TOKEN.into(),
+            TokenExpiry::At(UNIX_EPOCH + Duration::from_secs(1)),
+        )
+        .unwrap();
         let disposals: [fn(SessionWebSocket); 2] = [SessionWebSocket::close, drop];
         for dispose in disposals {
             tokio::join!(
@@ -106,6 +118,12 @@ async fn assert_upgrade_and_release(bind: &str) {
                     let handle = SessionWebSocket::connect(&endpoints, &cancellation)
                         .await
                         .unwrap();
+                    assert_eq!(
+                        handle
+                            .eligible_token(&slot, &subject, UNIX_EPOCH)
+                            .unwrap_err(),
+                        SessionWebSocketTokenError::UnverifiedTransport
+                    );
                     dispose(handle);
                 }
             );
@@ -428,7 +446,9 @@ mod local_wss {
                     if case.alert.is_some() {
                         assert_eq!(result.unwrap_err(), SessionWebSocketError::Upgrade);
                     } else {
-                        result.unwrap().close();
+                        let handle = result.unwrap();
+                        check_token_eligibility(&handle, &endpoints);
+                        handle.close();
                     }
                 }
             );
@@ -436,5 +456,94 @@ mod local_wss {
         })
         .await
         .expect("local WSS handshake or socket release exceeded fixture deadline");
+    }
+
+    fn check_token_eligibility(handle: &SessionWebSocket, endpoints: &SessionEndpoints) {
+        use SessionWebSocketTokenError as Error;
+
+        const PRINCIPAL: &str = " Fixture WSS account ";
+        let equivalent = SessionEndpoints::parse(
+            &endpoints.http_url().replacen("http://", "HTTP://", 1),
+            &endpoints.websocket_url().replacen("wss://", "WSS://", 1),
+            ProxyPolicy::Direct,
+        )
+        .unwrap();
+        let original = TokenSubject::new(endpoints, PRINCIPAL).unwrap();
+        let subject = TokenSubject::new(&equivalent, PRINCIPAL).unwrap();
+        let mut slot = TokenSlot::new(&original);
+        let tick = Duration::from_millis(1);
+        let expires_at = UNIX_EPOCH + Duration::from_secs(1);
+        let now = expires_at - tick;
+        let expiry = TokenExpiry::At(expires_at);
+
+        let assert_redacted = |diagnostics: &str| {
+            for private in [
+                MOCK_TOKEN,
+                PRINCIPAL.trim(),
+                "127.0.0.1",
+                "127.0.0.2",
+                WS_PATH,
+                "/unused",
+                "/different-ws",
+                "/different-http",
+            ] {
+                assert!(!diagnostics.contains(private));
+            }
+        };
+        let denied = |slot: &TokenSlot, subject: &TokenSubject<'_>, time, expected| {
+            let result = handle.eligible_token(slot, subject, time);
+            assert_redacted(&format!("{result:?}"));
+            let error = result.unwrap_err();
+            assert_eq!(error, expected);
+            assert_redacted(&error.to_string());
+            assert!(std::error::Error::source(&error).is_none());
+        };
+
+        denied(&slot, &subject, now, Error::Empty);
+        slot.replace(&original, MOCK_TOKEN.into(), expiry).unwrap();
+        let result = handle.eligible_token(&slot, &subject, now);
+        assert_redacted(&format!("{handle:#?} {result:#?}"));
+        assert_eq!(result.unwrap().expose_token(), MOCK_TOKEN);
+
+        let http = endpoints.http_url();
+        let ws = endpoints.websocket_url();
+        for (http, ws, proxy) in [
+            (
+                http.to_owned(),
+                ws.replace("127.0.0.1", "127.0.0.2"),
+                ProxyPolicy::Direct,
+            ),
+            (
+                http.to_owned(),
+                ws.replace(WS_PATH, "/different-ws"),
+                ProxyPolicy::Direct,
+            ),
+            (
+                http.replace("/unused", "/different-http"),
+                ws.to_owned(),
+                ProxyPolicy::Direct,
+            ),
+            (http.to_owned(), ws.to_owned(), ProxyPolicy::System),
+        ] {
+            let changed = SessionEndpoints::parse(&http, &ws, proxy).unwrap();
+            let other = TokenSubject::new(&changed, PRINCIPAL).unwrap();
+            let mut other_slot = TokenSlot::new(&other);
+            other_slot
+                .replace(&other, MOCK_TOKEN.into(), expiry)
+                .unwrap();
+            denied(&other_slot, &other, now, Error::RouteMismatch);
+            denied(&other_slot, &subject, now, Error::SubjectMismatch);
+        }
+
+        for principal in [PRINCIPAL.trim(), " fixture WSS account "] {
+            let other = TokenSubject::new(endpoints, principal).unwrap();
+            denied(&slot, &other, now, Error::SubjectMismatch);
+        }
+        for time in [expires_at, expires_at + tick] {
+            denied(&slot, &subject, time, Error::Expired);
+        }
+        slot.replace(&original, MOCK_TOKEN.into(), TokenExpiry::Unknown)
+            .unwrap();
+        denied(&slot, &subject, now, Error::UnknownExpiry);
     }
 }
