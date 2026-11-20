@@ -1698,6 +1698,15 @@ cargo test --locked --offline -p lox-core --no-default-features --features runti
 cargo test --locked --offline -p lox-core --no-default-features --features runtime-websocket --test session_websocket -- --ignored --exact upgrade_deadline_expires_and_releases_the_peer_socket
 ```
 
+`runtime::auth_reply_framing::admit_exact_text_reply` is a provisional
+`runtime-websocket` helper for an already separated binary header and its
+immediately following text message. It reuses the Loxone application header
+decoder, accepts only the exact-length text subset, and borrows the original
+UTF-8 bytes. The local envelope limit is 16 KiB; estimated lengths and any
+nonzero flags or reserved byte are unsupported. This does not read a socket,
+establish that a pair was consecutive, admit a reply status or echo, or send
+credentials.
+
 ### Local WSS fixture
 
 The ignored `local_wss::strict_direct_wss` test runs the production Core connect
