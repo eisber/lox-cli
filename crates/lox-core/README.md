@@ -1707,6 +1707,16 @@ nonzero flags or reserved byte are unsupported. This does not read a socket,
 establish that a pair was consecutive, admit a reply status or echo, or send
 credentials.
 
+`runtime::auth_challenge_envelope` composes that framing result with the
+existing `getkey2` value decoder. It checks an exact, encoded command echo and
+accepts only numeric or string `200` in a lowercase `LL.code`. It refuses
+duplicates and unknown members, and passes the original JSON value token
+without reserializing it. The envelope subset is based on pinned
+[rs-loxone reply tests](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/reply.rs#L136-L159)
+and [Kotlin authenticator stubs](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonTest/kotlin/LoxoneTokenAuthenticatorTest.kt#L150-L161),
+not device qualification. A matching echo alone establishes neither ordering
+nor peer trust, and there is no request send or authentication here.
+
 ### Local WSS fixture
 
 The ignored `local_wss::strict_direct_wss` test runs the production Core connect

@@ -12,6 +12,9 @@ mod http;
 mod model;
 
 // Provisional Rust session components; no foreign ABI.
+#[cfg(feature = "runtime-websocket")]
+#[doc(hidden)]
+pub mod auth_challenge_envelope;
 #[doc(hidden)]
 pub mod auth_path_component;
 #[cfg(feature = "runtime-websocket")]

@@ -44,7 +44,7 @@ firmware-metadata = ["dep:quick-xml"]
 structure-json = ["dep:serde_json"]
 runtime = ["dep:reqwest", "dep:serde", "dep:serde_json", "dep:tokio"]
 runtime-blocking = ["runtime"]
-runtime-websocket = ["runtime", "dep:tokio-tungstenite", "tokio/net"]
+runtime-websocket = ["runtime", "dep:tokio-tungstenite", "tokio/net", "serde_json/raw_value"]
 
 [dev-dependencies]
 httpmock = "0.7"
