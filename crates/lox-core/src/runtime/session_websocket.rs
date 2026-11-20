@@ -6,12 +6,18 @@ use super::auth_reply_framing::{
     AuthReplyFramingError, AuthReplyMessage, MAX_REPLY_BYTES, admit_exact_text_header,
     admit_exact_text_payload,
 };
+#[cfg(feature = "auth-hash")]
+use super::login_challenge::HashAlgorithm;
 use super::login_challenge::LoginChallenge;
+#[cfg(feature = "auth-hash")]
+use super::login_response::{self, LoginResponse};
 use super::session_endpoints::{ProxyPolicy, SessionEndpoints};
 use super::session_token::{TokenAccess, TokenLookup, TokenSlot, TokenSubject};
 use futures_util::{SinkExt, StreamExt};
 use std::fmt;
 use std::net::{IpAddr, SocketAddr};
+#[cfg(feature = "auth-hash")]
+use std::sync::Arc;
 use std::time::{Duration, SystemTime};
 use tokio::net::TcpStream;
 use tokio::time::{Instant, sleep_until};
@@ -122,12 +128,47 @@ impl std::error::Error for GetKey2ExchangeError {}
 pub struct PendingLoginChallenge {
     connection: SessionWebSocket,
     challenge: LoginChallenge,
+    #[cfg(feature = "auth-hash")]
+    principal: Arc<str>,
 }
 
 impl PendingLoginChallenge {
     /// Borrows the challenge while retaining ownership of its connection.
     pub fn challenge(&self) -> &LoginChallenge {
         &self.challenge
+    }
+
+    /// Consumes the verified pending exchange and computes a response for its
+    /// original principal, without I/O. The caller must explicitly permit the
+    /// algorithm; disagreement is refused before hashing the password.
+    ///
+    /// A refusal releases the connection. Cancellation is checked before and
+    /// after derivation, but does not interrupt the synchronous hash. The
+    /// password is not retained and no zeroization is promised.
+    #[cfg(feature = "auth-hash")]
+    pub fn prepare_response(
+        self,
+        permitted_algorithm: HashAlgorithm,
+        password: &str,
+        cancellation: &Cancellation,
+    ) -> Result<PreparedLoginResponse, PrepareLoginResponseError> {
+        use PrepareLoginResponseError as Error;
+
+        if cancellation.is_cancelled() {
+            return Err(Error::Cancelled);
+        }
+        if self.challenge.algorithm() != permitted_algorithm {
+            return Err(Error::AlgorithmMismatch);
+        }
+        let response = login_response::derive(&self.challenge, self.principal.as_ref(), password);
+        if cancellation.is_cancelled() {
+            return Err(Error::Cancelled);
+        }
+        let response = response.map_err(|_| Error::DerivationFailed)?;
+        Ok(PreparedLoginResponse {
+            pending: self,
+            response,
+        })
     }
 
     /// Releases the connection immediately, without a WebSocket close handshake.
@@ -139,6 +180,61 @@ impl PendingLoginChallenge {
 impl fmt::Debug for PendingLoginChallenge {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("PendingLoginChallenge")
+            .finish_non_exhaustive()
+    }
+}
+
+/// Payload-free refusal to prepare a response; a refused socket is not reusable.
+#[cfg(feature = "auth-hash")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum PrepareLoginResponseError {
+    Cancelled,
+    AlgorithmMismatch,
+    DerivationFailed,
+}
+
+#[cfg(feature = "auth-hash")]
+impl fmt::Display for PrepareLoginResponseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            Self::Cancelled => "login response preparation cancelled",
+            Self::AlgorithmMismatch => {
+                "login challenge algorithm does not match the permitted algorithm"
+            }
+            Self::DerivationFailed => "login response derivation failed",
+        })
+    }
+}
+
+#[cfg(feature = "auth-hash")]
+impl std::error::Error for PrepareLoginResponseError {}
+
+/// A provisional response and the same owned pre-authentication connection.
+/// This grants no network or authenticated session access.
+#[cfg(feature = "auth-hash")]
+#[must_use = "dropping the prepared response releases the connection"]
+pub struct PreparedLoginResponse {
+    pending: PendingLoginChallenge,
+    response: LoginResponse,
+}
+
+#[cfg(feature = "auth-hash")]
+impl PreparedLoginResponse {
+    /// Explicitly borrows the secret response. Do not log its contents.
+    pub fn response(&self) -> &LoginResponse {
+        &self.response
+    }
+
+    /// Releases the connection immediately, without a WebSocket close handshake.
+    pub fn close(self) {
+        self.pending.close();
+    }
+}
+
+#[cfg(feature = "auth-hash")]
+impl fmt::Debug for PreparedLoginResponse {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("PreparedLoginResponse")
             .finish_non_exhaustive()
     }
 }
@@ -289,6 +385,8 @@ impl SessionWebSocket {
             Ok(PendingLoginChallenge {
                 connection,
                 challenge,
+                #[cfg(feature = "auth-hash")]
+                principal: command.clone_principal(),
             })
         };
         let result = tokio::select! {

@@ -1735,7 +1735,7 @@ are separate from the single application send.
 One ten-second Tokio deadline covers dial, upgrade, send and reply; it does
 not extend the existing connect deadline. Cancellation or dropping the
 future releases any acquired socket, as does a refused reply. On success
-`PendingLoginChallenge` retains the same socket, exposes only a borrowed
+`PendingLoginChallenge` retains the same socket, exposes the borrowed
 challenge, and releases the socket on close or drop. Cancellation is not
 retained by this handle. The operation never contacts the separate HTTP
 route, retries, downgrades or sends a password, hash or token. It assumes
@@ -1743,6 +1743,22 @@ only the pinned mock dialect: it does not negotiate or infer versions,
 qualify application-encrypted routes or firmware, or authenticate a session.
 Core redacts its own diagnostics; do not enable wire tracing with private
 principals or challenges.
+
+With both `runtime-websocket` and `auth-hash`, the command also keeps the
+original UTF-8 principal, privately, and a successful exchange binds it to
+the owned challenge. `pending.prepare_response(permitted_algorithm, password,
+&cancellation)` consumes that handle, refuses an algorithm mismatch before
+hashing, and uses the existing `login_response::derive`. There is no second
+principal input, URL decoding, trimming or normalization. Cancellation is
+checked before and after the synchronous derivation, not during it. A refusal
+releases the connection; success returns a `PreparedLoginResponse` that still
+owns the same connection and releases it on close or drop.
+
+The prepared handle offers an explicit borrow of the secret response, not a
+send operation or an authenticated session. Preparation performs no I/O and
+does not retain the password. Do not log the response; zeroization is not
+promised. Without `auth-hash`, there is no preparation API or raw principal
+retention.
 
 ### Local WSS fixture
 
@@ -1762,6 +1778,11 @@ alerts before any WebSocket upgrade and observe socket release. The parent
 checks every required file before starting any child. It ignores any inherited
 case selector, sets the intended case and `SSL_CERT_FILE` in each child, and
 removes `SSL_CERT_DIR` and proxy variables there. The real trust store is unchanged.
+
+With `auth-hash` added, the trusted child also checks the prepared response
+against an independent known answer for an unnormalized synthetic principal.
+Those cases observe the one getkey2 request, then no preparation message and
+socket release on close, drop, algorithm mismatch, or pre-cancelled refusal.
 
 The regular fixture check needs no certificates and prints named markers
 for plaintext and overlong encoded request refusal before dialing:
@@ -1843,6 +1864,23 @@ try {
         if (!$output.Contains("local WSS child passed: $case")) { throw "Case did not run: $case" }
     }
 
+    $boundCases = @(
+        'bound-response-raw-principal-no-send-close', 'bound-response-no-send-drop',
+        'bound-response-algorithm-mismatch-released', 'bound-response-pre-cancelled-released'
+    )
+    foreach ($case in $boundCases) {
+        if ($output.Contains("local WSS child passed: $case")) { throw "Unexpected case: $case" }
+    }
+    $boundWssTest = $wssTest | ForEach-Object {
+        if ($_ -eq 'runtime-websocket') { 'runtime-websocket,auth-hash' } else { $_ }
+    }
+    $output = & cargo @boundWssTest 2>&1 | Out-String
+    $output
+    if ($LASTEXITCODE -ne 0) { throw 'Local WSS bound-response fixture failed' }
+    foreach ($case in ($cases + $boundCases)) {
+        if (!$output.Contains("local WSS child passed: $case")) { throw "Case did not run: $case" }
+    }
+
     $missing = Join-Path $fixture 'wrong-ip.key'
     Move-Item -LiteralPath $missing -Destination "$missing.withheld" -ErrorAction Stop
     try {
@@ -1863,13 +1901,13 @@ try {
 
 Use the exact public test filter shown above, not a bare `--ignored`. The
 separate `local_wss::strict_direct_wss_child` entry is internal; it fails
-without an explicit known case. With all inputs, expect all named case
-markers and one passing parent test even with the positive selector inherited.
-The second run must fail before any child starts despite that selector and
-intact positive inputs. Remove the disposable fixture directory after
-validation. Only an actual pass on an exact source tree qualifies IPv4
-loopback WSS on that platform; IPv6 needs a separate fixture. This does not
-qualify Linux, SDKs, authentication or devices.
+without an explicit known case. With all inputs, expect the named case
+markers for each feature selection and one passing parent test even with
+the positive selector inherited. The missing-input run must fail before any
+child starts despite that selector and intact positive inputs. Remove the
+disposable fixture directory after validation. Only an actual pass on an
+exact source tree qualifies IPv4 loopback WSS on that platform; IPv6 needs a
+separate fixture. This does not qualify Linux, SDKs, authentication or devices.
 
 ## Optional clock runtime
 
