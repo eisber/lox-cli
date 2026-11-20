@@ -1672,6 +1672,20 @@ opaque handle owns the connection; explicit `close()` or drop releases it withou
 sending a Close frame or waiting for the peer. Cancellation is not monitored
 after connect. There is no frame I/O API, auth, reconnect, CLI change or foreign ABI.
 
+### Direct WebSocket loopback qualification
+
+Run the additional ignored checks on a host with an operational IPv6 loopback
+interface. The IPv6 check uses plaintext on literal `[::1]`, verifies the
+upgrade route and Host header, and observes release after both close and drop.
+The deadline check lets an IPv4 peer receive the upgrade request without
+answering, then checks the typed timeout and socket release. It uses the real
+ten-second production deadline, not a paused Tokio clock.
+
+```powershell
+cargo test --locked --offline -p lox-core --no-default-features --features runtime-websocket --test session_websocket -- --ignored --exact upgrades_numeric_ipv6_loopback_route_and_releases_it
+cargo test --locked --offline -p lox-core --no-default-features --features runtime-websocket --test session_websocket -- --ignored --exact upgrade_deadline_expires_and_releases_the_peer_socket
+```
+
 ### Local WSS fixture
 
 The ignored `local_wss::strict_direct_wss` test runs the production Core connect

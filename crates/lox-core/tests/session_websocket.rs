@@ -8,7 +8,7 @@ use std::net::{SocketAddr, TcpListener as ProbeListener};
 use std::time::Duration;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::net::{TcpListener, TcpStream};
-use tokio::time::timeout;
+use tokio::time::{Instant, timeout};
 use tokio_tungstenite::accept_hdr_async;
 use tokio_tungstenite::tungstenite::handshake::server::{
     Callback, ErrorResponse, Request, Response,
@@ -76,9 +76,19 @@ impl Callback for CheckUpgradeRequest {
 
 #[tokio::test]
 async fn upgrades_exact_websocket_route_and_close_or_drop_releases_it() {
+    assert_upgrade_and_release("127.0.0.1:0").await;
+}
+
+#[tokio::test]
+#[ignore = "requires an operational IPv6 loopback interface"]
+async fn upgrades_numeric_ipv6_loopback_route_and_releases_it() {
+    assert_upgrade_and_release("[::1]:0").await;
+}
+
+async fn assert_upgrade_and_release(bind: &str) {
     timeout(FIXTURE_DEADLINE, async {
         let http = probe_listener();
-        let server = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let server = TcpListener::bind(bind).await.unwrap();
         let ws = server.local_addr().unwrap();
         let endpoints = direct(ws, http.local_addr().unwrap());
         let cancellation = Cancellation::new();
@@ -175,6 +185,40 @@ async fn cancellation_during_upgrade_releases_the_peer_socket() {
     })
     .await
     .unwrap();
+}
+
+#[tokio::test]
+#[ignore = "exercises the production ten-second deadline on a real clock"]
+async fn upgrade_deadline_expires_and_releases_the_peer_socket() {
+    const CONNECT_DEADLINE: Duration = Duration::from_secs(10);
+
+    timeout(CONNECT_DEADLINE + FIXTURE_DEADLINE, async {
+        let http = probe_listener();
+        let server = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let endpoints = direct(server.local_addr().unwrap(), http.local_addr().unwrap());
+        let cancellation = Cancellation::new();
+
+        let ((result, elapsed), ()) = tokio::join!(
+            async {
+                let start = Instant::now();
+                let result = SessionWebSocket::connect(&endpoints, &cancellation).await;
+                (result, start.elapsed())
+            },
+            async {
+                let (mut peer, _) = server.accept().await.unwrap();
+                wait_for_upgrade_request(&mut peer).await;
+                assert_released(&mut peer).await;
+            }
+        );
+        assert_eq!(result.unwrap_err(), SessionWebSocketError::Timeout);
+        assert!(
+            elapsed >= CONNECT_DEADLINE,
+            "premature timeout: {elapsed:?}"
+        );
+        assert_no_contact(&http);
+    })
+    .await
+    .expect("stalled upgrade did not time out and release its socket");
 }
 
 #[tokio::test]
