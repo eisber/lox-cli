@@ -1760,6 +1760,15 @@ does not retain the password. Do not log the response; zeroization is not
 promised. Without `auth-hash`, there is no preparation API or raw principal
 retention.
 
+`runtime::jwt_grant_value` validates only the original JSON value of a
+`getjwt` reply in the pinned mock subset. It requires an opaque token and
+integer expiry, retains the optional typed advisories and key, and rejects
+unknown or duplicate fields within a local 8 KiB limit. The supported fields
+come from the vendor reference and [pinned rs-loxone test cases](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/reply.rs#L175-L197).
+This does not verify a JWT, admit an envelope or install a token. The vendor
+reference's general newer-TLS guidance and specific `getjwt` encryption
+instruction differ; this value parser makes no dispatch or firmware claim.
+
 ### Local WSS fixture
 
 The ignored `local_wss::strict_direct_wss` test runs the production Core connect
