@@ -16,6 +16,9 @@ mod model;
 pub mod auth_path_component;
 #[doc(hidden)]
 pub mod login_challenge;
+#[cfg(feature = "auth-hash")]
+#[doc(hidden)]
+pub mod login_response;
 #[doc(hidden)]
 pub mod session_endpoints;
 #[doc(hidden)]

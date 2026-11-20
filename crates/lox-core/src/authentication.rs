@@ -8,6 +8,7 @@ use std::borrow::Cow;
 use std::fmt;
 
 use hmac::{Hmac, Mac};
+use sha1::Sha1;
 use sha2::{Digest, Sha256};
 
 /// The inner password digest for the existing CONFIG `/wsx` profile.
@@ -62,6 +63,17 @@ impl<'a> HashKey<'a> {
         hex::decode(encoded)
             .map(|bytes| Self(Cow::Owned(bytes)))
             .map_err(|_| HashError::InvalidHexKey)
+    }
+
+    pub(crate) fn hmac_bytes<M: Mac + hmac::digest::KeyInit>(
+        &self,
+        parts: &[&[u8]],
+    ) -> hmac::digest::Output<M> {
+        let mut mac = <M as Mac>::new_from_slice(&self.0).expect("HMAC accepts any key length");
+        for part in parts {
+            mac.update(part);
+        }
+        mac.finalize().into_bytes()
     }
 }
 
@@ -133,20 +145,8 @@ pub fn hash_credentials(
             password_digest,
         } => {
             let password_hash = match password_digest {
-                WsxPasswordDigest::Sha1 => {
-                    let mut digest = sha1::Sha1::new();
-                    digest.update(password.as_bytes());
-                    digest.update(b":");
-                    digest.update(salt.as_bytes());
-                    hex::encode_upper(digest.finalize())
-                }
-                WsxPasswordDigest::Sha256 => {
-                    let mut digest = Sha256::new();
-                    digest.update(password.as_bytes());
-                    digest.update(b":");
-                    digest.update(salt.as_bytes());
-                    hex::encode_upper(digest.finalize())
-                }
+                WsxPasswordDigest::Sha1 => salted_password_hash::<Sha1>(password, salt),
+                WsxPasswordDigest::Sha256 => salted_password_hash::<Sha256>(password, salt),
             };
             hmac_sha256(
                 key,
@@ -171,13 +171,17 @@ pub fn hash_wsx_autht(token: &str, key: &HashKey<'_>) -> Result<AuthenticationHa
     Ok(hmac_sha256(key, &[token.as_bytes()], true))
 }
 
+pub(crate) fn salted_password_hash<D: Digest>(password: &str, salt: &str) -> String {
+    let mut digest = D::new();
+    digest.update(password.as_bytes());
+    digest.update(b":");
+    digest.update(salt.as_bytes());
+    hex::encode_upper(digest.finalize())
+}
+
 fn hmac_sha256(key: &HashKey<'_>, parts: &[&[u8]], uppercase: bool) -> AuthenticationHash {
-    let mut mac = Hmac::<Sha256>::new_from_slice(&key.0).expect("HMAC accepts any key length");
-    for part in parts {
-        mac.update(part);
-    }
     AuthenticationHash {
-        bytes: mac.finalize().into_bytes().into(),
+        bytes: key.hmac_bytes::<Hmac<Sha256>>(parts).into(),
         uppercase,
     }
 }
