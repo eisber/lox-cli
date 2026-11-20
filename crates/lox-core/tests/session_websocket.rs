@@ -208,3 +208,189 @@ async fn refuses_redirect_without_contacting_location() {
     .await
     .unwrap();
 }
+
+mod local_wss {
+    use super::*;
+    use std::{
+        env,
+        path::{Path, PathBuf},
+        process::Command,
+        sync::Arc,
+    };
+    use tokio_rustls::TlsAcceptor;
+    use tokio_rustls::rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject};
+    use tokio_rustls::rustls::{AlertDescription, Error as TlsError, ServerConfig};
+
+    const FIXTURE_DIR: &str = "LOX_WSS_FIXTURE_DIR";
+    const CHILD_CASE: &str = "LOX_WSS_FIXTURE_CHILD_CASE";
+    const CHILD_TEST: &str = "local_wss::strict_direct_wss_child";
+    const CHILD_PASSED: &str = "local WSS child passed: ";
+
+    struct Case {
+        name: &'static str,
+        leaf: &'static str,
+        root: &'static str,
+        alert: Option<AlertDescription>,
+    }
+
+    impl Case {
+        fn required_files(&self, fixture: &Path) -> [PathBuf; 3] {
+            let files = [
+                fixture.join(self.root),
+                fixture.join(format!("{}.pem", self.leaf)),
+                fixture.join(format!("{}.key", self.leaf)),
+            ];
+            for file in &files {
+                assert!(
+                    file.is_file(),
+                    "missing required WSS fixture file: {file:?}"
+                );
+            }
+            files
+        }
+    }
+
+    const CASES: [Case; 3] = [
+        Case {
+            name: "trusted-loopback",
+            leaf: "loopback",
+            root: "trusted-root.pem",
+            alert: None,
+        },
+        Case {
+            name: "wrong-ip",
+            leaf: "wrong-ip",
+            root: "trusted-root.pem",
+            alert: Some(AlertDescription::BadCertificate),
+        },
+        Case {
+            name: "untrusted-chain",
+            leaf: "loopback",
+            root: "unrelated-root.pem",
+            alert: Some(AlertDescription::UnknownCA),
+        },
+    ];
+
+    fn fixture_dir() -> PathBuf {
+        let fixture = PathBuf::from(
+            env::var_os(FIXTURE_DIR).expect("set LOX_WSS_FIXTURE_DIR; see Core README"),
+        );
+        assert!(
+            fixture.is_absolute() && fixture.is_dir(),
+            "expected an absolute WSS fixture directory: {fixture:?}"
+        );
+        fixture
+    }
+
+    #[test]
+    #[ignore = "requires generated LOX_WSS_FIXTURE_DIR; see Core README: Local WSS fixture"]
+    fn strict_direct_wss() {
+        let fixture = fixture_dir();
+        for case in &CASES {
+            case.required_files(&fixture);
+        }
+
+        for case in &CASES {
+            let mut child = Command::new(env::current_exe().unwrap());
+            child
+                .args(["--ignored", "--exact", CHILD_TEST, "--nocapture"])
+                .env(FIXTURE_DIR, &fixture)
+                .env(CHILD_CASE, case.name)
+                .env("SSL_CERT_FILE", fixture.join(case.root))
+                .env_remove("SSL_CERT_DIR");
+            for var in ["HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "NO_PROXY"] {
+                child.env_remove(var).env_remove(var.to_ascii_lowercase());
+            }
+            let output = child.output().expect("run isolated WSS fixture child");
+            let stdout = String::from_utf8_lossy(&output.stdout);
+            let passed = format!("{CHILD_PASSED}{}", case.name);
+            assert!(
+                output.status.success() && stdout.lines().any(|line| line == passed),
+                "WSS fixture case {} did not report success ({}):\n{stdout}\n{}",
+                case.name,
+                output.status,
+                String::from_utf8_lossy(&output.stderr)
+            );
+            eprintln!("{passed}");
+        }
+    }
+
+    #[test]
+    #[ignore = "internal child; run local_wss::strict_direct_wss exactly"]
+    fn strict_direct_wss_child() {
+        let name = env::var(CHILD_CASE).expect("WSS fixture child requires an explicit case");
+        let case = CASES
+            .iter()
+            .find(|case| case.name == name)
+            .expect("unknown WSS fixture case");
+        let [root, cert, key] = case.required_files(&fixture_dir());
+        assert_eq!(
+            env::var_os("SSL_CERT_FILE").as_deref(),
+            Some(root.as_os_str())
+        );
+        assert!(env::var_os("SSL_CERT_DIR").is_none());
+        let cert = CertificateDer::from_pem_file(cert).expect("read fixture server certificate");
+        let key = PrivateKeyDer::from_pem_file(key).expect("read fixture server key");
+        let config = ServerConfig::builder()
+            .with_no_client_auth()
+            .with_single_cert(vec![cert], key)
+            .expect("configure fixture TLS server");
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap()
+            .block_on(check_case(case, TlsAcceptor::from(Arc::new(config))));
+        println!("\n{CHILD_PASSED}{}", case.name);
+    }
+
+    async fn check_case(case: &Case, acceptor: TlsAcceptor) {
+        timeout(FIXTURE_DEADLINE, async {
+            let http = probe_listener();
+            let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let address = listener.local_addr().unwrap();
+            let endpoints = SessionEndpoints::parse(
+                &format!("http://{}/unused", http.local_addr().unwrap()),
+                &format!("wss://{address}{WS_PATH}"),
+                ProxyPolicy::Direct,
+            )
+            .unwrap();
+            let cancellation = Cancellation::new();
+            tokio::join!(
+                async {
+                    let (peer, remote) = listener.accept().await.unwrap();
+                    assert_eq!(remote.ip(), address.ip());
+                    let tls = acceptor.accept(peer).into_fallible().await;
+                    if let Some(expected) = case.alert {
+                        let Err((error, mut peer)) = tls else {
+                            panic!("TLS unexpectedly completed before WebSocket upgrade");
+                        };
+                        assert_eq!(
+                            error
+                                .get_ref()
+                                .and_then(|error| error.downcast_ref::<TlsError>()),
+                            Some(&TlsError::AlertReceived(expected)),
+                            "expected client TLS alert, got {error:?}"
+                        );
+                        assert_released(&mut peer).await;
+                    } else {
+                        let mut ws = accept_hdr_async(tls.unwrap(), CheckUpgradeRequest(address))
+                            .await
+                            .unwrap();
+                        assert_released(ws.get_mut().get_mut().0).await;
+                    }
+                },
+                async {
+                    let result = SessionWebSocket::connect(&endpoints, &cancellation).await;
+                    if case.alert.is_some() {
+                        assert_eq!(result.unwrap_err(), SessionWebSocketError::Upgrade);
+                    } else {
+                        result.unwrap().close();
+                    }
+                }
+            );
+            assert_no_contact(&http);
+        })
+        .await
+        .expect("local WSS handshake or socket release exceeded fixture deadline");
+    }
+}

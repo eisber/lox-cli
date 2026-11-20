@@ -1672,6 +1672,114 @@ opaque handle owns the connection; explicit `close()` or drop releases it withou
 sending a Close frame or waiting for the peer. Cancellation is not monitored
 after connect. There is no frame I/O API, auth, reconnect, CLI change or foreign ABI.
 
+### Local WSS fixture
+
+The ignored `local_wss::strict_direct_wss` test runs the production Core connect
+against an IPv4 loopback TLS/WebSocket server. The three children always dial
+`127.0.0.1` on a fresh ephemeral port: one uses a trusted leaf with that IP SAN,
+one uses the same CA but a leaf valid for `127.0.0.2`, and one reuses the first
+leaf with an unrelated root as the only trust anchor. The negative cases
+require distinct client TLS alerts before any WebSocket upgrade; all cases
+observe socket release. The parent checks every required file before starting
+any child. It ignores any inherited case selector, sets the intended case and
+`SSL_CERT_FILE` in each child, and removes `SSL_CERT_DIR` and proxy variables
+there. The real trust store is unchanged.
+
+On Windows, run this PowerShell recipe from the repository root with Git for
+Windows OpenSSL and an already provisioned offline Cargo cache. Use a fresh,
+disposable directory on a permitted drive outside the checkout for the generated
+keys and certificates. Never commit them.
+
+```powershell
+$openssl = 'C:\Program Files\Git\usr\bin\openssl.exe'
+$fixture = Join-Path 'D:\' ('lox-local-wss-' + [guid]::NewGuid().ToString('N'))
+function Invoke-FixtureOpenSsl {
+    & $openssl @args
+    if ($LASTEXITCODE -ne 0) { throw "OpenSSL failed: $args" }
+}
+New-Item -ItemType Directory -Path $fixture -ErrorAction Stop | Out-Null
+Push-Location -LiteralPath $fixture
+try {
+    @'
+[req]
+distinguished_name = dn
+[dn]
+[root]
+basicConstraints = critical,CA:TRUE,pathlen:0
+keyUsage = critical,keyCertSign,cRLSign
+subjectKeyIdentifier = hash
+'@ | Set-Content -LiteralPath 'req.cnf' -Encoding ascii -ErrorAction Stop
+    foreach ($ca in 'trusted-root', 'unrelated-root') {
+        Invoke-FixtureOpenSsl req -config req.cnf -x509 -extensions root -newkey rsa:2048 -nodes `
+            -sha256 -days 3 -subj "/CN=lox-fixture-$ca" -keyout "$ca.key" -out "$ca.pem"
+    }
+    foreach ($leaf in @(
+        @{ Name = 'loopback'; Ip = '127.0.0.1'; Serial = '0x11' }
+        @{ Name = 'wrong-ip'; Ip = '127.0.0.2'; Serial = '0x12' }
+    )) {
+        $name = $leaf.Name
+        @(
+            '[leaf]'
+            'basicConstraints = critical,CA:FALSE'
+            'keyUsage = critical,digitalSignature'
+            'extendedKeyUsage = serverAuth'
+            "subjectAltName = IP:$($leaf.Ip)"
+        ) | Set-Content -LiteralPath 'leaf.cnf' -Encoding ascii -ErrorAction Stop
+        Invoke-FixtureOpenSsl req -config req.cnf -new -newkey rsa:2048 -nodes -sha256 `
+            -subj '/CN=lox-fixture-server' -keyout "$name.key" -out "$name.csr"
+        Invoke-FixtureOpenSsl x509 -req -in "$name.csr" -CA trusted-root.pem -CAkey trusted-root.key `
+            -set_serial $leaf.Serial -extfile leaf.cnf -extensions leaf -sha256 -days 2 -out "$name.pem"
+        Invoke-FixtureOpenSsl verify -trusted trusted-root.pem -purpose sslserver -verify_ip $leaf.Ip "$name.pem"
+    }
+} finally {
+    Pop-Location
+}
+$wssTest = @(
+    'test', '--locked', '--offline', '-p', 'lox-core', '--no-default-features',
+    '--features', 'runtime-websocket', '--test', 'session_websocket',
+    '--', '--ignored', '--exact', 'local_wss::strict_direct_wss', '--nocapture'
+)
+$previousFixture = $env:LOX_WSS_FIXTURE_DIR
+$previousCase = $env:LOX_WSS_FIXTURE_CHILD_CASE
+try {
+    $env:LOX_WSS_FIXTURE_DIR = $fixture
+    $env:LOX_WSS_FIXTURE_CHILD_CASE = 'trusted-loopback'
+    $output = & cargo @wssTest 2>&1 | Out-String
+    $output
+    if ($LASTEXITCODE -ne 0) { throw 'Local WSS fixture failed' }
+    foreach ($case in 'trusted-loopback', 'wrong-ip', 'untrusted-chain') {
+        if (!$output.Contains("local WSS child passed: $case")) { throw "Case did not run: $case" }
+    }
+
+    $missing = Join-Path $fixture 'wrong-ip.key'
+    Move-Item -LiteralPath $missing -Destination "$missing.withheld" -ErrorAction Stop
+    try {
+        $output = & cargo @wssTest 2>&1 | Out-String
+        $output
+        if ($LASTEXITCODE -eq 0 -or $output -notmatch 'missing required WSS fixture file:.*wrong-ip\.key' -or
+            $output.Contains('local WSS child passed:')) {
+            throw 'Expected a missing-input failure before any child ran'
+        }
+    } finally {
+        Move-Item -LiteralPath "$missing.withheld" -Destination $missing -ErrorAction Stop
+    }
+} finally {
+    $env:LOX_WSS_FIXTURE_DIR = $previousFixture
+    $env:LOX_WSS_FIXTURE_CHILD_CASE = $previousCase
+}
+```
+
+Use the exact public test filter shown above, not a bare `--ignored`. The
+separate `local_wss::strict_direct_wss_child` entry is internal; it fails
+without an explicit known case. With all inputs, expect three named child
+successes and one passing parent test even with the positive selector
+inherited. The second run must fail before any child starts despite that
+selector and intact positive inputs. Remove the disposable fixture directory
+after validation. The fixture changes no production code. Only an actual
+pass on an exact source tree qualifies IPv4 loopback WSS on that platform;
+IPv6 needs a separate fixture. This does not qualify Linux, SDKs,
+authentication or devices.
+
 ## Optional clock runtime
 
 ```toml
