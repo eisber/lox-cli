@@ -15,6 +15,8 @@ mod model;
 #[doc(hidden)]
 pub mod auth_path_component;
 #[doc(hidden)]
+pub mod login_challenge;
+#[doc(hidden)]
 pub mod session_endpoints;
 #[doc(hidden)]
 pub mod session_http;
