@@ -2502,12 +2502,10 @@ impl Sandbox {
             .env("LOX_TELEMETRY", "0")
             .assert()
             .success();
-        let mut zip = zip::ZipWriter::new(fs::File::create(root.join("input.zip")).unwrap());
-        zip.start_file("sps0.LoxCC", zip::write::SimpleFileOptions::default())
-            .unwrap();
-        zip.write_all(&fs::read(root.join("input.LoxCC")).unwrap())
-            .unwrap();
-        zip.finish().unwrap();
+        write_fixture_archive(
+            &root.join("input.zip"),
+            &fs::read(root.join("input.LoxCC")).unwrap(),
+        );
         sandbox
     }
 
@@ -2570,6 +2568,28 @@ impl Sandbox {
             snapshot_difference(&before, &after)
         );
     }
+}
+
+fn fixture_archive_mtime() -> SystemTime {
+    SystemTime::UNIX_EPOCH + Duration::from_secs(946_684_800)
+}
+
+fn write_fixture_archive(path: &Path, loxcc: &[u8]) {
+    let mut zip = zip::ZipWriter::new(fs::File::create(path).unwrap());
+    zip.start_file("sps0.LoxCC", zip::write::SimpleFileOptions::default())
+        .unwrap();
+    zip.write_all(loxcc).unwrap();
+    let writer = zip.finish().unwrap();
+    writer.sync_all().unwrap();
+    drop(writer);
+
+    // Establish the fixture mtime after closing the data writer, independent of the host clock.
+    fs::File::options()
+        .write(true)
+        .open(path)
+        .unwrap()
+        .set_modified(fixture_archive_mtime())
+        .unwrap();
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -2655,6 +2675,32 @@ fn snapshot_detects_timestamp_only_mutations() {
     let after = snapshot(dir.path());
     let key = Path::new("structure.json");
     assert_eq!(before[key].contents, after[key].contents);
+    assert_ne!(before[key].modified, after[key].modified);
+    assert_ne!(before, after);
+}
+
+#[test]
+fn generated_zip_has_a_stable_baseline_and_detects_timestamp_only_mutations() {
+    let dir = tempfile::Builder::new()
+        .prefix(".dry-run-archive-snapshot-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let key = Path::new("input.zip");
+    let path = dir.path().join(key);
+    write_fixture_archive(&path, b"synthetic archive entry");
+    let before = snapshot(dir.path());
+    let fixture_mtime = fixture_archive_mtime();
+    assert_eq!(before[key].modified, fixture_mtime);
+
+    fs::File::options()
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .set_modified(fixture_mtime + Duration::from_secs(60))
+        .unwrap();
+    let after = snapshot(dir.path());
+    assert_eq!(before[key].contents, after[key].contents);
+    assert_eq!(before[key].readonly, after[key].readonly);
     assert_ne!(before[key].modified, after[key].modified);
     assert_ne!(before, after);
 }

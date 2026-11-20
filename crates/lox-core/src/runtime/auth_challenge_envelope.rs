@@ -4,10 +4,9 @@
 //! on the expected channel, in order, or from a trusted peer.
 
 use super::auth_path_component::{AuthPathComponent, AuthPathComponentError};
+use super::auth_reply_envelope::{EnvelopeError, admit_value};
 use super::auth_reply_framing::AuthReplyText;
 use super::login_challenge::{self, LoginChallenge, LoginChallengeError};
-use serde::de::{self, Deserialize, Deserializer, MapAccess, Visitor};
-use serde_json::value::RawValue;
 use std::fmt;
 #[cfg(feature = "auth-hash")]
 use std::sync::Arc;
@@ -83,93 +82,12 @@ pub fn admit_getkey2(
 ) -> Result<LoginChallenge, AuthChallengeEnvelopeError> {
     use AuthChallengeEnvelopeError as Error;
 
-    let envelope: Envelope<'_> =
-        serde_json::from_slice(reply.as_bytes()).map_err(|_| Error::InvalidEnvelope)?;
-    if envelope.0.control != expected.as_str() {
-        return Err(Error::EchoMismatch);
-    }
-    let status = envelope.0.code.get();
-    let success = status == "200"
-        || (status.starts_with('"')
-            && serde_json::from_str::<String>(status).is_ok_and(|value| value == "200"));
-    if !success {
-        return Err(Error::StatusNotAccepted);
-    }
-    login_challenge::decode(envelope.0.value.get().as_bytes()).map_err(Error::InvalidChallenge)
-}
-
-struct Envelope<'a>(Fields<'a>);
-
-impl<'de> Deserialize<'de> for Envelope<'de> {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        deserializer.deserialize_map(EnvelopeVisitor)
-    }
-}
-
-struct EnvelopeVisitor;
-
-impl<'de> Visitor<'de> for EnvelopeVisitor {
-    type Value = Envelope<'de>;
-
-    fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("an authentication reply with only LL")
-    }
-
-    fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
-        if map.next_key::<String>()?.as_deref() != Some("LL") {
-            return Err(de::Error::custom("expected LL"));
-        }
-        let fields = map.next_value()?;
-        if map.next_key::<de::IgnoredAny>()?.is_some() {
-            return Err(de::Error::custom(
-                "unexpected extra authentication reply member",
-            ));
-        }
-        Ok(Envelope(fields))
-    }
-}
-
-struct Fields<'a> {
-    control: String,
-    code: &'a RawValue,
-    value: &'a RawValue,
-}
-
-impl<'de> Deserialize<'de> for Fields<'de> {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        deserializer.deserialize_map(FieldsVisitor)
-    }
-}
-
-struct FieldsVisitor;
-
-impl<'de> Visitor<'de> for FieldsVisitor {
-    type Value = Fields<'de>;
-
-    fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("a getkey2 reply body")
-    }
-
-    fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Self::Value, A::Error> {
-        let (mut control, mut code, mut value) = (None, None, None);
-        while let Some(name) = map.next_key::<String>()? {
-            match name.as_str() {
-                "control" if control.is_none() => control = Some(map.next_value()?),
-                "code" if code.is_none() => code = Some(map.next_value()?),
-                "value" if value.is_none() => value = Some(map.next_value()?),
-                _ => {
-                    return Err(de::Error::custom(
-                        "unexpected or repeated getkey2 reply member",
-                    ));
-                }
-            }
-        }
-        Ok(Fields {
-            control: control.ok_or_else(|| de::Error::missing_field("control"))?,
-            code: code.ok_or_else(|| de::Error::missing_field("code"))?,
-            value: value.ok_or_else(|| de::Error::missing_field("value"))?,
-        })
-    }
+    let value = admit_value(reply, expected.as_str()).map_err(|error| match error {
+        EnvelopeError::InvalidEnvelope => Error::InvalidEnvelope,
+        EnvelopeError::EchoMismatch => Error::EchoMismatch,
+        EnvelopeError::StatusNotAccepted => Error::StatusNotAccepted,
+    })?;
+    login_challenge::decode(value).map_err(Error::InvalidChallenge)
 }
 
 #[cfg(test)]

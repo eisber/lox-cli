@@ -1762,12 +1762,26 @@ retention.
 
 `runtime::jwt_grant_value` validates only the original JSON value of a
 `getjwt` reply in the pinned mock subset. It requires an opaque token and
-integer expiry, retains the optional typed advisories and key, and rejects
-unknown or duplicate fields within a local 8 KiB limit. The supported fields
-come from the vendor reference and [pinned rs-loxone test cases](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/reply.rs#L175-L197).
-This does not verify a JWT, admit an envelope or install a token. The vendor
-reference's general newer-TLS guidance and specific `getjwt` encryption
-instruction differ; this value parser makes no dispatch or firmware claim.
+integer expiry, retains the optional typed advisories, and rejects unknown
+or duplicate fields within a local 8 KiB limit. `reported_key()` distinguishes
+a missing key, the explicit empty string reported by the pinned mock, and
+nonempty hex in its original case. `key_hex()` returns only the nonempty
+hex case; neither getter selects a key for use. The fields come from the
+vendor reference and [pinned rs-loxone test cases](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/reply.rs#L175-L197).
+Reporting a token or expiry does not establish JWT validity or usable expiry.
+
+With both `runtime-websocket` and `auth-hash`,
+`runtime::jwt_grant_envelope::admit_getjwt` accepts the logical reply shape
+from the [pinned encrypted mock](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/mock/mod.rs#L630-L645).
+Its decoded `LL.control` must be exactly `jdev/sys/getjwt/` followed by the
+supplied `LoginResponse`'s lowercase hex. A full command echo, ciphertext,
+and alternate prefixes are not accepted. The parser shares the strict LL
+shape and status rules above, and decodes the original value bytes.
+Admission is not evidence that a command was sent or that a peer or channel
+is authenticated. It does not decrypt, send, install a token, or control a
+session. Other clients describe different control prefixes, and the vendor's
+general newer-TLS guidance and specific `getjwt` encryption instruction
+differ. No dispatch or firmware behavior is inferred.
 
 ### Local WSS fixture
 
