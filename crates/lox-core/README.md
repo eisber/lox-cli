@@ -1804,6 +1804,22 @@ opaque grant. It does not retrieve the application key, establish a
 long-lived authenticated session, activate or persist a token, or expose
 the operation in the CLI, Python or JVM.
 
+The same opt-in feature adds `authenticate_loopback_with_token`. It uses
+the [pinned stored-token exchange](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/session/login.rs#L141-L168)
+as implementation evidence, not as firmware qualification. This profile
+uses the fresh encrypted `getkey2` challenge to HMAC the opaque stored token
+and sends `authwithtoken` with the original account's encoded component.
+The vendor describes a `getkey` key and alternative newer plaintext
+behavior; neither profile is selected automatically. An empty, mismatched,
+unknown-expiry or expired slot is refused. No raw token or fallback
+credential is sent, and the slot is not modified.
+
+An exact encrypted `authwithtoken` acknowledgment and future reported
+expiry are required before yielding a `ReadyLoopbackSession`. Its socket and
+encryption context remain owned until close or drop, with no background
+worker. The reported expiry does not extend the slot. There is no public
+frame I/O, refresh, reconnect, or foreign-head API.
+
 ### Local WSS fixture
 
 The ignored `local_wss::strict_direct_wss` test runs the production Core connect
@@ -1837,6 +1853,12 @@ future, or a stalled grant reaching the ten-second deadline. The nine
 additional markers start with `encrypted-acquisition-`. The regular test
 `local_wss::encrypted_loopback::refuses_unqualified_transport_key_and_cancelled_input_before_dial`
 needs no certificates.
+
+The encrypted profile also runs seven `stored-token-` markers: independent
+known-answer HMAC and same-socket ready/close or ready/drop, refusal without
+fallback, invalid control, duplicate or expired acknowledgment, and
+cancellation before acknowledgment. A regular test probes missing,
+wrong-scope, expired and unknown-expiry slots before dialing.
 
 The regular fixture check needs no certificates and prints named markers
 for plaintext and overlong encoded request refusal before dialing:
@@ -1961,8 +1983,9 @@ the positive selector inherited. The missing-input run must fail before any
 child starts despite that selector and intact positive inputs. Remove the
 disposable fixture directory after validation. Only an actual pass on an
 exact source tree qualifies IPv4 loopback WSS on that platform; IPv6 needs a
-separate fixture. The opt-in transcript qualifies only the synthetic grant
-exchange, not an authenticated long-lived session, Linux, SDKs or devices.
+separate fixture. The opt-in transcripts qualify only synthetic grant
+acquisition and stored-token authentication, not an operational persistent
+session, Linux, SDKs or devices.
 
 ## Optional clock runtime
 

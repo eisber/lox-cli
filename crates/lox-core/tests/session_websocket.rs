@@ -503,7 +503,13 @@ mod local_wss {
                 encrypted_loopback::CASES
                     .iter()
                     .filter(|_| case.alert.is_none())
-                    .map(|&(_, name)| name),
+                    .map(|&(_, name)| name)
+                    .chain(
+                        encrypted_loopback::stored_token::CASES
+                            .iter()
+                            .filter(|_| case.alert.is_none())
+                            .map(|&(_, name)| name),
+                    ),
             );
             for name in names {
                 let passed = format!("{CHILD_PASSED}{name}");
@@ -560,6 +566,14 @@ mod local_wss {
                 let application_key = encrypted_loopback::application_key();
                 for (case, name) in encrypted_loopback::CASES {
                     runtime.block_on(encrypted_loopback::check(case, &acceptor, &application_key));
+                    println!("{CHILD_PASSED}{name}");
+                }
+                for (case, name) in encrypted_loopback::stored_token::CASES {
+                    runtime.block_on(encrypted_loopback::stored_token::check(
+                        case,
+                        &acceptor,
+                        &application_key,
+                    ));
                     println!("{CHILD_PASSED}{name}");
                 }
             }
