@@ -100,6 +100,11 @@ impl SessionEndpoints {
         self.websocket.as_str()
     }
 
+    #[cfg(feature = "runtime-websocket")]
+    pub(super) fn websocket_route(&self) -> &Url {
+        &self.websocket
+    }
+
     pub fn proxy_policy(&self) -> ProxyPolicy {
         self.proxy_policy
     }

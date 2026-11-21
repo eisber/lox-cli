@@ -1624,8 +1624,9 @@ owns no runtime thread, and dropping the future stops waiting for the result.
 This does not promise synchronous socket teardown, filter dependency tracing,
 pin DNS or establish device identity. The WebSocket route is not contacted;
 neither matching authorities nor successful TLS/status confers credential
-eligibility. There is no WebSocket or system proxy support, firmware discovery,
-authentication, stable ABI, or migration of existing CLI, clock/control or token callers.
+eligibility. The HTTP client provides neither WebSocket nor system proxy
+support, firmware discovery, authentication, stable ABI, or migration of
+existing CLI, clock/control or token callers.
 
 `SessionHttpClient::bootstrap_preflight()` is the advisory observation for the
 exact HTTP path `/jdev/cfg/api`; other paths are refused before sending. It
@@ -1643,6 +1644,33 @@ system DNS lookup at runtime drop. This is not a hard wall-clock deadline or
 a cancellable call. For asynchronous Rust use the async client; foreign async
 callers must offload to an explicit worker. See the [provisional binding
 surface](../../docs/toolkit-archive-bindings.md#provisional-http-bootstrap-preflight).
+
+## Provisional direct WebSocket
+
+The opt-in `runtime-websocket` feature adds the doc-hidden Rust
+`runtime::session_websocket::SessionWebSocket::connect(&endpoints, &cancellation)`.
+It ignores the HTTP route and attempts an unauthenticated upgrade using the
+exact canonical WebSocket scheme, authority, port and path. `System` proxy
+policy is refused before dialing; `Direct` never consults proxy settings.
+Plaintext `ws` is only for numeric loopback (IPv4 `127.0.0.0/8` or IPv6 `::1`),
+not even the DNS name `localhost`. `wss` uses the transport's default
+Rustls connector with native roots and server name/certificate verification.
+There is no redirect, implicit scheme or trust fallback, or authority to send
+credentials. An upgrade is not evidence of device identity or firmware
+compatibility beyond transport TLS verification for `wss`.
+
+The caller supplies a Tokio runtime with I/O and time enabled. Sticky
+`Cancellation` works before and during connect; a ten-second deadline covers
+the dial, TLS and WebSocket upgrade. This is a Tokio deadline, not a hard
+wall-clock bound on executor scheduling or synchronous work inside a poll.
+Cancellation, timeout, policy refusal, TCP connection failure, TLS/upgrade
+failure and HTTP redirect refusal have distinct route-free errors. Core does not
+filter dependency tracing, which can include the wire upgrade request.
+Core owns no worker; an in-progress system DNS lookup can finish inside Tokio
+but cannot continue the dial after the connect future is dropped. The resulting
+opaque handle owns the connection; explicit `close()` or drop releases it without
+sending a Close frame or waiting for the peer. Cancellation is not monitored
+after connect. There is no frame I/O API, auth, reconnect, CLI change or foreign ABI.
 
 ## Optional clock runtime
 
