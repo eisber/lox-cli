@@ -1,9 +1,9 @@
 use anyhow::{Result, bail};
 use clap::{Args, Subcommand, ValueEnum};
+use lox_core::configuration::editor::CentralLightLinkDirection;
 
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
-use crate::config_edit::central_light_links::CentralLightLinkDirection;
 
 #[derive(Args)]
 pub(crate) struct CentralLightTarget {
@@ -80,7 +80,7 @@ pub(crate) fn run(ctx: &RunContext, action: CentralLightCmd) -> Result<()> {
     let selector = target.selector()?;
     let original = std::fs::read(&target.file)?;
     let mut editor = ConfigEditor::load(&original)?;
-    let movement = edit
+    let moved = edit
         .map(|(uuid, direction)| {
             editor.move_central_light_link(
                 &selector,
@@ -95,7 +95,10 @@ pub(crate) fn run(ctx: &RunContext, action: CentralLightCmd) -> Result<()> {
     let removal = removal_uuid
         .map(|uuid| editor.remove_central_light_link(&selector, &uuid))
         .transpose()?;
-    let inspection = editor.inspect_central_light_links(&selector)?;
+    let (movement, inspection) = match moved {
+        Some((movement, inspection)) => (Some(movement), inspection),
+        None => (None, editor.inspect_central_light_links(&selector)?),
+    };
     let quiet = ctx.quiet || ctx.json || ctx.csv;
     let changed = movement.as_ref().is_some_and(|movement| movement.changed) || removal.is_some();
     let saved_to = if changed {

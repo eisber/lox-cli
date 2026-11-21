@@ -119,6 +119,20 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   `EditError`. This is not a native row inventory, a write/repair operation or
   a foreign binding. The shared loader's lox-n37w limitation is unchanged.
 
+- Optional `configuration-editor`:
+  `configuration::editor::move_central_light_link(bytes, selector, uuid, direction, &now)`
+  returns the movement, post-edit inspection and complete output bytes, or a
+  typed `CentralLightLinkMoveError`. The raw selected native UUID is matched
+  case-insensitively; its stored spelling and the rest of the membership are
+  preserved. All members of the selected owner must resolve directly to
+  `ModbusServer` controls with nonempty stored titles, including for a boundary
+  no-op. A no-op returns the original bytes with no stamp; a swap serializes
+  through the shared writer and only stamps Documents recognized by that writer.
+  The existing `config central-light move-link` shares the Core mutation and
+  retains its file I/O, output and unsupported `--dry-run` policy. This does
+  not remove links, edit `WF`, repair graphs, add foreign bindings or qualify a
+  native Config workflow. The shared loader's lox-n37w limitation is unchanged.
+
 - Optional `configuration-editor`: `configuration::editor::set_attribute(bytes,
   selector, attribute, value, &now)` migrates the existing legacy raw attribute
   operation. Its owned `AttributeChange` captures the selected identity before

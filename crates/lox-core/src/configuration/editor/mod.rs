@@ -31,7 +31,9 @@ use std::{error::Error, fmt};
 
 pub use attribute::{AttributeChange, SetAttributeOutcome, set_attribute};
 pub use central_light_links::{
-    CentralLightLink, CentralLightLinks, CentralLightLinksError, inspect_central_light_links,
+    CentralLightLink, CentralLightLinkDirection, CentralLightLinkMove, CentralLightLinkMoveError,
+    CentralLightLinkMoveOutcome, CentralLightLinks, CentralLightLinksError,
+    inspect_central_light_links, move_central_light_link,
 };
 #[cfg(feature = "unstable-legacy-cli-editor")]
 #[doc(hidden)]
