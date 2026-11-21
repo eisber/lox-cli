@@ -15,7 +15,22 @@ pub struct JwtGrantValue {
     expiry: TokenExpiry,
     token_rights: Option<u32>,
     unsecure_pass: Option<bool>,
-    key_hex: Option<String>,
+    key: Option<String>,
+}
+
+/// What the peer reported for `key`, not a key selected or authorized for use.
+#[derive(Clone, Copy, Eq, PartialEq)]
+pub enum JwtGrantKey<'a> {
+    Missing,
+    ReportedEmpty,
+    /// Nonempty even-length ASCII hex in its original decoded case. Do not log.
+    Hex(&'a str),
+}
+
+impl fmt::Debug for JwtGrantKey<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("JwtGrantKey([redacted])")
+    }
 }
 
 impl JwtGrantValue {
@@ -39,9 +54,21 @@ impl JwtGrantValue {
         self.unsecure_pass
     }
 
-    /// Optional reported key, preserved as supplied. Not selected for use.
+    /// Distinguish an absent key from an explicit empty string and nonempty hex.
+    pub fn reported_key(&self) -> JwtGrantKey<'_> {
+        match self.key.as_deref() {
+            None => JwtGrantKey::Missing,
+            Some("") => JwtGrantKey::ReportedEmpty,
+            Some(key) => JwtGrantKey::Hex(key),
+        }
+    }
+
+    /// Only the nonempty reported hex key, if present. Not selected for use.
     pub fn key_hex(&self) -> Option<&str> {
-        self.key_hex.as_deref()
+        match self.reported_key() {
+            JwtGrantKey::Hex(key) => Some(key),
+            JwtGrantKey::Missing | JwtGrantKey::ReportedEmpty => None,
+        }
     }
 }
 
@@ -80,8 +107,9 @@ impl std::error::Error for JwtGrantValueError {}
 /// The object requires `token` and unsigned integer `validUntil`. Optional
 /// `tokenRights`, `unsecurePass` and `key` have exact types. Unknown and
 /// repeated fields are refused. The local profile rejects empty tokens and
-/// controls or whitespace in token text, and requires any reported key to
-/// be nonempty even-length ASCII hex. No token, key, or original JSON is logged.
+/// controls or whitespace in token text. The pinned mock's explicit empty
+/// `key` is reportable but is not a hex key; a nonempty key must be
+/// even-length ASCII hex. No token, key, or original JSON is logged.
 pub fn decode(value: &[u8]) -> Result<JwtGrantValue, JwtGrantValueError> {
     use JwtGrantValueError as Error;
 
@@ -99,10 +127,8 @@ pub fn decode(value: &[u8]) -> Result<JwtGrantValue, JwtGrantValueError> {
     }
     let seconds = fields.valid_until.ok_or(Error::InvalidObject)?;
     let expiry = TokenExpiry::from_loxone_seconds(seconds).map_err(|_| Error::InvalidExpiry)?;
-    if fields.key_hex.as_ref().is_some_and(|key| {
-        key.is_empty()
-            || !key.len().is_multiple_of(2)
-            || !key.bytes().all(|byte| byte.is_ascii_hexdigit())
+    if fields.key.as_ref().is_some_and(|key| {
+        !key.len().is_multiple_of(2) || !key.bytes().all(|byte| byte.is_ascii_hexdigit())
     }) {
         return Err(Error::InvalidKey);
     }
@@ -111,7 +137,7 @@ pub fn decode(value: &[u8]) -> Result<JwtGrantValue, JwtGrantValueError> {
         expiry,
         token_rights: fields.token_rights,
         unsecure_pass: fields.unsecure_pass,
-        key_hex: fields.key_hex,
+        key: fields.key,
     })
 }
 
@@ -121,7 +147,7 @@ struct Fields {
     valid_until: Option<u64>,
     token_rights: Option<u32>,
     unsecure_pass: Option<bool>,
-    key_hex: Option<String>,
+    key: Option<String>,
 }
 
 struct FieldsVisitor;
@@ -147,7 +173,7 @@ impl<'de> Visitor<'de> for FieldsVisitor {
                 "unsecurePass" if fields.unsecure_pass.is_none() => {
                     fields.unsecure_pass = Some(map.next_value()?);
                 }
-                "key" if fields.key_hex.is_none() => fields.key_hex = Some(map.next_value()?),
+                "key" if fields.key.is_none() => fields.key = Some(map.next_value()?),
                 _ => {
                     return Err(de::Error::custom(
                         "unexpected or repeated token grant member",
@@ -202,6 +228,8 @@ mod tests {
             r#"{"token":"fixture","validUntil":0,"tokenRights":0,"tokenRights":1}"#,
             r#"{"token":"fixture","validUntil":0,"unsecurePass":"true"}"#,
             r#"{"token":"fixture","validUntil":0,"key":null}"#,
+            r#"{"token":"fixture","validUntil":0,"key":false}"#,
+            r#"{"token":"fixture","validUntil":0,"key":"","k\u0065y":"aBcD"}"#,
             r#"{"token":"fixture","validUntil":0,"tokenRights":4294967296}"#,
             r#"{"token":"fixture","validUntil":-1}"#,
             r#"{"token":"fixture","validUntil":1.5}"#,
@@ -241,10 +269,6 @@ mod tests {
                 Error::InvalidExpiry,
             ),
             (
-                r#"{"token":"fixture","validUntil":0,"key":""}"#,
-                Error::InvalidKey,
-            ),
-            (
                 r#"{"token":"fixture","validUntil":0,"key":"abc"}"#,
                 Error::InvalidKey,
             ),
@@ -252,9 +276,33 @@ mod tests {
                 r#"{"token":"fixture","validUntil":0,"key":"xx"}"#,
                 Error::InvalidKey,
             ),
+            (
+                r#"{"token":"fixture","validUntil":0,"key":"  "}"#,
+                Error::InvalidKey,
+            ),
         ] {
             assert_eq!(decode(value.as_bytes()).unwrap_err(), wanted);
         }
+    }
+
+    #[test]
+    fn distinguishes_missing_reported_empty_and_nonempty_hex_keys() {
+        let absent = decode(REQUIRED).unwrap();
+        let empty = decode(br#"{"token":"fixture","validUntil":0,"key":""}"#).unwrap();
+        let hex = decode(br#"{"token":"fixture","validUntil":0,"key":"DeAdBeEf"}"#).unwrap();
+        assert_eq!(absent.reported_key(), JwtGrantKey::Missing);
+        assert_eq!(empty.reported_key(), JwtGrantKey::ReportedEmpty);
+        assert_eq!(hex.reported_key(), JwtGrantKey::Hex("DeAdBeEf"));
+        assert_eq!(empty.key_hex(), None);
+        assert_eq!(hex.key_hex(), Some("DeAdBeEf"));
+        assert_eq!(
+            format!("{:?}", hex.reported_key()),
+            "JwtGrantKey([redacted])"
+        );
+        assert_eq!(
+            format!("{:#?}", hex.reported_key()),
+            "JwtGrantKey([redacted])"
+        );
     }
 
     #[test]

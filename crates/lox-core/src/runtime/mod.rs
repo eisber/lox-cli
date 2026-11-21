@@ -18,8 +18,13 @@ pub mod auth_challenge_envelope;
 #[doc(hidden)]
 pub mod auth_path_component;
 #[cfg(feature = "runtime-websocket")]
+mod auth_reply_envelope;
+#[cfg(feature = "runtime-websocket")]
 #[doc(hidden)]
 pub mod auth_reply_framing;
+#[cfg(all(feature = "runtime-websocket", feature = "auth-hash"))]
+#[doc(hidden)]
+pub mod jwt_grant_envelope;
 #[cfg(feature = "runtime-websocket")]
 #[doc(hidden)]
 pub mod jwt_grant_value;
