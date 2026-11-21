@@ -134,6 +134,19 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   There is no runtime
   priority claim, native validation, loader change or foreign binding.
 
+- Optional `configuration-xml`:
+  `configuration::editor::set_load_manager_load_name(bytes, selector, io_index, name, &now)`
+  changes only one `Load/@nm` by stable connector identity. Empty clears a
+  nonempty name; an absent or explicitly empty name remains as stored when
+  asked to clear. Exact no-ops return the original bytes without a stamp.
+  Changes return canonical XML, the raw before/after name as seen by the loader,
+  and the ordered inspection, with an explicit monotonic owning-Document stamp
+  when present. The byte API refuses unsupported XML and owner scope, and
+  changed names that would encounter `lox-n37w` digit-attribute rewriting.
+  The CLI shares selection, validation and mutation but retains its own
+  admission, diagnostics, reporting and atomic save policy. There are no
+  runtime effects or foreign bindings.
+
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_central_light_links(bytes, selector)` shares
   the cached `lox config central-light inspect` matcher. It returns owned

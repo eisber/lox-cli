@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use anyhow::{Result, bail};
 pub use lox_core::configuration::editor::LoadManagerMoveDirection as LoadMoveDirection;
 use lox_core::configuration::editor::{
-    LoadManagerInspectionError, LoadManagerMoveError, legacy_load_manager,
+    LoadManagerInspectionError, LoadManagerMoveError, LoadManagerNameError, legacy_load_manager,
 };
 use serde::Serialize;
 use xmltree::Element;
@@ -218,45 +218,12 @@ impl ConfigEditor {
         io_index: u8,
         name: &str,
     ) -> Result<bool> {
-        if io_index > 11 {
-            bail!("Load Manager io-index must be 0..11, not a 1-based priority.");
-        }
-        // Single-cell native paste preserves spaces/UTF-8; tab/newline enter a
-        // different, multi-cell path. The length bound is a conservative CLI subset.
-        if name.encode_utf16().count() > 32767
-            || name.chars().any(|c| {
-                c.is_control() || matches!(c, '\u{2028}' | '\u{2029}' | '\u{fffe}' | '\u{ffff}')
+        self.kernel
+            .set_load_manager_load_name(selector, io_index, name)
+            .map_err(|error| match error {
+                LoadManagerNameError::Inspection(error) => load_manager_error(error),
+                error => anyhow::anyhow!("{error}"),
             })
-        {
-            bail!(
-                "Unsupported Load Manager name: use single-line Unicode without control characters, at most 32767 UTF-16 code units. This is a conservative CLI subset, not a recovered native maximum; nothing was changed."
-            );
-        }
-        let path = self.load_manager_path(selector)?;
-        let block = self.get_element(&path);
-        let positions = load_positions(block)?;
-        let position = positions
-            .into_iter()
-            .find(|position| {
-                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
-                    == io_index
-            })
-            .unwrap();
-        let load = block.children[position].as_element().unwrap();
-        if load.attributes.get("nm").map_or("", String::as_str) == name {
-            return Ok(false);
-        }
-        let load = self.get_element_mut(&path).children[position]
-            .as_mut_element()
-            .unwrap();
-        // The native string serializer omits an empty nm. A semantic no-op above
-        // deliberately preserves an already absent or explicitly empty attribute.
-        if name.is_empty() {
-            load.attributes.shift_remove("nm");
-        } else {
-            load.attributes.insert("nm".into(), name.into());
-        }
-        Ok(true)
     }
 
     /// Move the complete record in Configure loads/XML order, keeping its connector identity.
