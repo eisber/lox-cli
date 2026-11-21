@@ -524,8 +524,17 @@ Order, other records, power, name, `minOn`, unknown fields, IDs, flags and wirin
 are preserved. JSON reports `changed`; global `--dry-run` still fails closed
 before file access. This operation is source-recovered, not native save/reopen
 or runtime qualified. Evidence and a fresh independent native recipe:
-`tests/ux/load-manager/max-off-source.json`. This is source-only; typed editing,
-native save/reopen and runtime effects remain unqualified.
+`tests/ux/load-manager/max-off-source.json`. Native typed editing, native
+save/reopen and runtime effects remain unqualified.
+
+The headless Rust `configuration::editor::set_load_manager_load_max_off` uses
+the same seconds and selection rules and takes an explicit save-stamp clock.
+It additionally requires an ordinary owner and a single namespace-free UTF-8
+XML 1.0 document, without a DTD or standalone declaration. No-ops return the
+original bytes. On changes, the canonical XML must readmit the same selection
+and preserve the other payload, including comment and processing-instruction
+spacing; it refuses changes the canonical writer cannot preserve. These extra
+guards do not change CLI admission or saving.
 
 `set-min-on <FILE> <SELECTOR> <IO_INDEX> <MIN_ON_SECONDS>` edits only the
 configured consumer's **Minimum on time [s]** cell (`Load/@minOn`), not a direct
