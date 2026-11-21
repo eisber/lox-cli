@@ -1,4 +1,4 @@
-//! Legacy-compatible, headless parameter, raw attribute, control-room and connector transactions.
+//! Legacy-compatible, headless configuration reads and editor transactions.
 //!
 //! This is not a native Config validator or a lossless arbitrary-XML editor.
 //! Loading and canonical serialization intentionally retain the CLI's existing
@@ -12,6 +12,7 @@ pub(super) mod legacy;
 #[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
 #[doc(hidden)]
 pub mod operating_modes;
+mod permissions;
 mod program;
 mod selector;
 mod unwire;
@@ -29,6 +30,10 @@ pub use control_move::ControlMovePlan;
 pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelector, move_control};
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
+};
+pub use permissions::{
+    DirectPermission, PermissionPrincipal, PrincipalKind, PrincipalPermissions,
+    PrincipalPermissionsError, PrincipalSelectionError, principal_permissions,
 };
 pub use program::{ProgramTextError, get_program_text};
 pub use unwire::{UnwireChange, UnwireError, UnwireOutcome, unwire};

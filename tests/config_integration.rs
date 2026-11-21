@@ -2627,6 +2627,74 @@ fn config_user_perms_and_users_list_permissions() {
 }
 
 #[test]
+fn config_user_perms_preserves_head_output_and_refusals() {
+    let dir = tempfile::Builder::new()
+        .prefix(".selected-permissions-cli-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let file = dir.path().join("selected.Loxone");
+    let path = file.to_str().unwrap();
+    let xml = br#"<Root>
+<C Type="User" Title="Sample" U="User-01"/>
+<C Type="User" Title="SAMPLE"/>
+<C Type="UserGroup" Title="Sample" U="Group-01"><PH>
+    <PRM REF="Object" ACT="0" TIM="Schedule"/><PRM/>
+</PH></C>
+<C Type="Place" U="Object" Title="A &quot;room&quot;"/>
+</Root>"#;
+    fs::write(&file, xml).unwrap();
+    let output = lox()
+        .args([
+            "-o",
+            "json",
+            "config",
+            "user-perms",
+            path,
+            "sample",
+            "--group",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let value: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(
+        value,
+        serde_json::json!({
+            "kind": "UserGroup", "title": "Sample", "uuid": "Group-01",
+            "permissions": [
+                {"uuid": "Object", "title": "A \"room\"", "type": "Place", "act": "0", "tim": "Schedule"},
+                {"uuid": "", "title": null, "type": null, "act": null},
+            ],
+        })
+    );
+    lox()
+        .args(["-o", "csv", "config", "user-perms", path, "sample", "--group"])
+        .assert()
+        .success()
+        .stdout("TITLE,TYPE,ACT,UUID\n\"A \"\"room\"\"\",\"Place\",\"0\",\"Object\"\n\"\",\"\",\"\",\"\"\n");
+
+    for (query, expected) in [
+        (
+            "sample",
+            "User name 'sample' matches 2 elements (expected 1):\n  uuid:User-01\n  uuid:\nUse uuid:<uuid> to pick one.",
+        ),
+        (
+            "Sampl",
+            "User 'Sampl' not found. Did you mean: SAMPLE, Sample?\n  Available: SAMPLE, Sample",
+        ),
+    ] {
+        lox()
+            .args(["config", "user-perms", path, query])
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains(expected));
+    }
+    assert_eq!(fs::read(&file).unwrap().as_slice(), xml.as_slice());
+}
+
+#[test]
 fn config_user_add_virtual_input_with_grant() {
     let (_dir, path, _) = write_user_fixture();
 

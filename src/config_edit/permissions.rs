@@ -21,46 +21,44 @@
 //! These are direct entries, not effective permissions: inherited grants and denies
 //! are not evaluated. Removing an entry does not add an explicit deny.
 
-use super::ConfigEditor;
+use super::{ConfigEditor, editor_error};
 use anyhow::{Result, bail};
-use serde::Serialize;
-use std::collections::HashMap;
+use lox_core::configuration::editor::{
+    LegacyState, PermissionPrincipal, PrincipalPermissions as CorePrincipalPermissions,
+    PrincipalPermissionsError, PrincipalSelectionError,
+};
+use serde::{Serialize, Serializer};
 use xmltree::{Element, XMLNode};
+
+pub use lox_core::configuration::editor::PrincipalKind;
 
 /// ACT value Loxone Config writes for "control" access to inputs and blocks.
 pub const DEFAULT_PERMISSION_ACT: &str = "3";
 
-/// Whose permission list is edited.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-pub enum PrincipalKind {
-    User,
-    UserGroup,
-}
-
-impl PrincipalKind {
-    /// The `Type` attribute of the principal's `<C>` element.
-    pub fn xml_type(self) -> &'static str {
-        match self {
-            PrincipalKind::User => "User",
-            PrincipalKind::UserGroup => "UserGroup",
-        }
-    }
-
-    /// Human-readable noun for messages.
-    pub fn noun(self) -> &'static str {
-        match self {
-            PrincipalKind::User => "User",
-            PrincipalKind::UserGroup => "User group",
-        }
-    }
+fn serialize_principal_kind<S: Serializer>(
+    kind: &PrincipalKind,
+    serializer: S,
+) -> std::result::Result<S::Ok, S::Error> {
+    serializer.serialize_str(kind.xml_type())
 }
 
 /// A user or user group.
 #[derive(Debug, Clone, Serialize)]
 pub struct PrincipalRef {
+    #[serde(serialize_with = "serialize_principal_kind")]
     pub kind: PrincipalKind,
     pub title: String,
     pub uuid: String,
+}
+
+impl From<PermissionPrincipal> for PrincipalRef {
+    fn from(principal: PermissionPrincipal) -> Self {
+        Self {
+            kind: principal.kind,
+            title: principal.title,
+            uuid: principal.uuid,
+        }
+    }
 }
 
 /// An object a permission refers to. `title`/`type` are `None` when the referenced
@@ -100,10 +98,68 @@ pub struct PermissionEntry {
 /// A principal together with its resolved permission list.
 #[derive(Debug, Clone, Serialize)]
 pub struct PrincipalPermissions {
+    #[serde(serialize_with = "serialize_principal_kind")]
     pub kind: PrincipalKind,
     pub title: String,
     pub uuid: String,
     pub permissions: Vec<PermissionEntry>,
+}
+
+impl From<CorePrincipalPermissions> for PrincipalPermissions {
+    fn from(value: CorePrincipalPermissions) -> Self {
+        Self {
+            kind: value.principal.kind,
+            title: value.principal.title,
+            uuid: value.principal.uuid,
+            permissions: value
+                .permissions
+                .into_iter()
+                .map(|entry| PermissionEntry {
+                    uuid: entry.reference.unwrap_or_default(),
+                    title: entry.title,
+                    element_type: entry.element_type,
+                    act: entry.act,
+                    tim: entry.tim,
+                })
+                .collect(),
+        }
+    }
+}
+
+pub(crate) fn principal_permissions_error(error: PrincipalPermissionsError) -> anyhow::Error {
+    match error {
+        PrincipalPermissionsError::Load(error) => editor_error(error),
+        PrincipalPermissionsError::Selection(error) => principal_selection_error(error),
+    }
+}
+
+fn principal_selection_error(error: PrincipalSelectionError) -> anyhow::Error {
+    match error {
+        PrincipalSelectionError::NotFound {
+            kind,
+            selector,
+            titles,
+        } => crate::errors::not_found_error(
+            kind.noun(),
+            &selector,
+            &titles,
+            "lox config users <file>",
+        ),
+        PrincipalSelectionError::Ambiguous {
+            kind,
+            selector,
+            uuids,
+        } => {
+            let list: Vec<_> = uuids.iter().map(|u| format!("  uuid:{u}")).collect();
+            anyhow::anyhow!(
+                "{} name '{}' matches {} elements (expected 1):\n{}\nUse uuid:<uuid> to pick one.",
+                kind.noun(),
+                selector,
+                uuids.len(),
+                list.join("\n")
+            )
+        }
+    }
 }
 
 /// What a grant/revoke did.
@@ -144,14 +200,6 @@ impl PermissionEdit {
     }
 }
 
-fn is_principal(elem: &Element, kind: PrincipalKind) -> bool {
-    elem.name == "C"
-        && elem
-            .attributes
-            .get("Type")
-            .is_some_and(|t| t == kind.xml_type())
-}
-
 fn prm_ref(node: &XMLNode) -> Option<&str> {
     node.as_element()
         .filter(|e| e.name == "PRM")
@@ -167,101 +215,18 @@ fn prm_count(ph: &Element) -> usize {
 }
 
 fn ph_index(elem: &Element) -> Option<usize> {
-    elem.children
-        .iter()
-        .position(|c| c.as_element().is_some_and(|e| e.name == "PH"))
+    LegacyState::permission_block_index(elem)
 }
 
 impl ConfigEditor {
-    /// Collect paths of all principals of `kind`.
-    fn principal_paths(&self, kind: PrincipalKind) -> Vec<Vec<usize>> {
-        fn walk(
-            elem: &Element,
-            kind: PrincipalKind,
-            path: &mut Vec<usize>,
-            out: &mut Vec<Vec<usize>>,
-        ) {
-            if is_principal(elem, kind) {
-                out.push(path.clone());
-            }
-            for (i, child) in elem.children.iter().enumerate() {
-                if let Some(e) = child.as_element() {
-                    path.push(i);
-                    walk(e, kind, path, out);
-                    path.pop();
-                }
-            }
-        }
-        let mut out = Vec::new();
-        walk(&self.root, kind, &mut Vec::new(), &mut out);
-        out
-    }
-
-    /// Find exactly one user / user group by exact (case-insensitive) title or `uuid:<uuid>`.
-    ///
-    /// Deliberately no fuzzy matching: editing the wrong account's permissions is worse
-    /// than an error.
     fn find_principal(&self, name: &str, kind: PrincipalKind) -> Result<Vec<usize>> {
-        let all = self.principal_paths(kind);
-        let wanted_uuid = name.strip_prefix("uuid:");
-        let wanted_lower = name.to_lowercase();
-        let matches: Vec<Vec<usize>> = all
-            .iter()
-            .filter(|path| {
-                let e = self.get_element(path);
-                match wanted_uuid {
-                    Some(u) => e.attributes.get("U").is_some_and(|x| x == u),
-                    None => e
-                        .attributes
-                        .get("Title")
-                        .is_some_and(|t| t.to_lowercase() == wanted_lower),
-                }
-            })
-            .cloned()
-            .collect();
-
-        match matches.len() {
-            0 => {
-                let mut titles: Vec<String> = all
-                    .iter()
-                    .filter_map(|p| self.get_element(p).attributes.get("Title").cloned())
-                    .collect();
-                titles.sort();
-                titles.dedup();
-                Err(crate::errors::not_found_error(
-                    kind.noun(),
-                    name,
-                    &titles,
-                    "lox config users <file>",
-                ))
-            }
-            1 => Ok(matches.into_iter().next().unwrap()),
-            n => {
-                let list: Vec<String> = matches
-                    .iter()
-                    .map(|p| {
-                        let u = self.get_element(p).attributes.get("U").cloned();
-                        format!("  uuid:{}", u.unwrap_or_default())
-                    })
-                    .collect();
-                bail!(
-                    "{} name '{}' matches {} elements (expected 1):\n{}\nUse uuid:<uuid> to pick one.",
-                    kind.noun(),
-                    name,
-                    n,
-                    list.join("\n")
-                )
-            }
-        }
+        self.kernel
+            .find_principal(name, kind)
+            .map_err(principal_selection_error)
     }
 
     fn principal_ref(&self, path: &[usize], kind: PrincipalKind) -> PrincipalRef {
-        let e = self.get_element(path);
-        PrincipalRef {
-            kind,
-            title: e.attributes.get("Title").cloned().unwrap_or_default(),
-            uuid: e.attributes.get("U").cloned().unwrap_or_default(),
-        }
+        self.permission_principal(path, kind).into()
     }
 
     /// Resolve an object selector to exactly one element with a UUID.
@@ -281,82 +246,26 @@ impl ConfigEditor {
         })
     }
 
-    /// Map of element UUID → (Type, Title) for every `<C>` element. First occurrence wins.
-    fn uuid_index(&self) -> HashMap<String, (Option<String>, Option<String>)> {
-        fn walk(elem: &Element, map: &mut HashMap<String, (Option<String>, Option<String>)>) {
-            if elem.name == "C"
-                && let Some(u) = elem.attributes.get("U")
-            {
-                map.entry(u.clone()).or_insert_with(|| {
-                    (
-                        elem.attributes.get("Type").cloned(),
-                        elem.attributes.get("Title").cloned(),
-                    )
-                });
-            }
-            for child in &elem.children {
-                if let Some(e) = child.as_element() {
-                    walk(e, map);
-                }
-            }
-        }
-        let mut map = HashMap::new();
-        walk(&self.root, &mut map);
-        map
-    }
-
-    fn collect_permissions(
-        &self,
-        path: &[usize],
-        kind: PrincipalKind,
-        index: &HashMap<String, (Option<String>, Option<String>)>,
-    ) -> PrincipalPermissions {
-        let principal = self.principal_ref(path, kind);
-        let elem = self.get_element(path);
-        let mut permissions = Vec::new();
-        if let Some(ph) = ph_index(elem).and_then(|i| elem.children[i].as_element()) {
-            for prm in ph
-                .children
-                .iter()
-                .filter_map(|c| c.as_element())
-                .filter(|e| e.name == "PRM")
-            {
-                let uuid = prm.attributes.get("REF").cloned().unwrap_or_default();
-                let (element_type, title) = index.get(&uuid).cloned().unwrap_or((None, None));
-                permissions.push(PermissionEntry {
-                    uuid,
-                    title,
-                    element_type,
-                    act: prm.attributes.get("ACT").cloned(),
-                    tim: prm.attributes.get("TIM").cloned(),
-                });
-            }
-        }
-        PrincipalPermissions {
-            kind,
-            title: principal.title,
-            uuid: principal.uuid,
-            permissions,
-        }
-    }
-
     /// Permission lists of every user (or user group) in the file, in document order.
     pub fn list_permissions(&self, kind: PrincipalKind) -> Vec<PrincipalPermissions> {
-        let index = self.uuid_index();
+        let index = self.permission_index();
         self.principal_paths(kind)
             .iter()
-            .map(|p| self.collect_permissions(p, kind, &index))
+            .map(|p| self.direct_permissions_at(p, kind, &index).into())
             .collect()
     }
 
     /// Permission list of one user (or user group).
+    #[cfg(test)]
     pub fn principal_permissions(
         &self,
         name: &str,
         kind: PrincipalKind,
     ) -> Result<PrincipalPermissions> {
         let path = self.find_principal(name, kind)?;
-        Ok(self.collect_permissions(&path, kind, &self.uuid_index()))
+        Ok(self
+            .direct_permissions_at(&path, kind, &self.permission_index())
+            .into())
     }
 
     /// Add or update `principal`'s direct permission entry for the matched object.
