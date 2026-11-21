@@ -10,6 +10,7 @@ mod central_light_links;
 mod control_move;
 mod daytimer;
 mod description;
+mod energy;
 pub(super) mod legacy;
 mod lighting;
 mod load_manager;
@@ -45,6 +46,10 @@ pub use daytimer::{
 pub use daytimer::{SelectedDayTimerEntry, daytimer_integer, daytimer_mode_uuid_key};
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
+};
+pub use energy::{
+    EnergyInspection, EnergyInspectionError, StoredEnergyConnector, StoredEnergyLoad,
+    inspect_energy,
 };
 pub use lighting::{
     LightingInspection, LightingInspectionError, LightingStorage, StoredLightingChannel,
