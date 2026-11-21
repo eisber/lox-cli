@@ -25,6 +25,7 @@ mod runtime_overlay;
 mod statistics_identity;
 mod statistics_index;
 mod statistics_series;
+mod status_monitor;
 mod structure_metadata;
 mod text_state;
 mod weather_state;
