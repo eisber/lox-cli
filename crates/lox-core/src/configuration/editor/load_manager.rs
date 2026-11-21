@@ -3,9 +3,16 @@ use std::{collections::BTreeMap, error::Error, fmt};
 use xmltree::Element;
 
 #[cfg(feature = "configuration-xml")]
+mod max_off;
+#[cfg(feature = "configuration-xml")]
 mod movement;
 #[cfg(feature = "configuration-xml")]
 mod name;
+#[cfg(feature = "configuration-xml")]
+pub use max_off::{
+    LoadManagerMaxOffChange, LoadManagerMaxOffError, LoadManagerMaxOffOutcome,
+    set_load_manager_load_max_off,
+};
 #[cfg(feature = "configuration-xml")]
 pub use movement::{
     LoadManagerMove, LoadManagerMoveDirection, LoadManagerMoveError, LoadManagerMoveOutcome,

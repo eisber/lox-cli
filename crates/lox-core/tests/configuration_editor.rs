@@ -2269,6 +2269,249 @@ mod load_manager {
     }
 
     #[cfg(feature = "configuration-xml")]
+    mod max_off {
+        use super::{EditError, Failure, SelectionError, inspect};
+        use chrono::{DateTime, FixedOffset};
+        use lox_core::configuration::editor::{
+            LoadManagerMaxOffChange, LoadManagerMaxOffError as Refusal,
+            set_load_manager_load_max_off as set_max_off,
+        };
+
+        const DECLARATION: &str = r#"<?xml version="1.0" encoding="utf-8"?>"#;
+        const DOCUMENT: &str = r#"<C Type="Document" Date="old" DateS="86400">"#;
+
+        fn clock() -> DateTime<FixedOffset> {
+            DateTime::parse_from_rfc3339("2009-01-02T01:59:59+02:00").unwrap()
+        }
+
+        fn document(storage: &str) -> String {
+            let rest: String = [3, 1, 2, 4, 6, 7, 8, 9, 10, 11]
+                .into_iter()
+                .map(|index| format!(r#"<Load ioIdx="{index}"/>"#))
+                .collect();
+            format!(
+                "\u{feff}{DECLARATION}\r\n\
+                <Loxone>{DOCUMENT}\
+                <C Type=\"Place\" U=\"room\" Title=\"Workshop\"/>\
+                <C Type=\"LoadShed\" U=\"manager\" Title=\"Loads\" WF=\"16384\">\
+                <IoData Pr=\"room\"/><Co K=\"AQl1\" U=\"wire\" U=\"wire\" 12hTF=\"true\"/>\
+                <Load ioIdx=\"05\" nm=\"Five\" pwr=\"2.5000e0\" maxOff=\"invalid\"/>\
+                <!-- preserve &amp; and <markup> --><?keep data  ?>\
+                <Between/><Other><Load ioIdx=\"invalid\"/></Other>\
+                <Load nm=\" A &#38; B \" minOn=\"+0045\" Unknown=\"keep\"{storage}><Extra U=\"keep\"/></Load>\
+                <Opaque><![CDATA[<Fake xml:Type='Document'/>]]></Opaque>\
+                {rest}</C></C></Loxone>\r\n"
+            )
+        }
+
+        #[test]
+        fn edits_the_resolved_consumer_and_strictly_readmits_the_canonical_result() {
+            let xml = document("");
+            let selector = "Loads [Work]";
+            let mut expected = inspect(xml.as_bytes(), selector).unwrap();
+            let result = set_max_off(xml.as_bytes(), selector, 0, "000600", &clock()).unwrap();
+            assert_eq!(
+                result.change,
+                LoadManagerMaxOffChange {
+                    io_index: 0,
+                    before: None,
+                    after: "600".into(),
+                    changed: true,
+                }
+            );
+            assert_eq!(
+                (expected.loads[1].priority, expected.loads[1].io_index),
+                (2, 0)
+            );
+            expected.loads[1]
+                .attributes
+                .insert("maxOff".into(), "600".into());
+            assert_eq!(result.inspection, expected);
+            assert!(result.document_stamped);
+            let saved = std::str::from_utf8(&result.bytes).unwrap();
+            assert!(saved.starts_with(&format!("\u{feff}{DECLARATION}\r\n")));
+            assert!(saved.ends_with("</Loxone>\r\n"));
+            assert!(saved.contains(r#"Date="2009-01-02 02:00:01" DateS="86401""#));
+            let positions = [
+                r#"<Co K="AQl1" U="wire" 12hTF="true"/>"#,
+                r#"<Load ioIdx="05" nm="Five" pwr="2.5000e0" maxOff="invalid"/>"#,
+                "<!-- preserve &amp; and <markup> -->",
+                "<?keep data  ?>",
+                "<Between></Between>",
+                r#"<Load ioIdx="invalid"/>"#,
+                r#"<Load nm=" A &amp; B " minOn="+0045" Unknown="keep" maxOff="600">"#,
+                r#"<Extra U="keep"/>"#,
+                "<![CDATA[<Fake xml:Type='Document'/>]]>",
+            ]
+            .map(|part| saved.find(part).unwrap());
+            assert!(positions.windows(2).all(|pair| pair[0] < pair[1]));
+            let again = set_max_off(&result.bytes, selector, 0, "00600", &clock()).unwrap();
+            assert!(!again.change.changed && !again.document_stamped);
+            assert_eq!(again.inspection, expected);
+            assert_eq!(again.bytes, result.bytes);
+        }
+
+        #[test]
+        fn distinguishes_explicit_zero_and_keeps_equal_storage_spelling_and_bytes() {
+            let xml = document(r#" maxOff="+000""#)
+                .replace(DOCUMENT, "")
+                .replace("</C></C></Loxone>", "</C></Loxone>");
+            let result = set_max_off(xml.as_bytes(), "Loads", 0, "10", &clock()).unwrap();
+            assert_eq!(result.change.before.as_deref(), Some("+000"));
+            assert_eq!(result.change.after, "10");
+            assert!(result.change.changed && !result.document_stamped);
+            let high = set_max_off(&result.bytes, "Loads", 0, "2147483647", &clock()).unwrap();
+            assert_eq!(high.change.after, "2147483647");
+
+            let original = document(r#" maxOff="+000600""#)
+                .replace("<Between/>", "<!--outside-->")
+                .replace("</Loxone>", "</Loxone><?after?>");
+            let noop = set_max_off(original.as_bytes(), "Loads", 0, "00600", &clock()).unwrap();
+            assert_eq!(noop.change.before.as_deref(), Some("+000600"));
+            assert_eq!(noop.change.after, "+000600");
+            assert_eq!(noop.inspection.loads[1].attributes["maxOff"], "+000600");
+            assert!(!noop.change.changed && !noop.document_stamped);
+            assert_eq!(noop.bytes, original.as_bytes());
+        }
+
+        #[test]
+        fn orders_request_xml_selection_scope_shape_and_target_storage_refusals() {
+            let check = |xml: &str, selector: &str, index, seconds: &str| {
+                set_max_off(xml.as_bytes(), selector, index, seconds, &clock()).unwrap_err()
+            };
+            let malformed = "<Loxone><C></Loxone>";
+            assert!(matches!(
+                check(malformed, "Missing", 12, "0"),
+                Refusal::InvalidRequestedIoIndex { io_index: 12 }
+            ));
+            for input in [
+                "",
+                "0",
+                "9",
+                "10.0",
+                "1e2",
+                " 600",
+                "-600",
+                "2147483648",
+                "６００",
+            ] {
+                assert!(matches!(
+                    check(malformed, "Missing", 0, input),
+                    Refusal::InvalidSeconds
+                ));
+            }
+            assert!(matches!(
+                check(malformed, "Missing", 0, "+600"),
+                Refusal::SignedSeconds
+            ));
+            assert!(matches!(
+                check(malformed, "Missing", 0, "600"),
+                Refusal::Edit(EditError::Load(_))
+            ));
+            let xml = document(r#" maxOff="""#);
+            let duplicate = xml.replace(r#"ioIdx="05""#, r#"ioIdx="000""#);
+            assert!(matches!(
+                check(&duplicate, "Missing", 0, "600"),
+                Refusal::Inspection(Failure::Edit(EditError::Selection(
+                    SelectionError::NotFound { .. }
+                )))
+            ));
+            assert!(matches!(
+                check(&duplicate, "uuid:room", 0, "600"),
+                Refusal::Inspection(Failure::NotLoadManager { .. })
+            ));
+            let namespaced = duplicate.replace("<Loxone>", r#"<Loxone xmlns:x="urn:plain">"#);
+            assert!(matches!(
+                check(&namespaced, "Missing", 0, "600"),
+                Refusal::NamespacedXml
+            ));
+            let inherited = duplicate.replace(r#"WF="16384""#, r#"IfT="false""#);
+            assert!(matches!(
+                check(&inherited, "Loads", 0, "600"),
+                Refusal::TemplateOrInherited
+            ));
+            let split = duplicate
+                .replace(DOCUMENT, r#"<C Type="Document"/>"#)
+                .replace("</C></C></Loxone>", "</C></Loxone>");
+            assert!(matches!(
+                check(&split, "Loads", 0, "600"),
+                Refusal::DocumentScope
+            ));
+            assert!(matches!(
+                check(&duplicate, "Loads", 0, "600"),
+                Refusal::Inspection(Failure::DuplicateIoIndex { io_index: 0 })
+            ));
+            for raw in ["", "-1", "600.0", "6e2", " 600", "2147483648"] {
+                let xml = document(&format!(r#" maxOff="{raw}""#));
+                assert!(matches!(
+                    check(&xml, "Loads", 0, "600"),
+                    Refusal::InvalidStoredSeconds { io_index: 0, raw: observed } if observed == raw
+                ));
+            }
+        }
+
+        #[test]
+        fn refuses_untrustworthy_declarations_even_when_the_value_is_unchanged() {
+            let xml = document(r#" maxOff="+00600""#);
+            for declaration in [
+                r#"<?xml version="1.1"?>"#,
+                r#"<?xml encoding="utf-8"?>"#,
+                r#"<?xml version="1.0"encoding="utf-8"?>"#,
+                r#"<?xml version="1.0" version="1.0"?>"#,
+                r#"<?xml version="1.0" extra="yes"?>"#,
+                r#"<?xml version="1.0" standalone="yes"?>"#,
+                r#"<?xml version="1.0" encoding="utf-16"?>"#,
+                r#"<?XML version="1.0"?>"#,
+                r#" <?xml version="1.0"?>"#,
+                r#"<?xml version="1.0"?><?xml version="1.0"?>"#,
+            ] {
+                let source = xml.replace(DECLARATION, declaration);
+                assert!(
+                    matches!(
+                        set_max_off(source.as_bytes(), "Loads", 0, "600", &clock()),
+                        Err(Refusal::UnsupportedXml)
+                    ),
+                    "{declaration}"
+                );
+            }
+            let xml_1_1 = xml
+                .replace(DECLARATION, r#"<?xml version="1.1"?>"#)
+                .replace("Five", "&#x1;");
+            assert!(matches!(
+                set_max_off(xml_1_1.as_bytes(), "Loads", 0, "601", &clock()),
+                Err(Refusal::UnsupportedXml)
+            ));
+            let dtd = xml.replace("<Loxone>", "<!DOCTYPE Loxone><Loxone>");
+            assert!(matches!(
+                set_max_off(dtd.as_bytes(), "Loads", 0, "600", &clock()),
+                Err(Refusal::UnsupportedXml)
+            ));
+        }
+
+        #[test]
+        fn refuses_collateral_payload_loss_at_the_xml_boundary() {
+            let xml = document("");
+            for source in [
+                xml.replace("<!-- preserve &amp; and <markup> -->", "<!--unspaced-->"),
+                xml.replace("<?keep data  ?>", "<?keep\tdata  ?>"),
+                xml.replace("</Loxone>", "</Loxone><!-- epilog -->"),
+                xml.replace("<Loxone>", "<?outside data?><Loxone>"),
+                xml.replace("<Between/>", "<Between> </Between>"),
+                xml.replace("<Between/>", r#"<Between Note="one&#xA;two"/>"#),
+                xml.replace("<Between/>", r#"<Between _7am="keep" Note="at 7am=on"/>"#),
+            ] {
+                assert!(
+                    matches!(
+                        set_max_off(source.as_bytes(), "Loads", 0, "600", &clock()),
+                        Err(Refusal::CanonicalPreservation)
+                    ),
+                    "{source}"
+                );
+            }
+        }
+    }
+
+    #[cfg(feature = "configuration-xml")]
     mod name {
         use super::{EditError, Failure, SelectionError, inspect};
         use chrono::{DateTime, FixedOffset};

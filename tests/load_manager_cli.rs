@@ -815,6 +815,53 @@ fn load_manager_cli_max_off_rejections_are_atomic_and_not_generic_parameters() {
 }
 
 #[test]
+fn load_manager_cli_max_off_keeps_legacy_scope_and_request_diagnostic_precedence() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture().replace(r#"WF="16384""#, r#"WF="16384" IfT="true""#);
+    fs::write(&input, &source).unwrap();
+    let command = |selector, value| {
+        let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        command
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "set-max-off"])
+            .arg(&input)
+            .args([selector, "0", value, "--save-as"])
+            .arg(&output)
+            .args(["-o", "json"]);
+        command
+    };
+    for (value, diagnostic) in [
+        ("+600", "maximum off time requires decimal digits only"),
+        (
+            "+9",
+            "maximum off time must be whole seconds in 10..2147483647",
+        ),
+    ] {
+        command("does-not-exist", value)
+            .assert()
+            .failure()
+            .stdout(predicates::str::contains(diagnostic));
+        assert!(!output.exists());
+    }
+    let result = command("Load Manager [Office]", "600").assert().success();
+    let report: Value = serde_json::from_slice(&result.get_output().stdout).unwrap();
+    assert_eq!(report["changed"], true);
+    assert_eq!(report["load_manager"]["uuid"], "manager");
+    assert_eq!(
+        report["load_manager"]["loads"][0]["attributes"]["maxOff"],
+        "600"
+    );
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert!(
+        fs::read_to_string(&output)
+            .unwrap()
+            .contains(r#"IfT="true""#)
+    );
+}
+
+#[test]
 fn load_manager_cli_power_uses_kw_and_stable_identity_without_touching_other_settings() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
