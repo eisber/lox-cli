@@ -2,7 +2,7 @@
 
 This is a narrow **archive, XML user/device/control/room/summary inspection, LoxApp3 catalog/metadata, numeric/text/weather payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `color`, optional `control_catalog` / `structure_metadata` / `autopilot_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, devices, rooms, summary, users}`, `control`, `numeric_state`, `text_state`, `weather_state`, `color`, optional `control_catalog` / `structure_metadata` / `autopilot_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -527,8 +527,8 @@ is introduced; no floating-point convenience value replaces the authoritative bi
 Python receives unsigned `int` values for `u32` and `u64`. Java `int` / Kotlin
 `Int` carries the raw update bits: use `Integer.toUnsignedLong(value)` or
 `value.toUInt()` for its unsigned magnitude. Java `long` / Kotlin `Long` carries
-each raw IEEE bit pattern; use `Long.toUnsignedString`, `Long.toUnsignedString`
-with radix 16, or Kotlin `toULong()` for unsigned presentation. Signed fields
+each raw IEEE bit pattern; use `Long.toUnsignedString(value)`,
+`Long.toUnsignedString(value, 16)`, or Kotlin `toULong()` for unsigned presentation. Signed fields
 remain signed. Host records have no native handle or close obligation.
 
 Errors map Core's actual four variants and all fields exactly:
