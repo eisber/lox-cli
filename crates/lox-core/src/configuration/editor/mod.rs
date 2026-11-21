@@ -44,6 +44,11 @@ pub use central_light_links::{
 #[doc(hidden)]
 pub use control_move::ControlMovePlan;
 pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelector, move_control};
+#[cfg(any(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
+#[cfg_attr(not(feature = "configuration-xml"), doc(hidden))]
+pub use daytimer::activation::{DayTimerActivationError, DayTimerEntryActivation};
+#[cfg(feature = "configuration-xml")]
+pub use daytimer::activation::{DayTimerActivationOutcome, set_daytimer_entry_activation};
 pub use daytimer::{
     DayTimerEntryRemoval, DayTimerRemovalError, DayTimerRemovalOutcome, remove_daytimer_entry,
 };

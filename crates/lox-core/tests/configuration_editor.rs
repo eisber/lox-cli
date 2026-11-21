@@ -846,6 +846,231 @@ fn daytimer_removal_refuses_direct_namespaced_entry_lookalikes_without_output() 
     ));
 }
 
+#[cfg(feature = "configuration-xml")]
+fn daytimer_activation_xml() -> String {
+    daytimer_xml().replace(" 12hTF=\"true\"", "")
+}
+
+#[cfg(feature = "configuration-xml")]
+#[test]
+fn daytimer_activation_only_changes_selected_flag_and_explicit_monotonic_stamp() {
+    use lox_core::configuration::editor::set_daytimer_entry_activation;
+
+    let input = daytimer_activation_xml();
+    let now = daytimer_clock();
+    let selector = format!("uuid:{DAYTIMER_U}");
+    let set = |bytes: &[u8], required| {
+        set_daytimer_entry_activation(bytes, &selector, MODE_RFC, 0, 180, required, &now).unwrap()
+    };
+    let first = set(input.as_bytes(), true);
+    assert_eq!(first.change.block_uuid, DAYTIMER_U);
+    assert_eq!(first.change.requested_mode_uuid, MODE_RFC);
+    assert_eq!(first.change.stored_mode_uuid, MODE_NATIVE);
+    assert_eq!(
+        (first.change.from_minutes, first.change.to_minutes),
+        (0, 180)
+    );
+    assert_eq!(first.change.previous_attribute, None);
+    assert!(!first.change.previous_required);
+    assert!(first.change.activation_required && first.change.changed && first.document_stamped);
+    let expected = input
+        .replace(
+            "Marker=\"remove\"",
+            "Marker=\"remove\" NeedActivate=\"true\"",
+        )
+        .replace(
+            "Date=\"2009-01-02 00:00:00\" DateS=\"86400\"",
+            "Date=\"2009-01-02 02:00:01\" DateS=\"86401\"",
+        );
+    assert_eq!(first.bytes, expected.as_bytes());
+
+    let second = set(&first.bytes, false);
+    assert_eq!(second.change.previous_attribute.as_deref(), Some("true"));
+    assert!(second.change.previous_required);
+    assert!(!second.change.activation_required);
+    assert!(second.change.changed && second.document_stamped);
+    assert_eq!(
+        second.bytes,
+        input
+            .replace(
+                "Date=\"2009-01-02 00:00:00\" DateS=\"86400\"",
+                "Date=\"2009-01-02 02:00:02\" DateS=\"86402\"",
+            )
+            .as_bytes()
+    );
+}
+
+#[cfg(feature = "configuration-xml")]
+#[test]
+fn daytimer_activation_noop_keeps_raw_lexical_flag_and_stamp() {
+    use lox_core::configuration::editor::set_daytimer_entry_activation;
+
+    let input = daytimer_activation_xml();
+    let now = daytimer_clock();
+    for (attribute, previous, required) in [
+        ("", None, false),
+        (" NeedActivate='FaLsE'", Some("FaLsE"), false),
+        (" NeedActivate='Tr&#x55;e'", Some("TrUe"), true),
+    ] {
+        let xml = input.replace("Marker=\"remove\"", &format!("Marker='remove'{attribute}"));
+        let result = set_daytimer_entry_activation(
+            xml.as_bytes(),
+            "Schedule",
+            MODE_NATIVE,
+            0,
+            180,
+            required,
+            &now,
+        )
+        .unwrap();
+        assert_eq!(result.bytes, xml.as_bytes());
+        assert_eq!(result.change.previous_attribute.as_deref(), previous);
+        assert_eq!(result.change.previous_required, required);
+        assert!(!result.change.changed && !result.document_stamped);
+    }
+}
+
+#[cfg(feature = "configuration-xml")]
+#[test]
+fn daytimer_activation_refusals_prioritize_request_xml_schedule_owner_then_flag() {
+    use lox_core::configuration::editor::{
+        DayTimerActivationError as Failure, DayTimerRemovalError as Schedule,
+        set_daytimer_entry_activation,
+    };
+
+    let now = daytimer_clock();
+    let set = |xml: &str, mode, from, to| {
+        set_daytimer_entry_activation(xml.as_bytes(), "Schedule", mode, from, to, false, &now)
+    };
+    assert!(matches!(
+        set("\u{1}", "invalid", 180, 0),
+        Err(Failure::Schedule(Schedule::InvalidModeUuid))
+    ));
+    assert!(matches!(
+        set("\u{1}", MODE_RFC, 180, 0),
+        Err(Failure::Schedule(Schedule::InvalidInterval))
+    ));
+    assert!(matches!(
+        set("\u{1}", MODE_RFC, 0, 180),
+        Err(Failure::UnsupportedXml)
+    ));
+    let input = daytimer_activation_xml();
+    let bad_flag = input.replace("Marker=\"remove\"", "NeedActivate=\"1\" Marker=\"remove\"");
+    assert!(matches!(
+        set(&bad_flag.replace("N=\"+02\"", "N=\"3\""), MODE_RFC, 0, 180),
+        Err(Failure::Schedule(Schedule::EntryCountMismatch))
+    ));
+    assert!(matches!(
+        set(&bad_flag, MODE_RFC, 1, 180),
+        Err(Failure::Schedule(Schedule::EntryNotFound))
+    ));
+    assert!(matches!(
+        set(
+            &bad_flag.replace("Type=\"Page\"", "Type=\"Folder\""),
+            MODE_RFC,
+            0,
+            180
+        ),
+        Err(Failure::OutsidePage)
+    ));
+    assert!(matches!(
+        set(
+            &bad_flag.replace("Type=\"Page\"", "Type=\"Page\" WF=\"536870912\""),
+            MODE_RFC,
+            0,
+            180
+        ),
+        Err(Failure::TemplateOrInherited)
+    ));
+    let mirror = bad_flag.replace(
+        "</Loxone>",
+        "<C Type=\"DayTimer\" U=\"abcdef00-0000-0004-ffff-000000000000\"/></Loxone>",
+    );
+    assert!(matches!(
+        set(&mirror, MODE_RFC, 0, 180),
+        Err(Failure::DuplicateOwnerUuid { block_uuid }) if block_uuid == DAYTIMER_U
+    ));
+    assert!(matches!(
+        set(&bad_flag, MODE_RFC, 0, 180),
+        Err(Failure::InvalidStoredFlag { raw }) if raw == "1"
+    ));
+}
+
+#[cfg(feature = "configuration-xml")]
+#[test]
+fn daytimer_activation_checks_lossy_xml_and_whole_canonical_output() {
+    use lox_core::configuration::editor::{
+        DayTimerActivationError as Failure, set_daytimer_entry_activation,
+    };
+
+    let input = daytimer_activation_xml();
+    let now = daytimer_clock();
+    let set = |xml: &str, required| {
+        set_daytimer_entry_activation(xml.as_bytes(), "Schedule", MODE_RFC, 0, 180, required, &now)
+    };
+    for markup in [
+        "<!--unpreserved-->",
+        "<?other payload?>",
+        "<Opaque><![CDATA[unpreserved]]></Opaque>",
+        "<Opaque> </Opaque>",
+        "<Opaque A=\"same\" A=\"same\"/>",
+        "<Opaque A=\"no-space\"B=\"between\"/>",
+        "<Opaque A=\"&#x1;\"/>",
+        "<Opaque A=\"&#xFFFE;\"/>",
+        "<Opaque A=\"&#x9;\"/>",
+        "<Opaque A=\"literal\tspace\"/>",
+        "<Opaque A=\"literal<markup\"/>",
+    ] {
+        let xml = input.replace("</Loxone>", &format!("{markup}</Loxone>"));
+        assert!(
+            matches!(set(&xml, false), Err(Failure::UnsupportedCanonicalContent)),
+            "{markup}"
+        );
+    }
+    let outside_comment = format!("{input}<!--outside root-->");
+    assert!(matches!(
+        set(&outside_comment, false),
+        Err(Failure::UnsupportedCanonicalContent)
+    ));
+    assert!(matches!(
+        set(&input.replace("version=\"1.0\"", "version=\"1.1\""), false),
+        Err(Failure::UnsupportedXml)
+    ));
+    assert!(matches!(
+        set(
+            &input.replace("<Loxone>", "<Loxone xmlns=\"urn:test\">"),
+            false
+        ),
+        Err(Failure::NamespacedXml)
+    ));
+
+    let nest = |depth: usize| {
+        input.replace(
+            "</Loxone>",
+            &format!(
+                "{}<Leaf/>{}</Loxone>",
+                "<Node>".repeat(depth),
+                "</Node>".repeat(depth)
+            ),
+        )
+    };
+    assert!(set(&nest(62), true).unwrap().document_stamped);
+    assert!(matches!(
+        set(&nest(63), false),
+        Err(Failure::XmlDepthLimit { max_depth: 64 })
+    ));
+
+    // The entity hides the digit-name pattern on raw input. The canonical
+    // writer exposes it in unrelated attribute text; the whole output must fail.
+    let collision = input.replace("Preserve=\"yes\"", "Preserve=\"text &#54;P=payload\"");
+    assert_eq!(set(&collision, false).unwrap().bytes, collision.as_bytes());
+    assert!(matches!(
+        set(&collision, true),
+        Err(Failure::CanonicalReadmission(cause))
+            if matches!(*cause, Failure::UnsupportedCanonicalContent)
+    ));
+}
+
 #[test]
 fn program_reader_first_direct_field_text_and_shared_legacy_selection() {
     use lox_core::configuration::editor::get_program_text;

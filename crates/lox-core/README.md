@@ -35,6 +35,21 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   Canonical formatting and the loader limitation lox-n37w remain; no lossless
   arbitrary-XML preservation, native validation, or foreign binding is implied.
 
+- Optional `configuration-xml`:
+  `configuration::editor::set_daytimer_entry_activation(bytes, selector, mode_uuid, from_minutes, to_minutes, required, &now)`
+  changes only one existing ordinary digital `DayTimer` entry's configured
+  `NeedActivate`. It selects the exact mode and interval under a uniquely
+  identified DayTimer directly on a Page in one ordinary Document, optionally
+  via a Program. A change to true writes `true`; a change to false omits the
+  attribute. Semantic no-ops preserve the exact bytes and save stamp.
+  Changes use the caller's fixed-offset clock for the save stamp and return
+  canonical XML only after whole-document readmission and preservation checks.
+  The byte API refuses unsupported XML 1.0 forms, including namespaces,
+  opaque/text payloads, duplicate attributes and content affected by legacy
+  digit-name rewriting. The CLI shares selection and mutation but retains its
+  own admission, reports, conditional local stamp and atomic save. This is
+  offline storage editing, not enablement, runtime activation or a binding.
+
 - Optional `configuration-editor`: `configuration::editor::get_program_text`
   returns an owned String from the first direct `Field Name="Configuration"`
   of an exactly `SequenceController` selected with the existing legacy selector.
