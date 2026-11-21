@@ -1,16 +1,12 @@
 use chrono::{DateTime, FixedOffset};
-use quick_xml::{
-    Reader,
-    events::{Event, attributes::Attributes},
-};
 use std::{error::Error, fmt};
 
 use super::{
     EditError, LoadManagerInspection, LoadManagerInspectionError, State, inspect_positions,
-    load_positions, resolve_io_index,
+    load_positions, selected_load_position,
 };
 use crate::configuration::editor::transaction_scope::{
-    ScopeError, require_ordinary_owner, require_plain_xml,
+    ScopeError, require_ordinary_owner, require_plain_xml, require_xml_1_0_declaration,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -162,34 +158,6 @@ pub fn set_load_manager_load_name(
     })
 }
 
-fn require_xml_1_0_declaration(bytes: &[u8]) -> Result<(), LoadManagerNameError> {
-    // The writer always emits 1.0. Check declarations before the DOM can admit
-    // 1.1-only data or report another version as a generic load failure.
-    let mut reader = Reader::from_reader(bytes);
-    let mut first = true;
-    while let Ok(event) = reader.read_event() {
-        match event {
-            Event::Decl(decl) => {
-                if !first
-                    || !matches!(decl.version(), Ok(version) if version.as_ref() == b"1.0")
-                    || !std::str::from_utf8(&decl)
-                        .is_ok_and(|text| Attributes::new(text, 3).all(|attr| attr.is_ok()))
-                {
-                    return Err(LoadManagerNameError::UnsupportedXml);
-                }
-            }
-            Event::PI(pi) if pi.target().eq_ignore_ascii_case(b"xml") => {
-                return Err(LoadManagerNameError::UnsupportedXml);
-            }
-            Event::Eof => break,
-            _ => {}
-        }
-        first = false;
-    }
-    // Structural parse failures remain the shared loader's diagnostics.
-    Ok(())
-}
-
 fn validate_name_request(io_index: u8, name: &str) -> Result<(), LoadManagerNameError> {
     if io_index > 11 {
         return Err(LoadManagerNameError::InvalidRequestedIoIndex { io_index });
@@ -220,15 +188,7 @@ impl State {
     ) -> Result<NamePlan, LoadManagerNameError> {
         let block = self.get_element(path);
         let positions = load_positions(block).map_err(LoadManagerNameError::Inspection)?;
-        // Twelve distinct resolved indices in 0..=11 always include the request.
-        let position = positions
-            .iter()
-            .copied()
-            .find(|&position| {
-                resolve_io_index(block.children[position].as_element().unwrap()).unwrap()
-                    == io_index
-            })
-            .unwrap();
+        let position = selected_load_position(block, &positions, io_index);
         let attributes = &block.children[position].as_element().unwrap().attributes;
         let before = attributes.get("nm").cloned();
         let changed = before.as_deref().unwrap_or("") != name;

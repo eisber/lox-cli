@@ -7,6 +7,8 @@ mod movement;
 #[cfg(feature = "configuration-xml")]
 mod name;
 #[cfg(feature = "configuration-xml")]
+mod power;
+#[cfg(feature = "configuration-xml")]
 pub use movement::{
     LoadManagerMove, LoadManagerMoveDirection, LoadManagerMoveError, LoadManagerMoveOutcome,
     move_load_manager_load,
@@ -14,6 +16,11 @@ pub use movement::{
 #[cfg(feature = "configuration-xml")]
 pub use name::{
     LoadManagerNameChange, LoadManagerNameError, LoadManagerNameOutcome, set_load_manager_load_name,
+};
+#[cfg(feature = "configuration-xml")]
+pub use power::{
+    LoadManagerPowerChange, LoadManagerPowerError, LoadManagerPowerOutcome,
+    set_load_manager_load_power,
 };
 
 /// One direct Load record in the selected Load Manager.
@@ -158,6 +165,18 @@ fn inspect_positions(block: &Element, positions: &[usize]) -> LoadManagerInspect
         title: block.attributes.get("Title").cloned().unwrap_or_default(),
         loads,
     }
+}
+
+#[cfg(feature = "configuration-xml")]
+fn selected_load_position(block: &Element, positions: &[usize], io_index: u8) -> usize {
+    // Twelve distinct resolved indices in 0..=11 always include the request.
+    positions
+        .iter()
+        .copied()
+        .find(|&position| {
+            resolve_io_index(block.children[position].as_element().unwrap()).unwrap() == io_index
+        })
+        .unwrap()
 }
 
 pub fn load_positions(block: &Element) -> Result<Vec<usize>, LoadManagerInspectionError> {

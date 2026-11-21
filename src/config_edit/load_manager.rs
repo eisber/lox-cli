@@ -3,7 +3,8 @@ use std::collections::BTreeMap;
 use anyhow::{Result, bail};
 pub use lox_core::configuration::editor::LoadManagerMoveDirection as LoadMoveDirection;
 use lox_core::configuration::editor::{
-    LoadManagerInspectionError, LoadManagerMoveError, LoadManagerNameError, legacy_load_manager,
+    LoadManagerInspectionError, LoadManagerMoveError, LoadManagerNameError, LoadManagerPowerError,
+    legacy_load_manager,
 };
 use serde::Serialize;
 use xmltree::Element;
@@ -148,41 +149,12 @@ impl ConfigEditor {
         io_index: u8,
         power_kw: &str,
     ) -> Result<bool> {
-        if io_index > 11 {
-            bail!("Load Manager io-index must be 0..11, not a 1-based priority.");
-        }
-        let (power, stored) = load_power_request(power_kw)?;
-        let path = self.load_manager_path(selector)?;
-        let block = self.get_element(&path);
-        let positions = load_positions(block)?;
-        let position = positions
-            .into_iter()
-            .find(|position| {
-                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
-                    == io_index
+        self.kernel
+            .set_load_manager_load_power(selector, io_index, power_kw)
+            .map_err(|error| match error {
+                LoadManagerPowerError::Inspection(error) => load_manager_error(error),
+                error => anyhow::anyhow!("{error}"),
             })
-            .unwrap();
-        let load = block.children[position].as_element().unwrap();
-        let previous = load
-            .attributes
-            .get("pwr")
-            .filter(|raw| load_power_storage_spelling(raw))
-            .and_then(|raw| raw.parse::<f64>().ok())
-            .filter(|value| value.is_finite() && *value >= 0.0);
-        let Some(previous) = previous else {
-            bail!(
-                "Unsupported Load Manager power storage for io-index {io_index}: expected an explicit finite nonnegative pwr decimal (only zero exponents are supported); missing or malformed storage is not defaulted. Nothing was changed."
-            );
-        };
-        if previous == power {
-            return Ok(false);
-        }
-        self.get_element_mut(&path).children[position]
-            .as_mut_element()
-            .unwrap()
-            .attributes
-            .insert("pwr".into(), stored);
-        Ok(true)
     }
 
     fn load_manager_path(&self, selector: &str) -> Result<Vec<usize>> {
@@ -248,68 +220,6 @@ fn load_max_off_integer(raw: &str) -> Option<i32> {
         return None;
     }
     digits.parse().ok()
-}
-
-fn load_power_storage_spelling(raw: &str) -> bool {
-    let mantissa = if let Some((mantissa, exponent)) = raw.split_once(['e', 'E']) {
-        let exponent = exponent.strip_prefix(['+', '-']).unwrap_or(exponent);
-        if !mantissa.contains('.')
-            || exponent.is_empty()
-            || !exponent.bytes().all(|byte| byte == b'0')
-        {
-            return false;
-        }
-        mantissa
-    } else {
-        raw
-    };
-    let mantissa = mantissa.strip_prefix(['+', '-']).unwrap_or(mantissa);
-    let (whole, fraction) = mantissa.split_once('.').unwrap_or((mantissa, ""));
-    !whole.is_empty()
-        && whole.bytes().all(|byte| byte.is_ascii_digit())
-        && (!mantissa.contains('.') || !fraction.is_empty())
-        && fraction.bytes().all(|byte| byte.is_ascii_digit())
-}
-
-fn load_power_request(raw: &str) -> Result<(f64, String)> {
-    let (whole, fraction) = raw.split_once('.').unwrap_or((raw, ""));
-    if whole.is_empty()
-        || !whole.bytes().all(|byte| byte.is_ascii_digit())
-        || (raw.contains('.') && fraction.is_empty())
-        || fraction.len() > 3
-        || !fraction.bytes().all(|byte| byte.is_ascii_digit())
-    {
-        bail!(
-            "Load Manager power must be a nonnegative kW decimal with at most 3 fractional digits (for example 2.5 or 0.001), without signs, exponent, units or separators. This conservative CLI subset never clamps or rounds."
-        );
-    }
-    let power = raw
-        .parse::<f64>()
-        .ok()
-        .filter(|value| value.is_finite())
-        .ok_or_else(|| {
-            anyhow::anyhow!("Load Manager power must be finite; nothing was changed.")
-        })?;
-    let whole = whole.trim_start_matches('0');
-    let whole = if whole.is_empty() { "0" } else { whole };
-    let fraction = fraction.trim_end_matches('0');
-    let canonical = if fraction.is_empty() {
-        whole.to_owned()
-    } else {
-        format!("{whole}.{fraction}")
-    };
-    // Native editor precision and the type-0xb XML writer are both three decimals.
-    // Require decimal round-trip identity instead of silently losing f64 precision.
-    let fixed = format!("{power:.3}");
-    let stored = fixed.trim_end_matches('0').trim_end_matches('.');
-    // Exactly representable half-milli values are odd sixteenths. Exclude these
-    // precision-loss ties rather than assuming the native CRT's tie-breaking mode.
-    if stored != canonical || (power.fract() * 16.0) % 2.0 == 1.0 {
-        bail!(
-            "Load Manager power loses precision in native double/3-decimal storage; choose an exactly round-tripping value. Nothing was changed."
-        );
-    }
-    Ok((power, canonical))
 }
 
 fn load_positions(block: &Element) -> Result<Vec<usize>> {

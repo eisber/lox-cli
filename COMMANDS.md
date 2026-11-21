@@ -484,8 +484,9 @@ The selected record must already have an explicit, parseable, finite nonnegative
 `pwr` decimal; only zero exponents on decimal mantissas (such as `2.500e0`) are
 supported in existing storage. Other exponent forms, missing or malformed target
 storage are rejected rather than interpreted using the permissive native reader.
-No missing settings on other records are filled. A numerically equal request
-preserves the original `pwr` spelling (including exponent/trailing zeroes).
+No missing settings on other records are filled. A request that compares equal
+in the existing double storage preserves the original `pwr` spelling (including
+exponent/trailing zeroes).
 In-place no-ops do not write or change the Document stamp; `--save-as` still writes
 with the unchanged stamp. Actual edits use ordinary save/stamp and BOM/EOL behavior.
 JSON reports `changed`; global `--dry-run` remains fail-closed and unsupported.
