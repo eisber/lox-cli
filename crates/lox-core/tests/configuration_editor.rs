@@ -2480,4 +2480,338 @@ mod load_manager {
             assert_eq!(inspect(&result.bytes, "Loads").unwrap(), result.inspection);
         }
     }
+
+    #[cfg(feature = "configuration-xml")]
+    mod power {
+        use super::{EditError, Failure, SelectionError, inspect};
+        use chrono::{DateTime, FixedOffset};
+        use lox_core::configuration::editor::{
+            LoadManagerPowerChange, LoadManagerPowerError as Refusal,
+            set_load_manager_load_power as set_power,
+        };
+
+        fn clock() -> DateTime<FixedOffset> {
+            DateTime::parse_from_rfc3339("2009-01-02T01:59:59+02:00").unwrap()
+        }
+
+        fn document() -> String {
+            let rest: String = [3, 1, 2, 4, 6, 7, 8, 9, 10, 11]
+                .into_iter()
+                .map(|index| format!("\t\t\t<Load ioIdx=\"{index}\"/>\r\n"))
+                .collect();
+            format!(
+                "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
+                <Loxone>\r\n\
+                \t<C Type=\"Document\" Date=\"old\" DateS=\"86400\" 12hTF=\"true\">\r\n\
+                \t\t<C Type=\"Place\" U=\"room\" Title=\"Workshop\"/>\r\n\
+                \t\t<C Type=\"LoadShed\" U=\"manager\" Title=\"Loads\" WF=\"16384\">\r\n\
+                \t\t\t<IoData Pr=\"room\"/>\r\n\
+                \t\t\t<Co K=\"AQl1\" U=\"wire\"/>\r\n\
+                \t\t\t<Load ioIdx=\"05\" nm=\"Five\" pwr=\"invalid\"/>\r\n\
+                \t\t\t<Between></Between>\r\n\
+                \t\t\t<Load nm=\" A &amp; B \" pwr=\"+0008.5000E-000\" minOn=\"+0045\" Future=\"\">\r\n\
+                \t\t\t\t<Extra U=\"keep\"/>\r\n\
+                \t\t\t</Load>\r\n\
+                {rest}\t\t</C>\r\n\
+                \t</C>\r\n\
+                </Loxone>\r\n"
+            )
+        }
+
+        #[test]
+        fn edits_only_resolved_power_and_stamps_with_the_explicit_clock() {
+            let xml = document();
+            let selector = "Loads [Work]";
+            let mut expected = inspect(xml.as_bytes(), selector).unwrap();
+            let result = set_power(xml.as_bytes(), selector, 0, "000.001", &clock()).unwrap();
+
+            assert_eq!(
+                result.change,
+                LoadManagerPowerChange {
+                    io_index: 0,
+                    before: "+0008.5000E-000".into(),
+                    after: "0.001".into(),
+                    changed: true,
+                }
+            );
+            assert_eq!(expected.loads[1].io_index, 0);
+            expected.loads[1]
+                .attributes
+                .insert("pwr".into(), "0.001".into());
+            assert_eq!(result.inspection, expected);
+            assert_eq!(inspect(&result.bytes, selector).unwrap(), expected);
+            assert!(result.document_stamped);
+            let expected_bytes = xml.replace("+0008.5000E-000", "0.001").replace(
+                r#"Date="old" DateS="86400""#,
+                r#"Date="2009-01-02 02:00:01" DateS="86401""#,
+            );
+            assert_eq!(result.bytes, expected_bytes.as_bytes());
+            let reread = set_power(&result.bytes, selector, 0, "0.001", &clock()).unwrap();
+            assert!(!reread.change.changed);
+            assert!(!reread.document_stamped);
+            assert_eq!(reread.bytes, result.bytes);
+        }
+
+        #[test]
+        fn retains_commercial_spellings_on_exact_noops_but_not_double_aliases() {
+            let check = |stored: &str, request: &str| {
+                let xml = document().replace("+0008.5000E-000", stored);
+                let result = set_power(xml.as_bytes(), "Loads", 0, request, &clock());
+                (xml, result)
+            };
+            for (stored, request, decoded, bits) in [
+                (
+                    "+0002.5000E-000",
+                    "2.500",
+                    "+0002.5000E-000",
+                    0x4004_0000_0000_0000,
+                ),
+                ("&#50;.500e+0", "0002.5", "2.500e+0", 0x4004_0000_0000_0000),
+                ("-0.0000e+0", "0.000", "-0.0000e+0", 0x8000_0000_0000_0000),
+            ] {
+                let (xml, result) = check(stored, request);
+                let result = result.unwrap();
+                assert!(!result.change.changed);
+                assert!(!result.document_stamped);
+                assert_eq!(result.change.before, decoded);
+                assert_eq!(result.change.after, decoded);
+                assert_eq!(result.change.after.parse::<f64>().unwrap().to_bits(), bits);
+                assert_eq!(result.bytes, xml.as_bytes());
+            }
+            let positive_underflow = format!("0.{}1", "0".repeat(330));
+            for (stored, request) in [
+                ("2.50000000000000001", "2.5"),
+                ("9007199254740993", "9007199254740992"),
+                (positive_underflow.as_str(), "0"),
+            ] {
+                assert_eq!(
+                    stored.parse::<f64>().unwrap().to_bits(),
+                    request.parse::<f64>().unwrap().to_bits()
+                );
+                assert!(matches!(
+                    check(stored, request).1,
+                    Err(Refusal::StoredPowerAliasesRequest { io_index: 0 })
+                ));
+            }
+            let negative_underflow = format!("-0.{}1", "0".repeat(330));
+            let above_maximum = format!("{:.0}.001", f64::MAX);
+            for stored in [&negative_underflow, &above_maximum] {
+                assert!(matches!(
+                    check(stored, "1").1,
+                    Err(Refusal::UnsupportedStoredPower { io_index: 0 })
+                ));
+            }
+        }
+
+        #[test]
+        fn validates_the_exact_kw_grid_finite_range_and_binary_formatting_ties() {
+            let xml = document()
+                .replace(r#" Type="Document""#, r#" Type="Page""#)
+                .replace("DateS=\"86400\"", "DateS=\"keep\"");
+            let edit = |value: &str| set_power(xml.as_bytes(), "Loads", 0, value, &clock());
+            let largest = format!("{:.0}", f64::MAX);
+            for (value, canonical, bits) in [
+                ("000.000", "0", 0x0000_0000_0000_0000),
+                ("00.001", "0.001", 0x3f50_624d_d2f1_a9fc),
+                ("2.125", "2.125", 0x4001_0000_0000_0000),
+                (
+                    "281474976710656.125",
+                    "281474976710656.125",
+                    0x42f0_0000_0000_0002,
+                ),
+                (
+                    "9007199254740992",
+                    "9007199254740992",
+                    0x4340_0000_0000_0000,
+                ),
+                (largest.as_str(), largest.as_str(), 0x7fef_ffff_ffff_ffff),
+            ] {
+                let result = edit(value).unwrap();
+                assert!(!result.document_stamped);
+                let observed = inspect(&result.bytes, "Loads").unwrap();
+                let saved = &observed.loads[1].attributes["pwr"];
+                assert_eq!(saved, canonical);
+                assert_eq!(saved.parse::<f64>().unwrap().to_bits(), bits);
+                let saved = std::str::from_utf8(&result.bytes).unwrap();
+                assert!(saved.contains(r#"DateS="keep""#));
+            }
+            for value in [
+                "", "-0", "+1", ".5", "2.", "1.0000", "0.0005", "1e3", "1 W", "1,5", " 1", "١",
+            ] {
+                assert!(matches!(edit(value), Err(Refusal::InvalidPower)), "{value}");
+            }
+            let above_maximum = format!("{largest}.001");
+            for value in [
+                "281474976710656.062",
+                "9007199254740993",
+                "9007199254740992.001",
+                above_maximum.as_str(),
+            ] {
+                assert!(
+                    matches!(edit(value), Err(Refusal::PowerPrecisionLoss)),
+                    "{value}"
+                );
+            }
+            assert!(matches!(
+                edit(&format!("1{}", "0".repeat(309))),
+                Err(Refusal::NonFinitePower)
+            ));
+        }
+
+        #[test]
+        fn orders_request_load_plain_xml_selector_owner_shape_and_storage_errors() {
+            let check = |xml: &str, selector: &str, index, value: &str| {
+                set_power(xml.as_bytes(), selector, index, value, &clock()).unwrap_err()
+            };
+            let malformed = "<Loxone><C></Loxone>";
+            assert!(matches!(
+                check(malformed, "Missing", 12, "invalid"),
+                Refusal::InvalidRequestedIoIndex { io_index: 12 }
+            ));
+            assert!(matches!(
+                check(malformed, "Missing", 0, "invalid"),
+                Refusal::InvalidPower
+            ));
+            assert!(matches!(
+                check(malformed, "Missing", 0, "1"),
+                Refusal::Edit(EditError::Load(_))
+            ));
+            let xml = document();
+            let namespaced = xml.replace(r#"Future="""#, r#"xml:lang="en""#);
+            assert!(matches!(
+                check(&namespaced, "Missing", 0, "1"),
+                Refusal::NamespacedXml
+            ));
+            let disjoint_xml_1_1 =
+                xml.replacen("1.0", "1.1", 1)
+                    .replacen(r#"nm="Five""#, r#"nm="&#x1;""#, 1);
+            assert!(matches!(
+                check(&disjoint_xml_1_1, "Loads", 0, "8.5"),
+                Refusal::UnsupportedXml
+            ));
+            let other_root = format!("{xml}<Other/>");
+            assert!(matches!(
+                check(&other_root, "Loads", 0, "1"),
+                Refusal::UnsupportedXml
+            ));
+            assert!(matches!(
+                check(&xml, "Missing", 0, "1"),
+                Refusal::Inspection(Failure::Edit(EditError::Selection(
+                    SelectionError::NotFound { .. }
+                )))
+            ));
+            assert!(matches!(
+                check(&xml, "uuid:room", 0, "1"),
+                Refusal::Inspection(Failure::NotLoadManager { .. })
+            ));
+            let missing_power = xml.replace(r#" pwr="+0008.5000E-000""#, "");
+            let duplicate = missing_power.replace(r#"ioIdx="05""#, r#"ioIdx="000""#);
+            assert!(matches!(
+                check(&duplicate, "Loads", 0, "1"),
+                Refusal::Inspection(Failure::DuplicateIoIndex { io_index: 0 })
+            ));
+            let inherited = duplicate.replace(r#"WF="16384""#, r#"IfT="false""#);
+            assert!(matches!(
+                check(&inherited, "Loads", 0, "1"),
+                Refusal::TemplateOrInherited
+            ));
+            let nonowning = xml.replace("</Loxone>", r#"<C Type="Document"/></Loxone>"#);
+            assert!(matches!(
+                check(&nonowning, "Loads", 0, "8.5"),
+                Refusal::DocumentScope
+            ));
+            for bad in [missing_power, xml.replace("+0008.5000E-000", "2.5e1")] {
+                assert!(matches!(
+                    check(&bad, "Loads", 0, "1"),
+                    Refusal::UnsupportedStoredPower { io_index: 0 }
+                ));
+            }
+        }
+
+        #[test]
+        fn refuses_loss_on_load_or_canonical_reopen_of_unrelated_xml() {
+            let xml = document();
+            let check =
+                |xml: &str, value: &str| set_power(xml.as_bytes(), "Loads", 0, value, &clock());
+            let numeric_reference = xml.replace(" A &amp; B ", "wake &#55;am=on");
+            assert_eq!(
+                inspect(numeric_reference.as_bytes(), "Loads")
+                    .unwrap()
+                    .loads[1]
+                    .attributes["nm"],
+                "wake 7am=on"
+            );
+            for source in [
+                xml.replace(" A &amp; B ", "wake 7am=on"),
+                xml.replace(" A &amp; B ", "wake _12hTF=on"),
+                xml.replace(r#"Future="""#, r#"_12hTF="unrelated""#),
+                numeric_reference,
+                xml.replace(r#"<Extra U="keep"/>"#, r#"<Extra U="keep"> </Extra>"#),
+                xml.replace(
+                    r#"<Extra U="keep"/>"#,
+                    r#"<Extra U="keep"><Nested/>&#32;</Extra>"#,
+                ),
+                xml.replace("<Loxone>", "<!--keep outside root--><Loxone>"),
+                xml.replace(
+                    r#"encoding="utf-8""#,
+                    r#"encoding="utf-8" standalone="yes""#,
+                ),
+            ] {
+                assert!(matches!(
+                    check(&source, "1"),
+                    Err(Refusal::CanonicalStorageLoss)
+                ));
+            }
+            let outer = format!("{xml}<!--keep outside root-->");
+            let result = check(&outer, "8.5").unwrap();
+            assert_eq!(result.bytes, outer.as_bytes());
+            assert!(!result.document_stamped);
+        }
+
+        #[test]
+        fn refuses_discarded_leaf_whitespace_next_to_comments_or_processing_instructions() {
+            let xml = document();
+            for markup in ["<!-- marker -->", "<?marker data?>"] {
+                let source =
+                    xml.replace(r#"<Extra U="keep"/>"#, &format!("<Extra>{markup} </Extra>"));
+                assert!(matches!(
+                    set_power(source.as_bytes(), "Loads", 0, "1", &clock()),
+                    Err(Refusal::CanonicalStorageLoss)
+                ));
+                let noop = set_power(source.as_bytes(), "Loads", 0, "8.5", &clock()).unwrap();
+                assert!(!noop.change.changed);
+                assert!(!noop.document_stamped);
+                assert_eq!(noop.bytes, source.as_bytes());
+            }
+        }
+
+        #[test]
+        fn admits_canonical_element_indentation_but_refuses_mixed_content_whitespace() {
+            let xml = document();
+            let extra = r#"<Extra U="keep"/>"#;
+            let markup = r#"<!-- marker --><?marker data?><Nested U="untouched"/>"#;
+            let mixed = xml.replace(
+                extra,
+                &format!("<Extra>left<!-- marker --> {markup}right</Extra>"),
+            );
+            assert!(matches!(
+                set_power(mixed.as_bytes(), "Loads", 0, "1", &clock()),
+                Err(Refusal::CanonicalStorageLoss)
+            ));
+
+            let supported = xml.replace(extra, &format!("<Extra>{markup} </Extra>"));
+            let first = set_power(supported.as_bytes(), "Loads", 0, "1", &clock()).unwrap();
+            let saved = std::str::from_utf8(&first.bytes).unwrap();
+            for element in [
+                "<!-- marker -->",
+                "<?marker data?>",
+                r#"<Nested U="untouched"/>"#,
+            ] {
+                assert!(saved.contains(element));
+            }
+            let second = set_power(&first.bytes, "Loads", 0, "2", &clock()).unwrap();
+            assert!(second.change.changed);
+            assert_eq!(inspect(&second.bytes, "Loads").unwrap(), second.inspection);
+        }
+    }
 }

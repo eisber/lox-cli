@@ -964,6 +964,83 @@ fn load_manager_cli_power_errors_and_global_dry_run_are_atomic() {
 }
 
 #[test]
+fn load_manager_cli_power_keeps_legacy_scope_and_presave_report() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture()
+        .replacen(r#"WF="16384""#, r#"WF="16384" IfT="false""#, 1)
+        .replacen(r#"nm="Consumer 0""#, r#"nm="wake &#55;am=on""#, 1)
+        .replacen(r#"DateS="1""#, r#"DateS="2147483647""#, 1);
+    fs::write(&input, &original).unwrap();
+    let run = |subcommand| {
+        let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        command
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", subcommand]);
+        command
+    };
+    let report = run("set-power")
+        .arg(&input)
+        .args(["Load Manager [Off]", "0", "03.750", "--save-as"])
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .stderr("")
+        .get_output()
+        .stdout
+        .clone();
+    let report: Value = serde_json::from_slice(&report).unwrap();
+    assert_eq!(report["changed"], true);
+    assert_eq!(report["saved_to"], output.to_str().unwrap());
+    let selected = &report["load_manager"]["loads"][0];
+    assert_eq!(selected["attributes"]["nm"], "wake 7am=on");
+    assert_eq!(selected["attributes"]["pwr"], "3.75");
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    let saved = fs::read_to_string(&output).unwrap();
+    assert!(saved.contains(r#"IfT="false""#));
+    assert!(saved.contains(r#"nm="wake 7am=on" pwr="3.75""#));
+    assert!(saved.contains(r#"DateS="2147483648""#));
+    run("inspect")
+        .arg(&output)
+        .args(["uuid:manager", "-o", "csv", "-q", "--no-header"])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("1,0,\"wake _7am=on\""));
+}
+
+#[test]
+fn load_manager_cli_power_keeps_xml_1_1_and_binary64_noop_admission() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let original = fixture()
+        .replacen("1.0", "1.1", 1)
+        .replacen(r#"nm="Consumer 1""#, r#"nm="&#x1;""#, 1)
+        .replacen(r#"pwr="2.5""#, r#"pwr="9007199254740993""#, 1);
+    fs::write(&input, &original).unwrap();
+    let report = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-power"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "9007199254740992", "-o", "json"])
+        .assert()
+        .success()
+        .stderr("")
+        .get_output()
+        .stdout
+        .clone();
+    let report: Value = serde_json::from_slice(&report).unwrap();
+    assert_eq!(report["changed"], false);
+    assert!(report["saved_to"].is_null());
+    assert_eq!(
+        report["load_manager"]["loads"][0]["attributes"]["pwr"],
+        "9007199254740993"
+    );
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+}
+
+#[test]
 fn load_manager_cli_saves_priority_with_identity_and_reloads() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
