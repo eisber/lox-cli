@@ -1,0 +1,10 @@
+<ControlList><C Type="Document">
+  <C Type="Place" U="den" Title="Den"/>
+  <C Type="CentralLight" U="ABCDEF01-0002-0003-0000000000000001" Title="Zentrale &amp; 灯" gid="primary" linkC="F00BABE1-0002-0003-000000000000000A,f00babe2-0002-0003-000000000000000b">
+    <IoData Visu="true" Pr="den"/>
+  </C>
+  <C Type="CentralLight" U="abcdef01-0002-0003-0000000000000002" Title="Empty"><IoData Visu="true"/></C>
+  <C Type="Not" U="f00babe2-0002-0003-000000000000000b" Title="Küche &amp; status" WF="268451840"/>
+  <Wrapper><C U="f00babe1-0002-0003-000000000000000a" WF="268435456"/></Wrapper>
+  <C Type="Other" U="ordinary"/>
+</C></ControlList>
