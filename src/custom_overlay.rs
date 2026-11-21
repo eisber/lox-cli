@@ -66,7 +66,7 @@ fn acquire_with(mut capture: impl FnMut() -> Result<Capture>) -> Result<Snapshot
     })
 }
 
-/// Preserve the CLI's pre-Core error messages, contexts and native cause types.
+/// Preserve the CLI's pre-Core error messages, contexts and payload types.
 fn overlay_error(error: OverlayError) -> anyhow::Error {
     match error {
         OverlayError::DocumentUtf8 { source } => {
@@ -92,7 +92,27 @@ fn overlay_error(error: OverlayError) -> anyhow::Error {
         OverlayError::MergedConsistency { source } => {
             overlay_error(*source).context("Merged config has inconsistent UUIDs")
         }
-        other => other.into(),
+        OverlayError::FilenameSuffix => anyhow::Error::msg("Runtime overlay must end in .LoxCC"),
+        OverlayError::MissingControlType => anyhow::Error::msg("Control has no Type"),
+        OverlayError::UnexpectedClosingTag => anyhow::Error::msg("Unexpected XML closing tag"),
+        OverlayError::Dtd => anyhow::Error::msg("DTD in config XML is not supported."),
+        OverlayError::OutsideRoot => {
+            anyhow::Error::msg("Unexpected content outside config XML root.")
+        }
+        OverlayError::IncompleteRoot => {
+            anyhow::Error::msg("Config XML must contain exactly one complete root element.")
+        }
+        OverlayError::FragmentIntegrity => anyhow::Error::msg(
+            "Runtime overlay LoxCC length or CRC32 mismatch; refusing a partial/corrupt fragment.",
+        ),
+        OverlayError::ParentChildOverlap => anyhow::Error::msg(
+            "Overlapping parent/child runtime overlays have no evidenced precedence. Reconcile with Loxone Config.",
+        ),
+        OverlayError::NotControl => anyhow::Error::msg("Runtime overlay is not a control"),
+        OverlayError::Placement => anyhow::Error::msg(
+            "Three-way merge cannot determine placement of a concurrently added control. Reconcile in Loxone Config.",
+        ),
+        other => anyhow::Error::msg(other.to_string()),
     }
 }
 
@@ -241,6 +261,54 @@ mod tests {
 
     fn overlay(id: &str, xml: &str) -> BTreeMap<String, Vec<u8>> {
         BTreeMap::from([(format!("{id}.LoxCC"), loxcc::compress_loxcc(xml.as_bytes()))])
+    }
+
+    #[test]
+    fn runtime_overlay_legacy_message_payload_downcasts() {
+        let invalid = BTreeMap::from([("bad.LoxCC".to_owned(), Vec::new())]);
+        let error = merge_overlays(b"<Root/>", &invalid).unwrap_err();
+        let message = error.to_string();
+        assert_eq!(error.downcast_ref::<String>(), Some(&message));
+        assert!(error.downcast_ref::<&'static str>().is_none());
+        assert!(error.downcast_ref::<OverlayError>().is_none());
+        assert_eq!(error.chain().count(), 1);
+
+        let suffix = BTreeMap::from([("bad.loxcc".to_owned(), Vec::new())]);
+        let error = merge_overlays(b"<Root/>", &suffix).unwrap_err();
+        assert_eq!(
+            error.downcast_ref::<&'static str>().copied(),
+            Some("Runtime overlay must end in .LoxCC")
+        );
+        assert!(error.downcast_ref::<String>().is_none());
+        assert!(error.downcast_ref::<OverlayError>().is_none());
+        assert_eq!(error.chain().count(), 1);
+
+        for (xml, expected) in [
+            (
+                br#"<C U="missing-type"/>"#.as_slice(),
+                "Control has no Type",
+            ),
+            (
+                b"<!DOCTYPE Root><Root/>".as_slice(),
+                "DTD in config XML is not supported.",
+            ),
+            (
+                b"outside<Root/>".as_slice(),
+                "Unexpected content outside config XML root.",
+            ),
+            (
+                b"".as_slice(),
+                "Config XML must contain exactly one complete root element.",
+            ),
+        ] {
+            let error = merge_overlays(xml, &invalid).unwrap_err();
+            assert_eq!(
+                error.downcast_ref::<&'static str>().copied(),
+                Some(expected)
+            );
+            assert!(error.downcast_ref::<String>().is_none());
+            assert_eq!(error.chain().count(), 1);
+        }
     }
 
     #[test]
