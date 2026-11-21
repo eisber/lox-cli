@@ -513,19 +513,29 @@ impl SessionWebSocket {
         if !self.endpoints.same_scope(subject.endpoints()) {
             return Err(Error::RouteMismatch);
         }
-        match slot.lookup(subject, now) {
-            TokenLookup::Match(access) => Ok(access),
-            TokenLookup::Empty => Err(Error::Empty),
-            TokenLookup::SubjectMismatch => Err(Error::SubjectMismatch),
-            TokenLookup::Expired => Err(Error::Expired),
-            TokenLookup::UnknownExpiry => Err(Error::UnknownExpiry),
-        }
+        scoped_token_access(slot, subject, now)
     }
 
     /// Releases the owned connection immediately, as dropping the handle does.
     /// Does not send a Close frame or wait for a peer close handshake.
     pub fn close(self) {
         drop(self.socket);
+    }
+}
+
+fn scoped_token_access<'a>(
+    slot: &'a TokenSlot,
+    subject: &TokenSubject<'_>,
+    now: SystemTime,
+) -> Result<TokenAccess<'a>, SessionWebSocketTokenError> {
+    use SessionWebSocketTokenError as Error;
+
+    match slot.lookup(subject, now) {
+        TokenLookup::Match(access) => Ok(access),
+        TokenLookup::Empty => Err(Error::Empty),
+        TokenLookup::SubjectMismatch => Err(Error::SubjectMismatch),
+        TokenLookup::Expired => Err(Error::Expired),
+        TokenLookup::UnknownExpiry => Err(Error::UnknownExpiry),
     }
 }
 

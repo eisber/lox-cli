@@ -1,4 +1,4 @@
-//! One-shot encrypted JWT acquisition for a local synthetic loopback dialect.
+//! Encrypted JWT acquisition and stored-token login for a synthetic loopback dialect.
 
 pub use super::auth_wire_error::AuthWireError;
 use super::{CONNECT_TIMEOUT, MAX_GETKEY2_REQUEST_BYTES};
@@ -12,6 +12,7 @@ use crate::runtime::auth_reply_envelope::admit_value;
 use crate::runtime::jwt_grant_envelope::{JwtGrantEnvelopeError, admit_matching_getjwt};
 use crate::runtime::jwt_grant_value::JwtGrantValue;
 use crate::runtime::login_challenge::HashAlgorithm;
+use crate::runtime::login_challenge::LoginChallenge;
 use crate::runtime::login_response;
 use crate::runtime::session_endpoints::{ProxyPolicy, SessionEndpoints};
 use aes::cipher::{BlockDecryptMut, BlockEncryptMut, KeyIvInit, block_padding};
@@ -20,6 +21,12 @@ use rand::{RngCore, SeedableRng, rngs::OsRng, rngs::StdRng};
 use rsa::{Pkcs1v15Encrypt, RsaPublicKey, pkcs8::DecodePublicKey, traits::PublicKeyParts};
 use std::{fmt, net::IpAddr};
 use tokio::time::{Instant, sleep_until};
+
+mod stored_token;
+pub use stored_token::{
+    LoopbackStoredTokenError, ReadyLoopbackSession, StoredTokenReplyError,
+    authenticate_loopback_with_token,
+};
 
 const ENC_PREFIX: &str = "jdev/sys/enc/";
 const MAX_SPKI_BYTES: usize = 1024;
@@ -110,6 +117,48 @@ pub async fn acquire_loopback_jwt(
 
     let deadline = Instant::now() + CONNECT_TIMEOUT;
     check_active(cancellation, deadline)?;
+    check_login_request(endpoints, command)?;
+    if password.len() > MAX_PASSWORD_BYTES {
+        return Err(Error::RequestTooLarge);
+    }
+    let attempt = async {
+        let (mut session, challenge) = encrypted_challenge(
+            endpoints,
+            command,
+            permitted_algorithm,
+            application_spki,
+            cancellation,
+            deadline,
+        )
+        .await?;
+        let response = login_response::derive(&challenge, &command.clone_principal(), password)
+            .map_err(|_| Error::ResponseDerivationFailed)?;
+        let grant = session.encrypt_next(&format!(
+            "jdev/sys/getjwt/{}/{}/{SYNTHETIC_CLIENT}",
+            response.to_lower_hex(),
+            command.encoded_principal(),
+        ))?;
+        check_active(cancellation, deadline)?;
+        session
+            .connection
+            .exchange_auth_reply(grant, |reply| {
+                admit_matching_getjwt(reply, &response, |wire, logical| {
+                    session.channel.echoes(wire, logical)
+                })
+            })
+            .await
+            .map_err(|error| Error::Wire(LoginStage::Grant, error))?
+            .map_err(Error::Grant)
+    };
+    within_login_budget(attempt, cancellation, deadline).await
+}
+
+fn check_login_request(
+    endpoints: &SessionEndpoints,
+    command: &GetKey2Command,
+) -> Result<(), LoopbackJwtError> {
+    use LoopbackJwtError as Error;
+
     let route = endpoints.websocket_route();
     let loopback = route
         .host_str()
@@ -118,79 +167,106 @@ pub async fn acquire_loopback_jwt(
     if route.scheme() != "wss" || !loopback || endpoints.proxy_policy() != ProxyPolicy::Direct {
         return Err(Error::DirectLoopbackWssRequired);
     }
-    if command.as_str().len() > MAX_GETKEY2_REQUEST_BYTES || password.len() > MAX_PASSWORD_BYTES {
+    if command.as_str().len() > MAX_GETKEY2_REQUEST_BYTES {
         return Err(Error::RequestTooLarge);
     }
-    let attempt = async {
-        let public_key = parse_application_key(application_spki)?;
-        let mut rng = StdRng::from_rng(OsRng).map_err(|_| Error::KeyPreparationFailed)?;
-        let channel = Channel::random(&mut rng);
-        let key_command = channel.key_command(&public_key, &mut rng)?;
-        check_active(cancellation, deadline)?;
+    Ok(())
+}
 
-        let mut connection = SessionWebSocket::connect_auth(endpoints, cancellation, deadline)
-            .await
-            .map_err(|error| match error {
-                SessionWebSocketError::Cancelled => Error::Cancelled,
-                SessionWebSocketError::Timeout => Error::Timeout,
-                error => Error::Connect(error),
-            })?;
-        if !connection.has_verified_tls() {
-            return Err(Error::DirectLoopbackWssRequired);
-        }
-        check_active(cancellation, deadline)?;
-        let accepted = connection
-            .exchange_auth_reply(key_command.clone(), |reply| {
-                admit_value(reply, |control| control == key_command)
-                    .is_ok_and(|value| value == b"\"\"")
-            })
-            .await
-            .map_err(|error| Error::Wire(LoginStage::KeyExchange, error))?;
-        if !accepted {
-            return Err(Error::KeyExchangeReply);
-        }
+struct EncryptedSocket {
+    connection: SessionWebSocket,
+    channel: Channel,
+    rng: StdRng,
+    last_salt: String,
+}
 
-        let initial_salt = salt(&mut rng);
-        let challenge_command =
-            channel.encrypt_command(&format!("salt/{initial_salt}/{}", command.as_str()))?;
-        check_active(cancellation, deadline)?;
-        let challenge = connection
-            .exchange_auth_reply(challenge_command, |reply| {
-                admit_matching_getkey2(reply, |wire| channel.echoes(wire, command.as_str()))
-            })
-            .await
-            .map_err(|error| Error::Wire(LoginStage::Challenge, error))?
-            .map_err(Error::Challenge)?;
-        check_active(cancellation, deadline)?;
-        if challenge.algorithm() != permitted_algorithm {
-            return Err(Error::AlgorithmMismatch);
+impl EncryptedSocket {
+    fn encrypt_next(&mut self, command: &str) -> Result<String, LoopbackJwtError> {
+        let next_salt = salt(&mut self.rng);
+        if next_salt == self.last_salt {
+            return Err(LoopbackJwtError::CommandPreparationFailed);
         }
-        let response = login_response::derive(&challenge, &command.clone_principal(), password)
-            .map_err(|_| Error::ResponseDerivationFailed)?;
-        let next_salt = salt(&mut rng);
-        if next_salt == initial_salt {
-            return Err(Error::CommandPreparationFailed);
-        }
-        let grant = channel.encrypt_command(&format!(
-            "nextSalt/{initial_salt}/{next_salt}/jdev/sys/getjwt/{}/{}/{SYNTHETIC_CLIENT}",
-            response.to_lower_hex(),
-            command.encoded_principal(),
+        let encrypted = self.channel.encrypt_command(&format!(
+            "nextSalt/{}/{next_salt}/{command}",
+            self.last_salt
         ))?;
-        check_active(cancellation, deadline)?;
-        connection
-            .exchange_auth_reply(grant, |reply| {
-                admit_matching_getjwt(reply, &response, |wire, logical| {
-                    channel.echoes(wire, logical)
-                })
-            })
-            .await
-            .map_err(|error| Error::Wire(LoginStage::Grant, error))?
-            .map_err(Error::Grant)
-    };
+        self.last_salt = next_salt;
+        Ok(encrypted)
+    }
+}
+
+async fn encrypted_challenge(
+    endpoints: &SessionEndpoints,
+    command: &GetKey2Command,
+    permitted_algorithm: HashAlgorithm,
+    application_spki: &[u8],
+    cancellation: &Cancellation,
+    deadline: Instant,
+) -> Result<(EncryptedSocket, LoginChallenge), LoopbackJwtError> {
+    use LoopbackJwtError as Error;
+
+    let public_key = parse_application_key(application_spki)?;
+    let mut rng = StdRng::from_rng(OsRng).map_err(|_| Error::KeyPreparationFailed)?;
+    let channel = Channel::random(&mut rng);
+    let key_command = channel.key_command(&public_key, &mut rng)?;
+    check_active(cancellation, deadline)?;
+
+    let mut connection = SessionWebSocket::connect_auth(endpoints, cancellation, deadline)
+        .await
+        .map_err(|error| match error {
+            SessionWebSocketError::Cancelled => Error::Cancelled,
+            SessionWebSocketError::Timeout => Error::Timeout,
+            error => Error::Connect(error),
+        })?;
+    if !connection.has_verified_tls() {
+        return Err(Error::DirectLoopbackWssRequired);
+    }
+    check_active(cancellation, deadline)?;
+    let accepted = connection
+        .exchange_auth_reply(key_command.clone(), |reply| {
+            admit_value(reply, |control| control == key_command).is_ok_and(|value| value == b"\"\"")
+        })
+        .await
+        .map_err(|error| Error::Wire(LoginStage::KeyExchange, error))?;
+    if !accepted {
+        return Err(Error::KeyExchangeReply);
+    }
+
+    let initial_salt = salt(&mut rng);
+    let challenge_command =
+        channel.encrypt_command(&format!("salt/{initial_salt}/{}", command.as_str()))?;
+    check_active(cancellation, deadline)?;
+    let challenge = connection
+        .exchange_auth_reply(challenge_command, |reply| {
+            admit_matching_getkey2(reply, |wire| channel.echoes(wire, command.as_str()))
+        })
+        .await
+        .map_err(|error| Error::Wire(LoginStage::Challenge, error))?
+        .map_err(Error::Challenge)?;
+    check_active(cancellation, deadline)?;
+    if challenge.algorithm() != permitted_algorithm {
+        return Err(Error::AlgorithmMismatch);
+    }
+    Ok((
+        EncryptedSocket {
+            connection,
+            channel,
+            rng,
+            last_salt: initial_salt,
+        },
+        challenge,
+    ))
+}
+
+async fn within_login_budget<T, E: From<LoopbackJwtError>>(
+    attempt: impl Future<Output = Result<T, E>>,
+    cancellation: &Cancellation,
+    deadline: Instant,
+) -> Result<T, E> {
     let result = tokio::select! {
         biased;
-        _ = cancellation.cancelled() => return Err(Error::Cancelled),
-        _ = sleep_until(deadline) => return Err(Error::Timeout),
+        _ = cancellation.cancelled() => return Err(LoopbackJwtError::Cancelled.into()),
+        _ = sleep_until(deadline) => return Err(LoopbackJwtError::Timeout.into()),
         result = attempt => result,
     };
     check_active(cancellation, deadline)?;

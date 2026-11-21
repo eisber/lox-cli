@@ -1,4 +1,5 @@
 use super::*;
+pub(in super::super) mod stored_token;
 use aes::cipher::{BlockDecryptMut, BlockEncryptMut, KeyIvInit, block_padding};
 use base64::{Engine, engine::general_purpose::STANDARD};
 use lox_core::runtime::jwt_grant_envelope::JwtGrantEnvelopeError;
@@ -164,12 +165,7 @@ pub(super) async fn check(case: Case, acceptor: &TlsAcceptor, application_key: &
             let (peer, _) = listener.accept().await.unwrap();
             let tls = acceptor.accept(peer).await.unwrap();
             let mut socket = accept_hdr_async(tls, CheckUpgradeRequest(address)).await.unwrap();
-            let exchange = read_text(&mut socket).await;
-            let wrapped = STANDARD.decode(exchange.strip_prefix("jdev/sys/keyexchange/").unwrap()).unwrap();
-            let unwrapped = application_key.decrypt(Pkcs1v15Encrypt, &wrapped).unwrap();
-            let (key, iv) = std::str::from_utf8(&unwrapped).unwrap().split_once(':').unwrap();
-            let key: [u8; 32] = hex::decode(key).unwrap().try_into().unwrap();
-            let iv: [u8; 16] = hex::decode(iv).unwrap().try_into().unwrap();
+            let (exchange, key, iv) = read_application_material(&mut socket, application_key).await;
             if matches!(case, WrongKeyExchangeAck) {
                 send_ll(&mut socket, "dev/sys/keyexchange", r#""""#).await;
             } else {
@@ -267,8 +263,35 @@ async fn read_text(socket: &mut WebSocketStream<TlsStream<TcpStream>>) -> String
     text
 }
 
+async fn read_application_material(
+    socket: &mut WebSocketStream<TlsStream<TcpStream>>,
+    application_key: &RsaPrivateKey,
+) -> (String, [u8; 32], [u8; 16]) {
+    let exchange = read_text(socket).await;
+    let wrapped = STANDARD
+        .decode(exchange.strip_prefix("jdev/sys/keyexchange/").unwrap())
+        .unwrap();
+    let unwrapped = application_key.decrypt(Pkcs1v15Encrypt, &wrapped).unwrap();
+    let (key, iv) = std::str::from_utf8(&unwrapped)
+        .unwrap()
+        .split_once(':')
+        .unwrap();
+    let key = hex::decode(key).unwrap().try_into().unwrap();
+    let iv = hex::decode(iv).unwrap().try_into().unwrap();
+    (exchange, key, iv)
+}
+
 async fn send_ll(socket: &mut WebSocketStream<TlsStream<TcpStream>>, echo: &str, value: &str) {
-    let body = format!(r#"{{"LL":{{"control":"{echo}","code":"200","value":{value}}}}}"#);
+    send_ll_with_status(socket, echo, 200, value).await;
+}
+
+async fn send_ll_with_status(
+    socket: &mut WebSocketStream<TlsStream<TcpStream>>,
+    echo: &str,
+    status: u16,
+    value: &str,
+) {
+    let body = format!(r#"{{"LL":{{"control":"{echo}","code":"{status}","value":{value}}}}}"#);
     let header = MessageHeader::new(
         MessageType::Text as u8,
         0,
