@@ -119,6 +119,52 @@ fn config_xml_title_edit_preserves_ordered_wires_and_unrelated_metadata() {
     assert_eq!(actual, expected);
 }
 
+#[test]
+fn config_set_mood_color_rejects_zero_index_without_writing() {
+    let dir = tempfile::Builder::new()
+        .prefix(".lighting-mood-cli-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let input = dir.path().join("lighting.Loxone");
+    let output = dir.path().join("edited.Loxone");
+    let mut before = vec![0xEF, 0xBB, 0xBF];
+    before.extend_from_slice(
+        include_str!("ux/light-controller2/synthetic.Loxone")
+            .replace("\r\n", "\n")
+            .replace('\n', "\r\n")
+            .as_bytes(),
+    );
+    fs::write(&input, &before).unwrap();
+
+    for save_as in [false, true] {
+        let mut command = lox();
+        command
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .args([
+                "config",
+                "set-mood-color",
+                input.to_str().unwrap(),
+                "uuid:lighting",
+                "--mood",
+                "First",
+                "--color",
+                "hsv(120,100,10)",
+                "--output-index",
+                "0",
+            ]);
+        if save_as {
+            command.args(["--save-as", output.to_str().unwrap()]);
+        }
+        command
+            .assert()
+            .failure()
+            .stderr(predicate::str::contains("Q0").and(predicate::str::contains("1-based")))
+            .stdout(predicate::str::is_empty());
+        assert_eq!(fs::read(&input).unwrap(), before);
+        assert!(!output.exists());
+    }
+}
+
 mod energy {
     use super::*;
 

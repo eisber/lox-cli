@@ -1071,7 +1071,7 @@ impl ConfigEditor {
     /// `mood_ref` matches the mood by `SID` (numeric scene id) or `Name`.
     /// `value` is the packed mood value (percent channels + `0x60000000`),
     /// e.g. from `lox color encode --mood`. `output` is the 1-based Q index
-    /// (default 1 — the first/color output).
+    /// (default 1). Missing nonzero Qn attributes may still be set explicitly.
     pub fn set_mood_color(
         &mut self,
         selector: &str,
@@ -1085,6 +1085,11 @@ impl ConfigEditor {
         if block_type != "LightController2" {
             anyhow::bail!(
                 "'{selector}' is a {block_type}, not a LightController2 — moods only exist on light controllers"
+            );
+        }
+        if output == 0 {
+            anyhow::bail!(
+                "Q0 is not a LightController2 mood output: indices are 1-based. Use --output-index 1 or higher."
             );
         }
         let controller_title = elem.attributes.get("Title").cloned().unwrap_or_default();
