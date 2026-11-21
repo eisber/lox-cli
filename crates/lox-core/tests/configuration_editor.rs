@@ -1760,6 +1760,204 @@ fn status_monitor_inspection_keeps_strict_state_identity_and_shape() {
     ));
 }
 
+mod status_monitor_move {
+    use super::{now, status_monitor_fixture};
+    use lox_core::configuration::editor::{
+        EditError, SelectionError, StatusMonitorInspectionError as InspectionFailure,
+        StatusMonitorPriorityDirection::{Down, Up},
+        StatusMonitorPriorityMove, StatusMonitorPriorityMoveError as Failure,
+        inspect_status_monitor as inspect, move_status_monitor_state as move_state,
+    };
+    use std::error::Error;
+
+    const SELECTED_ID: &str = "abcdef01-0002-0003-0000000000000005";
+    const STORED_ID: &str = "ABCDEF01-0002-0003-0000000000000005";
+
+    fn document() -> String {
+        let body = status_monitor_fixture()
+            .replace(
+                "<Loxone>",
+                r#"<Loxone><C Type="Document" Date="2026-10-12 07:55:33" DateS="561020133"><C Type="Program">"#,
+            )
+            .replace("</Loxone>", "</C></C></Loxone>")
+            .replace(r#"<Co K="AQ1">"#, r#"<Co K="AQ1" U="wire">"#)
+            .replace(
+                r#"<C Type="Switch" Title="Other" U="not-monitor"/>"#,
+                r#"<C Type="Switch" Title="Other" U="not-monitor"><Co K="I"><In Input="wire"/></Co></C>"#,
+            )
+            .replace(
+                r#"Cl="1,2,3" Future=""/>"#,
+                r#"Cl="1,2,3" Future=""><Nested Keep="yes"/></State><Between/>"#,
+            )
+            .replace('\n', "\r\n");
+        format!("\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n{body}\r\n")
+    }
+
+    #[test]
+    fn swaps_complete_rows_and_stamps_only_real_moves() {
+        let original = document();
+        let before = inspect(original.as_bytes(), "uuid:Mon-1").unwrap();
+        let outcome =
+            move_state(original.as_bytes(), "stat [work]", SELECTED_ID, Down, &now()).unwrap();
+        assert_eq!(
+            outcome.movement,
+            StatusMonitorPriorityMove {
+                id: STORED_ID.to_owned(),
+                from_priority: 1,
+                to_priority: 2,
+                changed: true,
+            }
+        );
+        let after = inspect(&outcome.bytes, "uuid:Mon-1").unwrap();
+        for (index, row) in after.states.iter().enumerate() {
+            let original_row = &before.states[match index {
+                0 => 1,
+                1 => 0,
+                _ => index,
+            }];
+            assert_eq!(row.priority, index + 1);
+            assert_eq!(row.id, original_row.id);
+            assert_eq!(row.output_index, original_row.output_index);
+            assert_eq!(row.configured, original_row.configured);
+            assert_eq!(row.attributes, original_row.attributes);
+        }
+        assert!(!after.states[0].configured);
+        assert_eq!(after.states[1].attributes["OIdx"], "05");
+        assert_eq!(after.states[1].attributes["Val"], "+5e0");
+        let saved = std::str::from_utf8(&outcome.bytes).unwrap();
+        assert!(saved.starts_with("\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"));
+        assert!(saved.contains("Date=\"2026-10-12 07:55:34\" DateS=\"561020134\""));
+        assert!(saved.contains("U=\"wire\""));
+        assert!(saved.contains("<In Input=\"wire\"/>"));
+        let first = saved.find("OIdx=\"3\"").unwrap();
+        let between = saved.find("<Between></Between>").unwrap();
+        let second = saved.find("OIdx=\"05\"").unwrap();
+        let nested = saved.find("<Nested Keep=\"yes\"/>").unwrap();
+        let end = saved[second..].find("</State>").unwrap() + second;
+        assert!(first < between && between < second && second < nested && nested < end);
+    }
+
+    #[test]
+    fn preserves_boundary_bytes_and_reports_typed_refusals() {
+        let original = document();
+        let transact =
+            |id, direction| move_state(original.as_bytes(), "Status", id, direction, &now());
+        for (id, direction, priority) in [
+            (SELECTED_ID, Up, 1),
+            ("abcdef01-0002-0003-0000000000000004", Down, 10),
+        ] {
+            let outcome = transact(id, direction).unwrap();
+            assert!(!outcome.movement.changed);
+            assert_eq!(outcome.movement.from_priority, priority);
+            assert_eq!(outcome.movement.to_priority, priority);
+            assert_eq!(outcome.bytes, original.as_bytes());
+        }
+        assert!(matches!(transact("5", Up), Err(Failure::InvalidStateId)));
+        assert!(matches!(
+            transact("abcdef01-0002-0003-0000000000000099", Up),
+            Err(Failure::StateNotFound { id }) if id.ends_with("0099")
+        ));
+        assert!(matches!(
+            transact("abcdef01-0002-0003-000000000000000a", Up),
+            Err(Failure::RestState)
+        ));
+        assert!(matches!(
+            transact("abcdef01-0002-0003-0000000000000003", Up),
+            Err(Failure::UnconfiguredState)
+        ));
+        let error = move_state(b"<X><", "Missing", "5", Up, &now()).unwrap_err();
+        assert!(matches!(&error, Failure::Edit(EditError::Load(_))));
+        assert!(error.source().and_then(|cause| cause.source()).is_some());
+        assert!(matches!(
+            move_state(original.as_bytes(), "Missing", SELECTED_ID, Up, &now()),
+            Err(Failure::Inspection(InspectionFailure::Edit(
+                EditError::Selection(SelectionError::NotFound { .. })
+            )))
+        ));
+        let inherited = original.replacen(r#"Type="Switch""#, r#"Type="Switch" iObjS="""#, 1);
+        assert!(matches!(
+            move_state(inherited.as_bytes(), "Status", SELECTED_ID, Up, &now()),
+            Err(Failure::Inspection(InspectionFailure::InheritedConfiguration))
+        ));
+        let collision = original.replacen(r#"Val="3""#, r#"Val="5.00""#, 1);
+        assert!(matches!(
+            move_state(collision.as_bytes(), "Status", SELECTED_ID, Up, &now()),
+            Err(Failure::Inspection(InspectionFailure::DuplicateValue { value })) if value == 5.0
+        ));
+    }
+
+    #[test]
+    fn rejects_direct_document_template_and_selected_ancestry_even_at_boundary() {
+        let original = document();
+        let program = r#"<C Type="Program">"#;
+        for replacement in [
+            r#"<Template/><C Type="Program">"#,
+            r#"<Template IfT="false"/><C Type="Program">"#,
+            r#"<Template IfT="true"/><C Type="Program">"#,
+            r#"<C Type="DocumentTemplate"/><C Type="Program">"#,
+            r#"<C Type="DocumentTemplate">"#,
+            r#"<C Type="Program" IfT="false">"#,
+            r#"<C Type="Program" uuidParent="">"#,
+            r#"<C Type="Program" WF="536887296">"#,
+        ] {
+            let marked = original.replacen(program, replacement, 1);
+            assert!(
+                matches!(
+                    move_state(marked.as_bytes(), "Status", SELECTED_ID, Up, &now()),
+                    Err(Failure::TemplateConfiguration)
+                ),
+                "{replacement}"
+            );
+        }
+        let invalid_flags = original.replacen(program, r#"<C Type="Program" WF="unknown">"#, 1);
+        assert!(matches!(
+            move_state(invalid_flags.as_bytes(), "Status", SELECTED_ID, Up, &now()),
+            Err(Failure::InvalidContextFlags { value }) if value == "unknown"
+        ));
+        let bare = status_monitor_fixture();
+        let unrelated = bare.replacen("<Loxone>", r#"<Loxone><C Type="Document"/>"#, 1);
+        for unsupported in [
+            bare,
+            unrelated,
+            original
+                .replace("<Loxone>", "<Loxone><Wrapper>")
+                .replace("</Loxone>", "</Wrapper></Loxone>"),
+        ] {
+            assert!(matches!(
+                move_state(unsupported.as_bytes(), "Status", SELECTED_ID, Up, &now()),
+                Err(Failure::UnsupportedDocument)
+            ));
+        }
+    }
+
+    #[test]
+    fn refuses_prefixed_owning_type_for_boundary_and_changed_moves() {
+        let source = document();
+        let child = source.replace(
+            "<Loxone>",
+            r#"<Loxone xmlns:x="urn:fixture"><!-- <C x:Type="Document"/> --><Other Note='x:Type="Document" >'/>"#,
+        );
+        let root = source
+            .replace(
+                r#"<Loxone><C Type="Document""#,
+                r#"<C Type="Document" xmlns:x="urn:fixture""#,
+            )
+            .replace("</C></C></Loxone>", "</C></C>");
+        for plain in [child, root] {
+            let prefixed = plain.replacen(r#"<C Type="Document""#, r#"<C x:Type="Document""#, 1);
+            for (direction, changed) in [(Up, false), (Down, true)] {
+                let outcome =
+                    move_state(plain.as_bytes(), "Status", SELECTED_ID, direction, &now()).unwrap();
+                assert_eq!(outcome.movement.changed, changed);
+                assert!(matches!(
+                    move_state(prefixed.as_bytes(), "Status", SELECTED_ID, direction, &now()),
+                    Err(Failure::NamespacedContext)
+                ));
+            }
+        }
+    }
+}
+
 mod load_manager {
     use lox_core::configuration::editor::{
         EditError, LoadManagerInspectionError as Failure, SelectionError,

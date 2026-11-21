@@ -62,12 +62,10 @@ pub use permissions::{
     PrincipalPermissionsError, PrincipalSelectionError, principal_permissions,
 };
 pub use program::{ProgramTextError, get_program_text};
-#[cfg(feature = "unstable-legacy-cli-editor")]
-#[doc(hidden)]
-pub use status_monitor::{MatchedStatusMonitor, status_monitor_identity_key};
 pub use status_monitor::{
-    StatusMonitorInspection, StatusMonitorInspectionError, StatusMonitorState,
-    inspect_status_monitor,
+    StatusMonitorInspection, StatusMonitorInspectionError, StatusMonitorPriorityDirection,
+    StatusMonitorPriorityMove, StatusMonitorPriorityMoveError, StatusMonitorPriorityMoveOutcome,
+    StatusMonitorState, inspect_status_monitor, move_status_monitor_state,
 };
 pub use unwire::{UnwireChange, UnwireError, UnwireOutcome, unwire};
 

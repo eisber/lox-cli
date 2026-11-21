@@ -1,18 +1,12 @@
 use std::collections::BTreeMap;
 
-use anyhow::{Result, bail};
+use anyhow::Result;
 use lox_core::configuration::editor::{
-    MatchedStatusMonitor, StatusMonitorInspectionError, status_monitor_identity_key as identity_key,
+    StatusMonitorInspectionError, StatusMonitorPriorityDirection, StatusMonitorPriorityMoveError,
 };
 use serde::Serialize;
 
 use super::{ConfigEditor, editor_error};
-
-#[derive(Debug, Clone, Copy)]
-pub enum StatusPriorityDirection {
-    Up,
-    Down,
-}
 
 #[derive(Debug, Serialize)]
 pub struct StatusMonitorState {
@@ -65,52 +59,21 @@ impl ConfigEditor {
         &mut self,
         selector: &str,
         id: &str,
-        direction: StatusPriorityDirection,
+        direction: StatusMonitorPriorityDirection,
     ) -> Result<StatusPriorityMove> {
-        let key = identity_key(id).ok_or_else(|| {
-            anyhow::anyhow!(
-                "Status Monitor state Id must be a nonzero native UUID (8-4-4-16 hexadecimal digits). Use `config status-monitor inspect` to find it; nothing was changed."
-            )
-        })?;
-        let MatchedStatusMonitor { path, states } = self
+        let movement = self
             .kernel
-            .match_status_monitor(selector)
-            .map_err(status_monitor_error)?;
-        let index = states
-            .iter()
-            .position(|(_, state)| identity_key(&state.id).as_ref() == Some(&key))
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "No Status Monitor state with Id '{id}'. Select an existing Id, not OIdx, name or priority; nothing was changed."
-                )
+            .move_status_monitor_state_legacy(selector, id, direction)
+            .map_err(|error| match error {
+                StatusMonitorPriorityMoveError::Inspection(error) => status_monitor_error(error),
+                error => anyhow::anyhow!("{error}"),
             })?;
-        let selected = &states[index].1;
-        if selected.output_index == 10 {
-            bail!("The Status Monitor Rest state (OIdx=10) cannot move; nothing was changed.");
-        }
-        if !selected.configured {
-            bail!(
-                "Select a named Status Monitor state with an explicit finite Val; nothing was changed."
-            );
-        }
-        // Native priority is the State ordinal, not its persistent OIdx.
-        // The last (Rest) record never participates in an adjacent swap.
-        let destination = match direction {
-            StatusPriorityDirection::Up => index.saturating_sub(1),
-            StatusPriorityDirection::Down => (index + 1).min(9),
-        };
-        let result = StatusPriorityMove {
-            id: selected.id.clone(),
-            from_priority: index + 1,
-            to_priority: destination + 1,
-            changed: index != destination,
-        };
-        if result.changed {
-            let from = states[index].0;
-            let to = states[destination].0;
-            self.get_element_mut(&path).children.swap(from, to);
-        }
-        Ok(result)
+        Ok(StatusPriorityMove {
+            id: movement.id,
+            from_priority: movement.from_priority,
+            to_priority: movement.to_priority,
+            changed: movement.changed,
+        })
     }
 }
 
@@ -123,6 +86,8 @@ fn status_monitor_error(error: StatusMonitorInspectionError) -> anyhow::Error {
 
 #[cfg(test)]
 mod tests {
+    use lox_core::configuration::editor::StatusMonitorPriorityDirection as StatusPriorityDirection;
+
     use super::*;
 
     fn id(index: u8) -> String {

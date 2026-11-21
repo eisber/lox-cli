@@ -135,6 +135,11 @@ fn status_monitor_cli_refusals_do_not_touch_input_or_existing_destination() {
         (fixture(), id(10), "Rest state"),
         (fixture(), id(99), "No Status Monitor state"),
         (
+            fixture().replacen("Type=\"StateV\"", "Type=\"StateV\" iObjS=\"\"", 1),
+            "2".to_owned(),
+            "Status Monitor state Id must be a nonzero native UUID",
+        ),
+        (
             fixture().replacen("Val=\"2\"", "Val=\"4\"", 1),
             id(2),
             "Colliding",
@@ -159,4 +164,67 @@ fn status_monitor_cli_refusals_do_not_touch_input_or_existing_destination() {
         assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
         assert_eq!(fs::read_to_string(&output).unwrap(), "existing output");
     }
+}
+
+#[test]
+fn status_monitor_cli_move_does_not_inherit_public_transaction_admission() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture().replacen(
+        r#"<C Type="StatusMonitor""#,
+        r#"<Template IfT="false"/><C Type="StatusMonitor""#,
+        1,
+    );
+    fs::write(&input, &original).unwrap();
+    let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "status-monitor", "move"])
+        .arg(&input)
+        .args(["uuid:monitor", &id(2), "up", "--save-as"])
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["changed"], true);
+    assert_eq!(result["movement"]["to_priority"], 1);
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    assert!(
+        fs::read_to_string(&output)
+            .unwrap()
+            .contains(r#"<Template IfT="false"/>"#)
+    );
+}
+
+#[test]
+fn status_monitor_cli_dry_run_is_refused_before_any_file_io() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let missing_input = dir.path().join("missing.Loxone");
+    let output = dir.path().join("output.Loxone");
+    fs::write(&output, "existing output").unwrap();
+    let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "status-monitor", "move"])
+        .arg(&missing_input)
+        .args(["uuid:missing", "not-an-id", "up", "--save-as"])
+        .arg(&output)
+        .args(["--dry-run", "-o", "json"])
+        .assert()
+        .code(1)
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["ok"], false);
+    assert_eq!(result["error"], "dry_run_not_supported");
+    assert_eq!(
+        result["message"],
+        "dry-run not supported for this command: no safe non-mutating plan is available. Nothing was executed and inputs were not fully validated. Remove --dry-run only when you intend to execute the command."
+    );
+    assert!(!missing_input.exists());
+    assert_eq!(fs::read_to_string(&output).unwrap(), "existing output");
 }

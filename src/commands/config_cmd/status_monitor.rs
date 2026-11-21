@@ -1,9 +1,9 @@
 use anyhow::{Result, bail};
 use clap::{Args, Subcommand, ValueEnum};
+use lox_core::configuration::editor::StatusMonitorPriorityDirection;
 
 use crate::commands::RunContext;
 use crate::config_edit::ConfigEditor;
-use crate::config_edit::status_monitor::StatusPriorityDirection;
 
 #[derive(Args)]
 pub(crate) struct StatusMonitorTarget {
@@ -72,8 +72,8 @@ pub(crate) fn run(ctx: &RunContext, action: StatusMonitorCmd) -> Result<()> {
                 &selector,
                 &id,
                 match direction {
-                    DirectionArg::Up => StatusPriorityDirection::Up,
-                    DirectionArg::Down => StatusPriorityDirection::Down,
+                    DirectionArg::Up => StatusMonitorPriorityDirection::Up,
+                    DirectionArg::Down => StatusMonitorPriorityDirection::Down,
                 },
             )
         })
