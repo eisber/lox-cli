@@ -1,6 +1,7 @@
 //! Selected-mood metadata transactions, not complete native dialog acceptance.
 
 use anyhow::Result;
+use lox_core::configuration::editor::{LightingMoodSkipChange, LightingMoodSkipError};
 use serde::Serialize;
 use xmltree::Element;
 
@@ -88,9 +89,25 @@ pub struct LightingMoodSkipEdit {
     pub changed: bool,
 }
 
-struct LightingMoodSkipPlan {
-    path: Vec<usize>,
-    edit: LightingMoodSkipEdit,
+impl From<LightingMoodSkipChange> for LightingMoodSkipEdit {
+    fn from(change: LightingMoodSkipChange) -> Self {
+        Self {
+            mood: LightingMoodIdentity {
+                uuid: change.mood_uuid,
+                sid: Some(change.sid),
+                cid: change.cid,
+            },
+            before: StoredValue {
+                stored: change.before,
+                effective: Some(change.before_effective),
+                default: Some(false),
+            },
+            after: change.after,
+            skip: change.skip,
+            checkbox_checked: !change.skip,
+            changed: change.changed,
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -463,16 +480,10 @@ impl ConfigEditor {
         mood_ref: &str,
         skip: bool,
     ) -> Result<LightingMoodSkipEdit> {
-        let plan = self.plan_lighting_mood_skip(selector, mood_ref, skip)?;
-        let edit = plan.edit;
-        if let Some(after) = &edit.after
-            && edit.changed
-        {
-            self.get_element_mut(&plan.path)
-                .attributes
-                .insert("SkipNext".into(), after.clone());
-        }
-        Ok(edit)
+        self.kernel
+            .set_lighting_mood_skip_selected(selector, mood_ref, skip)
+            .map(Into::into)
+            .map_err(|error| lighting_mood_skip_error(error, selector, mood_ref))
     }
 
     /// Preview only the existing guarded SkipNext edit, without changing the document.
@@ -482,58 +493,10 @@ impl ConfigEditor {
         mood_ref: &str,
         skip: bool,
     ) -> Result<LightingMoodSkipEdit> {
-        Ok(self.plan_lighting_mood_skip(selector, mood_ref, skip)?.edit)
-    }
-
-    fn plan_lighting_mood_skip(
-        &self,
-        selector: &str,
-        mood_ref: &str,
-        skip: bool,
-    ) -> Result<LightingMoodSkipPlan> {
-        let path = self.lighting_metadata_mood_path(selector, mood_ref)?;
-        let mood = self.get_element(&path);
-        let sid = mood_identity_integer(mood, "SID", mood_ref)?;
-        if sid <= 0 {
-            return Err(Diagnostic::new(
-                "unsupported_mood_skip_scope",
-                mood_ref,
-                "Cycling flag edits require an explicit positive signed-32-bit SID. Native import's zero-SID reconciliation is not simulated.",
-            )
-            .into());
-        }
-        require_unique_metadata_sid(
-            self.get_element(&path[..path.len() - 1]),
-            sid,
-            selector,
-            mood_ref,
-        )?;
-        let before = Self::stored_mood_flag(mood, "SkipNext");
-        let previous = before.effective.ok_or_else(|| {
-                Diagnostic::new(
-                    "unsupported_mood_skip_value",
-                    &format!("{mood_ref}.SkipNext"),
-                    "SkipNext must be an ASCII case variant of true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
-                )
-        })?;
-        let identity = LightingMoodIdentity::from_element(mood);
-        let changed = previous != skip;
-        let after = if changed {
-            Some(skip.to_string())
-        } else {
-            before.stored.clone()
-        };
-        Ok(LightingMoodSkipPlan {
-            path,
-            edit: LightingMoodSkipEdit {
-                mood: identity,
-                before,
-                after,
-                skip,
-                checkbox_checked: !skip,
-                changed,
-            },
-        })
+        self.kernel
+            .preview_lighting_mood_skip_selected(selector, mood_ref, skip)
+            .map(Into::into)
+            .map_err(|error| lighting_mood_skip_error(error, selector, mood_ref))
     }
 
     /// Rename one direct mood using a no-normalization subset of the native name editor.
@@ -755,77 +718,78 @@ impl ConfigEditor {
         selector: &str,
         mood_ref: &str,
     ) -> Result<Vec<usize>> {
-        let mut path = self.require_one(selector)?;
-        let block = self.get_element(&path);
-        if block.attributes.get("Type").map(String::as_str) != Some("LightController2") {
-            return Err(Diagnostic::new(
-                "wrong_block_type",
-                selector,
-                "Mood metadata operations require LightController2. Inspect the selected block.",
-            )
-            .into());
-        }
-        let collections: Vec<_> = block
-            .children
-            .iter()
-            .enumerate()
-            .filter_map(|(index, node)| {
-                node.as_element()
-                    .filter(|element| element.name == "LightscenesC")
-                    .map(|element| (index, element))
-            })
-            .collect();
-        let [(collection_index, collection)] = collections.as_slice() else {
-            return Err(Diagnostic::new(
-                "unsupported_mood_container_shape",
-                selector,
-                "Mood metadata operations require exactly one direct LightscenesC container. Inspect the XML before proceeding.",
-            )
-            .into());
-        };
-        let matches: Vec<_> = collection
-            .children
-            .iter()
-            .enumerate()
-            .filter_map(|(index, node)| {
-                node.as_element()
-                    .filter(|element| {
-                        element.name == "LightsceneC"
-                            && ["SID", "Name"].iter().any(|key| {
-                                element.attributes.get(*key).map(String::as_str) == Some(mood_ref)
-                            })
-                    })
-                    .map(|_| index)
-            })
-            .collect();
-        let [mood_index] = matches.as_slice() else {
-            return Err(Diagnostic::new(
-                "ambiguous_or_missing_mood",
-                mood_ref,
-                format!(
-                    "Expected one direct mood matching exact stored SID or Name, found {}. Choose an unambiguous stored mood; no fuzzy matching or identity default was applied.",
-                    matches.len()
-                ),
-            )
-            .into());
-        };
-        path.extend([*collection_index, *mood_index]);
-        Ok(path)
+        self.kernel
+            .select_lighting_metadata_mood(selector, mood_ref)
+            .map_err(|error| lighting_mood_skip_error(error, selector, mood_ref))
     }
+}
+
+fn lighting_mood_skip_error(
+    error: LightingMoodSkipError,
+    selector: &str,
+    mood_ref: &str,
+) -> anyhow::Error {
+    use LightingMoodSkipError as Refusal;
+
+    match error {
+        Refusal::Edit(error) => return super::editor_error(error),
+        Refusal::WrongBlockType => Diagnostic::new(
+            "wrong_block_type",
+            selector,
+            "Mood metadata operations require LightController2. Inspect the selected block.",
+        ),
+        Refusal::ContainerCount { .. } => Diagnostic::new(
+            "unsupported_mood_container_shape",
+            selector,
+            "Mood metadata operations require exactly one direct LightscenesC container. Inspect the XML before proceeding.",
+        ),
+        Refusal::MoodMatchCount { found } => Diagnostic::new(
+            "ambiguous_or_missing_mood",
+            mood_ref,
+            format!("Expected one direct mood matching exact stored SID or Name, found {found}. Choose an unambiguous stored mood; no fuzzy matching or identity default was applied."),
+        ),
+        Refusal::InvalidSelectedSid => mood_identity_diagnostic(mood_ref, "SID"),
+        Refusal::InvalidSiblingSid { index } => mood_identity_diagnostic(
+            &format!("{selector}.LightscenesC.LightsceneC[{index}]"),
+            "SID",
+        ),
+        Refusal::NonpositiveSelectedSid => Diagnostic::new(
+            "unsupported_mood_skip_scope",
+            mood_ref,
+            "Cycling flag edits require an explicit positive signed-32-bit SID. Native import's zero-SID reconciliation is not simulated.",
+        ),
+        Refusal::AmbiguousSid => ambiguous_mood_sid_diagnostic(mood_ref),
+        Refusal::UnsupportedSkipValue { .. } => Diagnostic::new(
+            "unsupported_mood_skip_value",
+            &format!("{mood_ref}.SkipNext"),
+            "SkipNext must be an ASCII case variant of true/false or absent (recovered native default false). Unsupported explicit values are not defaulted or normalized.",
+        ),
+        error => return error.into(),
+    }
+    .into()
+}
+
+fn mood_identity_diagnostic(path: &str, key: &str) -> Diagnostic {
+    Diagnostic::new(
+        "unsupported_mood_identity",
+        &format!("{path}.{key}"),
+        "Checkbox option edits require an explicit signed-32-bit decimal identity. Inspect the stored moods; missing, malformed or overflowing values are not defaulted or truncated.",
+    )
 }
 
 fn mood_identity_integer(mood: &Element, key: &str, path: &str) -> Result<i32> {
     mood.attributes
         .get(key)
         .and_then(|raw| raw.parse::<i32>().ok())
-        .ok_or_else(|| {
-            Diagnostic::new(
-                "unsupported_mood_identity",
-                &format!("{path}.{key}"),
-                "Checkbox option edits require an explicit signed-32-bit decimal identity. Inspect the stored moods; missing, malformed or overflowing values are not defaulted or truncated.",
-            )
-            .into()
-        })
+        .ok_or_else(|| mood_identity_diagnostic(path, key).into())
+}
+
+fn ambiguous_mood_sid_diagnostic(mood_ref: &str) -> Diagnostic {
+    Diagnostic::new(
+        "ambiguous_mood_sid",
+        mood_ref,
+        "The native checkbox refresh reselects by numeric SID. The selected SID must be unique among direct moods, including equivalent decimal spellings; no cohort was changed.",
+    )
 }
 
 fn require_unique_metadata_sid(
@@ -849,12 +813,7 @@ fn require_unique_metadata_sid(
         }
     }
     if matching_sids != 1 {
-        return Err(Diagnostic::new(
-            "ambiguous_mood_sid",
-            mood_ref,
-            "The native checkbox refresh reselects by numeric SID. The selected SID must be unique among direct moods, including equivalent decimal spellings; no cohort was changed.",
-        )
-        .into());
+        return Err(ambiguous_mood_sid_diagnostic(mood_ref).into());
     }
     Ok(())
 }

@@ -825,6 +825,93 @@ fn lighting_metadata_cli_skip_dry_run_matches_writer_and_preserves_every_destina
 }
 
 #[test]
+fn lighting_metadata_cli_skip_keeps_legacy_admission_stamp_and_atomic_save_policy() {
+    let dir = tempfile::Builder::new()
+        .prefix("skip-legacy-save-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let staging = dir.path().join("output.Loxone.tmp");
+    let xml = XML
+        .replace(
+            "<ControlList>",
+            r#"<ControlList><C Type="Document" Date="old" DateS="4000000000">"#,
+        )
+        .replace(
+            r#"Title="Lamp">"#,
+            r#"Title="Lamp" IfT="true" NoteLF="one_MARK_LF_two" NoteCRLF="one_MARK_CRLF_two">"#,
+        )
+        .replace(
+            "</ControlList>",
+            r#"<C Type="LightController2" U="lighting" Title="Mirror"><LightscenesC><LightsceneC Name="A" SID="2" UUID="mirror" SkipNext="false"/></LightscenesC></C></C></ControlList>"#,
+        );
+    let before = String::from_utf8(bytes(&xml))
+        .unwrap()
+        .replace("_MARK_LF_", "\n")
+        .replace("_MARK_CRLF_", "\r\n");
+    fs::write(&input, &before).unwrap();
+    fs::write(&output, b"existing output").unwrap();
+    fs::write(&staging, b"existing staging").unwrap();
+    let skip = |flag| {
+        let mut cmd = command();
+        cmd.args(["config", "lighting", "set-mood-skip"])
+            .arg(&input)
+            .args(["uuid:lighting", "--mood", "A", flag, "--json", "--quiet"]);
+        cmd
+    };
+
+    let preview = skip("--skip")
+        .args(["--dry-run", "--save-as"])
+        .arg(&output)
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let preview: serde_json::Value = serde_json::from_slice(&preview).unwrap();
+    assert_eq!(preview["mood"]["uuid"], "a");
+    assert_eq!(preview["mood"]["sid"], "+0002");
+    assert_eq!(preview["mood"]["cid"], "0");
+    assert_eq!(preview["checkbox_checked"], false);
+    assert_eq!(preview["changed"], true);
+    skip("--no-skip").assert().success();
+    skip("--skip")
+        .arg("--save-as")
+        .arg(&output)
+        .assert()
+        .failure();
+    assert_eq!(fs::read(&input).unwrap(), before.as_bytes());
+    assert_eq!(fs::read(&output).unwrap(), b"existing output");
+    assert_eq!(fs::read(&staging).unwrap(), b"existing staging");
+    fs::remove_file(&staging).unwrap();
+    skip("--no-skip")
+        .arg("--save-as")
+        .arg(&output)
+        .assert()
+        .success();
+    let noop_copy = fs::read_to_string(&output).unwrap();
+    assert_ne!(
+        noop_copy, before,
+        "legacy --save-as canonicalizes even a no-op"
+    );
+    assert!(noop_copy.contains(r#"Date="old" DateS="4000000000""#));
+    skip("--skip")
+        .arg("--save-as")
+        .arg(&output)
+        .assert()
+        .success();
+    let changed = fs::read_to_string(&output).unwrap();
+    assert!(!changed.contains(r#"Date="old""#));
+    assert!(changed.contains(r#"DateS="4000000001""#));
+    assert!(changed.contains("NoteLF=\"one\ntwo\" NoteCRLF=\"one\r\ntwo\""));
+    assert!(changed.contains(r#"SName="alias" SkipNext="true">"#));
+    assert!(changed.contains(r#"UUID="mirror" SkipNext="false"/>"#));
+    assert_eq!(fs::read(&input).unwrap(), before.as_bytes());
+    assert!(!staging.exists());
+}
+
+#[test]
 fn lighting_metadata_cli_skip_dry_run_noop_exposes_raw_and_effective_values_in_all_formats() {
     let dir = tempfile::Builder::new()
         .prefix("skip-preview-formats-")

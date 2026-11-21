@@ -14,6 +14,8 @@ pub(super) mod legacy;
 mod lighting;
 #[cfg(feature = "configuration-xml")]
 mod lighting_recount;
+#[cfg(feature = "configuration-xml")]
+mod lighting_skip;
 mod load_manager;
 mod moods;
 #[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
@@ -61,6 +63,10 @@ pub use lighting::{
 pub use lighting_recount::{
     LightingMoodCountChange, LightingMoodCountError, LightingMoodCountOutcome,
     recount_lighting_moods,
+};
+#[cfg(feature = "configuration-xml")]
+pub use lighting_skip::{
+    LightingMoodSkipChange, LightingMoodSkipError, LightingMoodSkipOutcome, set_lighting_mood_skip,
 };
 pub use load_manager::{
     LoadManagerInspection, LoadManagerInspectionError, LoadManagerLoad, inspect_load_manager,

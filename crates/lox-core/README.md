@@ -164,6 +164,22 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   does not alter CLI admission, reporting or atomic saves. There are no
   runtime effects or foreign bindings.
 
+- Optional `configuration-xml`:
+  `configuration::editor::set_lighting_mood_skip(bytes, "uuid:…", mood, skip, &now)`
+  changes only one direct `LightsceneC/@SkipNext` selected by exact stored
+  SID or Name. The controller's stored `U` must occur once, and the selected
+  positive signed-32-bit SID must be unique among direct moods. Omission is
+  false; explicit true/false spellings are retained on no-ops, which return
+  the exact original bytes without stamping. A change writes lowercase
+  `true` or `false` and uses the caller's clock for the owning Document stamp.
+  The byte API verifies the complete canonical output and limits input to
+  ordinary element-and-attribute UTF-8 XML 1.0, with at most 64 nested elements
+  and newline-bearing container whitespace treated as layout. It refuses
+  text payloads, comments, PIs, CDATA, and raw or referenced attribute line
+  breaks instead of claiming the canonical writer preserves them. The CLI
+  shares the storage operation but keeps its own selectors, XML admission,
+  reports, and save behavior. No live cycling or foreign binding is provided.
+
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_central_light_links(bytes, selector)` shares
   the cached `lox config central-light inspect` matcher. It returns owned

@@ -1099,6 +1099,264 @@ mod lighting_inspection {
     }
 
     #[cfg(feature = "configuration-xml")]
+    mod lighting_mood_skip {
+        use chrono::{DateTime, FixedOffset};
+        use lox_core::configuration::editor::{
+            LightingMoodSkipError as Refusal, set_lighting_mood_skip as set_skip,
+        };
+
+        const PROGRAM: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+	<C Type="Document" Date="old" DateS="90">
+		<C Type="LightController2" U="lighting" Title="Lamp">
+			<LightscenesC Num="99" Outputs="18" Future="opaque">
+				<LightsceneC Name="First" SID="+000777" UUID="a" CID="future" SName="ALIAS" MixMod="true" Q1="opaque">
+					<SeqConf Unrecognized="keep &amp; stay"/>
+				</LightsceneC>
+				<Other Note="München &lt; &quot;on&quot;">
+					<LightsceneC SID="777" Name="First" SkipNext="true"/>
+				</Other>
+				<LightsceneC Name="Second" SID="3" SkipNext="unknown"/>
+			</LightscenesC>
+			<LSConfig ScMv="777,3"/>
+			<HCL T="2"/>
+		</C>
+		<C Type="LightController2" U="other" Title="Lamp"/>
+	</C>
+</ControlList>
+"#;
+
+        fn clock() -> DateTime<FixedOffset> {
+            DateTime::parse_from_rfc3339("2009-01-01T04:30:45+04:30").unwrap()
+        }
+
+        fn apply(
+            source: &str,
+            mood: &str,
+            skip: bool,
+        ) -> Result<lox_core::configuration::editor::LightingMoodSkipOutcome, Refusal> {
+            set_skip(source.as_bytes(), "uuid:lighting", mood, skip, &clock())
+        }
+
+        #[test]
+        fn only_selected_storage_and_owning_stamp_change_and_round_trip() {
+            for (raw, skip, expected_flag) in [
+                (None, true, "true"),
+                (Some("FaLsE"), true, "true"),
+                (Some("TrUE"), false, "false"),
+            ] {
+                let xml = PROGRAM.replace(
+                    r#"Q1="opaque">"#,
+                    &format!(
+                        r#"Q1="opaque"{}>"#,
+                        raw.map(|raw| format!(r#" SkipNext="{raw}""#))
+                            .unwrap_or_default()
+                    ),
+                );
+                let expected = PROGRAM
+                    .replace(
+                        r#"Q1="opaque">"#,
+                        &format!(r#"Q1="opaque" SkipNext="{expected_flag}">"#),
+                    )
+                    .replace(
+                        r#"Date="old" DateS="90""#,
+                        r#"Date="2009-01-01 04:31:31" DateS="91""#,
+                    );
+                for (prefix, eol) in [("", "\n"), ("\u{feff}", "\r\n")] {
+                    let source = format!("{prefix}{}", xml.replace('\n', eol));
+                    let result = apply(&source, "+000777", skip).unwrap();
+                    assert_eq!(
+                        result.bytes,
+                        format!("{prefix}{}", expected.replace('\n', eol)).as_bytes()
+                    );
+                    assert!(result.document_stamped && result.change.changed);
+                    assert_eq!(result.change.mood_uuid.as_deref(), Some("a"));
+                    assert_eq!(result.change.sid, "+000777");
+                    assert_eq!(result.change.cid.as_deref(), Some("future"));
+                    assert_eq!(result.change.before.as_deref(), raw);
+                    assert_ne!(result.change.before_effective, skip);
+                    assert_eq!(result.change.after.as_deref(), Some(expected_flag));
+                    let reread =
+                        apply(std::str::from_utf8(&result.bytes).unwrap(), "First", skip).unwrap();
+                    assert_eq!(reread.bytes, result.bytes);
+                    assert!(!reread.document_stamped && !reread.change.changed);
+                }
+            }
+        }
+
+        #[test]
+        fn effective_noop_keeps_noncanonical_bytes_and_absence_or_spelling() {
+            for (raw, skip) in [(None, false), (Some("FaLsE"), false), (Some("tRuE"), true)] {
+                let attr = raw.map_or_else(String::new, |raw| format!(" SkipNext='{raw}'"));
+                let source = format!(
+                    "\u{feff}{}",
+                    PROGRAM
+                        .replace(r#"Q1="opaque">"#, &format!("Q1 = 'opaque'{attr}>"),)
+                        .replace('\n', "\r\n")
+                );
+                let result = apply(&source, "First", skip).unwrap();
+                assert_eq!(result.bytes, source.as_bytes());
+                assert_eq!(result.change.before.as_deref(), raw);
+                assert_eq!(result.change.after.as_deref(), raw);
+                assert!(!result.change.changed && !result.document_stamped);
+            }
+            let no_document = PROGRAM
+                .replace(r#"<C Type="Document" Date="old" DateS="90">"#, "<Program>")
+                .replace("\n\t</C>\n</ControlList>", "\n\t</Program>\n</ControlList>");
+            let loseless = apply(&no_document, "First", true).unwrap();
+            assert!(!loseless.document_stamped);
+            assert!(loseless.change.changed);
+        }
+
+        #[test]
+        fn ownership_and_legacy_storage_refusals_precede_mutation_and_noop() {
+            assert!(matches!(
+                set_skip(b"not xml", "Lamp", "First", false, &clock()),
+                Err(Refusal::UnsupportedSelector)
+            ));
+            let mirror = PROGRAM.replace(
+                "</ControlList>",
+                r#"<C Type="LightController2" U="lighting"/></ControlList>"#,
+            );
+            assert!(matches!(
+                apply(&mirror, "First", false),
+                Err(Refusal::ControllerCount { found: 2 })
+            ));
+            let unattached = PROGRAM.replace(
+                "</C>\n</ControlList>",
+                "</C>\n<C Type=\"Document\"/>\n</ControlList>",
+            );
+            assert!(matches!(
+                apply(&unattached, "First", false),
+                Err(Refusal::DocumentScope)
+            ));
+            let inherited = PROGRAM.replace(r#"Num="99""#, r#"Num="99" IfT="true""#);
+            assert!(matches!(
+                apply(&inherited, "First", false),
+                Err(Refusal::TemplateOrInherited)
+            ));
+            let name_equals_sid = PROGRAM.replace(r#"Name="Second""#, r#"Name="+000777""#);
+            assert!(matches!(
+                apply(&name_equals_sid, "+000777", false),
+                Err(Refusal::MoodMatchCount { found: 2 })
+            ));
+            assert!(matches!(
+                apply(PROGRAM, "777", false),
+                Err(Refusal::MoodMatchCount { found: 0 })
+            ));
+            let bad_flag = PROGRAM.replace(r#"Q1="opaque">"#, r#"Q1="opaque" SkipNext="0">"#);
+            assert!(matches!(
+                apply(
+                    &bad_flag.replace(r#"SID="+000777""#, r#"SID="2147483648""#),
+                    "First",
+                    false
+                ),
+                Err(Refusal::InvalidSelectedSid)
+            ));
+            let bad_sibling = bad_flag.replace(r#"SID="3""#, r#"SID="bad""#);
+            assert!(matches!(
+                apply(
+                    &bad_sibling.replace(r#"SID="+000777""#, r#"SID="0""#),
+                    "First",
+                    false
+                ),
+                Err(Refusal::NonpositiveSelectedSid)
+            ));
+            assert!(matches!(
+                apply(&bad_sibling, "First", false),
+                Err(Refusal::InvalidSiblingSid { index: 2 })
+            ));
+            assert!(matches!(
+                apply(
+                    &bad_flag.replace(r#"SID="3""#, r#"SID="000777""#),
+                    "First",
+                    false
+                ),
+                Err(Refusal::AmbiguousSid)
+            ));
+            assert!(
+                matches!(apply(&bad_flag, "First", false), Err(Refusal::UnsupportedSkipValue { raw }) if raw == "0")
+            );
+        }
+
+        #[test]
+        fn rejects_xml_the_canonical_writer_cannot_preserve_before_any_edit() {
+            let compact: String = PROGRAM.lines().map(str::trim).collect();
+            for source in [
+                compact.replace("</ControlList>", "</ControlList><!--exterior-->"),
+                compact.replace("<ControlList>", "<ControlList><?target data?>"),
+                compact.replace("<Other ", "<!--kept by some loaders--><Other "),
+                compact.replace("</Other>", " payload </Other>"),
+                compact.replace("</Other>", "\t </Other>"),
+                compact.replace("</Other>", "<![CDATA[\n\t]]></Other>"),
+                compact.replace(
+                    r#"<SeqConf Unrecognized="keep &amp; stay"/>"#,
+                    r#"<SeqConf Unrecognized="keep &amp; stay"> </SeqConf>"#,
+                ),
+                compact.replace(r#"Future="opaque""#, "Future=\"line\nvalue\""),
+                compact.replace(r#"Future="opaque""#, "Future=\"line\r\nvalue\""),
+                compact.replace(r#"Future="opaque""#, "Future=\"line\tvalue\""),
+                compact.replace(r#"Future="opaque""#, r#"Future="line&#xA;value""#),
+                compact.replace(r#"Future="opaque""#, r#"Future="line&#x1;value""#),
+                compact.replace(r#"Future="opaque""#, r#"Future="opaque" Future="opaque""#),
+                compact.replace(r#"Future="opaque""#, r#"Future="touch 12hTF=opaque""#),
+            ] {
+                for skip in [false, true] {
+                    assert!(
+                        matches!(
+                            apply(&source, "First", skip),
+                            Err(Refusal::UnsupportedCanonicalContent)
+                        ),
+                        "{source:?}"
+                    );
+                }
+            }
+            for source in [
+                compact.replace("version=\"1.0\"", "version=\"1.1\""),
+                compact.replace("encoding=\"utf-8\"", "encoding=\"utf-16\""),
+                compact.replace("<?xml", " \n<?xml"),
+                compact.replace("<ControlList>", "<!DOCTYPE ControlList><ControlList>"),
+                compact.replace("opaque", "\u{1}"),
+                format!("\u{feff}\u{feff}{compact}"),
+                compact.clone() + "<Other/>",
+            ] {
+                assert!(
+                    matches!(apply(&source, "First", false), Err(Refusal::UnsupportedXml)),
+                    "{source:?}"
+                );
+            }
+            let namespaced =
+                compact.replace("<ControlList>", r#"<ControlList xmlns="urn:future">"#);
+            assert!(matches!(
+                apply(&namespaced, "First", false),
+                Err(Refusal::NamespacedXml)
+            ));
+        }
+
+        #[test]
+        fn bounds_depth_counting_the_root_and_self_closing_leaves() {
+            let extra = |count: usize| {
+                PROGRAM.replace(
+                    "</ControlList>",
+                    &format!(
+                        "{}<Extra K=\"v\"/>{}</ControlList>",
+                        "<Parent>".repeat(count - 1),
+                        "</Parent>".repeat(count - 1)
+                    ),
+                )
+            };
+            let changed = apply(&extra(63), "First", true).unwrap();
+            assert!(changed.change.changed);
+            for skip in [false, true] {
+                assert!(matches!(
+                    apply(&extra(64), "First", skip),
+                    Err(Refusal::XmlDepthLimit { max_depth: 64 })
+                ));
+            }
+        }
+    }
+
+    #[cfg(feature = "configuration-xml")]
     mod lighting_mood_count {
         use chrono::{DateTime, FixedOffset};
         use lox_core::configuration::editor::{
