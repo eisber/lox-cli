@@ -21,6 +21,19 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `configuration-editor`: `configuration::editor::get_program_text`
+  returns an owned String from the first direct `Field Name="Configuration"`
+  of an exactly `SequenceController` selected with the existing legacy selector.
+  Only direct text nodes contribute, in order; nested content and CDATA do not.
+  A missing field is empty. The cached CLI editor calls the same Core helper;
+  load causes, selection failures and unsupported types remain structured.
+  This is a read-only producer extraction, not a whole-command migration:
+  file I/O, formatting, JSON line/sequence counts and simulator helpers remain
+  CLI-owned. It does not validate or execute programs, migrate the setter,
+  serialize or stamp a document, or add foreign bindings. The shared loader's
+  quoted-text/digit-name limitation (lox-n37w) remains; raw-byte/lossless foreign
+  XML preservation is not claimed. Default Core dependencies are unchanged.
+
 - Optional `configuration-xml`: `configuration::mqtt::list_topics(&[u8])`
   returns owned `MqttTopic` records with typed `MqttDirection`. The actual
   `lox config mqtt topics` producer and cached CLI editor share this one walker.
