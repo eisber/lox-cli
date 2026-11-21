@@ -700,6 +700,123 @@ fn lighting_editor_inspection_cli_table_csv_and_quiet_keep_kinds_and_raw_edit_li
 }
 
 #[test]
+fn lighting_full_inspection_cli_keeps_projection_and_diagnostic_order() {
+    let dir = tempfile::Builder::new()
+        .prefix("lighting-full-inspection-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let before = fixture_bytes(
+        r#"<ControlList Version="+0267">
+  <C Type="Place" U="room" Title="Study"/>
+  <C Type="LightController2" U="lighting" Title="Lamp" CapAI1="+0007">
+    <Co K="AQ10" U="out"/><Co K="AQ2"/>
+    <IoData Pr="room"/>
+    <LightscenesC Num="2">
+      <LightsceneC Name="First" UUID="mood" SID="2" CID="9" Outputs="18" Q10="opaque" Q2="+01610622736" Q1=""/>
+    </LightscenesC>
+    <HCL T="2" Future="keep &amp; stay"/>
+  </C>
+  <C Type="Other" U="out"><In Input="out" FLG="02"/></C>
+  <C Type="And" U="wrong" Title="Lamp"/>
+</ControlList>"#,
+    );
+    fs::write(&input, &before).unwrap();
+    let run = |selector: &str, extra: &[&str]| {
+        lox()
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .args(["config", "lighting", "inspect"])
+            .arg(&input)
+            .arg(selector)
+            .args(extra)
+            .assert()
+    };
+
+    let json = run(
+        "Lamp",
+        &["--room", "Study", "--json", "--trace-id", "stored-inspection"],
+    )
+    .success();
+    assert!(json.get_output().stderr.is_empty());
+    let value: serde_json::Value = serde_json::from_slice(&json.get_output().stdout).unwrap();
+    assert_eq!(value["trace_id"], "stored-inspection");
+    assert_eq!(value["status"], "read_only_unverified");
+    assert_eq!(value["document_versions"][0]["Version"], "+0267");
+    assert_eq!(
+        value["nested_storage"][2]["attributes"]["Future"],
+        "keep & stay"
+    );
+    assert_eq!(
+        value["moods"][0]["outputs"][1],
+        serde_json::json!({
+            "key": "Q2", "index": 2, "stored": "+01610622736", "unit": null,
+            "editor": {
+                "kind": "color", "type_tag": 6, "issue": null,
+                "capability": {"stored": "+0007", "effective": 7, "default": 0}
+            }
+        })
+    );
+    assert_eq!(
+        value["channels"][1]["downstream"],
+        serde_json::json!([{
+            "block_uuid": "out", "block_type": "Other", "block_title": null,
+            "connector_uuid": null, "connector_key": null,
+            "wire_attributes": {"Input": "out", "FLG": "02"}
+        }])
+    );
+    let diagnostics: Vec<_> = value["diagnostics"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|issue| {
+            (
+                issue["code"].as_str().unwrap(),
+                issue["path"].as_str().unwrap(),
+            )
+        })
+        .collect();
+    assert_eq!(
+        diagnostics,
+        [
+            ("unverified_lighting_contract", "Lamp [Study]"),
+            ("unknown_channel_roles", "Lamp [Study]"),
+            ("lighting_edit_operation_boundary", "Lamp [Study]"),
+            ("unsupported_mood_output_value", "mood 'First' (mood) / Q10"),
+            ("unsupported_mood_output_value", "mood 'First' (mood) / Q1"),
+            ("ambiguous_connector_uuid", "AQ10"),
+            ("unresolved_wire_target", "AQ10"),
+            ("missing_identity", "AQ2"),
+            ("inconsistent_mood_count", "LightscenesC/@Num"),
+        ]
+    );
+
+    let csv = run("uuid:lighting", &["-o", "csv", "--no-header", "--quiet"]).success();
+    let stdout = std::str::from_utf8(&csv.get_output().stdout).unwrap();
+    assert_eq!(
+        stdout.lines().collect::<Vec<_>>(),
+        [
+            "mood,\"First\",\"mood\",Q1,\"\",unresolved,,\"\",,unsupported_mood_output_value",
+            "mood,\"First\",\"mood\",Q2,\"+01610622736\",color,6,\"+0007\",7,",
+            "mood,\"First\",\"mood\",Q10,\"opaque\",unresolved,,\"\",,unsupported_mood_output_value",
+            "channel,,\"\",AQ2,,,,,,",
+            "channel,,\"out\",AQ10,,,,,,",
+        ]
+    );
+    let wrong = run("uuid:wrong", &["--json"]).failure().code(1);
+    let value: serde_json::Value = serde_json::from_slice(&wrong.get_output().stdout).unwrap();
+    assert_eq!(value["error"], "wrong_block_type");
+    assert_eq!(
+        value["diagnostics"],
+        serde_json::json!([{
+            "code": "wrong_block_type",
+            "path": "uuid:wrong",
+            "message": "Lighting inspection requires LightController2. Use `lox config controls FILE --type LightController2` to find one."
+        }])
+    );
+    assert_eq!(fs::read(&input).unwrap(), before);
+}
+
+#[test]
 fn lighting_numeric_level_cli_dry_run_matches_writer_and_preserves_every_destination() {
     let dir = tempfile::Builder::new()
         .prefix("level-preview-")

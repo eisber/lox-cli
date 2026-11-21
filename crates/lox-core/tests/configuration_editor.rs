@@ -705,6 +705,123 @@ fn mood_inventory_retains_load_and_selection_causes_before_exact_type_refusal() 
     );
 }
 
+mod lighting_inspection {
+    use super::{EditError, SelectionError};
+    use lox_core::configuration::editor::{LightingInspectionError, inspect_lighting, list_moods};
+
+    const XML: &[u8] = br#"<ControlList Version="+0267">
+  <C Type="Document" ConfigVersion="17.2" V="opaque">
+    <C Type="Place" U="den" Title="Study"/>
+    <C Type="LightController2" U="light" gid="primary" Title="Lamps" CapAI0="+0007">
+      <Co K="AQ10" U="src" Future="keep &amp; stay"/>
+      <Co K="AQ2" U=""/>
+      <Co K="AQ01" U="ignored"/>
+      <IoData Pr="den"/>
+      <LightscenesC Num="99" Outputs="0002">
+        <LightsceneC UUID="same" Name="Direct" SID="bad" CID="+09" Q10="opaque" Q2="+0006" Q1="" Q01="unprojected">
+          <SeqConf Flag="0"><LightsceneC UUID="same" Name="Nested" Q1="-1"/></SeqConf>
+        </LightsceneC>
+      </LightscenesC>
+      <HCL T="2"/>
+    </C>
+    <C Type="And" U="wrong" Title="Lamps">
+      <Co K="I1" U="in"><In Input="src" FLG="02"/><In Input="SRC"/></Co>
+      <In Input="src" Future="unresolved"/>
+    </C>
+    <C Type="Other" U="src"/>
+  </C>
+</ControlList>"#;
+
+    #[test]
+    fn projects_raw_controller_data_and_reference_observations() {
+        let inspection = inspect_lighting(XML, "Lamps [study]").unwrap();
+        assert_eq!(inspection, inspect_lighting(XML, "gid:PRIMARY").unwrap());
+        assert_eq!(inspection.uuid.as_deref(), Some("light"));
+        assert_eq!(inspection.attributes["CapAI0"], "+0007");
+        assert_eq!(inspection.document_versions[0]["Version"], "+0267");
+        assert_eq!(inspection.document_versions[1]["ConfigVersion"], "17.2");
+        assert_eq!(inspection.direct_scene_collection_count, 1);
+        let collection = &inspection.nested_storage[inspection.sole_scene_collection.unwrap()];
+        assert_eq!(collection.attributes["Outputs"], "0002");
+        assert_eq!(collection.children[0].children[0].attributes["Flag"], "0");
+        assert_eq!(inspection.nested_storage[2].element, "HCL");
+
+        assert_eq!(
+            inspection
+                .moods
+                .iter()
+                .map(|mood| mood.summary.clone())
+                .collect::<Vec<_>>(),
+            list_moods(XML, "uuid:light").unwrap()
+        );
+        let [direct, nested] = inspection.moods.as_slice() else {
+            panic!("expected direct and nested mood records");
+        };
+        assert!(direct.in_sole_direct_collection && !nested.in_sole_direct_collection);
+        assert_eq!(direct.attributes["SID"], "bad");
+        assert_eq!(direct.attributes["Q01"], "unprojected");
+        assert_eq!(
+            direct
+                .outputs
+                .iter()
+                .map(|output| (output.index, output.stored.as_str()))
+                .collect::<Vec<_>>(),
+            [(10, "opaque"), (2, "+0006"), (1, "")]
+        );
+
+        let [connected, missing] = inspection.channels.as_slice() else {
+            panic!("expected two indexed channels");
+        };
+        assert_eq!(connected.key, "AQ10");
+        assert_eq!(connected.attributes["Future"], "keep & stay");
+        assert_eq!(connected.uuid_occurrences, Some(2));
+        let [target, unresolved] = connected.downstream.as_slice() else {
+            panic!("expected two exact references");
+        };
+        assert_eq!(target.connector_uuid.as_deref(), Some("in"));
+        assert_eq!(target.wire_attributes["FLG"], "02");
+        assert_eq!(unresolved.connector_uuid, None);
+        assert_eq!(unresolved.wire_attributes["Future"], "unresolved");
+        assert_eq!(missing.key, "AQ2");
+        assert_eq!(missing.uuid_occurrences, None);
+    }
+
+    #[test]
+    fn keeps_shape_observations_and_typed_load_selection_and_type_failures() {
+        let xml = br#"<Root><C Type="LightController2" U="light">
+          <LightscenesC><LightsceneC Name="One"/></LightscenesC>
+          <LightscenesC><LightsceneC Name="Two"/></LightscenesC>
+        </C><C Type="LightController2" U="empty"/></Root>"#;
+        let inspection = inspect_lighting(xml, "uuid:light").unwrap();
+        assert_eq!(inspection.direct_scene_collection_count, 2);
+        assert_eq!(inspection.sole_scene_collection, None);
+        assert_eq!(inspection.moods.len(), 2);
+        assert!(
+            inspection
+                .moods
+                .iter()
+                .all(|mood| !mood.in_sole_direct_collection)
+        );
+        assert!(inspect_lighting(xml, "uuid:empty").unwrap().moods.is_empty());
+
+        assert!(matches!(
+            inspect_lighting(b"<C A='1' A='2'/>", "uuid:missing"),
+            Err(LightingInspectionError::Edit(EditError::Load(_)))
+        ));
+        assert!(matches!(
+            inspect_lighting(XML, "Lamps"),
+            Err(LightingInspectionError::Edit(EditError::Selection(
+                SelectionError::Ambiguous { matches, .. }
+            ))) if matches.len() == 2
+        ));
+        assert!(matches!(
+            inspect_lighting(XML, "uuid:wrong"),
+            Err(LightingInspectionError::NotLightController { selector, block_type })
+                if selector == "uuid:wrong" && block_type == "And"
+        ));
+    }
+}
+
 #[test]
 fn selected_description_preserves_direct_raw_observations_and_last_precedence() {
     use lox_core::configuration::editor::describe_element;
