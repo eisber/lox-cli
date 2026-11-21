@@ -482,6 +482,60 @@ fn load_manager_cli_min_on_noops_preserve_zero_omission_spelling_and_stamp() {
 }
 
 #[test]
+fn load_manager_cli_min_on_keeps_legacy_scope_and_presave_report() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture()
+        .replacen(r#"WF="16384""#, r#"WF="16384" IfT="false""#, 1)
+        .replacen(
+            r#"Unknown="keep-0""#,
+            r#"Unknown="note&#32;12hTF=value""#,
+            1,
+        );
+    fs::write(&input, &source).unwrap();
+    let run = |subcommand| {
+        let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        command
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", subcommand]);
+        command
+    };
+    let report = run("set-min-on")
+        .arg(&input)
+        .args(["Load Manager [Office]", "0", "600", "--save-as"])
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let report: Value = serde_json::from_slice(&report).unwrap();
+    assert_eq!(report["changed"], true);
+    assert_eq!(report["saved_to"], output.to_str().unwrap());
+    assert_eq!(report["load_manager"]["uuid"], "manager");
+    let row = &report["load_manager"]["loads"][0];
+    assert_eq!(row["io_index"], 0);
+    assert_eq!(row["attributes"]["minOn"], "600");
+    assert_eq!(row["attributes"]["Unknown"], "note 12hTF=value");
+
+    let after = run("inspect")
+        .arg(&output)
+        .args(["Load Manager [Office]", "-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let after: Value = serde_json::from_slice(&after).unwrap();
+    let mut expected = report["load_manager"].clone();
+    expected["loads"][0]["attributes"]["Unknown"] = Value::from("note _12hTF=value");
+    assert_eq!(after["load_manager"], expected);
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+}
+
+#[test]
 fn load_manager_cli_min_on_rejections_are_atomic_and_not_generic_parameters() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");

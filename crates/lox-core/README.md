@@ -148,6 +148,22 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   admission, diagnostics, reporting and atomic save policy. There are no
   runtime effects or foreign bindings.
 
+- Optional `configuration-xml`:
+  `configuration::editor::set_load_manager_load_min_on(bytes, selector, io_index, seconds, &now)`
+  changes only one `Load/@minOn` by resolved connector identity. ASCII
+  decimal requests are exact: zero or 10..=2147483647 seconds. A change to
+  zero removes the attribute; numeric no-ops preserve its original spelling
+  or omission and return the input bytes unstamped. Changes return the
+  ordered inspection from strictly re-admitted canonical XML, after checking
+  the entire edited DOM and selection. The caller supplies the owning Document
+  stamp clock. The byte API supports only ordinary element-and-attribute XML
+  with the documented UTF-8 XML 1.0 declaration forms and at most 64 nested
+  elements (root and self-closing leaves included). It refuses comments,
+  processing instructions, CDATA, leaf text and other unsupported content
+  instead of claiming the canonical writer preserves it. This restriction
+  does not alter CLI admission, reporting or atomic saves. There are no
+  runtime effects or foreign bindings.
+
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_central_light_links(bytes, selector)` shares
   the cached `lox config central-light inspect` matcher. It returns owned
