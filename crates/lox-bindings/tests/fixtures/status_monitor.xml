@@ -1,0 +1,19 @@
+<Root>
+  <C Type="Place" U="den" Title="Study"/>
+  <C Type="StatusMonitor" U="mon" Title="Monitor &amp; 灯" gid="primary">
+    <IoData Pr="den"/>
+    <Co K="AQ1"><State Id="not-a-direct-state"/></Co>
+    <State OIdx="02" Future="" Na="  Küche é &amp; 灯  " Val="+01.2500" Id="A0000000-0000-0000-0000000000000001"/>
+    <State Val="-002.0" Na="" Id="a0000000-0000-0000-0000000000000002" OIdx="0"/>
+    <State Id="a0000000-0000-0000-0000000000000003" OIdx="1" Na="No value"/>
+    <State Id="a0000000-0000-0000-0000000000000004" OIdx="3" Val="3e0"/>
+    <State Id="a0000000-0000-0000-0000000000000005" OIdx="4" Legacy="at 7am=ok"/>
+    <State Id="a0000000-0000-0000-0000000000000006" OIdx="5"/>
+    <State Id="a0000000-0000-0000-0000000000000007" OIdx="6"/>
+    <State Id="a0000000-0000-0000-0000000000000008" OIdx="7"/>
+    <State Id="a0000000-0000-0000-0000000000000009" OIdx="8"/>
+    <State Id="a0000000-0000-0000-000000000000000a" OIdx="9"/>
+    <State Id="a0000000-0000-0000-000000000000000b" OIdx="10" Na=" Explicit Rest "/>
+  </C>
+  <C Type="statusmonitor" U="wrong" Title="Monitor &amp; 灯"/>
+</Root>

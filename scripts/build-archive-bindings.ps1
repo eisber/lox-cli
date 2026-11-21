@@ -91,6 +91,7 @@ Step 'statistics-series-core-focused' 'cargo' @('test', '-p', 'lox-core', '--fea
 Step 'device-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'device_inventory', '--locked', '--offline')
 Step 'user-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'user_inventory', '--locked', '--offline')
 Step 'program-text-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'program_reader_', '--locked', '--offline')
+Step 'status-monitor-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'status_monitor_inspection_', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
@@ -509,6 +510,22 @@ Step 'kotlin-program-text-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$O
     proof = 'Actual selected SequenceController text success and Load/NotFound/Ambiguous/Unsupported RustBuffers from the same export: live address and prefix count 1, freed address and count 0, 64 distinct retained host objects per branch and native_retained=0 per language without requested GC. The marked ProgramTextRequest input buffer calibrates live1/free0, then 64 host surrogate rejections per language retain no matching native input. Installed Python and SAME Java22/Kotlin APIs passed exact/empty text and owned ordered diagnostics with unchanged Core loader (lox-n37w). Empty success has no separate allocation claim.'
 } | ConvertTo-Json | Set-Content "$Output\PROGRAM-TEXT-MECHANISM.json" -Encoding utf8
 
+Step 'python-status-monitor-smoke' $VenvPython @('-I', '-B', 'tests\bindings\status_monitor_smoke.py', "$Probe.dll")
+Step 'javac-status-monitor-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\StatusMonitorSmoke.java')
+Step 'java-status-monitor-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.StatusMonitorSmoke'))
+$StatusMonitorKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-status-monitor-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\StatusMonitorSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-status-monitor.args", $StatusMonitorKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-status-monitor-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-status-monitor.args")
+Step 'kotlin-status-monitor-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-status-monitor-smoke.jar", 'StatusMonitorSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual stored Status Monitor inspection success and Ambiguous/InvalidValue errors from the same export: live address and prefix count 1, freed address and count 0, 64 distinct retained host objects per branch and native_retained=0 per language without requested GC. Each language also calibrated the marked StatusMonitorRequest input buffer live1/free0, then rejected 64 lone-surrogate selectors through the public entry with no matching retained native input. Installed CPython 3.13 GIL and SAME Java22/Kotlin APIs checked ordered owned fields, raw text, missing/empty attributes and typed refusals. Other branches have no separate allocation-attribution claim.'
+} | ConvertTo-Json | Set-Content "$Output\STATUS-MONITOR-MECHANISM.json" -Encoding utf8
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -538,6 +555,7 @@ $Artifacts += Get-Item "$Output\statistics-series-core-focused.log", "$Output\py
 $Artifacts += Get-Item "$Output\rust-focused.log", "$Output\python-statistics-month-merge-smoke.log", "$Output\javac-statistics-month-merge-smoke.log", "$Output\java-statistics-month-merge-smoke.log", "$Output\kotlinc-statistics-month-merge-smoke.log", "$Output\kotlin-statistics-month-merge-smoke.log", "$Output\STATISTICS-MONTH-MERGE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-fragment-application-smoke.log", "$Output\javac-fragment-application-smoke.log", "$Output\java-fragment-application-smoke.log", "$Output\kotlinc-fragment-application-smoke.log", "$Output\kotlin-fragment-application-smoke.log", "$Output\FRAGMENT-APPLICATION-MECHANISM.json"
 $Artifacts += Get-Item "$Output\program-text-core-focused.log", "$Output\python-program-text-smoke.log", "$Output\javac-program-text-smoke.log", "$Output\java-program-text-smoke.log", "$Output\kotlinc-program-text-smoke.log", "$Output\kotlin-program-text-smoke.log", "$Output\PROGRAM-TEXT-MECHANISM.json"
+$Artifacts += Get-Item "$Output\status-monitor-core-focused.log", "$Output\python-status-monitor-smoke.log", "$Output\javac-status-monitor-smoke.log", "$Output\java-status-monitor-smoke.log", "$Output\kotlinc-status-monitor-smoke.log", "$Output\kotlin-status-monitor-smoke.log", "$Output\STATUS-MONITOR-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"
