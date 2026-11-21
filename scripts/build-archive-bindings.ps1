@@ -79,6 +79,7 @@ Step 'java-version' $Java @('-version')
 Step 'kotlin-version' $KotlinCompiler @('-version')
 Step 'python-version' $Python @('-c', 'import platform,sys,sysconfig; print(sys.version, platform.machine(), "GIL-disabled=", sysconfig.get_config_var("Py_GIL_DISABLED")); assert sys.platform == "win32" and platform.machine() == "AMD64" and not sysconfig.get_config_var("Py_GIL_DISABLED")')
 Step 'control-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'control_resolution', '--locked', '--offline')
+Step 'custom-listing-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'custom_listing', '--locked', '--offline')
 Step 'numeric-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'numeric_state_payload', '--locked', '--offline')
 Step 'text-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'text_state_payload', '--locked', '--offline')
 Step 'daytimer-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'daytimer_state_payload', '--locked', '--offline')
@@ -141,6 +142,21 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-custom-listing-smoke' $VenvPython @('-I', '-B', 'tests\bindings\custom_listing_smoke.py', "$Probe.dll")
+Step 'javac-custom-listing-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\CustomListingSmoke.java', 'tests\bindings\NativeCustomListingProbe.java')
+Step 'java-custom-listing-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'CustomListingSmoke'))
+$CustomListingKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-custom-listing-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\CustomListingSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-custom-listing.args", $CustomListingKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-custom-listing-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-custom-listing.args")
+Step 'kotlin-custom-listing-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-custom-listing-smoke.jar", 'CustomListingSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual custom-listing success/Malformed/Unsupported RustBuffers live1/free0,64 calls per branch per language retained0 without requested GC; shared Core successful-listing parser, raw sorted names/duplicates/legacy quirks and atomic data-free zero-based row errors. Python and compiledJava22/Kotlin SAME API; no acquisition or fragment-filename validation.'
+} | ConvertTo-Json | Set-Content "$Output\CUSTOM-LISTING-MECHANISM.json" -Encoding utf8
 Step 'python-daytimer-state-smoke' $VenvPython @('-I', '-B', 'tests\bindings\daytimer_state_smoke.py', "$Probe.dll")
 Step 'javac-daytimer-state-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\DaytimerStateSmoke.java', 'tests\bindings\NativeDaytimerStateProbe.java')
 Step 'java-daytimer-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'DaytimerStateSmoke'))
@@ -390,6 +406,7 @@ $Artifacts += Get-Item "$Output\python-xml-controls-smoke.log", "$Output\java-xm
 $Artifacts += Get-Item "$Output\python-catalog-smoke.log", "$Output\java-catalog-smoke.log", "$Output\kotlin-catalog-smoke.log"
 $Artifacts += Get-Item "$Output\python-color-smoke.log", "$Output\java-color-smoke.log", "$Output\kotlin-color-smoke.log"
 $Artifacts += Get-Item "$Output\python-numeric-state-smoke.log", "$Output\java-numeric-state-smoke.log", "$Output\kotlin-numeric-state-smoke.log"
+$Artifacts += Get-Item "$Output\python-custom-listing-smoke.log", "$Output\java-custom-listing-smoke.log", "$Output\kotlin-custom-listing-smoke.log", "$Output\CUSTOM-LISTING-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-text-state-smoke.log", "$Output\java-text-state-smoke.log", "$Output\kotlin-text-state-smoke.log"
 $Artifacts += Get-Item "$Output\python-daytimer-state-smoke.log", "$Output\java-daytimer-state-smoke.log", "$Output\kotlin-daytimer-state-smoke.log", "$Output\DAYTIMER-STATE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-weather-state-smoke.log", "$Output\java-weather-state-smoke.log", "$Output\kotlin-weather-state-smoke.log", "$Output\WEATHER-STATE-MECHANISM.json"
@@ -413,7 +430,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML user/device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, infallible HTML statistics index catalog delegated to Core, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict payload-only Daytimer-State decoding with signed observations/raw activation word/two authoritative IEEE bit fields and exact typed atomic errors, strict payload-only Weather-State decoding with unsigned update/signed observations/six authoritative IEEE bit fields and exact typed atomic errors, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. User inventory is raw owned fields only, never credentials/permissions/authentication. Current loopback clock cancellation/close only; no Lighting eligibility, framing, HTTP weather layout, full XML/semantic diff, editor/auth/control I/O/monthly-series or binary statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML user/device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, infallible HTML statistics index catalog delegated to Core, strict supplied successful custom FTP listing interpretation with raw sorted names/duplicates and data-free typed row errors, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict payload-only Daytimer-State decoding with signed observations/raw activation word/two authoritative IEEE bit fields and exact typed atomic errors, strict payload-only Weather-State decoding with unsigned update/signed observations/six authoritative IEEE bit fields and exact typed atomic errors, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. User inventory is raw owned fields only, never credentials/permissions/authentication. Current loopback clock cancellation/close only; no custom-listing acquisition or fragment-filename validation, Lighting eligibility, framing, HTTP weather layout, full XML/semantic diff, editor/auth/control I/O/monthly-series or binary statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest
