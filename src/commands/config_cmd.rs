@@ -1588,7 +1588,12 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 if ctx.json {
                     emit_json(
                         ctx,
-                        serde_json::json!({"ok": true, "type": "Mode", "added": added}),
+                        serde_json::json!({
+                            "ok": true, "type": "Mode", "added": {
+                                "uuid": added.uuid, "mode": added.mode, "title": added.title,
+                                "input_uuid": added.input_uuid, "output_uuid": added.output_uuid,
+                            }
+                        }),
                     );
                 } else if !ctx.quiet {
                     println!(

@@ -368,13 +368,7 @@ impl ConfigEditor {
     }
 
     fn iter_elements(elem: &Element) -> Vec<&Element> {
-        let mut result = vec![elem];
-        for child in &elem.children {
-            if let Some(e) = child.as_element() {
-                result.extend(Self::iter_elements(e));
-            }
-        }
-        result
+        lox_core::configuration::editor::LegacyState::iter_elements(elem)
     }
 }
 

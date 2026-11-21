@@ -9,6 +9,9 @@ mod attribute;
 mod control_move;
 mod description;
 pub(super) mod legacy;
+#[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
+#[doc(hidden)]
+pub mod operating_modes;
 mod selector;
 mod write;
 
