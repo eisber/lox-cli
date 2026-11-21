@@ -123,6 +123,9 @@ class PropertyExecutorTests(unittest.TestCase):
         self.root = Q.ROOT / ".reverse-engineering" / "property-tests" / uuid.uuid4().hex
         self.root.mkdir(parents=True)
         self.catalog = EX.pilot_catalog(Q)
+        # Isolated synthetic legacy-protocol tests, never a native v4 catalog migration.
+        self.catalog["executor_sources"] = [Q.source(item["path"])
+                                            for item in self.catalog["executor_sources"]]
         target = self.catalog["cases"][0]["property"]
         self.before = (f'<Loxone><C Type="{target["type"]}" U="{target["uuid"]}"'
                        ' Title="Energy Manager"><Co><In A="1"/><In A="2"/></Co></C></Loxone>').encode()
@@ -584,7 +587,7 @@ class PropertyExecutorTests(unittest.TestCase):
         self.assertEqual(details["journal_closeout_error"]["type"], "OSError")
 
     def test_pilot_catalog_is_separate_and_predeclares_five_inputs(self):
-        catalog = EX.pilot_catalog(Q)
+        catalog = EX.hybrid_catalog(Q)
         self.assertEqual(len(catalog["cases"]), 5)
         self.assertEqual(len({case["id"] for case in catalog["cases"]}), 5)
         self.assertTrue(all(case["id"].startswith("pilot-title-") for case in catalog["cases"]))
@@ -593,7 +596,9 @@ class PropertyExecutorTests(unittest.TestCase):
         self.assertEqual(self.queue.stats()["all_native_attempts"], 0)
         path = Q.ROOT / "tests" / "ux" / "campaigns" / "config-property-pilot-20261110-v4.json"
         if path.exists():
-            self.assertEqual(Q.read_json(path), catalog)
+            # The shipped v4 remains replayable on 73bbe97, never rebound to v5 sources.
+            with self.assertRaisesRegex(ValueError, "source drift"):
+                Q.validate_catalog(Q.read_json(path))
 
 
 if __name__ == "__main__":

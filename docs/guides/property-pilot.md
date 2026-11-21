@@ -1,5 +1,12 @@
 # Small SDK property pilot
 
+**Historical v4 protocol:** replay on commit
+`73bbe975468e30ed4efbfee59692dd45a94a178c`. Its checked-in definitions and pins
+are intentionally unchanged and refuse newer execution source on this checkout.
+Current `catalog --pilot` declares the new
+[v5 hybrid body/inspector pilot](hybrid-property-pilot.md), not a rebinding of
+these historical Title cases. The commands below document the frozen v4 version.
+
 This is an opt-in execution adapter, **not** a new desktop authority or a
 replacement for the file-only [campaign queue](ux-campaign.md).
 `scripts\ux-experiment.py` uses the existing profile validation and

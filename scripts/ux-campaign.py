@@ -302,7 +302,8 @@ def generate_catalog():
 
 def validate_catalog(catalog):
     if catalog.get("kind") == "ux-property-pilot":
-        from ux_property_executor import validate_case, ADAPTER
+        from ux_property_executor import validate_case, ADAPTER, HYBRID_ADAPTER
+        hybrid = catalog.get("selection_method") == "hybrid-image-inspector-v1"
         if (catalog.get("schema_version") != 1 or catalog.get("application") != APP
                 or not catalog.get("cases") or len(catalog["cases"]) > 5
                 or catalog.get("mix") != {"configuration": len(catalog["cases"]), "simulator": 0}):
@@ -312,6 +313,8 @@ def validate_catalog(catalog):
         expected_sources = {"scripts\\" + name for name in (
             "ux_property_executor.py", "ux-experiment.py", "ux-campaign.py",
             "loxone-ux.py", "loxone_ux_transport.py")}
+        if hybrid:
+            expected_sources.add("scripts\\ux_hybrid_selection.py")
         if {item["path"] for item in catalog["executor_sources"]} != expected_sources:
             raise ValueError("Pilot must pin all actual executor sources.")
         for descriptor in catalog["executor_sources"]:
@@ -324,8 +327,14 @@ def validate_catalog(catalog):
             if (case["definition_sha256"] != definition_hash(body) or case["application"] != APP
                     or not case["id"].startswith("pilot-title-")
                     or case["executor_compatible"] is not True
-                    or case["canary_for"] not in (None, ADAPTER)):
+                    or case["adapter"] != (HYBRID_ADAPTER if hybrid else ADAPTER)
+                    or case["canary_for"] not in (None, case["adapter"])):
                 raise ValueError("Pilot definition/application binding changed.")
+            if hybrid and case.get("selection_source") != next(
+                item for item in catalog["executor_sources"]
+                if item["path"] == "scripts\\ux_hybrid_selection.py"
+            ):
+                raise ValueError("Hybrid case source differs from its reviewed catalog.")
         return catalog
     if catalog.get("schema_version") != 1 or catalog.get("application") != APP:
         raise ValueError("Unsupported campaign schema/application pin.")
@@ -659,7 +668,7 @@ class Queue:
                     "--expected-sha", APP["sha256"], "--deadline-seconds", str(case["timeout_seconds"]),
                     "--verbose", "run", str(recipe_file)]
             load_tool("loxone-ux").make_parser().parse_args(argv[2:])
-        elif case["adapter"] == "sdk-property-roundtrip-v1":
+        elif case["adapter"] in {"sdk-property-roundtrip-v1", "sdk-property-hybrid-v1"}:
             gui = load_tool("loxone-ux")
             for key in ("executable_path", "document_path"):
                 gui.windows_path(private[key], key)
@@ -698,12 +707,21 @@ class Queue:
             "authority": "DATA ONLY. Existing guarded worker must independently admit every input/lifecycle action.",
             "collection": "Retain actual native receipt/request, guard+PID/path/hash/start/session/fence proof, XML/diff, owned screenshots and observations.",
         }
-        if case["adapter"] == "sdk-property-roundtrip-v1":
+        if case["adapter"] in {"sdk-property-roundtrip-v1", "sdk-property-hybrid-v1"}:
             handoff.update({key: private[key] for key in (
                 "executable_path", "document_path", "before_xml", "authority_source_sha256")})
+        if case["adapter"] == "sdk-property-hybrid-v1":
+            binding = private.get("execution_binding", {})
+            if set(binding) != {"effect_authority", "runtime_binding", "selector_evidence"}:
+                raise ValueError("Parent-reviewed immutable hybrid execution binding is required.")
+            for descriptor in binding.values():
+                checked_artifact(private["artifact_root"], descriptor)
+            handoff["execution_binding"] = binding
         write_new(destination / "handoff.json", handoff)
         self.append("handoff", run_id=run_id, handoff_sha256=definition_hash(handoff),
-                    fixture_sha256=fixture_sha, expected_target_pid=expected_target_pid)
+                    fixture_sha256=fixture_sha, expected_target_pid=expected_target_pid,
+                    **({"execution_binding_sha256": definition_hash(handoff["execution_binding"])}
+                       if "execution_binding" in handoff else {}))
         return handoff
 
     def unknown(self, run_id, reason):
@@ -715,7 +733,9 @@ class Queue:
         if runs[run_id]["status"] != "dispatched":
             raise ValueError("Dispatch already terminal; no retry/requeue.")
         started = False
-        if self.cases[runs[run_id]["case_id"]]["adapter"] == "sdk-property-roundtrip-v1":
+        if self.cases[runs[run_id]["case_id"]]["adapter"] in {
+            "sdk-property-roundtrip-v1", "sdk-property-hybrid-v1"
+        }:
             own = [event for event in self.events() if event.get("run_id") == run_id]
             results = [event for event in own if event["type"] == "execution-result"]
             started = (results[-1].get("actual_native_start") if results else
@@ -777,7 +797,7 @@ class Queue:
                     return previous  # Read-only batch audit, not another attempt or promotion.
                 raise ValueError("Dispatch already terminal; append-only evidence cannot retry it.")
             case = self.cases[run["case_id"]]
-            pilot = case["adapter"] == "sdk-property-roundtrip-v1"
+            pilot = case["adapter"] in {"sdk-property-roundtrip-v1", "sdk-property-hybrid-v1"}
             try:
                 status, started = validate_capture(case, run, capture, artifact_root, self.events())
                 if pilot and status == "observed":
@@ -918,7 +938,7 @@ class Queue:
 
 
 def validate_capture(case, run, capture, root, events):
-    if case.get("adapter") == "sdk-property-roundtrip-v1":
+    if case.get("adapter") in {"sdk-property-roundtrip-v1", "sdk-property-hybrid-v1"}:
         from ux_property_executor import validate_capture as validate_property_capture
         # The adapter's collector is file-only; it never constructs a client.
         return validate_property_capture(case, run, capture, root, events,
@@ -1110,8 +1130,8 @@ def main(argv=None):
     try:
         if args.command == "catalog":
             if args.pilot:
-                from ux_property_executor import pilot_catalog
-                catalog = validate_catalog(pilot_catalog(load_tool("ux-campaign")))
+                from ux_property_executor import hybrid_catalog
+                catalog = validate_catalog(hybrid_catalog(load_tool("ux-campaign")))
             else:
                 catalog = validate_catalog(generate_catalog())
             if args.write:
