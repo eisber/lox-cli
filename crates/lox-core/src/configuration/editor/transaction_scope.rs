@@ -1,4 +1,7 @@
-use quick_xml::{Reader, events::Event};
+use quick_xml::{
+    Reader,
+    events::{Event, attributes::Attributes},
+};
 use xmltree::Element;
 
 use super::{EditError, legacy::State};
@@ -11,7 +14,55 @@ pub(super) enum ScopeError {
     TemplateOrInherited,
 }
 
+pub(super) fn require_xml_1_0_declaration(bytes: &[u8]) -> Result<(), ScopeError> {
+    // The writer always emits 1.0. Check declarations before the DOM can admit
+    // 1.1-only data or report another version as a generic load failure.
+    let mut reader = Reader::from_reader(bytes);
+    let mut first = true;
+    while let Ok(event) = reader.read_event() {
+        match event {
+            Event::Decl(decl) => {
+                if !first
+                    || !matches!(decl.version(), Ok(version) if version.as_ref() == b"1.0")
+                    || !std::str::from_utf8(&decl)
+                        .is_ok_and(|text| Attributes::new(text, 3).all(|attr| attr.is_ok()))
+                {
+                    return Err(ScopeError::UnsupportedXml);
+                }
+            }
+            Event::PI(pi) if pi.target().eq_ignore_ascii_case(b"xml") => {
+                return Err(ScopeError::UnsupportedXml);
+            }
+            Event::Eof => break,
+            _ => {}
+        }
+        first = false;
+    }
+    // Structural parse failures remain the shared loader's diagnostics.
+    Ok(())
+}
+
 pub(super) fn require_plain_xml(bytes: &[u8]) -> Result<(), ScopeError> {
+    require_plain_xml_scope(bytes, false).map(|_| ())
+}
+
+/// Returns whether input contains whitespace that cannot safely be treated as indentation.
+pub(super) fn require_round_trip_xml(bytes: &[u8]) -> Result<bool, ScopeError> {
+    require_plain_xml_scope(bytes, true)
+}
+
+#[derive(Default)]
+struct TextScope {
+    has_element: bool,
+    has_payload: bool,
+    has_indent: bool,
+}
+
+fn xml_space(byte: u8) -> bool {
+    matches!(byte, b' ' | b'\t' | b'\r' | b'\n')
+}
+
+fn require_plain_xml_scope(bytes: &[u8], round_trip: bool) -> Result<bool, ScopeError> {
     let text = std::str::from_utf8(bytes).map_err(|_| ScopeError::UnsupportedXml)?;
     if bytes.contains(&0) {
         return Err(ScopeError::UnsupportedXml);
@@ -22,6 +73,8 @@ pub(super) fn require_plain_xml(bytes: &[u8]) -> Result<(), ScopeError> {
     reader.config_mut().expand_empty_elements = true;
     let mut depth = 0usize;
     let mut root_seen = false;
+    let mut text_scopes = Vec::<TextScope>::new();
+    let mut ambiguous_whitespace = false;
     loop {
         match reader
             .read_event()
@@ -35,12 +88,24 @@ pub(super) fn require_plain_xml(bytes: &[u8]) -> Result<(), ScopeError> {
                     root_seen = true;
                 }
                 depth += 1;
+                if round_trip {
+                    if let Some(parent) = text_scopes.last_mut() {
+                        parent.has_element = true;
+                    }
+                    text_scopes.push(TextScope::default());
+                }
                 if element.name().as_ref().contains(&b':') {
                     return Err(ScopeError::NamespacedXml);
                 }
-                // Identical duplicate attributes remain the shared loader's policy.
-                for attr in element.attributes().with_checks(false) {
-                    let attr = attr.map_err(|error| ScopeError::Edit(EditError::load(error)))?;
+                // Legacy callers allow identical duplicates; strict writers cannot retain them.
+                for attr in element.attributes().with_checks(round_trip) {
+                    let attr = attr.map_err(|error| {
+                        if round_trip {
+                            ScopeError::UnsupportedXml
+                        } else {
+                            ScopeError::Edit(EditError::load(error))
+                        }
+                    })?;
                     let name = attr.key.as_ref();
                     if name == b"xmlns" || name.contains(&b':') {
                         return Err(ScopeError::NamespacedXml);
@@ -49,6 +114,10 @@ pub(super) fn require_plain_xml(bytes: &[u8]) -> Result<(), ScopeError> {
             }
             Event::End(_) => {
                 depth = depth.checked_sub(1).ok_or(ScopeError::UnsupportedXml)?;
+                if let Some(scope) = text_scopes.pop() {
+                    ambiguous_whitespace |=
+                        scope.has_indent && (!scope.has_element || scope.has_payload);
+                }
             }
             Event::DocType(_) => return Err(ScopeError::UnsupportedXml),
             Event::Decl(decl) => {
@@ -61,16 +130,39 @@ pub(super) fn require_plain_xml(bytes: &[u8]) -> Result<(), ScopeError> {
                 }
             }
             Event::Text(text) if depth == 0 => {
-                if !text
-                    .as_ref()
-                    .iter()
-                    .all(|byte| matches!(byte, b' ' | b'\t' | b'\r' | b'\n'))
-                {
+                if !text.as_ref().iter().copied().all(xml_space) {
                     return Err(ScopeError::UnsupportedXml);
                 }
             }
+            Event::Text(text) if round_trip => {
+                let decoded = text
+                    .unescape()
+                    .map_err(|error| ScopeError::Edit(EditError::load(error)))?;
+                let scope = text_scopes.last_mut().ok_or(ScopeError::UnsupportedXml)?;
+                if !decoded.is_empty() && decoded.bytes().all(xml_space) {
+                    // Only raw multiline indentation in element-only layout is admitted.
+                    // An explicit character reference or an inline gap could be payload.
+                    if text.as_ref().contains(&b'\n')
+                        && text.as_ref().iter().copied().all(xml_space)
+                    {
+                        scope.has_indent = true;
+                    } else {
+                        ambiguous_whitespace = true;
+                    }
+                } else if !decoded.is_empty() {
+                    scope.has_payload = true;
+                }
+            }
             Event::CData(_) if depth == 0 => return Err(ScopeError::UnsupportedXml),
-            Event::Eof if root_seen && depth == 0 => return Ok(()),
+            Event::CData(_) if round_trip => {
+                let scope = text_scopes.last_mut().ok_or(ScopeError::UnsupportedXml)?;
+                scope.has_payload = true;
+            }
+            // The canonical writer owns only the loaded root, not its surrounding nodes.
+            Event::Comment(_) | Event::PI(_) if round_trip && depth == 0 => {
+                return Err(ScopeError::UnsupportedXml);
+            }
+            Event::Eof if root_seen && depth == 0 => return Ok(ambiguous_whitespace),
             Event::Eof => return Err(ScopeError::UnsupportedXml),
             _ => {}
         }

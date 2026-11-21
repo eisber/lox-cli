@@ -13,6 +13,8 @@ mod description;
 pub(super) mod legacy;
 mod lighting;
 #[cfg(feature = "configuration-xml")]
+mod lighting_display_name;
+#[cfg(feature = "configuration-xml")]
 mod lighting_recount;
 mod load_manager;
 mod moods;
@@ -56,6 +58,11 @@ pub use description::{
 pub use lighting::{
     LightingInspection, LightingInspectionError, LightingStorage, StoredLightingChannel,
     StoredLightingMood, StoredLightingOutput, StoredLightingWire, inspect_lighting,
+};
+#[cfg(feature = "configuration-xml")]
+pub use lighting_display_name::{
+    LightingMoodDisplayNameChange, LightingMoodDisplayNameError, LightingMoodDisplayNameOutcome,
+    LightingMoodDisplayNameTarget, LightingMoodDisplayNameValue, set_lighting_mood_display_name,
 };
 #[cfg(feature = "configuration-xml")]
 pub use lighting_recount::{
