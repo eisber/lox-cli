@@ -1,4 +1,4 @@
-//! Legacy-compatible, headless parameter, raw attribute and control-room transactions.
+//! Legacy-compatible, headless configuration editor operations.
 //!
 //! This is not a native Config validator or a lossless arbitrary-XML editor.
 //! Loading and canonical serialization intentionally retain the CLI's existing
@@ -7,6 +7,7 @@
 
 mod attribute;
 mod control_move;
+mod daytimer;
 mod description;
 pub(super) mod legacy;
 #[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
@@ -26,6 +27,12 @@ pub use attribute::{AttributeChange, SetAttributeOutcome, set_attribute};
 #[doc(hidden)]
 pub use control_move::ControlMovePlan;
 pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelector, move_control};
+pub use daytimer::{
+    DayTimerEntryRemoval, DayTimerRemovalError, DayTimerRemovalOutcome, remove_daytimer_entry,
+};
+#[cfg(feature = "unstable-legacy-cli-editor")]
+#[doc(hidden)]
+pub use daytimer::{SelectedDayTimerEntry, daytimer_integer, daytimer_mode_uuid_key};
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
 };

@@ -21,6 +21,20 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `configuration-editor`: `configuration::editor::remove_daytimer_entry`
+  removes one direct record from an ordinary digital DayTimer directly on a Page
+  under the sole stampable Document (optionally through a Program). Its legacy
+  block selector and exact mode/time match are unchanged: native and RFC mode
+  UUID spellings compare by value without being rewritten. The operation
+  validates references, intervals and `N` before deletion, preserves surviving
+  records and attribute values under the legacy writer, and omits `N` at zero.
+  Success returns owned bytes with a save stamp from the supplied fixed-offset
+  clock; failures return a typed `DayTimerRemovalError`, not partial output.
+  The existing CLI uses the same selector and mutator but retains its original
+  admission, diagnostics, reports, save-time reread and atomic filesystem write.
+  Canonical formatting and the loader limitation lox-n37w remain; no lossless
+  arbitrary-XML preservation, native validation, or foreign binding is implied.
+
 - Optional `configuration-editor`: `configuration::editor::get_program_text`
   returns an owned String from the first direct `Field Name="Configuration"`
   of an exactly `SequenceController` selected with the existing legacy selector.

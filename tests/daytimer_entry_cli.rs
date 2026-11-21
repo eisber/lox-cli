@@ -1480,6 +1480,111 @@ fn native_fixture(stored_mode: &str, object_mode: &str) -> String {
 }
 
 #[test]
+fn daytimer_delete_page_cli_matches_core_edit_without_changing_report_or_save() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("existing.Loxone");
+    let source = native_fixture(NATIVE_MODE_A, RFC_MODE_A)
+        .replacen(
+            "<C Type=\"DayTimer\" U=\"timer\"",
+            "<C Type=\"Page\"><C Type=\"DayTimer\" U=\"timer\"",
+            1,
+        )
+        .replacen(
+            "</C><C Type=\"DayTimer\" U=\"other\"",
+            "</C></C><C Type=\"DayTimer\" U=\"other\"",
+            1,
+        );
+    let core = lox_core::configuration::editor::remove_daytimer_entry(
+        source.as_bytes(),
+        "uuid:timer",
+        RFC_MODE_A,
+        120,
+        180,
+        &chrono::DateTime::parse_from_rfc3339("2026-01-01T00:00:00Z").unwrap(),
+    )
+    .unwrap();
+    fs::write(&input, &source).unwrap();
+    fs::write(&output, b"replace only on success").unwrap();
+    let result = command_for_mode(&input, RFC_MODE_A, "02:00", "03:00")
+        .arg("--save-as")
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(
+        result,
+        serde_json::json!({
+            "ok": true,
+            "saved_to": output.to_str().unwrap(),
+            "removed": {
+                "block_uuid": "timer",
+                "entry": { "mode_uuid": RFC_MODE_A, "from_minutes": 120, "to_minutes": 180 },
+                "stored_mode_uuid": NATIVE_MODE_A,
+                "removed_attributes": { "From": "120", "To": "180", "V": "5", "Marker": "selected" },
+                "remaining_entries": 2
+            }
+        })
+    );
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    let saved = fs::read_to_string(&output).unwrap();
+    assert!(!saved.contains("DateS=\"1\""));
+    assert_eq!(
+        without_document_stamp(&saved),
+        without_document_stamp(&String::from_utf8(core.bytes).unwrap())
+    );
+    assert!(!dir.path().join("existing.Loxone.tmp").exists());
+}
+
+#[test]
+fn daytimer_delete_cli_retains_legacy_local_name_match_on_page() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = native_fixture(NATIVE_MODE_A, RFC_MODE_A)
+        .replacen(
+            "<C Type=\"DayTimer\" U=\"timer\"",
+            "<C Type=\"Page\"><C Type=\"DayTimer\" U=\"timer\"",
+            1,
+        )
+        .replacen(
+            "</C><C Type=\"DayTimer\" U=\"other\"",
+            "</C></C><C Type=\"DayTimer\" U=\"other\"",
+            1,
+        )
+        .replace("N=\"3\"", "N=\"1\"")
+        .replace("<Entry From=\"600\" To=\"660\" V=\"3\" Marker=\"late\"/>", "")
+        .replace("<Entry From=\"120\" To=\"180\" Ix=\"1\" V=\"4\" NeedActivate=\"true\" Marker=\"other-mode\"/>", "")
+        .replace(
+            "<Entry From=\"120\" To=\"180\" V=\"5\" Marker=\"selected\"/>",
+            r#"<vendor:Entry xmlns:vendor="urn:vendor" To="180" Marker="selected"/>"#,
+        );
+    fs::write(&input, &source).unwrap();
+    command_for_mode(&input, RFC_MODE_A, "00:00", "03:00")
+        .arg("--save-as")
+        .arg(&output)
+        .args(["-o", "csv", "--no-header", "-q"])
+        .assert()
+        .success()
+        .stdout(format!("\"timer\",{RFC_MODE_A},{NATIVE_MODE_A},0,180,0\n"));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    let saved = parse(&fs::read(&output).unwrap());
+    let timer = saved
+        .get_child("C")
+        .unwrap()
+        .get_child("C")
+        .unwrap()
+        .get_child("C")
+        .unwrap();
+    assert!(!timer.attributes.contains_key("N"));
+    assert!(timer.get_child("Entry").is_none());
+}
+
+#[test]
 fn daytimer_native_mode_ids_match_aliases_and_case_without_rewriting_spelling() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
