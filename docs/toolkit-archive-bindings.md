@@ -25,6 +25,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Verified at `0adc6a9`: `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Verified at `0adc6a9`: `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java 22 API in Kotlin |
 | Offline selected Lighting mood inventory | Published optional `configuration::editor::list_moods` (`configuration-editor`) at `1746c9b`; stored rows only | Existing `lox config moods` shares the Core traversal; file I/O, DTO and rendering stay in CLI | Verified at `8b36cb2`: `list_moods(MoodInventoryRequest(bytes=..., selector=...)) -> list[MoodInfo]`; typed `MoodInventoryError` | Verified at `8b36cb2`: `LoxArchive.listMoods(MoodInventoryRequest) -> List<MoodInfo>`; checked `MoodInventoryException`; same Java 22 API in Kotlin |
 | Offline full stored Lighting inspection | Published optional `configuration::editor::inspect_lighting` (`configuration-editor`) at `c9a68a5`; stored controller, channels, moods, collection shape and document versions | CLI formatting, diagnostics and classification stay in CLI | Unqualified source candidate: `inspect_lighting(LightingInspectionRequest(bytes=..., selector=...)) -> LightingInspection`; typed `LightingInspectionError` | Unqualified source candidate: `LoxArchive.inspectLighting(LightingInspectionRequest) -> LightingInspection`; checked `LightingInspectionException`; same Java 22 API in Kotlin |
+| Offline selected stored Load Manager inventory | Published optional `configuration::editor::inspect_load_manager` (`configuration-editor`) at `56a1ff2`; twelve direct records in XML order and typed refusals | Existing inspection shares Core; CLI presentation and edits unchanged | Unqualified source candidate: `inspect_load_manager(LoadManagerInspectionRequest(bytes=..., selector=...)) -> LoadManagerInspection`; typed `LoadManagerInspectionError` | Unqualified source candidate: `LoxArchive.inspectLoadManager(LoadManagerInspectionRequest) -> LoadManagerInspection`; checked `LoadManagerInspectionException`; same Java 22 API in Kotlin |
 | Offline selected standalone CentralLight stored links | Published optional `configuration::editor::inspect_central_light_links` (`configuration-editor`) at `19d1d2b`; ordered stored link records and typed graph refusals | Existing `lox config central-light inspect` shares the Core matcher; file I/O and presentation stay in CLI | Verified at `01cb43b`: `inspect_central_light_links(CentralLightLinksRequest(bytes=..., selector=...)) -> CentralLightLinks`; typed `CentralLightLinksError` | Verified at `01cb43b`: `LoxArchive.inspectCentralLightLinks(CentralLightLinksRequest) -> CentralLightLinks`; checked `CentralLightLinksException`; same Java 22 API in Kotlin |
 | Offline selected principal direct permissions | Published optional `configuration::editor::principal_permissions` (`configuration-editor`); ordered direct entries and typed failures | Existing `lox config user-perms` uses Core; file I/O, diagnostics and presentation stay in CLI | Verified at `06d8238`: `principal_permissions(PrincipalPermissionsRequest(bytes=..., selector=..., kind=...)) -> PrincipalPermissions`; typed `PrincipalPermissionsError` | Verified at `06d8238`: `LoxArchive.principalPermissions(PrincipalPermissionsRequest) -> PrincipalPermissions`; checked `PrincipalPermissionsException`; same Java 22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
@@ -281,6 +282,39 @@ before 64 strict pre-call lone-surrogate rejections per language. The check
 only excludes retained matching inputs; it does not assert that every rejected
 lowering allocated a buffer. Small/empty inventories, `Load`, and absent
 fields are value checks only; `Other` has no specimen.
+
+### Offline selected stored Load Manager inventory
+
+The candidate delegates once to the published `inspect_load_manager`. The
+shared loader and legacy selector run before the exact `C Type="LoadShed"`
+check. Success owns the block UUID and title (empty if missing) and exactly
+twelve direct `Load` records in XML order. `record_order` is the one-based
+stored position, not a shedding priority. `io_index` is the resolved unique
+index in `0..=11`; omitted `ioIdx` resolves to zero but does not insert an
+attribute. Attribute entries retain Core key order, raw loader-decoded
+values and unknown keys, with no interpretation or synthesized settings.
+The loader's quoted-value digit-name rewrite (`lox-n37w`) is unchanged.
+
+The error cases retain Core's cause text (`Load`), selector and sorted
+unique titles (`NotFound`), selector and ordered title/type/UUID identities
+(`Ambiguous`), selector (`NotLoadManager`), observed direct count
+(`RecordCount`), raw stored value (`InvalidIoIndex`), and resolved duplicate
+index (`DuplicateIoIndex`). `Other` is a forward-compatible fallback with
+message and optional source text. There are no edits, runtime behavior,
+file or device access, or native Config semantics.
+
+The XML and selector lower as one `LoadManagerInspectionRequest`, using the
+verified ProgramText record pattern. The unrun installed-artifact checks
+require keyword-only constructors for all five Python records and use the
+same Java 22 API in Kotlin. Each language checks a marked request control
+and 64 actual pre-call lone-surrogate rejections that must leave no matching
+XML buffer. This checks retention, not whether each rejection allocated a
+buffer. For an inventory and four named refusals (`NotFound`, `Ambiguous`,
+`NotLoadManager`, `InvalidIoIndex`), the witness separately measures address
+liveness and exact payload count in a calibrated live and freed buffer from
+the export, then checks that 64 distinct held public outcomes leave no
+matching native payload without requested GC. Short `Load`, numeric-only
+refusals and empty fields are value checks only; `Other` is not exercised.
 
 ### Offline selected standalone CentralLight stored links
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Loxone>
+  <C Type="Place" Title="Workshop" U="load-room"/>
+  <C Type="LoadShed" U="load-manager" Title="Loads &amp; 灯" gid="load-bank">
+    <IoData Pr="load-room"/>
+    <Other><Load ioIdx="ignored-nested"/></Other>
+    <l:Load xmlns:l="urn:synthetic" ioIdx="05" nm=" A &amp; B " pwr="02.5000e0" minOn="+0012" Future=""/>
+    <Load nm="" maxOff="" pwr="unknown" Note="at 7am=ok"/>
+    <Load ioIdx="3"/>
+    <Load ioIdx="1"/>
+    <Load ioIdx="2"/>
+    <Load ioIdx="4"/>
+    <Load ioIdx="6"/>
+    <Load ioIdx="7"/>
+    <Load ioIdx="8"/>
+    <Load ioIdx="9"/>
+    <Load ioIdx="10"/>
+    <Load ioIdx="11"/>
+  </C>
+</Loxone>
