@@ -20,6 +20,9 @@ pub mod auth_path_component;
 #[cfg(feature = "runtime-websocket")]
 #[doc(hidden)]
 pub mod auth_reply_framing;
+#[cfg(feature = "runtime-websocket")]
+#[doc(hidden)]
+pub mod jwt_grant_value;
 #[doc(hidden)]
 pub mod login_challenge;
 #[cfg(feature = "auth-hash")]
