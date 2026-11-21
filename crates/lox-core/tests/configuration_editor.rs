@@ -762,6 +762,211 @@ fn program_reader_typed_load_selection_and_exact_type_error_priority() {
     assert!(cause.into_inner().downcast::<xmltree::ParseError>().is_ok());
 }
 
+#[cfg(feature = "configuration-xml")]
+mod program_replacement {
+    use super::{EditError, SelectionError, daytimer_clock};
+    use lox_core::configuration::editor::{
+        ProgramTextReplacementError as Refusal, get_program_text, replace_program_text,
+    };
+
+    const OLD: &str = "sequence 1\nreturn";
+    const NEW: &str = "sequence 1\n// 灯 & <tag>\nreturn";
+
+    fn xml(field: &str) -> String {
+        format!(
+            r#"<ControlList><C Type="Document" DateS="28810" Date="2009-01-01 10:00:10">
+  <C Type="Page"><C Type="SequenceController" U="seq" Title="Sequence">
+    <Co K="AQ1" U="port"/>
+    <Unknown><Field Name="Configuration">nested</Field></Unknown>
+    <Field Name="configuration">wrong spelling</Field>
+    {field}
+    <Other Keep="x&amp;y"/>
+  </C></C>
+</C></ControlList>"#,
+        )
+    }
+
+    fn direct(text: &str) -> String {
+        format!(r#"<Field Name="Configuration" Keep="yes">{text}</Field>"#)
+    }
+
+    #[test]
+    fn program_replacement_preserves_copy_and_uses_explicit_monotonic_stamp() {
+        let source = xml(&direct(OLD));
+        for crlf in [false, true] {
+            let input = if crlf {
+                format!(
+                    "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n{}",
+                    source.replace('\n', "\r\n")
+                )
+            } else {
+                source.clone()
+            };
+            let edit = |bytes: &[u8], text: &str| {
+                replace_program_text(bytes, "uuid:seq", text, &daytimer_clock()).unwrap()
+            };
+            let no_op = edit(input.as_bytes(), OLD);
+            assert!(!no_op.content_changed && !no_op.document_stamped);
+            assert_ne!(no_op.bytes, input.as_bytes());
+            assert!(String::from_utf8(no_op.bytes).unwrap().contains("DateS=\"28810\""));
+
+            let changed = edit(input.as_bytes(), NEW);
+            assert!(changed.content_changed && changed.document_stamped);
+            assert_eq!(changed.element.uuid, "seq");
+            let expected = if crlf {
+                NEW.replace('\n', "\r\n")
+            } else {
+                NEW.to_owned()
+            };
+            let stored = get_program_text(&changed.bytes, "uuid:seq").unwrap();
+            assert_eq!(stored, expected);
+            assert_eq!(
+                get_program_text(input.as_bytes(), "uuid:seq")
+                    .unwrap()
+                    .lines()
+                    .collect::<Vec<_>>(),
+                ["sequence 1", "return"]
+            );
+            assert_eq!(changed.bytes.starts_with(b"\xef\xbb\xbf"), crlf);
+            let output = std::str::from_utf8(&changed.bytes).unwrap();
+            for unchanged in [
+                r#"<Co K="AQ1" U="port"/>"#,
+                r#"<Field Name="Configuration">nested</Field>"#,
+                r#"<Field Name="configuration">wrong spelling</Field>"#,
+                r#"<Field Name="Configuration" Keep="yes">"#,
+                r#"<Other Keep="x&amp;y"/>"#,
+                "// 灯 &amp; &lt;tag&gt;",
+                r#"DateS="28811" Date="2009-01-01 10:00:11""#,
+            ] {
+                assert!(output.contains(unchanged), "{unchanged}");
+            }
+            let repeated = edit(&changed.bytes, NEW);
+            assert!(!repeated.content_changed && !repeated.document_stamped);
+            assert_eq!(repeated.bytes, changed.bytes);
+        }
+    }
+
+    #[test]
+    fn program_replacement_refuses_ambiguous_or_alternate_storage_without_bytes() {
+        let replace = |input: &str| {
+            replace_program_text(input.as_bytes(), "uuid:seq", NEW, &daytimer_clock())
+        };
+        assert!(matches!(
+            replace(&xml("")),
+            Err(Refusal::MissingField { .. })
+        ));
+        assert!(matches!(
+            replace(&xml(&format!("{}{}", direct(OLD), direct("later")))),
+            Err(Refusal::AmbiguousField { .. })
+        ));
+        for field in [
+            r#"<Field Name="Configuration"/>"#,
+            r#"<Field Name="Configuration">before<Child/>after</Field>"#,
+            r#"<Field Name="Configuration"><![CDATA[return]]></Field>"#,
+            r#"<Field Name="Configuration" Value="fallback">return</Field>"#,
+        ] {
+            let input = xml(field);
+            assert!(matches!(
+                replace(&input),
+                Err(Refusal::UnsupportedField { .. })
+            ));
+        }
+        let plain = xml(&direct(OLD));
+        let alternate = plain.replace(
+            r#"Title="Sequence""#,
+            r#"Title="Sequence" Configuration="return""#,
+        );
+        assert!(matches!(
+            replace(&alternate),
+            Err(Refusal::UnsupportedField { .. })
+        ));
+        let mirror = plain.replace("<Other ", "<C U=\"seq\"/><Other ");
+        assert!(matches!(
+            replace(&mirror),
+            Err(Refusal::UnsupportedOwner { .. })
+        ));
+        let unrelated_document = plain.replace(
+            r#"<C Type="Document" DateS="28810" Date="2009-01-01 10:00:10">"#,
+            r#"<C Type="Document"/><C Type="Folder">"#,
+        );
+        assert!(matches!(
+            replace(&unrelated_document),
+            Err(Refusal::UnsupportedOwner { .. })
+        ));
+    }
+
+    #[test]
+    fn program_replacement_refuses_lossy_xml_after_load_selection_and_type() {
+        let replace = |input: &str, selector: &str, text: &str| {
+            replace_program_text(input.as_bytes(), selector, text, &daytimer_clock())
+        };
+        assert!(matches!(
+            replace("<ControlList>", "missing", "\0"),
+            Err(Refusal::Edit(EditError::Load(_)))
+        ));
+        let plain = xml(&direct(OLD));
+        let unselected = plain.replace("<Other ", r#"<C U="another" Title="Sequence"/><Other "#);
+        assert!(matches!(
+            replace(&unselected, "Sequence", "\0"),
+            Err(Refusal::Edit(EditError::Selection(SelectionError::Ambiguous { .. })))
+        ));
+        let wrong_type = plain.replace("SequenceController", "sequencecontroller");
+        assert!(matches!(
+            replace(&wrong_type, "uuid:seq", "\0"),
+            Err(Refusal::UnsupportedType { element }) if element.block_type == "sequencecontroller"
+        ));
+        for unsupported in [
+            format!("<!-- lost outside the root -->{plain}"),
+            format!("<!DOCTYPE ControlList>{plain}"),
+            format!("{plain}<Other/>"),
+            format!("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>{plain}"),
+            plain.replace("<Other ", "<Other xml:lang=\"en\" "),
+            plain.replace(r#"Keep="yes""#, r#"Keep="yes" Keep="yes""#),
+        ] {
+            assert!(matches!(
+                replace(&unsupported, "uuid:seq", NEW),
+                Err(Refusal::UnsupportedDocument)
+            ));
+        }
+        let utf16: Vec<u8> = std::iter::once(0xfeff)
+            .chain(plain.encode_utf16())
+            .flat_map(u16::to_le_bytes)
+            .collect();
+        assert!(matches!(
+            replace_program_text(&utf16, "uuid:seq", NEW, &daytimer_clock()),
+            Err(Refusal::UnsupportedDocument)
+        ));
+        for loader_rewrite in [
+            plain.replace("<Other ", "<Other 12hTF=\"true\" "),
+            plain.replace("x&amp;y", "literal &#49;2hTF=x"),
+        ] {
+            assert!(matches!(
+                replace(&loader_rewrite, "uuid:seq", NEW),
+                Err(Refusal::LoaderRewrite)
+            ));
+        }
+        assert!(matches!(
+            replace(&plain, "uuid:seq", "// 12hTF=x"),
+            Err(Refusal::LoaderRewrite)
+        ));
+        for text in ["", "  \t\n", "sequence 1\r\nreturn", "// \0", "// ]]>"] {
+            assert!(matches!(
+                replace(&plain, "uuid:seq", text),
+                Err(Refusal::UnsupportedText)
+            ));
+        }
+
+        let fragment = format!(
+            r#"<C Type="SequenceController" U="seq">{}</C>"#,
+            direct(OLD)
+        );
+        let opaque = "opaque text, not sequence syntax";
+        let changed = replace(&fragment, "uuid:seq", opaque).unwrap();
+        assert!(changed.content_changed && !changed.document_stamped);
+        assert_eq!(get_program_text(&changed.bytes, "uuid:seq").unwrap(), opaque);
+    }
+}
+
 #[test]
 fn mood_inventory_keeps_recursive_order_duplicates_and_legacy_field_defaults() {
     use lox_core::configuration::editor::{MoodInfo, list_moods};

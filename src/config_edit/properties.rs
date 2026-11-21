@@ -229,65 +229,21 @@ impl ConfigEditor {
     /// Creates the `<Field>` element if it doesn't exist.
     /// Validates the program syntax before writing (returns error with line numbers if invalid).
     pub fn set_program_text(&mut self, selector: &str, program: &str) -> Result<String> {
-        use lox_sim::blocks::sequence::{count_program_lines, count_sequences, validate_program};
+        use lox_sim::blocks::sequence::{count_program_lines, count_sequences};
 
-        let path = self.require_one(selector)?;
-        let elem = self.get_element(&path);
-        let title = elem.attributes.get("Title").cloned().unwrap_or_default();
-        let block_type = elem.attributes.get("Type").cloned().unwrap_or_default();
-
-        if block_type != "SequenceController" {
-            bail!(
-                "'{}' is a {} — set-program is only for SequenceController blocks",
-                title,
-                block_type
-            );
-        }
-
-        // Validate program syntax
-        let errors = validate_program(program);
-        if !errors.is_empty() {
-            let mut msg = format!(
-                "Program has {} syntax error{}:\n",
-                errors.len(),
-                if errors.len() == 1 { "" } else { "s" }
-            );
-            for err in &errors {
-                msg.push_str(&format!("{}\n", err));
-            }
-            bail!("{}", msg.trim_end());
-        }
-
-        // Now get mutable reference and write
-        let elem = self.get_element_mut(&path);
-
-        // Find or create <Field Name="Configuration">
-        let field_idx = elem.children.iter().position(|c| {
-            c.as_element().is_some_and(|f| {
-                f.name == "Field"
-                    && f.attributes
-                        .get("Name")
-                        .map(|n| n == "Configuration")
-                        .unwrap_or(false)
-            })
-        });
-
-        if let Some(idx) = field_idx {
-            let field = elem.children[idx].as_mut_element().unwrap();
-            field.children.clear();
-            field
-                .children
-                .push(xmltree::XMLNode::Text(program.to_string()));
-        } else {
-            let mut field = Element::new("Field");
-            field
-                .attributes
-                .insert("Name".to_string(), "Configuration".to_string());
-            field
-                .children
-                .push(xmltree::XMLNode::Text(program.to_string()));
-            elem.children.push(xmltree::XMLNode::Element(field));
-        }
+        let element = self.kernel.set_program_text_legacy(
+            selector,
+            program,
+            validate_legacy_program,
+            |error| match error {
+                ProgramTextError::Edit(error) => super::editor_error(error),
+                ProgramTextError::Unsupported { element } => anyhow::anyhow!(
+                    "'{}' is a {} — set-program is only for SequenceController blocks",
+                    element.title,
+                    element.block_type
+                ),
+            },
+        )?;
 
         let lines = count_program_lines(program);
         let seqs = count_sequences(program);
@@ -297,9 +253,25 @@ impl ConfigEditor {
             if lines == 1 { "" } else { "s" },
             seqs,
             if seqs == 1 { "" } else { "s" },
-            title,
+            element.title,
         ))
     }
+}
+
+fn validate_legacy_program(program: &str) -> Result<()> {
+    let errors = lox_sim::blocks::sequence::validate_program(program);
+    if !errors.is_empty() {
+        let mut msg = format!(
+            "Program has {} syntax error{}:\n",
+            errors.len(),
+            if errors.len() == 1 { "" } else { "s" }
+        );
+        for err in &errors {
+            msg.push_str(&format!("{}\n", err));
+        }
+        bail!("{}", msg.trim_end());
+    }
+    Ok(())
 }
 
 pub(super) fn program_text_error(error: ProgramTextError) -> anyhow::Error {
