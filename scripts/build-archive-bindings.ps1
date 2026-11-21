@@ -37,6 +37,24 @@ function Short-Path([string]$Path) {
 }
 function Step([string]$Name, [string]$Executable, [string[]]$Arguments) {
     $start = [DateTime]::UtcNow.ToString('o')
+    $resolvedExecutable = (Get-Command $Executable -ErrorAction Stop).Source
+    [ordered]@{
+        utc = $start; executable = $resolvedExecutable
+        executable_sha256 = (Get-FileHash -LiteralPath $resolvedExecutable).Hash
+        config_sha256 = (Get-FileHash -LiteralPath $env:LOX_CONFIG).Hash
+        environment = [ordered]@{
+            HOME = $env:HOME; USERPROFILE = $env:USERPROFILE
+            LOX_HOME = $env:LOX_HOME; LOX_CONFIG = $env:LOX_CONFIG
+            TEMP = $env:TEMP; TMP = $env:TMP
+            CARGO_HOME = $env:CARGO_HOME; RUSTUP_HOME = $env:RUSTUP_HOME
+            CARGO_TARGET_DIR = $env:CARGO_TARGET_DIR
+            CARGO_INCREMENTAL = $env:CARGO_INCREMENTAL; CARGO_BUILD_JOBS = $env:CARGO_BUILD_JOBS
+            LOX_TELEMETRY = $env:LOX_TELEMETRY; DO_NOT_TRACK = $env:DO_NOT_TRACK
+            HTTP_PROXY = $env:HTTP_PROXY; HTTPS_PROXY = $env:HTTPS_PROXY
+            ALL_PROXY = $env:ALL_PROXY; NO_PROXY = $env:NO_PROXY
+            RUST_MIN_STACK = $env:RUST_MIN_STACK
+        }
+    } | ConvertTo-Json -Depth 5 | Set-Content "$Output\$Name.pre-child.json" -Encoding utf8
     & $Executable @Arguments *> "$Output\$Name.log"
     $code = $LASTEXITCODE
     $Steps.Add([ordered]@{
@@ -139,6 +157,16 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-wiring-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\wiring_catalog_smoke.py', "$Probe.dll")
+Step 'javac-wiring-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\WiringCatalogSmoke.java', 'tests\bindings\NativeWiringCatalogProbe.java')
+Step 'java-wiring-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'WiringCatalogSmoke'))
+$WiringKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-wiring-catalog-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\WiringCatalogSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-wiring-catalog.args", $WiringKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-wiring-catalog-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-wiring-catalog.args")
+Step 'kotlin-wiring-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-wiring-catalog-smoke.jar", 'WiringCatalogSmokeKt'))
 Step 'python-mqtt-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\mqtt_catalog_smoke.py', "$Probe.dll")
 Step 'javac-mqtt-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\MqttCatalogSmoke.java', 'tests\bindings\NativeMqttCatalogProbe.java')
 Step 'java-mqtt-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'MqttCatalogSmoke'))

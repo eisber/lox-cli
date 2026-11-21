@@ -1,0 +1,14 @@
+<Root>
+  <C Type="And" Title="Selected" U="raw-id">
+    <Co K="I1" U="00000000-0000-0000-0000000000000000"/>
+    <Co K="AQ1" U="00000000-0000-0000-0000-000000000000"/>
+    <Co K="input"><Nested><In/></Nested></Co>
+    <Co K="OutputSuffix"><In/></Co>
+    <Co K="Qx" U=" raw &amp; 灯 "/>
+    <Co K="Qx" U=" raw &amp; 灯 "/>
+    <Co/>
+    <Nested><Co K="ignored"/></Nested>
+  </C>
+  <C Type="And" Title="Twin one" U="one"/>
+  <C Type="Or" Title="Twin two" U="two"/>
+</Root>

@@ -19,6 +19,7 @@ mod numeric_state;
 mod statistics_index;
 mod structure_metadata;
 mod text_state;
+mod wiring_catalog;
 
 uniffi::setup_scaffolding!();
 
