@@ -4,7 +4,7 @@ fun main() {
     val value: StatSeries = LoxArchive.parseStatisticsSeries(
         "<Statistics StatsGroup=\"4294967295\"><S T=\"opaque\" V=\"-0\"/></Statistics>")
     val row: StatRow = value.rows().single()
-    val numbers: List<Double> = row.values()
+    val numbers: DoubleArray = row.values()
     check(value.group()!!.toUInt() == UInt.MAX_VALUE && row.timestamp() == "opaque")
     check(java.lang.Double.doubleToRawLongBits(numbers.single()) == Long.MIN_VALUE)
     try {

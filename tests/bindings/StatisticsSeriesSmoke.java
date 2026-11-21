@@ -46,28 +46,29 @@ public final class StatisticsSeriesSmoke {
         require(rows.size() == 3 && rows.getFirst().timestamp().equals(" opaque & timestamp ")
                 && rows.get(1).timestamp().equals("duplicate") && rows.get(2).timestamp().equals("duplicate"));
         long[] bits = {Long.MIN_VALUE, 1L, Long.MIN_VALUE | 1L, 0x7fefffffffffffffL};
-        List<Double> numbers = rows.getFirst().values();
+        double[] numbers = rows.getFirst().values();
         for (int i = 0; i < bits.length; i++) {
-            require(Double.doubleToRawLongBits(numbers.get(i)) == bits[i]);
+            require(Double.doubleToRawLongBits(numbers[i]) == bits[i]);
         }
-        require(rows.get(1).values().subList(0, 2).equals(List.of(1.0, 20.0)));
-        require(Double.doubleToRawLongBits(rows.get(1).values().get(2)) == 0);
-        require(Double.doubleToRawLongBits(rows.get(1).values().get(3)) == Long.MIN_VALUE);
-        require(rows.get(2).values().equals(List.of(4.0, 5.0, 6.0, 7.0)));
+        require(rows.get(1).values()[0] == 1.0 && rows.get(1).values()[1] == 20.0);
+        require(Double.doubleToRawLongBits(rows.get(1).values()[2]) == 0);
+        require(Double.doubleToRawLongBits(rows.get(1).values()[3]) == Long.MIN_VALUE);
+        require(Arrays.equals(rows.get(2).values(), new double[] {4.0, 5.0, 6.0, 7.0}));
         input = "replaced";
         operation.run("<Statistics/>");
-        require(value.name().equals("Café & 気") && numbers.getFirst().equals(-0.0));
+        require(value.name().equals("Café & 気")
+                && Double.doubleToRawLongBits(numbers[0]) == Long.MIN_VALUE);
         require(operation.run("<Statistics/>").outputs().equals(List.of("V")));
         require(operation.run("<Statistics Outputs=\"\"/>").outputs().equals(List.of("V")));
         StatSeries zero = operation.run(
                 "<Statistics NumOutputs=\"0\" Outputs=\"ignored\"><S T=\"\"/></Statistics>");
         require(zero.group() == null && zero.outputs().isEmpty()
-                && zero.rows().getFirst().timestamp().isEmpty() && zero.rows().getFirst().values().isEmpty());
+                && zero.rows().getFirst().timestamp().isEmpty() && zero.rows().getFirst().values().length == 0);
         StatSeries lazy = operation.run(
                 "<Statistics Name=\"n\" StatsGroup=\"0\" Outputs=\"A\" NumOutputs=\"1\" broken/>"
                 + "<S T=\"outside\" V=\"2\" broken/>");
         require(lazy.rows().getFirst().timestamp().equals("outside")
-                && lazy.rows().getFirst().values().equals(List.of(2.0)));
+                && Arrays.equals(lazy.rows().getFirst().values(), new double[] {2.0}));
         require(operation.run("<Statistics Other=\"&unknown;\"/><Ignored broken/>").rows().isEmpty());
         require(operation.run("<Statistics StatsGroup=\"0\"/>").group() == 0);
         refuses(operation, "", StatisticsException.MissingStatistics.class);
