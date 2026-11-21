@@ -9,7 +9,7 @@ use xmltree::Element;
 
 use super::{EditError, legacy::State};
 
-pub const LINKED: u32 = 0x1000_0000;
+const LINKED: u32 = 0x1000_0000;
 
 /// One stored `linkC` reference, not a row in native Config.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -169,6 +169,86 @@ impl Error for CentralLightLinkMoveError {
     }
 }
 
+/// Removal of one stored member, without reordering the remaining links.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CentralLightLinkRemoval {
+    /// UUID spelling as stored in the owner's `linkC`.
+    pub uuid: String,
+    /// One-based position in the original stored list.
+    pub from_position: usize,
+    pub remaining_links: usize,
+    /// True only when the target's last incoming generic reference was removed.
+    pub reference_marker_cleared: bool,
+}
+
+#[derive(Debug)]
+pub struct CentralLightLinkRemovalOutcome {
+    pub bytes: Vec<u8>,
+    pub removal: CentralLightLinkRemoval,
+    pub inspection: CentralLightLinks,
+    /// Whether the shared writer recognized and stamped the Document.
+    pub document_stamped: bool,
+}
+
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum CentralLightLinkRemovalError {
+    Edit(EditError),
+    Links(CentralLightLinksError),
+    UnsupportedTarget {
+        uuid: String,
+    },
+    NotLinked {
+        uuid: String,
+    },
+    UnsupportedVersion {
+        identity: Option<String>,
+        version: Option<String>,
+    },
+    AffectedFlagsOutOfRange {
+        value: u32,
+    },
+}
+
+impl fmt::Display for CentralLightLinkRemovalError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Edit(error) => fmt::Display::fmt(error, f),
+            Self::Links(error) => fmt::Display::fmt(error, f),
+            Self::UnsupportedTarget { uuid } => write!(
+                f,
+                "Linked UUID '{uuid}' is not a direct ModbusServer target with a nonempty Title"
+            ),
+            Self::NotLinked { uuid } => {
+                write!(
+                    f,
+                    "'{uuid}' is not an existing linked-function UUID on this CentralLight"
+                )
+            }
+            Self::UnsupportedVersion { identity, version } => write!(
+                f,
+                "Document control '{}' has V '{}'; removal requires explicit decimal V >= 90",
+                identity.as_deref().unwrap_or("(no U)"),
+                version.as_deref().unwrap_or("(missing)")
+            ),
+            Self::AffectedFlagsOutOfRange { value } => write!(
+                f,
+                "Affected WF '{value}' is outside the admitted nonnegative signed32 format"
+            ),
+        }
+    }
+}
+
+impl Error for CentralLightLinkRemovalError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Edit(error) => Some(error),
+            Self::Links(error) => Some(error),
+            _ => None,
+        }
+    }
+}
+
 /// Inspect the stored `linkC` order of one legacy-selected standalone CentralLight.
 ///
 /// Loading and legacy selection precede admission. The selected owner must be a
@@ -227,6 +307,44 @@ pub fn move_central_light_link(
     Ok(CentralLightLinkMoveOutcome {
         bytes,
         movement,
+        inspection,
+        document_stamped,
+    })
+}
+
+/// Remove one existing member of a standalone CentralLight's stored `linkC`.
+///
+/// The legacy owner selector and graph admission are the same as for
+/// [`inspect_central_light_links`]. All selected-owner members must resolve to
+/// direct `ModbusServer` targets with nonempty stored Titles. The selected
+/// member is a raw nonzero native UUID (case-insensitive, no `uuid:` prefix).
+/// Each Document control needs explicit decimal `V >= 90`. If no other
+/// generic list refers to the target, only its `WF` reference bit is cleared,
+/// and the affected stored `WF` must fit in nonnegative signed 32 bits. Empty
+/// `linkC` and marker-derived zero `WF` are omitted; other raw bits and list
+/// spelling/order are preserved. The resulting graph is validated again.
+///
+/// Success always removes a member; a repeat or absent member is a refusal,
+/// not a no-op. Success returns canonical bytes and uses `now` for a monotonic
+/// save stamp when the shared writer recognizes the Document (root or direct
+/// child, exact type). Failure returns no revised bytes. This is not native
+/// full-resave normalization or a general repair; the shared loader
+/// limitation (lox-n37w) still applies.
+pub fn remove_central_light_link(
+    bytes: &[u8],
+    selector: &str,
+    uuid: &str,
+    now: &DateTime<FixedOffset>,
+) -> Result<CentralLightLinkRemovalOutcome, CentralLightLinkRemovalError> {
+    use CentralLightLinkRemovalError::Edit;
+
+    let mut state = State::load(bytes).map_err(Edit)?;
+    let (removal, inspection) = state.remove_central_light_link(selector, uuid)?;
+    let document_stamped = state.stamp_document(now);
+    let bytes = state.to_bytes().map_err(Edit)?;
+    Ok(CentralLightLinkRemovalOutcome {
+        bytes,
+        removal,
         inspection,
         document_stamped,
     })
@@ -291,6 +409,118 @@ impl State {
                     attrs.insert("linkC".into(), previous);
                 } else {
                     attrs.shift_remove("linkC");
+                }
+                Err(Refusal::Links(error))
+            }
+        }
+    }
+
+    #[doc(hidden)]
+    pub fn remove_central_light_link(
+        &mut self,
+        selector: &str,
+        uuid: &str,
+    ) -> Result<(CentralLightLinkRemoval, CentralLightLinks), CentralLightLinkRemovalError> {
+        use CentralLightLinkRemovalError as Refusal;
+
+        let selected = identity(uuid).map_err(Refusal::Links)?;
+        let (path, inspection) = self
+            .match_central_light_links(selector)
+            .map_err(Refusal::Links)?;
+        for link in &inspection.links {
+            if link.control_type != "ModbusServer" || link.title.is_empty() {
+                return Err(Refusal::UnsupportedTarget {
+                    uuid: link.uuid.clone(),
+                });
+            }
+        }
+        let index = inspection
+            .links
+            .iter()
+            .position(|link| link.uuid.eq_ignore_ascii_case(&selected))
+            .ok_or_else(|| Refusal::NotLinked { uuid: uuid.into() })?;
+
+        let owner = self.get_element(&path);
+        let documents = self.find_elements("Type:Document");
+        let mut controls = Vec::new();
+        collect_controls(self.get_element(&documents[0]), &mut controls);
+        let mut other_incoming = false;
+        let mut target = None;
+        for control in controls {
+            let version = control.attributes.get("V");
+            let stored_uuid = control.attributes.get("U");
+            if !version
+                .and_then(|raw| raw.parse::<i32>().ok())
+                .is_some_and(|version| version >= 90)
+            {
+                return Err(Refusal::UnsupportedVersion {
+                    identity: stored_uuid.cloned(),
+                    version: version.cloned(),
+                });
+            }
+            if stored_uuid.is_some_and(|raw| raw.eq_ignore_ascii_case(&selected)) {
+                target = Some(control);
+            }
+            for link in links(control).map_err(Refusal::Links)? {
+                if !std::ptr::eq(control, owner) && link.eq_ignore_ascii_case(&selected) {
+                    other_incoming = true;
+                }
+            }
+        }
+        let marker = if other_incoming {
+            None
+        } else {
+            // Admission proves unique resolution and correct prior membership,
+            // so the only possible delta is the bit on this selected target.
+            let target = target.ok_or_else(|| {
+                Refusal::Links(CentralLightLinksError::UnresolvedControl {
+                    uuid: selected.clone(),
+                })
+            })?;
+            let before = flags(target).map_err(Refusal::Links)?;
+            if before > i32::MAX as u32 {
+                return Err(Refusal::AffectedFlagsOutOfRange { value: before });
+            }
+            // The legacy exact-U selector can choose an earlier mirror. The
+            // post-edit graph check must reject that case rather than redirect.
+            let marker_path = self
+                .require_one(&format!("uuid:{}", target.attributes["U"]))
+                .map_err(|error| Refusal::Edit(error.into()))?;
+            Some((marker_path, before & !LINKED))
+        };
+        let removal = CentralLightLinkRemoval {
+            uuid: inspection.links[index].uuid.clone(),
+            from_position: index + 1,
+            remaining_links: inspection.links.len() - 1,
+            reference_marker_cleared: marker.is_some(),
+        };
+        let mut remaining: Vec<_> = inspection.links.into_iter().map(|link| link.uuid).collect();
+        remaining.remove(index);
+        // Native save omits both an empty generic list and a zero WF word.
+        let attributes = &mut self.get_element_mut(&path).attributes;
+        let previous_owner = attributes.clone();
+        if remaining.is_empty() {
+            attributes.shift_remove("linkC");
+        } else {
+            attributes.insert("linkC".into(), remaining.join(","));
+        }
+        let previous_marker = marker.map(|(target, after)| {
+            let attributes = &mut self.get_element_mut(&target).attributes;
+            let previous = attributes.clone();
+            if after == 0 {
+                attributes.shift_remove("WF");
+            } else {
+                attributes.insert("WF".into(), after.to_string());
+            }
+            (target, previous)
+        });
+
+        match self.match_central_light_links(selector) {
+            Ok((_, inspection)) => Ok((removal, inspection)),
+            Err(error) => {
+                self.get_element_mut(&path).attributes = previous_owner;
+                if let Some((target, previous)) = previous_marker {
+                    self.get_element_mut(&target).attributes = previous;
                 }
                 Err(Refusal::Links(error))
             }
@@ -372,8 +602,8 @@ impl State {
                 referenced.insert(key);
             }
         }
-        // Native accept recomputes this marker document-wide. Membership is
-        // unchanged by a move, so require a graph needing no incidental repair.
+        // Native accept recomputes this marker document-wide; require a graph
+        // needing no incidental repair before using the stored projection.
         for control in &controls {
             let marked = flags(control)? & LINKED != 0;
             let expected = control
@@ -408,7 +638,7 @@ impl State {
     }
 }
 
-pub fn collect_controls<'a>(element: &'a Element, controls: &mut Vec<&'a Element>) {
+fn collect_controls<'a>(element: &'a Element, controls: &mut Vec<&'a Element>) {
     if element.name == "C" {
         controls.push(element);
     }
@@ -428,7 +658,7 @@ fn resolve<'a>(controls: &HashMap<String, Vec<&'a Element>>, key: &str) -> LinkR
     }
 }
 
-pub fn links(control: &Element) -> LinkResult<Vec<&str>> {
+fn links(control: &Element) -> LinkResult<Vec<&str>> {
     let raw = control.attributes.get("linkC").map_or("", String::as_str);
     if raw.is_empty() {
         return Ok(Vec::new());
@@ -444,7 +674,7 @@ pub fn links(control: &Element) -> LinkResult<Vec<&str>> {
     Ok(result)
 }
 
-pub fn flags(control: &Element) -> LinkResult<u32> {
+fn flags(control: &Element) -> LinkResult<u32> {
     match control.attributes.get("WF") {
         None => Ok(0),
         Some(raw) => raw
@@ -456,7 +686,7 @@ pub fn flags(control: &Element) -> LinkResult<u32> {
     }
 }
 
-pub fn identity(raw: &str) -> LinkResult<String> {
+fn identity(raw: &str) -> LinkResult<String> {
     if raw.len() == 35
         && raw.bytes().enumerate().all(|(index, byte)| {
             if [8, 13, 18].contains(&index) {

@@ -133,6 +133,20 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   not remove links, edit `WF`, repair graphs, add foreign bindings or qualify a
   native Config workflow. The shared loader's lox-n37w limitation is unchanged.
 
+- Optional `configuration-editor`:
+  `configuration::editor::remove_central_light_link(bytes, selector, uuid, &now)`
+  returns the removed member, post-edit inspection and complete output bytes,
+  or a typed `CentralLightLinkRemovalError`. It shares the existing
+  `config central-light remove-link` admission and mutation: one raw UUID in
+  the selected owner's direct-visible list, explicit decimal `V >= 90` on every
+  Document control and nonnegative signed-32-bit `WF` when the marker changes.
+  Other incoming links keep the target marked; otherwise only its reference
+  bit is cleared. Empty `linkC` and marker-derived zero `WF` are omitted.
+  Success serializes through the shared writer with an explicit monotonic save
+  stamp when recognized; an absent member refuses rather than returning a
+  no-op. CLI output and saving remain head-owned. There is no generic marker
+  repair, native full-resave normalization, loader change or foreign binding.
+
 - Optional `configuration-editor`: `configuration::editor::set_attribute(bytes,
   selector, attribute, value, &now)` migrates the existing legacy raw attribute
   operation. Its owned `AttributeChange` captures the selected identity before

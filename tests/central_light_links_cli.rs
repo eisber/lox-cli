@@ -276,19 +276,16 @@ fn central_light_links_cli_removal_saves_marker_deltas_and_last_link_without_def
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
     let output = dir.path().join("output.Loxone");
-    let original = fixture().replace("<C ", "<C V=\"178\" ");
+    let stored = id(11).to_uppercase();
+    let original = fixture()
+        .replacen(&format!(",{}\"", id(11)), &format!(",{stored}\""), 1)
+        .replace("<C ", "<C V=\"178\" ");
     fs::write(&input, &original).unwrap();
     let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
         .env("LOX_TELEMETRY", "0")
         .args(["config", "central-light", "remove-link"])
         .arg(&input)
-        .args([
-            "Central",
-            &id(11).to_uppercase(),
-            "--room",
-            "Office",
-            "--save-as",
-        ])
+        .args(["Central", &id(11), "--room", "Office", "--save-as"])
         .arg(&output)
         .args(["-o", "json", "-q"])
         .assert()
@@ -299,10 +296,13 @@ fn central_light_links_cli_removal_saves_marker_deltas_and_last_link_without_def
         .clone();
     let result: Value = serde_json::from_slice(&result).unwrap();
     assert_eq!(result["changed"], true);
-    assert_eq!(result["removal"]["uuid"], id(11));
+    assert_eq!(result["saved_to"], output.to_str().unwrap());
+    assert!(result["movement"].is_null());
+    assert_eq!(result["removal"]["uuid"], stored);
     assert_eq!(result["removal"]["from_position"], 2);
     assert_eq!(result["removal"]["remaining_links"], 1);
     assert_eq!(result["removal"]["reference_marker_cleared"], true);
+    assert_eq!(result["central_light"]["links"][0]["uuid"], id(10));
     assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
     let saved = fs::read(&output).unwrap();
     assert!(saved.starts_with(&[0xef, 0xbb, 0xbf]));
@@ -401,4 +401,33 @@ fn central_light_links_cli_removal_refusals_do_not_write_source_or_destination()
             }
         }
     }
+}
+
+#[test]
+fn central_light_links_cli_removal_rejects_marker_shadow_before_save() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture().replace("<C ", "<C V=\"178\" ").replacen(
+        "<ControlList>",
+        &format!(r#"<ControlList><C U="{}" WF="77"/>"#, id(11)),
+        1,
+    );
+    fs::write(&input, &original).unwrap();
+    fs::write(&output, "existing output").unwrap();
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "central-light", "remove-link"])
+        .arg(&input)
+        .args(["Central", &id(11), "--save-as"])
+        .arg(&output)
+        .assert()
+        .failure()
+        .stdout("")
+        .stderr(predicate::str::contains(format!(
+            "Inconsistent document linked-function WF marker on '{}'. Repair the linkC reference graph in Loxone Config first; nothing was changed.",
+            id(11)
+        )));
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    assert_eq!(fs::read_to_string(&output).unwrap(), "existing output");
 }

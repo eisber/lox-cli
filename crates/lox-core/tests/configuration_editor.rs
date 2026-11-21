@@ -9,9 +9,11 @@ mod central_light_links {
     use lox_core::configuration::editor::{
         CentralLightLink,
         CentralLightLinkDirection::{Down, Up},
-        CentralLightLinkMove, CentralLightLinkMoveError as MoveRefusal, CentralLightLinks,
+        CentralLightLinkMove, CentralLightLinkMoveError as MoveRefusal, CentralLightLinkRemoval,
+        CentralLightLinkRemovalError as RemovalRefusal, CentralLightLinks,
         CentralLightLinksError as Refusal, EditError, SelectionError,
         inspect_central_light_links as inspect, move_central_light_link as move_link,
+        remove_central_light_link as remove_link,
     };
     use std::error::Error;
 
@@ -359,6 +361,150 @@ mod central_light_links {
             graph_error.source().and_then(|cause| cause.downcast_ref::<Refusal>()),
             Some(Refusal::InconsistentMarker { identity: Some(uuid) })
                 if uuid == &FIRST.to_ascii_lowercase()
+        ));
+    }
+
+    fn removal_document() -> String {
+        move_document().replace("<C Type=", r#"<C V="178" Type="#)
+    }
+
+    #[test]
+    fn removal_preserves_other_incoming_links_and_only_changes_the_selected_marker() {
+        let source = removal_document()
+            .replace("WF=\"268451840\"", "WF=\"+2415935488\"")
+            .replace(
+                "Title=\"B\" WF=\"268435456\"",
+                "Title=\"B\" WF=\"318783488\"",
+            );
+        let first = remove_link(
+            source.as_bytes(),
+            "Central [dEn]",
+            &FIRST.to_ascii_lowercase(),
+            &move_now(),
+        )
+        .unwrap();
+        assert_eq!(
+            first.removal,
+            CentralLightLinkRemoval {
+                uuid: FIRST.into(),
+                from_position: 1,
+                remaining_links: 2,
+                reference_marker_cleared: false,
+            }
+        );
+        assert!(first.document_stamped);
+        assert_eq!(first.inspection, inspect(&first.bytes, "Central").unwrap());
+        assert_eq!(first.inspection.links[0].uuid, SECOND);
+        assert_eq!(first.inspection.links[1].uuid, THIRD);
+        let expected = source
+            .replace(
+                &format!("{FIRST},{SECOND},{THIRD}"),
+                &format!("{SECOND},{THIRD}"),
+            )
+            .replace(r#"01:00:02" DateS="2""#, r#"01:00:03" DateS="3""#);
+        assert_eq!(first.bytes, expected.as_bytes());
+
+        let second = remove_link(&first.bytes, "Central", SECOND, &move_now()).unwrap();
+        assert!(second.removal.reference_marker_cleared && second.document_stamped);
+        assert_eq!(
+            second.bytes,
+            expected
+                .replace(&format!("{SECOND},{THIRD}"), THIRD)
+                .replace("WF=\"318783488\"", "WF=\"50348032\"")
+                .replace(r#"01:00:03" DateS="3""#, r#"01:00:04" DateS="4""#)
+                .as_bytes()
+        );
+    }
+
+    #[test]
+    fn removal_of_last_entry_omits_empty_values_and_can_be_changed_but_unstamped() {
+        let source = removal_document()
+            .replace(r#"Type="Document""#, r#"Type="document""#)
+            .replace(&format!("{FIRST},{SECOND},{THIRD}"), THIRD)
+            .replace("Title=\"B\" WF=\"268435456\"", "Title=\"B\"");
+        let removed = remove_link(source.as_bytes(), "Central", THIRD, &move_now()).unwrap();
+        assert!(!removed.document_stamped && removed.removal.reference_marker_cleared);
+        assert_eq!(removed.removal.remaining_links, 0);
+        assert!(removed.inspection.links.is_empty());
+        assert_eq!(
+            removed.bytes,
+            source
+                .replace(&format!(r#" linkC="{THIRD}""#), "")
+                .replace("Title=\"C\" WF=\"268435456\"", "Title=\"C\"")
+                .as_bytes()
+        );
+        assert_eq!(
+            removed.inspection,
+            inspect(&removed.bytes, "Central").unwrap()
+        );
+        assert!(matches!(
+            remove_link(&removed.bytes, "Central", THIRD, &move_now()),
+            Err(RemovalRefusal::NotLinked { uuid }) if uuid == THIRD
+        ));
+    }
+
+    #[test]
+    fn removal_refusal_order_includes_foreign_identity_versions_and_affected_wf() {
+        let remove = |source: &str, owner, uuid| {
+            remove_link(source.as_bytes(), owner, uuid, &move_now()).unwrap_err()
+        };
+        assert!(matches!(
+            remove("not XML", "missing", "1"),
+            RemovalRefusal::Edit(EditError::Load(_))
+        ));
+        let source = removal_document();
+        let invalid = format!("uuid:{SECOND}");
+        assert!(matches!(
+            remove(&source, "missing", &invalid),
+            RemovalRefusal::Links(Refusal::InvalidIdentity { uuid }) if uuid == invalid
+        ));
+        let old = source.replace(r#"<C V="178" Type="Other""#, r#"<C V="89" Type="Other""#);
+        assert!(matches!(
+            remove(
+                &old.replace(HIDDEN, &format!(" {HIDDEN}")),
+                "Central",
+                MISSING
+            ),
+            RemovalRefusal::Links(Refusal::InvalidIdentity { .. })
+        ));
+        assert!(matches!(
+            remove(
+                &old.replace(r#"Title="A""#, r#"Title="""#),
+                "Central",
+                MISSING
+            ),
+            RemovalRefusal::UnsupportedTarget { uuid } if uuid == FIRST
+        ));
+        assert!(matches!(
+            remove(&old, "Central", MISSING),
+            RemovalRefusal::NotLinked { uuid } if uuid == MISSING
+        ));
+        let high_wf = old.replace(
+            "Title=\"B\" WF=\"268435456\"",
+            "Title=\"B\" WF=\"2415919104\"",
+        );
+        assert!(matches!(
+            remove(&high_wf, "Central", SECOND),
+            RemovalRefusal::UnsupportedVersion { identity: None, version: Some(version) }
+                if version == "89"
+        ));
+        assert!(matches!(
+            remove(
+                &high_wf.replace(r#"V="89""#, r#"V="178""#),
+                "Central",
+                SECOND
+            ),
+            RemovalRefusal::AffectedFlagsOutOfRange { value: 2415919104 }
+        ));
+        let shadowed = source.replacen(
+            "<ControlList>",
+            &format!(r#"<ControlList><C U="{SECOND}"/>"#),
+            1,
+        );
+        assert!(matches!(
+            remove(&shadowed, "Central", SECOND),
+            RemovalRefusal::Links(Refusal::InconsistentMarker { identity: Some(uuid) })
+                if uuid == SECOND
         ));
     }
 }
