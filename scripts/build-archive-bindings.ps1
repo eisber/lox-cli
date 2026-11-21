@@ -83,6 +83,7 @@ Step 'numeric-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 
 Step 'text-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'text_state_payload', '--locked', '--offline')
 Step 'daytimer-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'daytimer_state_payload', '--locked', '--offline')
 Step 'weather-state-core-focused' 'cargo' @('test', '-p', 'lox-core', '--test', 'weather_state_payload', '--locked', '--offline')
+Step 'statistics-series-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'statistics-xml', '--test', 'statistics_series', '--locked', '--offline')
 Step 'device-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'device_inventory', '--locked', '--offline')
 Step 'user-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'user_inventory', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
@@ -237,6 +238,22 @@ Step 'kotlin-statistics-index-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJa
     dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
     proof = 'Actual infallible statistics index result RustBuffer live1/free0,64 public calls per language retained0 without requested GC; generated String lowering; Python and compiledJava22/Kotlin SAME API'
 } | ConvertTo-Json | Set-Content "$Output\STATISTICS-INDEX-MECHANISM.json" -Encoding utf8
+Step 'python-statistics-series-smoke' $VenvPython @('-I', '-B', 'tests\bindings\statistics_series_smoke.py', "$Probe.dll")
+Step 'javac-statistics-series-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\StatisticsSeriesSmoke.java', 'tests\bindings\NativeStatisticsSeriesProbe.java')
+Step 'java-statistics-series-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'StatisticsSeriesSmoke'))
+$StatisticsSeriesKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-statistics-series-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\StatisticsSeriesSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-statistics-series.args", $StatisticsSeriesKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-statistics-series-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-statistics-series.args")
+Step 'kotlin-statistics-series-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-statistics-series-smoke.jar", 'StatisticsSeriesSmokeKt'))
+@{
+    original_source_receipt_utc = '2026-11-18T03:26:01.673Z'
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual monthly statistics XML success/InvalidValue error RustBuffers live1/free0,64 public calls per branch per language retained0 without requested GC; retained owned rows/exceptions, Core-only parse_series, opaque timestamps, finite f64 signed-zero/subnormal/extreme/underflow bits and exact typed error causes; generated String lowering; Python and compiledJava22/Kotlin SAME API. No index/identity/merge/acquisition expansion.'
+} | ConvertTo-Json | Set-Content "$Output\STATISTICS-SERIES-MECHANISM.json" -Encoding utf8
 Step 'python-autopilot-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\autopilot_catalog_smoke.py', "$Probe.dll")
 Step 'javac-autopilot-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\AutopilotCatalogSmoke.java', 'tests\bindings\NativeAutopilotProbe.java')
 Step 'java-autopilot-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'AutopilotCatalogSmoke'))
@@ -399,6 +416,7 @@ $Artifacts += Get-Item "$Output\python-config-diff-smoke.log", "$Output\java-con
 $Artifacts += Get-Item "$Output\python-structure-metadata-smoke.log", "$Output\java-structure-metadata-smoke.log", "$Output\kotlin-structure-metadata-smoke.log", "$Output\METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-autopilot-catalog-smoke.log", "$Output\java-autopilot-catalog-smoke.log", "$Output\kotlin-autopilot-catalog-smoke.log", "$Output\AUTOPILOT-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-statistics-index-smoke.log", "$Output\java-statistics-index-smoke.log", "$Output\kotlin-statistics-index-smoke.log", "$Output\STATISTICS-INDEX-MECHANISM.json"
+$Artifacts += Get-Item "$Output\statistics-series-core-focused.log", "$Output\python-statistics-series-smoke.log", "$Output\javac-statistics-series-smoke.log", "$Output\java-statistics-series-smoke.log", "$Output\kotlinc-statistics-series-smoke.log", "$Output\kotlin-statistics-series-smoke.log", "$Output\STATISTICS-SERIES-MECHANISM.json", "$Output\jvm\kotlin-statistics-series.args"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"
@@ -413,7 +431,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML user/device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, infallible HTML statistics index catalog delegated to Core, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict payload-only Daytimer-State decoding with signed observations/raw activation word/two authoritative IEEE bit fields and exact typed atomic errors, strict payload-only Weather-State decoding with unsigned update/signed observations/six authoritative IEEE bit fields and exact typed atomic errors, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. User inventory is raw owned fields only, never credentials/permissions/authentication. Current loopback clock cancellation/close only; no Lighting eligibility, framing, HTTP weather layout, full XML/semantic diff, editor/auth/control I/O/monthly-series or binary statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML user/device/control/room/summary inspection, typed supplied-summary structural comparison delegated to Core, stateless typed LoxApp3 catalog parsing/filtering, infallible HTML statistics index catalog delegated to Core, atomic monthly statistics XML series delegated to Core with opaque timestamps/owned finite f64 rows/typed errors and original source text, payload-only numeric state decoding with exact UUID/IEEE bits, strict payload-only text state decoding with raw/native35 state/icon UUIDs and exact UTF8 including NUL, strict payload-only Daytimer-State decoding with signed observations/raw activation word/two authoritative IEEE bit fields and exact typed atomic errors, strict payload-only Weather-State decoding with unsigned update/signed observations/six authoritative IEEE bit fields and exact typed atomic errors, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. User inventory is raw owned fields only, never credentials/permissions/authentication. Current loopback clock cancellation/close only; no Lighting eligibility, framing, HTTP weather layout, full XML/semantic diff, editor/auth/control I/O/statistics identity or month merge/acquisition/binary statistics/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest

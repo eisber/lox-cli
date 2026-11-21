@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Envelope>
+  <Statistics Name="Caf&#xE9; &amp; 気" StatsGroup=" 4294967295 " NumOutputs="4" Outputs=" Energy &amp; power, ,A,A,discarded">
+    <S T=" opaque &amp; timestamp " V4="1.7976931348623157e308" V3="-5e-324" V2="5e-324" V="-0"/>
+    <S T="duplicate" V="1" V2=" 2e1 " V3="1e-9999" V4="-1e-9999"/>
+    <S T="duplicate" V="4" V2="5" V3="6" V4="7"/>
+  </Statistics>
+</Envelope>ignored<Other/>

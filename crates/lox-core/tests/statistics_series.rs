@@ -225,6 +225,31 @@ fn monthly_consumer_retains_count_defaults_zero_outputs_and_lazy_attribute_valid
 }
 
 #[test]
+fn monthly_decimal_float_policy_keeps_signed_zero_and_finite_extremes() {
+    let series = parse_series(
+        "<Statistics NumOutputs=\"6\"><S T=\"opaque\" V=\"-0\" V2=\"5e-324\" \
+         V3=\"-5e-324\" V4=\"1.7976931348623157e308\" V5=\"1e-9999\" \
+         V6=\"-1e-9999\"/></Statistics>",
+    )
+    .unwrap();
+    assert_eq!(
+        series.rows[0]
+            .1
+            .iter()
+            .map(|value| value.to_bits())
+            .collect::<Vec<_>>(),
+        [
+            0x8000_0000_0000_0000,
+            1,
+            0x8000_0000_0000_0001,
+            0x7fef_ffff_ffff_ffff,
+            0,
+            0x8000_0000_0000_0000,
+        ]
+    );
+}
+
+#[test]
 fn monthly_errors_expose_fields_and_original_sources_without_partial_series() {
     let error = parse_series(
         "<Statistics Outputs=\"A,B\"><S T=\"first\" V=\"1\" V2=\"2\"/>\
