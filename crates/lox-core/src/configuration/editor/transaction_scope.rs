@@ -1,4 +1,7 @@
-use quick_xml::{Reader, events::Event};
+use quick_xml::{
+    Reader,
+    events::{Event, attributes::Attributes},
+};
 use xmltree::Element;
 
 use super::{EditError, legacy::State};
@@ -11,7 +14,43 @@ pub(super) enum ScopeError {
     TemplateOrInherited,
 }
 
+pub(super) fn require_xml_1_0_declaration(bytes: &[u8]) -> Result<(), ScopeError> {
+    // The writer always emits 1.0. Check declarations before the DOM can admit
+    // 1.1-only data or report another version as a generic load failure.
+    let mut reader = Reader::from_reader(bytes);
+    let mut first = true;
+    while let Ok(event) = reader.read_event() {
+        match event {
+            Event::Decl(decl) => {
+                if !first
+                    || !matches!(decl.version(), Ok(version) if version.as_ref() == b"1.0")
+                    || !std::str::from_utf8(&decl)
+                        .is_ok_and(|text| Attributes::new(text, 3).all(|attr| attr.is_ok()))
+                {
+                    return Err(ScopeError::UnsupportedXml);
+                }
+            }
+            Event::PI(pi) if pi.target().eq_ignore_ascii_case(b"xml") => {
+                return Err(ScopeError::UnsupportedXml);
+            }
+            Event::Eof => break,
+            _ => {}
+        }
+        first = false;
+    }
+    // Structural parse failures remain the shared loader's diagnostics.
+    Ok(())
+}
+
 pub(super) fn require_plain_xml(bytes: &[u8]) -> Result<(), ScopeError> {
+    require_plain_xml_scope(bytes, false)
+}
+
+pub(super) fn require_round_trip_xml(bytes: &[u8]) -> Result<(), ScopeError> {
+    require_plain_xml_scope(bytes, true)
+}
+
+fn require_plain_xml_scope(bytes: &[u8], round_trip: bool) -> Result<(), ScopeError> {
     let text = std::str::from_utf8(bytes).map_err(|_| ScopeError::UnsupportedXml)?;
     if bytes.contains(&0) {
         return Err(ScopeError::UnsupportedXml);
@@ -38,9 +77,15 @@ pub(super) fn require_plain_xml(bytes: &[u8]) -> Result<(), ScopeError> {
                 if element.name().as_ref().contains(&b':') {
                     return Err(ScopeError::NamespacedXml);
                 }
-                // Identical duplicate attributes remain the shared loader's policy.
-                for attr in element.attributes().with_checks(false) {
-                    let attr = attr.map_err(|error| ScopeError::Edit(EditError::load(error)))?;
+                // Legacy callers allow identical duplicates; strict writers cannot retain them.
+                for attr in element.attributes().with_checks(round_trip) {
+                    let attr = attr.map_err(|error| {
+                        if round_trip {
+                            ScopeError::UnsupportedXml
+                        } else {
+                            ScopeError::Edit(EditError::load(error))
+                        }
+                    })?;
                     let name = attr.key.as_ref();
                     if name == b"xmlns" || name.contains(&b':') {
                         return Err(ScopeError::NamespacedXml);
@@ -70,6 +115,10 @@ pub(super) fn require_plain_xml(bytes: &[u8]) -> Result<(), ScopeError> {
                 }
             }
             Event::CData(_) if depth == 0 => return Err(ScopeError::UnsupportedXml),
+            // The canonical writer owns only the loaded root, not its surrounding nodes.
+            Event::Comment(_) | Event::PI(_) if round_trip && depth == 0 => {
+                return Err(ScopeError::UnsupportedXml);
+            }
             Event::Eof if root_seen && depth == 0 => return Ok(()),
             Event::Eof => return Err(ScopeError::UnsupportedXml),
             _ => {}

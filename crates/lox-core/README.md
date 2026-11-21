@@ -98,6 +98,22 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   XML byte preservation, native validation or foreign binding; the shared
   loader limitation `lox-n37w` is unchanged.
 
+- Optional `configuration-xml`:
+  `configuration::editor::set_lighting_mood_display_name(bytes, target, value, &now)`
+  edits one direct `LightsceneC/@SName`, selected by exact stored controller `U`
+  and direct mood `UUID`. `Literal` accepts only nonempty uppercase ASCII
+  letters, digits and internal ordinary spaces; `Clear` writes an empty
+  attribute only when the stored value was nonempty. Equal literals and clears
+  of absent or empty storage return the original bytes without a stamp.
+  Changes use canonical XML 1.0 and the caller's clock for the owning Document
+  stamp, if present. Nonordinary ownership, ambiguous targets and documents
+  affected by the loader's digit-attribute substitution are refused. The
+  canonical bytes must reopen as the edited root; duplicate attributes and
+  comments or instructions outside the root are refused rather than lost. The
+  CLI shares the storage plan and mutation while keeping legacy selectors,
+  explicit ASCII conversion, preview and file saving. This is not a mood
+  `Name` edit, native validation or a foreign binding.
+
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_status_monitor` reads one standalone,
   legacy-selected `C Type="StatusMonitor"` from configuration bytes. It returns

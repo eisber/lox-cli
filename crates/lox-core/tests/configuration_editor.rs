@@ -4,6 +4,244 @@ use lox_core::configuration::editor::{
 };
 use std::error::Error;
 
+#[cfg(feature = "configuration-xml")]
+mod lighting_mood_display_name {
+    use chrono::{DateTime, FixedOffset};
+    use lox_core::configuration::editor::{
+        EditError, LightingMoodDisplayNameChange, LightingMoodDisplayNameError as Refusal,
+        LightingMoodDisplayNameTarget as Target,
+        LightingMoodDisplayNameValue::{Clear, Literal},
+        set_lighting_mood_display_name as set_name,
+    };
+
+    const TARGET: Target<'static> = Target {
+        controller_uuid: "lamp",
+        mood_uuid: "selected",
+    };
+    const XML: &str = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+	<C Type="Document" Date="old" DateS="86400">
+		<C Type="LightController2" U="lamp" Title="Lamp title">
+			<LightscenesC Num="91" Outputs="18">
+				<LightsceneC UUID="selected" Name="Same" SID="+002" CID="opaque" SName="OLD" Q1="future" MixMod="true">
+					<SeqConf Future="keep"/>
+				</LightsceneC>
+				<LightsceneC UUID="other" Name="Same" SID="2" CID="opaque" SName="OTHER"/>
+				<Nested>
+					<LightsceneC UUID="selected" SName="NESTED"/>
+				</Nested>
+			</LightscenesC>
+			<LSConfig ScMv="keep"/>
+			<HCL T="2"/>
+		</C>
+		<C Type="LightController2" U="neighbour">
+			<LightscenesC Num="1">
+				<LightsceneC UUID="selected" SName="NEIGHBOUR"/>
+			</LightscenesC>
+		</C>
+	</C>
+</ControlList>
+"#;
+
+    fn clock() -> DateTime<FixedOffset> {
+        DateTime::parse_from_rfc3339("2009-01-02T01:59:59+02:00").unwrap()
+    }
+
+    #[test]
+    fn edits_only_the_exact_scoped_mood_and_stamps_its_document() {
+        let original = format!("\u{feff}{}", XML.replace('\n', "\r\n"));
+        let result = set_name(
+            original.as_bytes(),
+            TARGET,
+            Literal("LATE  EVENING 2"),
+            &clock(),
+        )
+        .unwrap();
+        assert_eq!(
+            result.change,
+            LightingMoodDisplayNameChange {
+                before: Some("OLD".into()),
+                after: Some("LATE  EVENING 2".into()),
+                changed: true,
+            }
+        );
+        assert!(result.document_stamped);
+        assert_eq!(
+            result.bytes,
+            original
+                .replace(r#"SName="OLD""#, r#"SName="LATE  EVENING 2""#)
+                .replace(
+                    r#"Date="old" DateS="86400""#,
+                    r#"Date="2009-01-02 02:00:01" DateS="86401""#
+                )
+                .into_bytes()
+        );
+        let repeated =
+            set_name(&result.bytes, TARGET, Literal("LATE  EVENING 2"), &clock()).unwrap();
+        assert!(!repeated.change.changed && !repeated.document_stamped);
+        assert_eq!(repeated.bytes, result.bytes);
+    }
+
+    #[test]
+    fn distinguishes_clear_from_omission_and_retains_noncanonical_no_op_bytes() {
+        for (attr, request, before) in [
+            ("", Clear, None),
+            (" SName = ''", Clear, Some("")),
+            (" SName = '&#65;'", Literal("A"), Some("A")),
+        ] {
+            let xml = format!(
+                "<C Type='LightController2' U='lamp'><LightscenesC>\
+                 <LightsceneC UUID='selected'{attr} /></LightscenesC></C>"
+            );
+            let result = set_name(xml.as_bytes(), TARGET, request, &clock()).unwrap();
+            assert_eq!(result.change.before.as_deref(), before);
+            assert_eq!(result.change.after.as_deref(), before);
+            assert!(!result.change.changed && !result.document_stamped);
+            assert_eq!(result.bytes, xml.as_bytes());
+        }
+        let xml = r#"<C Type="LightController2" U="lamp"><LightscenesC><LightsceneC UUID="selected" SName="Grün &amp; text"/></LightscenesC></C>"#;
+        let result = set_name(xml.as_bytes(), TARGET, Clear, &clock()).unwrap();
+        assert_eq!(result.change.before.as_deref(), Some("Grün & text"));
+        assert_eq!(result.change.after.as_deref(), Some(""));
+        assert!(result.change.changed && !result.document_stamped);
+        let saved = std::str::from_utf8(&result.bytes).unwrap();
+        assert!(saved.contains(r#"<LightsceneC UUID="selected" SName=""/>"#));
+        assert!(!saved.contains("DateS"));
+    }
+
+    #[test]
+    fn orders_typed_request_xml_identity_and_scope_refusals() {
+        let fail = |xml: &str, target, value| {
+            set_name(xml.as_bytes(), target, value, &clock()).unwrap_err()
+        };
+        let empty_target = Target {
+            controller_uuid: "",
+            mood_uuid: "",
+        };
+        for value in ["", "lower", " A", "A ", "A\tB", "A-B", "Ä"] {
+            assert!(matches!(
+                fail("<C", empty_target, Literal(value)),
+                Refusal::InvalidLiteral
+            ));
+        }
+        assert!(matches!(
+            fail("<C", empty_target, Clear),
+            Refusal::EmptyControllerUuid
+        ));
+        assert!(matches!(
+            fail(
+                "<C",
+                Target {
+                    controller_uuid: "lamp",
+                    ..empty_target
+                },
+                Clear
+            ),
+            Refusal::EmptyMoodUuid
+        ));
+        assert!(matches!(
+            fail("<C", TARGET, Clear),
+            Refusal::Edit(EditError::Load(_))
+        ));
+        let wrong_version = XML.replacen("1.0", "1.1", 1).replace("OTHER", "&#x1;");
+        let no_owner = Target {
+            controller_uuid: "Lamp title",
+            ..TARGET
+        };
+        assert!(matches!(
+            fail(&wrong_version, no_owner, Literal("OLD")),
+            Refusal::UnsupportedXml
+        ));
+        for lossy in [
+            format!("{XML}<!-- owned metadata -->"),
+            XML.replace(r#"Q1="future""#, r#"Q1="future" Q1="future""#),
+        ] {
+            assert!(matches!(
+                fail(&lossy, TARGET, Literal("OLD")),
+                Refusal::UnsupportedXml
+            ));
+        }
+        let namespaced = XML.replace("SName=\"OTHER\"", "xml:SName=\"OTHER\"");
+        assert!(matches!(
+            fail(&namespaced, no_owner, Clear),
+            Refusal::NamespacedXml
+        ));
+        assert!(matches!(
+            fail(XML, no_owner, Clear),
+            Refusal::ControllerCount { found: 0 }
+        ));
+        let mirror = XML.replace(r#"U="neighbour""#, r#"U="lamp""#);
+        assert!(matches!(
+            fail(&mirror, TARGET, Literal("OLD")),
+            Refusal::ControllerCount { found: 2 }
+        ));
+        let wrong_block = XML.replacen("LightController2", "Other", 1);
+        assert!(matches!(
+            fail(&wrong_block, TARGET, Clear),
+            Refusal::WrongBlockType
+        ));
+        let multiple = XML.replacen("</LightscenesC>", "</LightscenesC><LightscenesC/>", 1);
+        assert!(matches!(
+            fail(&multiple, TARGET, Clear),
+            Refusal::ContainerCount { found: 2 }
+        ));
+        let nested_only = XML.replacen(r#"UUID="selected""#, r#"UUID="new""#, 1);
+        assert!(matches!(
+            fail(&nested_only, TARGET, Clear),
+            Refusal::MoodCount { found: 0 }
+        ));
+        let ambiguous = XML.replace(r#"UUID="other""#, r#"UUID="selected""#);
+        assert!(matches!(
+            fail(&ambiguous, TARGET, Literal("OLD")),
+            Refusal::MoodCount { found: 2 }
+        ));
+        let inherited = XML.replacen(
+            r#"UUID="selected""#,
+            r#"UUID="selected" uuidParent="inherited""#,
+            1,
+        );
+        assert!(matches!(
+            fail(&inherited, TARGET, Literal("OLD")),
+            Refusal::TemplateOrInherited
+        ));
+        let nested_document = XML
+            .replace("<ControlList>", "<ControlList><Wrapper>")
+            .replace("</ControlList>", "</Wrapper></ControlList>");
+        assert!(matches!(
+            fail(&nested_document, TARGET, Literal("OLD")),
+            Refusal::DocumentScope
+        ));
+    }
+
+    #[test]
+    fn refuses_legacy_quoted_text_substitution_on_input_or_canonical_reopen() {
+        let input_collision = XML.replace("OTHER", "Starts 7am=ON");
+        assert!(matches!(
+            set_name(input_collision.as_bytes(), TARGET, Literal("OLD"), &clock()),
+            Err(Refusal::LoaderSubstitution)
+        ));
+        // The entity hides the match on input; canonical serialization exposes it.
+        let output_collision = XML.replace("OTHER", "Starts 7am&#61;ON");
+        let noop = set_name(
+            output_collision.as_bytes(),
+            TARGET,
+            Literal("OLD"),
+            &clock(),
+        )
+        .unwrap();
+        assert_eq!(noop.bytes, output_collision.as_bytes());
+        assert!(matches!(
+            set_name(
+                output_collision.as_bytes(),
+                TARGET,
+                Literal("NEW"),
+                &clock()
+            ),
+            Err(Refusal::LoaderSubstitution)
+        ));
+    }
+}
+
 mod central_light_links {
     use chrono::{DateTime, FixedOffset};
     use lox_core::configuration::editor::{

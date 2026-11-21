@@ -29,6 +29,58 @@ fn command() -> Command {
 }
 
 #[test]
+fn lighting_metadata_cli_display_name_keeps_legacy_admission_for_noop_and_preview() {
+    let dir = tempfile::Builder::new()
+        .prefix("sname-legacy-admission-")
+        .tempdir_in(".")
+        .unwrap();
+    let input = dir.path().join("input.Loxone");
+    let xml = XML
+        .replace("version=\"1.0\"", "version=\"1.1\"")
+        .replace(" UUID=\"a\"", "")
+        .replace("SName=\"alias\"", "SName=\"LATE EVENING\"")
+        .replace("Q2=\"-1\"", "Q2=\"&#x1;\"")
+        .replace(
+            "</ControlList>",
+            "<C Type=\"And\" U=\"lighting\"/></ControlList>",
+        );
+    let original = bytes(&xml);
+    fs::write(&input, &original).unwrap();
+    for dry_run in [false, true] {
+        let mut cmd = command();
+        if dry_run {
+            cmd.arg("--dry-run");
+        }
+        let output = cmd
+            .args(["config", "lighting", "set-mood-display-name"])
+            .arg(&input)
+            .args([
+                "uuid:lighting",
+                "--mood",
+                "+0002",
+                "--name",
+                "Late Evening",
+                "--normalize-ascii",
+                "--json",
+                "--quiet",
+            ])
+            .assert()
+            .success()
+            .stderr("");
+        let report: serde_json::Value =
+            serde_json::from_slice(&output.get_output().stdout).unwrap();
+        assert!(report["mood"]["uuid"].is_null());
+        assert_eq!(report["after"], "LATE EVENING");
+        assert_eq!(report["normalized_from"], "Late Evening");
+        assert_eq!(report["changed"], false);
+        if dry_run {
+            assert_eq!(report["after_stored"], "LATE EVENING");
+        }
+        assert_eq!(fs::read(&input).unwrap(), original);
+    }
+}
+
+#[test]
 fn lighting_metadata_cli_display_name_dry_run_matches_writer_and_preserves_destinations() {
     let dir = tempfile::Builder::new()
         .prefix("sname-preview-")
