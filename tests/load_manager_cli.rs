@@ -1164,13 +1164,28 @@ fn load_manager_cli_name_errors_and_dry_run_are_atomic() {
     let original = fixture().into_bytes();
     fs::write(&input, &original).unwrap();
     fs::write(&output, b"existing destination").unwrap();
-    for (selector, index, name) in [
-        ("uuid:manager", "0", "one\ttwo"),
-        ("uuid:manager", "0", "one\ntwo"),
-        ("uuid:manager", "12", "New"),
-        ("uuid:room", "0", "New"),
+    for (selector, index, name, diagnostic) in [
+        (
+            "missing",
+            "0",
+            "one\ttwo",
+            Some("Unsupported Load Manager name"),
+        ),
+        (
+            "uuid:manager",
+            "0",
+            "one\ntwo",
+            Some("Unsupported Load Manager name"),
+        ),
+        ("uuid:manager", "12", "New", None),
+        (
+            "uuid:room",
+            "0",
+            "New",
+            Some("is not a LoadShed (Load Manager)"),
+        ),
     ] {
-        assert_cmd::cargo::cargo_bin_cmd!("lox")
+        let refusal = assert_cmd::cargo::cargo_bin_cmd!("lox")
             .env("LOX_TELEMETRY", "0")
             .args(["config", "load-manager", "set-name"])
             .arg(&input)
@@ -1178,8 +1193,12 @@ fn load_manager_cli_name_errors_and_dry_run_are_atomic() {
             .arg(&output)
             .assert()
             .failure();
+        if let Some(diagnostic) = diagnostic {
+            refusal.stderr(predicates::str::contains(diagnostic));
+        }
         assert_eq!(fs::read(&input).unwrap(), original);
         assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+        assert!(!dir.path().join("output.Loxone.tmp").exists());
     }
     // Admission must reject before attempting to open even a nonexistent input.
     assert_cmd::cargo::cargo_bin_cmd!("lox")
@@ -1204,6 +1223,109 @@ fn load_manager_cli_name_errors_and_dry_run_are_atomic() {
         .stderr(predicates::str::contains("duplicate ioIdx"));
     assert_eq!(fs::read(&input).unwrap(), malformed.as_bytes());
     assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    let malformed = b"<Loxone><C></Loxone>";
+    fs::write(&input, malformed).unwrap();
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-name"])
+        .arg(&input)
+        .args(["missing", "0", "one\ttwo", "--save-as"])
+        .arg(&output)
+        .assert()
+        .failure()
+        .stderr(predicates::str::contains("Failed to parse Loxone XML"));
+    assert_eq!(fs::read(&input).unwrap(), malformed);
+    assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    assert!(!dir.path().join("output.Loxone.tmp").exists());
+}
+
+#[test]
+fn load_manager_cli_name_keeps_legacy_scope_and_presave_report() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let original = fixture().replacen(r#"WF="16384""#, r#"WF="16384" IfT="false""#, 1);
+    fs::write(&input, &original).unwrap();
+    let run = |subcommand| {
+        let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        command
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", subcommand]);
+        command
+    };
+    let name = "at 7am=on";
+    let report = run("set-name")
+        .arg(&input)
+        .args(["uuid:manager", "0", name, "--save-as"])
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let report: Value = serde_json::from_slice(&report).unwrap();
+    assert_eq!(report["changed"], true);
+    assert_eq!(report["load_manager"]["loads"][0]["attributes"]["nm"], name);
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
+    let saved = fs::read_to_string(&output).unwrap();
+    assert!(saved.contains(r#"IfT="false""#));
+    assert!(saved.contains(r#"nm="at 7am=on""#));
+    run("inspect")
+        .arg(&output)
+        .args(["uuid:manager", "-o", "csv", "-q", "--no-header"])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("1,0,\"at _7am=on\""));
+}
+
+#[test]
+fn load_manager_cli_name_noop_save_as_retains_explicit_empty_and_stamp() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture().replacen(r#"nm="Consumer 0""#, r#"nm="""#, 1);
+    fs::write(&input, &source).unwrap();
+    let report = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-name"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "", "--save-as"])
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let report: Value = serde_json::from_slice(&report).unwrap();
+    assert_eq!(report["changed"], false);
+    assert_eq!(report["saved_to"], output.to_str().unwrap());
+    assert_eq!(report["load_manager"]["loads"][0]["attributes"]["nm"], "");
+    let saved = fs::read_to_string(&output).unwrap();
+    assert!(saved.contains(r#"Date="2020-01-01 00:00:00" DateS="1""#));
+    assert!(saved.contains(r#"<Load nm="" pwr="2.5""#));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+}
+
+#[test]
+fn load_manager_cli_name_keeps_xml_1_1_noop_admission() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let original =
+        fixture()
+            .replacen("1.0", "1.1", 1)
+            .replacen(r#"nm="Consumer 1""#, r#"nm="&#x1;""#, 1);
+    fs::write(&input, &original).unwrap();
+    assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "set-name"])
+        .arg(&input)
+        .args(["uuid:manager", "0", "Consumer 0", "-o", "json"])
+        .assert()
+        .success()
+        .stdout(predicates::str::contains(r#""changed": false"#));
+    assert_eq!(fs::read(&input).unwrap(), original.as_bytes());
 }
 
 #[test]

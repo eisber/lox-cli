@@ -68,7 +68,8 @@ pub use load_manager::{
 #[cfg(feature = "configuration-xml")]
 pub use load_manager::{
     LoadManagerMove, LoadManagerMoveDirection, LoadManagerMoveError, LoadManagerMoveOutcome,
-    move_load_manager_load,
+    LoadManagerNameChange, LoadManagerNameError, LoadManagerNameOutcome, move_load_manager_load,
+    set_load_manager_load_name,
 };
 pub use moods::{MoodInfo, MoodInventoryError, list_moods};
 pub use permissions::{

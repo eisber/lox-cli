@@ -5,9 +5,15 @@ use xmltree::Element;
 #[cfg(feature = "configuration-xml")]
 mod movement;
 #[cfg(feature = "configuration-xml")]
+mod name;
+#[cfg(feature = "configuration-xml")]
 pub use movement::{
     LoadManagerMove, LoadManagerMoveDirection, LoadManagerMoveError, LoadManagerMoveOutcome,
     move_load_manager_load,
+};
+#[cfg(feature = "configuration-xml")]
+pub use name::{
+    LoadManagerNameChange, LoadManagerNameError, LoadManagerNameOutcome, set_load_manager_load_name,
 };
 
 /// One direct Load record in the selected Load Manager.
