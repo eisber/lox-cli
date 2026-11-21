@@ -94,7 +94,7 @@ fn program_reader_selection_precedes_type_and_keeps_concrete_head_errors() {
     }
     let bytes = b"<C A='1' A='2'/>";
     let public = lox_core::configuration::editor::get_program_text(bytes, "missing").unwrap_err();
-    let adapted = super::editor_error(public);
+    let adapted = super::properties::program_text_error(public);
     let cached = ConfigEditor::load(bytes).err().unwrap();
     assert_eq!(observation(&adapted), observation(&cached));
 }

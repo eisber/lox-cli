@@ -441,9 +441,7 @@ pub(crate) fn editor_error(error: lox_core::configuration::editor::EditError) ->
         EditError::ControlMoveSelectorMissing => {
             anyhow::anyhow!("Specify --type or --title to select controls to move")
         }
-        error @ (EditError::RoomNotFound { .. }
-        | EditError::RoomAmbiguous { .. }
-        | EditError::ProgramTextUnsupported { .. }) => {
+        error @ (EditError::RoomNotFound { .. } | EditError::RoomAmbiguous { .. }) => {
             anyhow::anyhow!("{error}")
         }
     }

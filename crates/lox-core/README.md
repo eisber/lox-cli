@@ -25,8 +25,10 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   returns an owned String from the first direct `Field Name="Configuration"`
   of an exactly `SequenceController` selected with the existing legacy selector.
   Only direct text nodes contribute, in order; nested content and CDATA do not.
-  A missing field is empty. The cached CLI editor calls the same Core helper;
-  load causes, selection failures and unsupported types remain structured.
+  A missing field is empty. The cached CLI editor calls the same Core helper.
+  The getter's `ProgramTextError` wraps the original `EditError` for load and
+  selection failures and carries the selected identity for unsupported types.
+  The existing public `EditError` is unchanged.
   This is a read-only producer extraction, not a whole-command migration:
   file I/O, formatting, JSON line/sequence counts and simulator helpers remain
   CLI-owned. It does not validate or execute programs, migrate the setter,

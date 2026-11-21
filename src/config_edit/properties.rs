@@ -1,5 +1,6 @@
 use super::{ConfigEditor, ConfigSurfaceEntry, ElementDescription};
 use anyhow::{Result, bail};
+use lox_core::configuration::editor::ProgramTextError;
 use std::collections::{BTreeMap, BTreeSet};
 use xmltree::Element;
 
@@ -219,7 +220,7 @@ impl ConfigEditor {
     pub fn get_program_text(&self, selector: &str) -> Result<String> {
         self.kernel
             .program_text_selected(selector)
-            .map_err(super::editor_error)
+            .map_err(program_text_error)
     }
 
     /// Write program text to a SequenceController block's
@@ -298,5 +299,12 @@ impl ConfigEditor {
             if seqs == 1 { "" } else { "s" },
             title,
         ))
+    }
+}
+
+pub(super) fn program_text_error(error: ProgramTextError) -> anyhow::Error {
+    match error {
+        ProgramTextError::Edit(error) => super::editor_error(error),
+        error @ ProgramTextError::Unsupported { .. } => anyhow::anyhow!("{error}"),
     }
 }

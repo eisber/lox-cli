@@ -29,31 +29,38 @@ fn program_reader_first_direct_field_text_and_shared_legacy_selection() {
 
 #[test]
 fn program_reader_typed_load_selection_and_exact_type_error_priority() {
-    use lox_core::configuration::editor::get_program_text;
+    use lox_core::configuration::editor::{ProgramTextError, get_program_text};
     let xml = br#"<Root><C Type="And" U="a" Title="Program"/><C Type="SequenceController" U="b" Title="Program"/><C Type="sequencecontroller" U="c" Title="Wrong"/><C U="sparse"/></Root>"#;
     assert!(matches!(
-        get_program_text(xml, "Program"),
-        Err(EditError::Selection(SelectionError::Ambiguous { .. }))
+        get_program_text(xml, "Program")
+            .unwrap_err()
+            .source()
+            .and_then(|cause| cause.downcast_ref::<EditError>()),
+        Some(EditError::Selection(SelectionError::Ambiguous { .. }))
     ));
     assert!(matches!(
         get_program_text(xml, "missing"),
-        Err(EditError::Selection(SelectionError::NotFound { .. }))
+        Err(ProgramTextError::Edit(EditError::Selection(
+            SelectionError::NotFound { .. }
+        )))
     ));
     assert!(
-        matches!(get_program_text(xml, "Wrong"), Err(EditError::ProgramTextUnsupported { element }) if element.block_type == "sequencecontroller")
+        matches!(get_program_text(xml, "Wrong"), Err(ProgramTextError::Unsupported { element }) if element.block_type == "sequencecontroller")
     );
     assert!(
-        matches!(get_program_text(xml, "uuid:sparse"), Err(EditError::ProgramTextUnsupported { element }) if element.block_type.is_empty() && element.title.is_empty())
+        matches!(get_program_text(xml, "uuid:sparse"), Err(ProgramTextError::Unsupported { element }) if element.block_type.is_empty() && element.title.is_empty())
     );
     let error = get_program_text(b"<C A='1' A='2'/>", "missing").unwrap_err();
     assert!(
         error
             .source()
+            .and_then(|cause| cause.downcast_ref::<EditError>())
+            .and_then(Error::source)
             .unwrap()
             .downcast_ref::<xmltree::ParseError>()
             .is_some()
     );
-    let EditError::Load(cause) = error else {
+    let ProgramTextError::Edit(EditError::Load(cause)) = error else {
         panic!("load must precede selection")
     };
     assert!(cause.into_inner().downcast::<xmltree::ParseError>().is_ok());

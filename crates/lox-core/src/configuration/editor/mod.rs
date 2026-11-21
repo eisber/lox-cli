@@ -26,7 +26,7 @@ pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelecto
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
 };
-pub use program::get_program_text;
+pub use program::{ProgramTextError, get_program_text};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///
@@ -117,9 +117,6 @@ pub enum EditError {
     UnsupportedLegacyParameter {
         parameter: String,
     },
-    ProgramTextUnsupported {
-        element: ElementIdentity,
-    },
     ControlMoveSelectorMissing,
     RoomNotFound {
         room: String,
@@ -157,11 +154,6 @@ impl fmt::Display for EditError {
             Self::UnsupportedLegacyParameter { parameter } => {
                 write!(f, "Unsupported legacy parameter {parameter:?}")
             }
-            Self::ProgramTextUnsupported { element } => write!(
-                f,
-                "'{}' is a {} — get-program is only for SequenceController blocks",
-                element.title, element.block_type
-            ),
             Self::ControlMoveSelectorMissing => {
                 f.write_str("Specify --type or --title to select controls to move")
             }
