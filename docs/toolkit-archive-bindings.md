@@ -22,6 +22,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only structural summary from raw XML bytes | Optional `configuration::summary::parse_config_summary` (`configuration-xml`) | Existing shared producer for `config diff`; unchanged | `parse_config_summary(bytes) -> ConfigSummary` | `LoxArchive.parseConfigSummary(byte[]) -> ConfigSummary` |
 | Read-only control inventory from raw XML bytes | Optional `configuration::controls::parse_controls` (`configuration-xml`); existing filters and pending associations | `config controls` shares inventory; I/O, limits and presentation stay in CLI | `parse_controls(bytes, type_filter, room_filter) -> list[XmlControlInfo]` | `LoxArchive.parseControls(byte[], String, String) -> List<XmlControlInfo>`; nullable filters |
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
+| Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Source-only candidate `get_program_text(bytes, selector) -> str`; typed `ProgramTextError` | Source-only candidate `LoxArchive.getProgramText(byte[], String) -> String`; checked `ProgramTextException`; same Java22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Candidate `parse_users(bytes) -> list[XmlUserInfo]` | Candidate `LoxArchive.parseUsers(byte[]) -> List<XmlUserInfo>`; SAME Java API in Kotlin |
 | Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
@@ -178,6 +179,33 @@ Java22.0.2 and Kotlin2.4.21 using the SAME Java API, UniFFI0.32.1 and third-part
 JavaGen0.5.2 plus the existing reviewed correction. Source proof is not shipment;
 archive packages, review, composition, gates and publication remain independent.
 No ABI stability, registry distribution, other-platform or full-parity claim.
+
+### Offline selected SequenceController program text candidate
+
+The binding delegates to the existing stable `configuration-editor` read. On
+supplied configuration bytes, Core runs the shared loader and selector before
+requiring exact `SequenceController` block type. Only direct text nodes in the
+first direct `Field Name="Configuration"` contribute, in order; nested elements,
+CDATA, other spellings and later fields do not. Missing or empty text is a
+successful empty string, not an unsupported-block error. The loader's global
+digit-name rewrite can affect quoted values and program text (`lox-n37w`);
+this is not a byte-for-byte XML read or a fix for that limitation.
+
+Python `ProgramTextError` and Java/Kotlin checked `ProgramTextException` expose
+`Load` (original Core parser cause text), `NotFound` (selector and Core's
+sorted/deduplicated titles), `Ambiguous` (selector and ordered Core identities)
+and `Unsupported` (selected identity). Identities own the title, block type and
+UUID, including empty fields; `Other` is a fallback for unexpected editor
+errors. No syntax validation, line/sequence counting, mutation, deployment or
+file access is added.
+
+The source-only tests are wired into the existing Windows AMD64 installed
+artifact harness. For nonempty text and each of the four reachable typed
+errors, they calibrate the actual export's live and freed RustBuffer and then
+retain 64 distinct host results/errors with no matching native buffer and
+without requesting GC. Empty success is a value check only. This candidate
+does not change the supported platform, ABI or shipping status; independent
+review and the actual installed-artifact checks are still required.
 
 ### Offline MQTT topic catalog candidate
 
