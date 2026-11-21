@@ -21,6 +21,21 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
 
 ## Available now
 
+- Optional `configuration-editor`: `configuration::editor::add_room` is a typed
+  byte transaction sharing the actual CLI room-add plan/mutator and cached
+  editor. Its caller supplies explicit save time and a one-shot supplier of
+  `RoomAddEntropy` (the original u32/u16/u16 draws). The supplier runs only after
+  load and duplicate admission; Core never draws randomness or reads a clock.
+  Recursive lowercase substring duplicate matching requires exact `C/Place`
+  with both `U` and `Title`, including empty values. Insertion follows the last
+  direct Place/PlaceCaption, never a nested caption. Legacy native35 formatting,
+  fixed defaults, arbitrary names and unchecked identity collisions are retained.
+  Typed outcomes/errors use the existing canonical writer and monotonic stamp,
+  not raw-lossless preservation; lox-n37w remains unchanged. The CLI retains
+  DTOs, randomness/time acquisition, dry-run/report ordering and atomic I/O.
+  No dependency, Python/JVM binding, native qualification or publication credit
+  is added by this Rust-only extraction.
+
 - Optional `configuration-xml`: `configuration::mqtt::list_topics(&[u8])`
   returns owned `MqttTopic` records with typed `MqttDirection`. The actual
   `lox config mqtt topics` producer and cached CLI editor share this one walker.

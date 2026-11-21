@@ -90,6 +90,143 @@ fn now() -> DateTime<FixedOffset> {
 }
 
 #[test]
+fn room_add_explicit_entropy_time_and_direct_insertion_preserve_canonical_collateral() {
+    use lox_core::configuration::editor::{RoomAddEntropy, add_room};
+    let input = b"\xef\xbb\xbf<ControlList Future=\"+003\">\r\n<C Type=\"Document\" Date=\"old\" DateS=\"1\"/>\r\n<C Type=\"PlaceCaption\" WF=\"\"/>\r\n<C Type=\"Page\"><C Type=\"PlaceCaption\"/><IoData Pr=\"old\"/><Co U=\"wire\"><In Input=\"ref\"/></Co></C>\r\n<Tail Marker=\"keep\"/>\r\n</ControlList>\r\n";
+    let calls = std::cell::Cell::new(0);
+    let outcome = add_room(
+        input,
+        "  Room & 室  ",
+        || {
+            calls.set(calls.get() + 1);
+            RoomAddEntropy {
+                first: 0x1234abcd,
+                second: 0x0001,
+                third: 0x00ef,
+            }
+        },
+        &now(),
+    )
+    .unwrap();
+    assert_eq!(calls.get(), 1);
+    assert_eq!(outcome.change.name, "  Room & 室  ");
+    assert_eq!(outcome.change.uuid, "1234abcd-0001-00ef-ffff000000000000");
+    assert!(outcome.content_changed && outcome.document_stamped);
+    let expected = format!(
+        "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<ControlList Future=\"+003\">\r\n\t<C Type=\"Document\" Date=\"2026-10-12 07:55:33\" DateS=\"{}\"/>\r\n\t<C Type=\"PlaceCaption\" WF=\"\"/>\r\n\t<C Type=\"Place\" V=\"175\" U=\"1234abcd-0001-00ef-ffff000000000000\" Title=\"  Room &amp; 室  \" WF=\"16384\"/>\r\n\t<C Type=\"Page\">\r\n\t\t<C Type=\"PlaceCaption\"/>\r\n\t\t<IoData Pr=\"old\"/>\r\n\t\t<Co U=\"wire\">\r\n\t\t\t<In Input=\"ref\"/>\r\n\t\t</Co>\r\n\t</C>\r\n\t<Tail Marker=\"keep\"/>\r\n</ControlList>\r\n",
+        now().timestamp() - 1_230_768_000
+    );
+    assert_eq!(outcome.bytes, expected.as_bytes());
+    let second = add_room(
+        &outcome.bytes,
+        "Next",
+        || RoomAddEntropy {
+            first: 0,
+            second: 0,
+            third: 0,
+        },
+        &now(),
+    )
+    .unwrap();
+    assert!(String::from_utf8(second.bytes).unwrap().contains(&format!(
+        "DateS=\"{}\"",
+        now().timestamp() - 1_230_768_000 + 1
+    )));
+}
+
+#[test]
+fn room_add_refusals_precede_entropy_and_retain_legacy_substring_predicate() {
+    use lox_core::configuration::editor::{RoomAddEntropy, add_room};
+    for (xml, name, duplicate) in [
+        (
+            r#"<C Type="Place" U="" Title="Kitchen Long"/>"#,
+            "KITCHEN",
+            true,
+        ),
+        (
+            r#"<R><C Type="Page"><C Type="Place" U="a" Title="Nested"/></C></R>"#,
+            "est",
+            true,
+        ),
+        (r#"<R><C Type="Place" U="a" Title=""/></R>"#, "", true),
+        (r#"<R><C Type="Place" Title="Alpha"/></R>"#, "alpha", false),
+        (r#"<R><C Type="Place" U="a"/></R>"#, "", false),
+        (
+            r#"<R><C Type="place" U="a" Title="Alpha"/></R>"#,
+            "Alpha",
+            false,
+        ),
+        (
+            r#"<R><C Type="Place" U="a" Title="Kitchen"/></R>"#,
+            "Kitchen Long",
+            false,
+        ),
+        (
+            r#"<R><C Type="Place" U="a" Title="Straße"/></R>"#,
+            "STRASSE",
+            false,
+        ),
+    ] {
+        let calls = std::cell::Cell::new(0);
+        let outcome = add_room(
+            xml.as_bytes(),
+            name,
+            || {
+                calls.set(calls.get() + 1);
+                RoomAddEntropy {
+                    first: 0,
+                    second: 0,
+                    third: 0,
+                }
+            },
+            &now(),
+        );
+        assert_eq!(calls.get(), usize::from(!duplicate));
+        if duplicate {
+            let error = outcome.unwrap_err();
+            assert!(matches!(&error, EditError::RoomAlreadyExists { room } if room == name));
+            assert_eq!(error.to_string(), format!("Room '{name}' already exists"));
+        } else {
+            assert!(outcome.unwrap().content_changed);
+        }
+    }
+    assert!(matches!(
+        add_room(
+            b"<",
+            "",
+            || panic!("load refusal must not request entropy"),
+            &now()
+        ),
+        Err(EditError::Load(_))
+    ));
+}
+
+#[test]
+fn room_add_allows_collisions_empty_names_and_appends_past_only_nested_captions() {
+    use lox_core::configuration::editor::{RoomAddEntropy, add_room};
+    let xml = br#"<R><C Type="Page"><C Type="PlaceCaption"/><C Type="Place" U="00000000-0000-0000-ffff000000000000"/></C><Tail/></R>"#;
+    let outcome = add_room(
+        xml,
+        "",
+        || RoomAddEntropy {
+            first: 0,
+            second: 0,
+            third: 0,
+        },
+        &now(),
+    )
+    .unwrap();
+    assert!(outcome.content_changed && !outcome.document_stamped);
+    let text = String::from_utf8(outcome.bytes).unwrap();
+    assert_eq!(
+        text.matches("U=\"00000000-0000-0000-ffff000000000000\"")
+            .count(),
+        2
+    );
+    assert!(text.contains("\t<Tail></Tail>\n\t<C Type=\"Place\" V=\"175\" U=\"00000000-0000-0000-ffff000000000000\" Title=\"\" WF=\"16384\"/>\n</R>"));
+}
+
+#[test]
 fn canonical_bytes_preserve_native_collateral_and_first_connector_semantics() {
     let before = "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\
 <ControlList Version=\"267\">\r\n\

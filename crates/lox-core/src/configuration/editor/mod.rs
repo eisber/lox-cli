@@ -8,6 +8,7 @@
 mod control_move;
 mod description;
 pub(super) mod legacy;
+mod room_add;
 mod selector;
 mod write;
 
@@ -21,6 +22,10 @@ pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelecto
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
 };
+pub use room_add::{RoomAddChange, RoomAddEntropy, RoomAddOutcome, add_room};
+#[cfg(feature = "unstable-legacy-cli-editor")]
+#[doc(hidden)]
+pub use room_add::{RoomAddElement, RoomAddPlan};
 
 /// Reversible bridge for the binary's unmigrated editor impl modules.
 ///
@@ -112,6 +117,9 @@ pub enum EditError {
     RoomNotFound {
         room: String,
     },
+    RoomAlreadyExists {
+        room: String,
+    },
     RoomAmbiguous {
         room: String,
         matches: Vec<String>,
@@ -149,6 +157,7 @@ impl fmt::Display for EditError {
                 f.write_str("Specify --type or --title to select controls to move")
             }
             Self::RoomNotFound { room } => write!(f, "Room '{room}' not found in config"),
+            Self::RoomAlreadyExists { room } => write!(f, "Room '{room}' already exists"),
             Self::RoomAmbiguous { room, matches } => {
                 write!(f, "Multiple rooms match '{room}': {matches:?}")
             }

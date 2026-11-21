@@ -22,7 +22,7 @@ pub struct RoomAddPreview {
 }
 
 struct RoomAddPlan {
-    attributes: Vec<(String, String)>,
+    core: lox_core::configuration::editor::RoomAddPlan,
     preview: RoomAddPreview,
 }
 
@@ -394,72 +394,35 @@ impl ConfigEditor {
     }
 
     fn plan_room_add(&self, name: &str) -> Result<RoomAddPlan> {
-        let existing = self.kernel.matching_rooms(&name.to_lowercase());
-        if !existing.is_empty() {
-            bail!("Room '{}' already exists", name);
-        }
-
-        let uuid = format!(
-            "{:08x}-{:04x}-{:04x}-ffff000000000000",
-            rand::random::<u32>(),
-            rand::random::<u16>(),
-            rand::random::<u16>()
-        );
-
-        // The legacy writer uses the last matching direct child, not a nested caption.
-        let mut insert_path = None;
-        for (i, child) in self.root.children.iter().enumerate() {
-            if let Some(elem) = child.as_element()
-                && elem.name == "C"
-                && let Some(t) = elem.attributes.get("Type")
-                && (t == "Place" || t == "PlaceCaption")
-            {
-                insert_path = Some(i);
-            }
-        }
-
-        let attributes = vec![
-            ("Type".to_owned(), "Place".to_owned()),
-            ("V".to_owned(), "175".to_owned()),
-            ("U".to_owned(), uuid.clone()),
-            ("Title".to_owned(), name.to_owned()),
-            ("WF".to_owned(), "16384".to_owned()),
-        ];
-        let stored = |element: &Element, path| RoomAddElement {
-            path,
-            element_name: element.name.clone(),
-            attributes: element
-                .attributes
-                .iter()
-                .map(|(key, value)| (key.clone(), value.clone()))
-                .collect(),
+        let core = self
+            .kernel
+            .plan_room_add(name, || lox_core::configuration::editor::RoomAddEntropy {
+                first: rand::random::<u32>(),
+                second: rand::random::<u16>(),
+                third: rand::random::<u16>(),
+            })
+            .map_err(super::editor_error)?;
+        let stored = |element: &lox_core::configuration::editor::RoomAddElement| RoomAddElement {
+            path: element.path.clone(),
+            element_name: element.element_name.clone(),
+            attributes: element.attributes.clone(),
         };
         Ok(RoomAddPlan {
             preview: RoomAddPreview {
-                name: name.to_owned(),
-                parent: stored(&self.root, vec![]),
-                insert_after: insert_path.map(|index| {
-                    stored(self.root.children[index].as_element().unwrap(), vec![index])
-                }),
-                room: RoomAddElement {
-                    path: vec![insert_path.map_or(self.root.children.len(), |index| index + 1)],
-                    element_name: "C".to_owned(),
-                    attributes: attributes.iter().cloned().collect(),
-                },
+                name: core.name.clone(),
+                parent: stored(&core.parent),
+                insert_after: core.insert_after.as_ref().map(stored),
+                room: stored(&core.room),
                 uuid_ephemeral: true,
-                report: format!("Added room '{}' (UUID: {})", name, uuid),
+                report: format!("Added room '{}' (UUID: {})", core.name, core.uuid),
                 scope: "Existing CLI Place insertion only; generated UUID is ephemeral across invocations, not reserved for execution; no native UI or physical-effect claim",
             },
-            attributes,
+            core,
         })
     }
 
     fn apply_room_add(&mut self, plan: &RoomAddPlan) {
-        let mut place = Element::new(&plan.preview.room.element_name);
-        place.attributes.extend(plan.attributes.iter().cloned());
-        self.root
-            .children
-            .insert(plan.preview.room.path[0], xmltree::XMLNode::Element(place));
+        self.kernel.apply_room_add(&plan.core);
     }
 
     /// Add a new category to the config.
