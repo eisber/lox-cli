@@ -457,32 +457,96 @@ mod tests {
     #[test]
     fn clock_timeout_category_matches_legacy_transport() {
         use std::net::TcpListener;
-        use std::sync::mpsc;
+
+        // Keep the peer listening without replying. A total request timeout can
+        // expire before headers are sent, so the wire witness is separate.
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let host = format!("http://{}", listener.local_addr().unwrap());
+        let timeout = Duration::from_millis(20);
+        let legacy = legacy_clock_fixture(&host, timeout);
+        let legacy_error = legacy.get_json("/jdev/sys/date").unwrap_err();
+        let driver = runtime_clock_fixture(host, timeout);
+        let error = clock_error(driver.read_clock(&Cancellation::new()).unwrap_err());
+        driver.close().unwrap();
+        drop(legacy);
+        drop(listener);
+        assert!(
+            legacy_error
+                .downcast_ref::<reqwest::Error>()
+                .unwrap()
+                .is_timeout()
+        );
+        assert!(matches!(
+            error.downcast_ref::<ClockError>(),
+            Some(ClockError::Transport {
+                endpoint: lox_core::runtime::ClockEndpoint::Date,
+                kind: lox_core::runtime::TransportFailure::Timeout,
+            })
+        ));
+        assert_eq!(
+            crate::categorize_error(&error),
+            crate::categorize_error(&legacy_error)
+        );
+    }
+
+    fn legacy_clock_fixture(host: &str, timeout: Duration) -> LoxClient {
+        let mut legacy = LoxClient::new(Config {
+            host: host.into(),
+            user: "clock-test".into(),
+            pass: "synthetic-only".into(),
+            ..Config::default()
+        })
+        .unwrap();
+        legacy.client = reqwest::blocking::Client::builder()
+            .no_proxy()
+            .timeout(timeout)
+            .build()
+            .unwrap();
+        legacy
+    }
+
+    fn runtime_clock_fixture(host: String, timeout: Duration) -> ClockDriver {
+        let mut options = ClockOptions::new(host, "clock-test", "synthetic-only");
+        options.use_system_proxy = false;
+        options.timeout = timeout;
+        options.retry_delays.clear();
+        ClockDriver::new(options).unwrap()
+    }
+
+    #[test]
+    fn clock_wire_witness_observes_four_legacy_attempts_and_one_runtime_attempt() {
+        use std::io::Write;
+        use std::net::TcpListener;
+        use std::sync::atomic::{AtomicUsize, Ordering};
         use std::thread;
         use std::time::Instant;
 
+        let requests = AtomicUsize::new(0);
         thread::scope(|scope| {
             let listener = TcpListener::bind("127.0.0.1:0").unwrap();
             listener.set_nonblocking(true).unwrap();
             let host = format!("http://{}", listener.local_addr().unwrap());
-            let (ready, started) = mpsc::sync_channel(0);
+            let fixture_timeout = Duration::from_secs(3);
+            let count = &requests;
             let worker = scope.spawn(move || {
-                let deadline = Instant::now() + Duration::from_secs(3);
-                let mut responses = Vec::new();
-                ready.send(()).unwrap();
-                while responses.len() < 5 {
+                let deadline = Instant::now() + fixture_timeout;
+                while count.load(Ordering::Relaxed) < 5 {
                     match listener.accept() {
-                        Ok((mut socket, _)) => responses.push(scope.spawn(move || {
+                        Ok((mut socket, _)) => {
                             socket.set_nonblocking(false).unwrap();
-                            socket
-                                .set_read_timeout(Some(Duration::from_secs(3)))
-                                .unwrap();
+                            socket.set_read_timeout(Some(fixture_timeout)).unwrap();
+                            socket.set_write_timeout(Some(fixture_timeout)).unwrap();
                             let request = read_timeout_fixture_request(&mut socket)
                                 .unwrap()
                                 .expect("Expected complete clock request headers");
-                            thread::sleep(Duration::from_millis(200));
-                            request
-                        })),
+                            assert!(request.starts_with(b"GET /jdev/sys/date HTTP/1.1\r\n"));
+                            count.fetch_add(1, Ordering::Relaxed);
+                            socket
+                                .write_all(
+                                    b"HTTP/1.1 503 Service Unavailable\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+                                )
+                                .unwrap();
+                        }
                         Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
                             assert!(
                                 Instant::now() < deadline,
@@ -493,58 +557,30 @@ mod tests {
                         Err(error) => panic!("Clock fixture accept failed: {error}"),
                     }
                 }
-                let requests: Vec<_> = responses
-                    .into_iter()
-                    .map(|response| response.join().unwrap())
-                    .collect();
-                (listener, requests)
+                listener
             });
-            started.recv_timeout(Duration::from_secs(3)).unwrap();
-            let mut legacy = LoxClient::new(Config {
-                host: host.clone(),
-                user: "clock-test".into(),
-                pass: "synthetic-only".into(),
-                ..Config::default()
-            })
-            .unwrap();
-            legacy.client = reqwest::blocking::Client::builder()
-                .no_proxy()
-                .timeout(Duration::from_millis(20))
-                .build()
-                .unwrap();
+            let legacy = legacy_clock_fixture(&host, fixture_timeout);
             let legacy_error = legacy.get_json("/jdev/sys/date").unwrap_err();
-            let mut options = ClockOptions::new(host, "clock-test", "synthetic-only");
-            options.use_system_proxy = false;
-            options.timeout = Duration::from_millis(20);
-            options.retry_delays.clear();
-            let driver = ClockDriver::new(options).unwrap();
-            let error = clock_error(driver.read_clock(&Cancellation::new()).unwrap_err());
+            assert_eq!(
+                legacy_error
+                    .downcast_ref::<HttpStatusError>()
+                    .unwrap()
+                    .status,
+                503
+            );
+            assert_eq!(requests.load(Ordering::Relaxed), 4);
+            let driver = runtime_clock_fixture(host, fixture_timeout);
+            assert_eq!(
+                driver.read_clock(&Cancellation::new()).unwrap_err(),
+                ClockError::Http {
+                    endpoint: lox_core::runtime::ClockEndpoint::Date,
+                    status: 503,
+                }
+            );
             driver.close().unwrap();
             drop(legacy);
-            let (listener, requests) = worker.join().unwrap();
-            assert!(
-                legacy_error
-                    .downcast_ref::<reqwest::Error>()
-                    .unwrap()
-                    .is_timeout()
-            );
-            assert!(matches!(
-                error.downcast_ref::<ClockError>(),
-                Some(ClockError::Transport {
-                    kind: lox_core::runtime::TransportFailure::Timeout,
-                    ..
-                })
-            ));
-            assert_eq!(
-                crate::categorize_error(&error),
-                crate::categorize_error(&legacy_error)
-            );
-            assert_eq!(requests.len(), 5);
-            assert!(
-                requests
-                    .iter()
-                    .all(|request| { request.starts_with(b"GET /jdev/sys/date HTTP/1.1\r\n") })
-            );
+            let listener = worker.join().unwrap();
+            assert_eq!(requests.load(Ordering::Relaxed), 5);
             assert!(matches!(
                 listener.accept(),
                 Err(error) if error.kind() == std::io::ErrorKind::WouldBlock

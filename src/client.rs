@@ -1521,6 +1521,35 @@ mod tests {
     // ── retry logic ─────────────────────────────────────────────────────────
 
     #[test]
+    fn retry_dispatches_four_attempts_for_real_timeout_errors() {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let host = format!("http://{}", listener.local_addr().unwrap());
+        let client = LoxClient::new(Config {
+            host: host.clone(),
+            ..Config::default()
+        })
+        .unwrap();
+        let transport = reqwest::blocking::Client::builder()
+            .no_proxy()
+            .timeout(Duration::from_millis(20))
+            .build()
+            .unwrap();
+        let attempts = std::cell::Cell::new(0);
+        let url = format!("{host}/jdev/sys/date");
+        let error = client
+            .request_with_retry(|| {
+                attempts.set(attempts.get() + 1);
+                let error = transport.get(&url).send().unwrap_err();
+                assert!(error.is_timeout());
+                Err::<(), _>(error.into())
+            })
+            .unwrap_err();
+        assert!(error.downcast_ref::<reqwest::Error>().unwrap().is_timeout());
+        assert_eq!(attempts.get(), 4);
+        drop(listener);
+    }
+
+    #[test]
     fn test_retry_on_server_error() {
         let server = MockServer::start();
         let test_uuid = "0f1e2d3c-a1b2-c3d4-e5f6a7b8c9d0e1f2";
