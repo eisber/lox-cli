@@ -1975,6 +1975,73 @@ fn daytimer_activation_rejects_malformed_boolean_and_shared_unsafe_domains_atomi
 }
 
 #[test]
+fn daytimer_activation_legacy_keeps_non_page_admission_report_and_atomic_save() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("existing.Loxone");
+    let staging = dir.path().join("existing.Loxone.tmp");
+    let source = native_fixture(NATIVE_MODE_A, RFC_MODE_A)
+        .replace("Type=\"Document\"", "Type=\"Folder\"")
+        .replace(
+            "Marker=\"selected\"",
+            "NeedActivate=\"FaLsE\" Marker=\"selected\"",
+        );
+    fs::write(&input, &source).unwrap();
+    fs::write(&output, b"existing destination").unwrap();
+    fs::write(&staging, b"unowned staging file").unwrap();
+    activation_command(&input, RFC_MODE_A, "02:00")
+        .arg("--required")
+        .arg("--save-as")
+        .arg(&output)
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains(
+            "Cannot exclusively create staging file",
+        ));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert_eq!(fs::read(&output).unwrap(), b"existing destination");
+    assert_eq!(fs::read(&staging).unwrap(), b"unowned staging file");
+    fs::remove_file(&staging).unwrap();
+
+    let result = activation_command(&input, RFC_MODE_A, "02:00")
+        .arg("--required")
+        .arg("--save-as")
+        .arg(&output)
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    assert_eq!(
+        serde_json::from_slice::<Value>(&result).unwrap(),
+        serde_json::json!({
+            "ok": true,
+            "saved_to": output.to_str().unwrap(),
+            "activation": {
+                "block_uuid": "timer",
+                "entry": { "mode_uuid": RFC_MODE_A, "from_minutes": 120, "to_minutes": 180 },
+                "stored_mode_uuid": NATIVE_MODE_A,
+                "previous_attribute": "FaLsE",
+                "previous_required": false,
+                "activation_required": true,
+                "changed": true
+            },
+        })
+    );
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    assert_eq!(
+        parse(&fs::read(&output).unwrap()),
+        parse(
+            source
+                .replace("NeedActivate=\"FaLsE\"", "NeedActivate=\"true\"")
+                .as_bytes()
+        ),
+    );
+    assert!(!staging.exists());
+}
+
+#[test]
 fn daytimer_activation_requires_one_flag_and_dry_run_rejects_before_io() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let missing = dir.path().join("missing.Loxone");

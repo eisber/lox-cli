@@ -3,8 +3,8 @@ use std::ops::Range;
 
 use anyhow::{Context, Result, bail, ensure};
 use lox_core::configuration::editor::{
-    DayTimerRemovalError, SelectedDayTimerEntry as SelectedEntry, daytimer_integer as integer,
-    daytimer_mode_uuid_key as mode_uuid_key,
+    DayTimerActivationError, DayTimerRemovalError, SelectedDayTimerEntry as SelectedEntry,
+    daytimer_integer as integer, daytimer_mode_uuid_key as mode_uuid_key,
 };
 use quick_xml::{Reader, events::Event};
 use serde::Serialize;
@@ -766,39 +766,27 @@ impl ConfigEditor {
         identity: DayTimerEntryIdentity,
         activation_required: bool,
     ) -> Result<DayTimerEntryActivationChange> {
-        let selected = self.select_daytimer_entry(selector, &identity)?;
-        let block = self.get_element(&selected.path);
-        let entry = block.children[selected.position].as_element().unwrap();
-        let previous_attribute = entry.attributes.get("NeedActivate").cloned();
-        let previous_required = match previous_attribute.as_deref() {
-            None => false,
-            Some(raw) if raw.eq_ignore_ascii_case("true") => true,
-            Some(raw) if raw.eq_ignore_ascii_case("false") => false,
-            Some(raw) => bail!(
-                "Unsupported DayTimer NeedActivate='{raw}': use true/false (case-insensitive) or absence; nothing was changed."
-            ),
-        };
-        let change = DayTimerEntryActivationChange {
-            block_uuid: block.attributes.get("U").cloned().unwrap_or_default(),
+        let change = self
+            .kernel
+            .set_daytimer_entry_activation_legacy(
+                selector,
+                &identity.mode_uuid,
+                identity.from_minutes,
+                identity.to_minutes,
+                activation_required,
+            )
+            .map_err(|error| match error {
+                DayTimerActivationError::Schedule(error) => daytimer_removal_error(error),
+                refusal => refusal.into(),
+            })?;
+        Ok(DayTimerEntryActivationChange {
+            block_uuid: change.block_uuid,
             entry: identity,
-            stored_mode_uuid: selected.stored_mode_uuid,
-            previous_attribute,
-            previous_required,
-            activation_required,
-            changed: previous_required != activation_required,
-        };
-        if change.changed {
-            let entry = self.get_element_mut(&selected.path).children[selected.position]
-                .as_mut_element()
-                .unwrap();
-            if activation_required {
-                entry
-                    .attributes
-                    .insert("NeedActivate".into(), "true".into());
-            } else {
-                entry.attributes.shift_remove("NeedActivate");
-            }
-        }
-        Ok(change)
+            stored_mode_uuid: change.stored_mode_uuid,
+            previous_attribute: change.previous_attribute,
+            previous_required: change.previous_required,
+            activation_required: change.activation_required,
+            changed: change.changed,
+        })
     }
 }

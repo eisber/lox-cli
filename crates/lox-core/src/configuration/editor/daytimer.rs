@@ -3,6 +3,9 @@ use chrono::{DateTime, FixedOffset};
 use std::{collections::BTreeMap, error::Error, fmt};
 use xmltree::Element;
 
+#[cfg(any(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
+pub(super) mod activation;
+
 /// Failure to remove one existing ordinary digital DayTimer entry.
 #[derive(Debug)]
 #[non_exhaustive]
@@ -232,6 +235,19 @@ pub fn daytimer_mode_uuid_key(raw: &str) -> Option<String> {
     (!key.bytes().all(|byte| byte == b'0')).then_some(key)
 }
 
+fn validate_entry_identity(
+    mode_uuid: &str,
+    from_minutes: u32,
+    to_minutes: u32,
+) -> Result<String, DayTimerRemovalError> {
+    let mode_key =
+        daytimer_mode_uuid_key(mode_uuid).ok_or(DayTimerRemovalError::InvalidModeUuid)?;
+    if from_minutes >= to_minutes || to_minutes > 1440 {
+        return Err(DayTimerRemovalError::InvalidInterval);
+    }
+    Ok(mode_key)
+}
+
 impl State {
     fn daytimer_is_page_child(&self, path: &[usize]) -> bool {
         let is_plain = |element: &Element, kind: &str| {
@@ -266,12 +282,18 @@ impl State {
         from_minutes: u32,
         to_minutes: u32,
     ) -> Result<SelectedDayTimerEntry, DayTimerRemovalError> {
-        use DayTimerRemovalError as Failure;
+        let mode_key = validate_entry_identity(mode_uuid, from_minutes, to_minutes)?;
+        self.select_daytimer_entry_by_mode_key(selector, &mode_key, from_minutes, to_minutes)
+    }
 
-        let mode_uuid = daytimer_mode_uuid_key(mode_uuid).ok_or(Failure::InvalidModeUuid)?;
-        if from_minutes >= to_minutes || to_minutes > 1440 {
-            return Err(Failure::InvalidInterval);
-        }
+    fn select_daytimer_entry_by_mode_key(
+        &self,
+        selector: &str,
+        mode_key: &str,
+        from_minutes: u32,
+        to_minutes: u32,
+    ) -> Result<SelectedDayTimerEntry, DayTimerRemovalError> {
+        use DayTimerRemovalError as Failure;
         let path = self
             .require_one(selector)
             .map_err(|error| Failure::Edit(error.into()))?;
@@ -326,7 +348,7 @@ impl State {
         }
         let mode_index = modes
             .iter()
-            .position(|mode| *mode == mode_uuid)
+            .position(|mode| mode.as_str() == mode_key)
             .ok_or(Failure::ModeNotInSchedule)?;
         let positions: Vec<_> = block
             .children
