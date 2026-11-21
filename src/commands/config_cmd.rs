@@ -3160,6 +3160,161 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 );
             }
         }
+        ConfigCmd::TimerEntryCopy {
+            file,
+            selector,
+            mode_uuid,
+            from,
+            to,
+            shift_minutes,
+            room,
+            save_as,
+        } => {
+            let identity =
+                crate::config_edit::daytimer::DayTimerEntryIdentity::parse(&mode_uuid, &from, &to)?;
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let (output, change) =
+                ConfigEditor::copy_daytimer_entry(&data, &selector, identity, shift_minutes)?;
+            if let Some(destination) = &save_as
+                && let (Ok(input), Ok(destination)) = (
+                    std::path::Path::new(&file).canonicalize(),
+                    std::path::Path::new(destination).canonicalize(),
+                )
+                && input == destination
+            {
+                bail!(
+                    "The save-as destination aliases the input; choose a different output path. Nothing was changed."
+                );
+            }
+            write_edited_bytes(
+                &output,
+                &file,
+                save_as.as_deref(),
+                ctx.quiet || ctx.json || ctx.csv,
+            )?;
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "copy_change": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "BLOCK_UUID,MODE_UUID,STORED_MODE_UUID,SOURCE_FROM_MINUTES,SOURCE_TO_MINUTES,SHIFT_MINUTES,NEW_FROM_MINUTES,NEW_TO_MINUTES,COPY_INDEX,ENTRY_COUNT"
+                    );
+                }
+                println!(
+                    "\"{}\",{},{},{},{},{},{},{},{},{}",
+                    change.block_uuid.replace('"', "\"\""),
+                    change.entry.mode_uuid,
+                    change.stored_mode_uuid,
+                    change.entry.from_minutes,
+                    change.entry.to_minutes,
+                    change.shift_minutes,
+                    change.new_from_minutes,
+                    change.new_to_minutes,
+                    change.copy_index,
+                    change.entry_count,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ DayTimer entry {from}-{to} for mode {mode_uuid}: copied to {}-{} minutes",
+                    change.new_from_minutes, change.new_to_minutes
+                );
+            }
+        }
+        ConfigCmd::TimerEntryMoveMode {
+            file,
+            selector,
+            mode_uuid,
+            from,
+            to,
+            target_mode_uuid,
+            room,
+            save_as,
+        } => {
+            let identity =
+                crate::config_edit::daytimer::DayTimerEntryIdentity::parse(&mode_uuid, &from, &to)?;
+            let selector = match room {
+                Some(_) if selector.ends_with(']') && selector.contains('[') => {
+                    bail!("Use either a bracket room qualifier or --room, not both.")
+                }
+                Some(room) => format!("{selector} [{room}]"),
+                None => selector,
+            };
+            let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
+            let (output, change) = ConfigEditor::move_daytimer_entry_mode(
+                &data,
+                &selector,
+                identity,
+                &target_mode_uuid,
+            )?;
+            if let Some(destination) = &save_as
+                && let (Ok(input), Ok(destination)) = (
+                    std::path::Path::new(&file).canonicalize(),
+                    std::path::Path::new(destination).canonicalize(),
+                )
+                && input == destination
+            {
+                bail!(
+                    "The save-as destination aliases the input; choose a different output path. Nothing was changed."
+                );
+            }
+            let saved_to = if change.changed || save_as.is_some() {
+                write_edited_bytes(
+                    &output,
+                    &file,
+                    save_as.as_deref(),
+                    ctx.quiet || ctx.json || ctx.csv,
+                )?;
+                Some(save_as.as_deref().unwrap_or(&file))
+            } else {
+                None
+            };
+            if ctx.json {
+                emit_json(
+                    ctx,
+                    serde_json::json!({
+                        "ok": true,
+                        "saved_to": saved_to,
+                        "mode_move": change,
+                    }),
+                );
+            } else if ctx.csv {
+                if !ctx.no_header {
+                    println!(
+                        "BLOCK_UUID,MODE_UUID,STORED_MODE_UUID,TARGET_MODE_UUID,STORED_TARGET_MODE_UUID,FROM_MINUTES,TO_MINUTES,CHANGED"
+                    );
+                }
+                println!(
+                    "\"{}\",{},{},{},{},{},{},{}",
+                    change.block_uuid.replace('"', "\"\""),
+                    change.entry.mode_uuid,
+                    change.stored_mode_uuid,
+                    change.target_mode_uuid,
+                    change.stored_target_mode_uuid,
+                    change.entry.from_minutes,
+                    change.entry.to_minutes,
+                    change.changed,
+                );
+            } else if !ctx.quiet {
+                println!(
+                    "✓ DayTimer entry {from}-{to}: mode {mode_uuid} → {target_mode_uuid} ({})",
+                    if change.changed { "moved" } else { "unchanged" }
+                );
+            }
+        }
         ConfigCmd::TimerEntrySetActivation {
             file,
             selector,

@@ -1031,6 +1031,44 @@ pub(crate) enum ConfigCmd {
         #[arg(long)]
         save_as: Option<String>,
     },
+    /// Copy an existing digital DayTimer interval with a fresh Ctrl-held minute-grid drag
+    TimerEntryCopy {
+        file: String,
+        selector: String,
+        /// Existing referenced mode UUID; the copy stays in this mode
+        #[arg(long)]
+        mode_uuid: String,
+        #[arg(long, value_name = "HH:MM")]
+        from: String,
+        #[arg(long, value_name = "HH:MM")]
+        to: String,
+        /// Signed pointer-minute delta from a From grab; linked clamp without 15-minute snapping
+        #[arg(long, allow_negative_numbers = true)]
+        shift_minutes: i32,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
+    /// Move an existing digital DayTimer interval to an existing mode without changing endpoints
+    TimerEntryMoveMode {
+        file: String,
+        selector: String,
+        /// Existing source operating mode UUID
+        #[arg(long)]
+        mode_uuid: String,
+        #[arg(long, value_name = "HH:MM")]
+        from: String,
+        #[arg(long, value_name = "HH:MM")]
+        to: String,
+        /// Existing target Modes member; requires on-grid From and unchanged physical rank
+        #[arg(long)]
+        target_mode_uuid: String,
+        #[arg(short, long)]
+        room: Option<String>,
+        #[arg(long)]
+        save_as: Option<String>,
+    },
     /// Set an existing ordinary digital DayTimer interval's Activation required checkbox
     TimerEntrySetActivation {
         file: String,

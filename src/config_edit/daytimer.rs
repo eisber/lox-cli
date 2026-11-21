@@ -8,6 +8,8 @@ use xmltree::Element;
 
 use super::ConfigEditor;
 
+mod gestures;
+
 #[derive(Debug, Serialize)]
 pub struct DayTimerEntryIdentity {
     pub mode_uuid: String,
