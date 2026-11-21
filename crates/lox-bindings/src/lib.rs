@@ -18,6 +18,7 @@ mod daytimer_state;
 mod firmware_metadata;
 mod mqtt_catalog;
 mod numeric_state;
+mod statistics_identity;
 mod statistics_index;
 mod statistics_series;
 mod structure_metadata;

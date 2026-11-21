@@ -56,7 +56,7 @@ public final class NativeStatisticsSeriesProbe {
                     StatSeries value = operation.run(input);
                     if (error || !value.name().equals(marker) || value.rows().size() != 1
                             || !value.rows().getFirst().timestamp().equals("raw")
-                            || Double.doubleToRawLongBits(value.rows().getFirst().values().getFirst())
+                            || Double.doubleToRawLongBits(value.rows().getFirst().values()[0])
                             != Long.MIN_VALUE) throw new AssertionError("Owned values");
                     if (i == 0) retainedValue = value;
                 } catch (StatisticsException.InvalidValue failure) {
