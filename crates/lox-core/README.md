@@ -148,6 +148,21 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   admission, diagnostics, reporting and atomic save policy. There are no
   runtime effects or foreign bindings.
 
+- Optional `configuration-xml`:
+  `configuration::editor::set_load_manager_load_power(bytes, selector, io_index, power_kw, &now)`
+  changes only one `Load/@pwr` by stable connector identity. The unsigned
+  decimal request is in kW with at most three fractional digits and no unit
+  conversion; requests that do not round-trip through binary64 and three-place
+  formatting, including half-milli ties, are refused. Exact decimal no-ops
+  preserve bytes, stored spelling and stamp. The byte API refuses distinct
+  decimals that collide in binary64, unsupported XML or owner scope, and XML
+  that would lose unrelated data in canonical storage. On a change, it returns
+  the reopened canonical XML, the raw before/after spellings as seen by the
+  loader, the ordered inspection, and whether it stamped an owning Document
+  using the supplied clock. The CLI shares selection and mutation but
+  retains its original admission, binary64 equality, diagnostics, reporting
+  and atomic save policy. No runtime, native or foreign binding is provided.
+
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_central_light_links(bytes, selector)` shares
   the cached `lox config central-light inspect` matcher. It returns owned
