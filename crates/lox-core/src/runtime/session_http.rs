@@ -1,13 +1,20 @@
-//! Status-only HTTP carrier for a provisionally admitted session route.
+//! Unauthenticated HTTP carrier for a provisionally admitted session route.
 
 use super::TransportFailure;
 use super::http::transport_kind;
 use super::session_endpoints::{ProxyPolicy, SessionEndpoints};
-use reqwest::{Client, StatusCode, Url};
+use reqwest::{Client, Response, StatusCode, Url};
 use std::fmt;
 use std::time::Duration;
 
+mod bootstrap;
+pub use bootstrap::{
+    BootstrapCapabilities, BootstrapError, BootstrapPayloadIssue, Capability, TlsStatus,
+};
+
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
+const BOOTSTRAP_PATH: &str = "/jdev/cfg/api";
+const MAX_BOOTSTRAP_BODY: usize = 8 * 1024;
 
 /// A failure with no endpoint, headers, body or backend error chain.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -65,12 +72,58 @@ impl SessionHttpClient {
     /// policy, returns `SessionHttpError::Transport(TransportFailure::Request)`
     /// instead. Neither case attempts a redirect.
     pub async fn get_status(&self) -> Result<StatusCode, SessionHttpError> {
+        self.send_get()
+            .await
+            .map(|response| response.status())
+            .map_err(SessionHttpError::Transport)
+    }
+
+    /// Reads only the unauthenticated capabilities reported by `GET /jdev/cfg/api`.
+    ///
+    /// The admitted HTTP route must already have this exact path. No URL or
+    /// credentials are derived from the WebSocket route or the response. The
+    /// transport deadline covers the body read as well as the request.
+    pub async fn bootstrap_preflight(&self) -> Result<BootstrapCapabilities, BootstrapError> {
+        if self.route.path() != BOOTSTRAP_PATH {
+            return Err(BootstrapError::WrongRoute);
+        }
+
+        let mut response = self.send_get().await.map_err(BootstrapError::Transport)?;
+        let status = response.status();
+        if status != StatusCode::OK {
+            return Err(BootstrapError::HttpStatus(status));
+        }
+
+        let too_large = BootstrapError::Payload(BootstrapPayloadIssue::TooLarge);
+        if response
+            .content_length()
+            .is_some_and(|len| len > MAX_BOOTSTRAP_BODY as u64)
+        {
+            return Err(too_large);
+        }
+        let mut body = Vec::with_capacity(MAX_BOOTSTRAP_BODY);
+        while let Some(chunk) = response.chunk().await.map_err(|error| {
+            BootstrapError::Transport(if error.is_timeout() {
+                TransportFailure::Timeout
+            } else {
+                TransportFailure::Body
+            })
+        })? {
+            if chunk.len() > MAX_BOOTSTRAP_BODY - body.len() {
+                return Err(too_large);
+            }
+            body.extend_from_slice(&chunk);
+        }
+
+        bootstrap::decode(&body).map_err(BootstrapError::Payload)
+    }
+
+    async fn send_get(&self) -> Result<Response, TransportFailure> {
         self.client
             .get(self.route.clone())
             .send()
             .await
-            .map(|response| response.status())
-            .map_err(|error| SessionHttpError::Transport(transport_kind(&error)))
+            .map_err(|error| transport_kind(&error))
     }
 }
 
