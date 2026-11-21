@@ -2746,6 +2746,77 @@ fn config_user_add_virtual_input_grant_is_atomic_and_quiet() {
 }
 
 #[test]
+fn config_virtual_input_creators_keep_grant_and_aq_identities_distinct_with_or_without_page() {
+    for (command, with_page) in [
+        ("add", true),
+        ("add-virtual-in", true),
+        ("add", false),
+        ("add-virtual-in", false),
+    ] {
+        let (dir, path, original) = write_user_fixture();
+        let original = if with_page {
+            let xml = String::from_utf8(original).unwrap().replace(
+                "\t</C>\r\n</ControlList>",
+                "\t\t<C Type=\"Page\" U=\"page-1\"/>\r\n\t</C>\r\n</ControlList>",
+            );
+            fs::write(&path, &xml).unwrap();
+            xml.into_bytes()
+        } else {
+            original
+        };
+        let output = dir.path().join("created.Loxone");
+        let args = if command == "add" {
+            vec![
+                "config",
+                command,
+                &path,
+                "--type",
+                "virtual-input",
+                "--title",
+                "New input",
+            ]
+        } else {
+            vec!["config", command, &path, "New input"]
+        };
+        lox()
+            .args(&args)
+            .args(["--grant", "missing-user", "--save-as"])
+            .arg(&output)
+            .assert()
+            .failure();
+        assert!(!output.exists());
+        assert_eq!(fs::read(&path).unwrap(), original);
+
+        let report = lox()
+            .arg("--json")
+            .args(&args)
+            .args(["--grant", "webhook_api", "--save-as"])
+            .arg(&output)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let json: serde_json::Value = serde_json::from_slice(&report).unwrap();
+        let object = json["virtual_in_uuid"].as_str().unwrap();
+        let aq = json["uuid"].as_str().unwrap();
+        assert_ne!(object, aq);
+        if command == "add-virtual-in" {
+            assert_eq!(json["connector_uuid"], aq);
+        }
+        let content = fs::read_to_string(&output).unwrap();
+        assert!(content.contains(&format!(r#"<PRM REF="{object}" ACT="3"/>"#)));
+        assert_eq!(content.contains("Type=\"InputRef\""), with_page);
+        if with_page {
+            assert!(content.contains(&format!(r#"K="AQ" U="{aq}""#)));
+        } else {
+            assert!(!content.contains(aq));
+        }
+        assert_eq!(fs::read(&path).unwrap(), original);
+    }
+}
+
+#[test]
 fn config_user_perms_csv_quotes_fields_and_respects_no_header() {
     let (_dir, path, _) = write_user_fixture();
     let content = fs::read_to_string(&path)
