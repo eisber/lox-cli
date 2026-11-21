@@ -261,27 +261,37 @@ mod tests {
     use httpmock::{Method::GET, MockServer};
     use std::time::Duration;
 
+    #[derive(Debug)]
+    struct TimeoutFixtureReadFailure {
+        bytes: usize,
+        error: std::io::Error,
+    }
+
     fn read_timeout_fixture_headers(socket: &mut impl std::io::Read) -> std::io::Result<bool> {
-        Ok(read_timeout_fixture_request(socket)?.is_some())
+        match read_timeout_fixture_request(socket) {
+            Ok(_) => Ok(true),
+            Err(failure) => match failure.error.kind() {
+                std::io::ErrorKind::UnexpectedEof | std::io::ErrorKind::ConnectionReset => Ok(false),
+                _ => Err(failure.error),
+            },
+        }
     }
 
     fn read_timeout_fixture_request(
         socket: &mut impl std::io::Read,
-    ) -> std::io::Result<Option<Vec<u8>>> {
+    ) -> Result<Vec<u8>, TimeoutFixtureReadFailure> {
         let mut request = Vec::new();
         while !request.ends_with(b"\r\n\r\n") {
             let mut byte = [0];
-            if let Err(error) = socket.read_exact(&mut byte) {
-                match error.kind() {
-                    std::io::ErrorKind::UnexpectedEof | std::io::ErrorKind::ConnectionReset => {
-                        return Ok(None);
-                    }
-                    _ => return Err(error),
-                }
-            }
+            socket
+                .read_exact(&mut byte)
+                .map_err(|error| TimeoutFixtureReadFailure {
+                    bytes: request.len(),
+                    error,
+                })?;
             request.push(byte[0]);
         }
-        Ok(Some(request))
+        Ok(request)
     }
 
     #[test]
@@ -319,8 +329,8 @@ mod tests {
         assert_eq!(
             read_timeout_fixture_request(&mut socket)
                 .unwrap()
-                .as_deref(),
-            Some(request.as_slice())
+                .as_slice(),
+            request.as_slice()
         );
     }
 
@@ -456,52 +466,65 @@ mod tests {
 
     #[test]
     fn clock_timeout_category_matches_legacy_transport() {
+        use std::io::ErrorKind;
         use std::net::TcpListener;
         use std::sync::mpsc;
         use std::thread;
         use std::time::Instant;
 
         thread::scope(|scope| {
-            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-            listener.set_nonblocking(true).unwrap();
-            let host = format!("http://{}", listener.local_addr().unwrap());
+            let legacy_listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let core_listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let legacy_host = format!("http://{}", legacy_listener.local_addr().unwrap());
+            let core_host = format!("http://{}", core_listener.local_addr().unwrap());
+            // A destination identifies the transport even when the stream has no bytes.
+            let listeners = [("legacy", legacy_listener), ("core", core_listener)];
+            for (_, listener) in &listeners {
+                listener.set_nonblocking(true).unwrap();
+            }
             let (ready, started) = mpsc::sync_channel(0);
             let worker = scope.spawn(move || {
                 let deadline = Instant::now() + Duration::from_secs(3);
                 let mut responses = Vec::new();
                 ready.send(()).unwrap();
                 while responses.len() < 5 {
-                    match listener.accept() {
-                        Ok((mut socket, _)) => responses.push(scope.spawn(move || {
-                            socket.set_nonblocking(false).unwrap();
-                            socket
-                                .set_read_timeout(Some(Duration::from_secs(3)))
-                                .unwrap();
-                            let request = read_timeout_fixture_request(&mut socket)
-                                .unwrap()
-                                .expect("Expected complete clock request headers");
-                            thread::sleep(Duration::from_millis(200));
-                            request
-                        })),
-                        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
-                            assert!(
-                                Instant::now() < deadline,
-                                "Missing clock request connection"
-                            );
-                            thread::park_timeout(Duration::from_millis(1));
+                    let accepted = listeners.iter().find_map(|(transport, listener)| {
+                        match listener.accept() {
+                            Ok((socket, _)) => Some((*transport, socket)),
+                            Err(error) if error.kind() == ErrorKind::WouldBlock => None,
+                            Err(error) => panic!("Clock fixture {transport} accept failed: {error}"),
                         }
-                        Err(error) => panic!("Clock fixture accept failed: {error}"),
+                    });
+                    if let Some((transport, mut socket)) = accepted {
+                        responses.push((
+                            transport,
+                            scope.spawn(move || {
+                                socket.set_nonblocking(false).unwrap();
+                                socket
+                                    .set_read_timeout(Some(Duration::from_secs(3)))
+                                    .unwrap();
+                                let request = read_timeout_fixture_request(&mut socket);
+                                if request.is_ok() {
+                                    thread::sleep(Duration::from_millis(200));
+                                }
+                                request
+                            }),
+                        ));
+                    } else if Instant::now() >= deadline {
+                        break;
+                    } else {
+                        thread::park_timeout(Duration::from_millis(1));
                     }
                 }
                 let requests: Vec<_> = responses
                     .into_iter()
-                    .map(|response| response.join().unwrap())
+                    .map(|(transport, response)| (transport, response.join().unwrap()))
                     .collect();
-                (listener, requests)
+                (listeners, requests)
             });
             started.recv_timeout(Duration::from_secs(3)).unwrap();
             let mut legacy = LoxClient::new(Config {
-                host: host.clone(),
+                host: legacy_host,
                 user: "clock-test".into(),
                 pass: "synthetic-only".into(),
                 ..Config::default()
@@ -513,7 +536,7 @@ mod tests {
                 .build()
                 .unwrap();
             let legacy_error = legacy.get_json("/jdev/sys/date").unwrap_err();
-            let mut options = ClockOptions::new(host, "clock-test", "synthetic-only");
+            let mut options = ClockOptions::new(core_host, "clock-test", "synthetic-only");
             options.use_system_proxy = false;
             options.timeout = Duration::from_millis(20);
             options.retry_delays.clear();
@@ -521,7 +544,28 @@ mod tests {
             let error = clock_error(driver.read_clock(&Cancellation::new()).unwrap_err());
             driver.close().unwrap();
             drop(legacy);
-            let (listener, requests) = worker.join().unwrap();
+            let (listeners, requests) = worker.join().unwrap();
+            let extra = listeners.iter().find_map(|(transport, listener)| {
+                match listener.accept() {
+                    Err(error) if error.kind() == ErrorKind::WouldBlock => None,
+                    result => Some((*transport, result.map(drop).map_err(|error| error.kind()))),
+                }
+            });
+            for (index, (transport, request)) in requests.iter().enumerate() {
+                let ordinal = index + 1;
+                let (bytes, read_error) = match request {
+                    Ok(request) => (request.len(), None),
+                    Err(failure) => (failure.bytes, Some(failure.error.kind())),
+                };
+                eprintln!(
+                    "clock fixture accept={ordinal} transport={transport} \
+                     bytes={bytes} read_error={read_error:?}"
+                );
+            }
+            eprintln!(
+                "clock fixture accepted={} extra_probe={extra:?}",
+                requests.len()
+            );
             assert!(
                 legacy_error
                     .downcast_ref::<reqwest::Error>()
@@ -539,16 +583,17 @@ mod tests {
                 crate::categorize_error(&error),
                 crate::categorize_error(&legacy_error)
             );
-            assert_eq!(requests.len(), 5);
+            assert_eq!(requests.len(), 5, "Missing clock request connection");
             assert!(
-                requests
-                    .iter()
-                    .all(|request| { request.starts_with(b"GET /jdev/sys/date HTTP/1.1\r\n") })
+                requests.iter().all(|(_, request)| request.is_ok()),
+                "Expected complete clock request headers"
             );
-            assert!(matches!(
-                listener.accept(),
-                Err(error) if error.kind() == std::io::ErrorKind::WouldBlock
-            ));
+            assert!(requests.iter().all(|(_, request)| {
+                request
+                    .as_ref()
+                    .is_ok_and(|request| request.starts_with(b"GET /jdev/sys/date HTTP/1.1\r\n"))
+            }));
+            assert!(extra.is_none(), "Expected no sixth clock request connection");
         });
     }
 }
