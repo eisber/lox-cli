@@ -4,8 +4,9 @@ use std::collections::BTreeMap;
 
 use anyhow::Result;
 use lox_core::configuration::editor::{
-    LightingInspection as StoredLightingInspection, LightingInspectionError,
-    LightingStorage as StoredLightingStorage, StoredLightingMood,
+    LegacyState, LightingInspection as StoredLightingInspection, LightingInspectionError,
+    LightingMoodCountChange, LightingMoodCountError, LightingStorage as StoredLightingStorage,
+    StoredLightingMood,
 };
 use serde::Serialize;
 use xmltree::{Element, XMLNode};
@@ -81,8 +82,19 @@ pub struct LightingMood {
 pub struct LightingMoodCountEdit {
     pub before: Option<String>,
     pub after: String,
-    pub scenes: usize,
+    pub scenes: i32,
     pub changed: bool,
+}
+
+impl From<LightingMoodCountChange> for LightingMoodCountEdit {
+    fn from(change: LightingMoodCountChange) -> Self {
+        Self {
+            before: change.before,
+            after: change.after,
+            scenes: change.scenes,
+            changed: change.changed,
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -96,11 +108,6 @@ pub struct LightingMoodCountPreview {
     pub collection_path: Vec<usize>,
     pub before_effective: Option<i32>,
     pub after_effective: i32,
-}
-
-struct LightingMoodCountPlan {
-    path: Vec<usize>,
-    preview: LightingMoodCountPreview,
 }
 
 #[derive(Debug, Serialize)]
@@ -690,89 +697,29 @@ impl ConfigEditor {
     }
 
     /// Set only the direct collection's Num to its direct scene-record count.
-    ///
-    /// Native append (0x1405b48e0) and reconciliation (0x1405c6770) assign
-    /// Num from the scene-vector size, independently of either Outputs field.
     pub fn recount_lighting_moods(&mut self, selector: &str) -> Result<LightingMoodCountEdit> {
-        let plan = self.plan_lighting_mood_count(selector)?;
-        if plan.preview.edit.changed {
-            self.get_element_mut(&plan.path)
-                .attributes
-                .insert("Num".into(), plan.preview.edit.after.clone());
-        }
-        Ok(plan.preview.edit)
+        self.kernel
+            .recount_lighting_moods_selected(selector)
+            .map(Into::into)
+            .map_err(|error| lighting_mood_count_error(error, selector))
     }
 
     pub fn preview_lighting_mood_count(&self, selector: &str) -> Result<LightingMoodCountPreview> {
-        Ok(self.plan_lighting_mood_count(selector)?.preview)
-    }
-
-    fn plan_lighting_mood_count(&self, selector: &str) -> Result<LightingMoodCountPlan> {
-        let path = self.require_one(selector)?;
-        let block = self.get_element(&path);
-        if block.attributes.get("Type").map(String::as_str) != Some("LightController2") {
-            return Err(Diagnostic::new(
-                "wrong_block_type",
-                selector,
-                "Mood recount requires LightController2. Use `lox config controls FILE --type LightController2` to find one.",
-            )
-            .into());
-        }
-        let containers: Vec<_> = block
-            .children
-            .iter()
-            .enumerate()
-            .filter_map(|(index, node)| {
-                node.as_element()
-                    .filter(|element| element.name == "LightscenesC")
-                    .map(|element| (index, element))
-            })
-            .collect();
-        let [(container_index, collection)] = containers.as_slice() else {
-            return Err(Diagnostic::new(
-                "unsupported_mood_container_shape",
-                selector,
-                format!(
-                    "Mood recount requires one direct LightscenesC container, found {}. Inspect the XML before editing.",
-                    containers.len()
-                ),
-            )
-            .into());
-        };
-        let scenes = direct_mood_count(collection);
-        let count = i32::try_from(scenes).map_err(|_| {
-            Diagnostic::new(
-                "mood_count_out_of_range",
-                selector,
-                "The direct scene count does not fit the native signed 32-bit Num field.",
-            )
-        })?;
-        let before = collection.attributes.get("Num").cloned();
-        let before_effective = before.as_ref().and_then(|raw| raw.parse::<i32>().ok());
-        let changed = before_effective != Some(count);
-        let after = if changed {
-            count.to_string()
-        } else {
-            before.as_ref().unwrap().clone()
-        };
-        let container_index = *container_index;
-        let preview = LightingMoodCountPreview {
-            edit: LightingMoodCountEdit {
-                before,
-                after,
-                scenes,
-                changed,
-            },
+        let (change, path) = self
+            .kernel
+            .plan_lighting_mood_count_selected(selector)
+            .map_err(|error| lighting_mood_count_error(error, selector))?;
+        let (container_index, controller_path) = path.split_last().unwrap();
+        let block = self.get_element(controller_path);
+        Ok(LightingMoodCountPreview {
+            before_effective: change.before_effective,
+            after_effective: change.scenes,
+            edit: change.into(),
             scope: "stored_mood_count_repair",
             controller_uuid: block.attributes.get("U").cloned(),
             controller_title: block.attributes.get("Title").cloned(),
-            collection_path: vec![container_index],
-            before_effective,
-            after_effective: count,
-        };
-        let mut path = path;
-        path.push(container_index);
-        Ok(LightingMoodCountPlan { path, preview })
+            collection_path: vec![*container_index],
+        })
     }
 
     fn numeric_mood_capability(
@@ -1067,13 +1014,35 @@ fn inspect_mood_editor(
     }
 }
 
+fn lighting_mood_count_error(error: LightingMoodCountError, selector: &str) -> anyhow::Error {
+    match error {
+        LightingMoodCountError::Edit(error) => editor_error(error),
+        LightingMoodCountError::WrongBlockType => Diagnostic::new(
+            "wrong_block_type",
+            selector,
+            "Mood recount requires LightController2. Use `lox config controls FILE --type LightController2` to find one.",
+        )
+        .into(),
+        LightingMoodCountError::ContainerCount { found } => Diagnostic::new(
+            "unsupported_mood_container_shape",
+            selector,
+            format!(
+                "Mood recount requires one direct LightscenesC container, found {found}. Inspect the XML before editing."
+            ),
+        )
+        .into(),
+        LightingMoodCountError::CountOutOfRange => Diagnostic::new(
+            "mood_count_out_of_range",
+            selector,
+            "The direct scene count does not fit the native signed 32-bit Num field.",
+        )
+        .into(),
+        other => other.into(),
+    }
+}
+
 pub(super) fn direct_mood_count(collection: &Element) -> usize {
-    collection
-        .children
-        .iter()
-        .filter_map(XMLNode::as_element)
-        .filter(|element| element.name == "LightsceneC")
-        .count()
+    LegacyState::direct_lighting_mood_count(collection)
 }
 
 fn collection_diagnostics(stored: &StoredLightingInspection, selector: &str) -> Vec<Diagnostic> {

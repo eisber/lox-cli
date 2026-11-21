@@ -1695,6 +1695,57 @@ fn lighting_recount_cli_noop_preserves_original_bytes_and_supports_csv() {
 }
 
 #[test]
+fn lighting_recount_cli_keeps_legacy_scope_and_save_as_canonicalization() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    for (before, after, stamp, changed) in [
+        ("+000", "+000", "2147483647", false),
+        ("future", "0", "2147483648", true),
+    ] {
+        let source = fixture_bytes(&format!(
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n\
+             <ControlList><C Type=\"Document\" NumO=\"91\" DateS=\"2147483647\"><Template/>\
+             <C Type=\"LightController2\" U=\"lamp\"><LightscenesC Num=\"{before}\" Outputs=\"005\">\
+             <Empty/><Attributed Opaque=\"yes\"/>\
+             </LightscenesC></C></C></ControlList>\n"
+        ));
+        fs::write(&input, &source).unwrap();
+        let result = lox()
+            .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+            .args(["config", "lighting", "recount-moods"])
+            .arg(&input)
+            .args(["uuid:lamp", "--save-as"])
+            .arg(&output)
+            .args(["--json", "--trace-id", "recount"])
+            .assert()
+            .success()
+            .stderr("")
+            .get_output()
+            .stdout
+            .clone();
+        let report: serde_json::Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(
+            report,
+            serde_json::json!({
+                "before": before, "after": after, "scenes": 0, "changed": changed,
+                "trace_id": "recount",
+            })
+        );
+        assert_eq!(fs::read(&input).unwrap(), source);
+        let saved = fs::read_to_string(&output).unwrap();
+        assert!(saved.starts_with("\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"));
+        assert!(saved.contains("<Template></Template>"));
+        assert!(saved.contains("<Empty></Empty>"));
+        assert!(saved.contains(r#"<Attributed Opaque="yes"/>"#));
+        assert!(saved.contains(r#"NumO="91""#));
+        assert!(saved.contains(&format!(r#"DateS="{stamp}""#)));
+        assert_eq!(saved.contains(r#" Date=""#), changed);
+        assert!(saved.contains(&format!(r#"<LightscenesC Num="{after}" Outputs="005">"#)));
+    }
+}
+
+#[test]
 fn lighting_recount_cli_failure_never_writes_input_or_save_as() {
     let dir = tempfile::Builder::new()
         .prefix(".lighting-recount-")
