@@ -2001,11 +2001,16 @@ counts, identities, connectors, wiring and permissions remain unchanged.
 Only the selected entry's `From`, `To`, accepted `WF=16384`, and owning
 Document's `Date`/`DateS` save stamp may change. Missing Document stamps can be
 inserted on a change; an admitted no-op preserves every byte without stamping.
+JSON `saved_to` is `null` for a no-op without `--save-as`, because no write
+occurred. Explicit `--save-as` writes even a no-op's original bytes and reports
+that destination; changed in-place edits report the input path.
 
 Admission requires one namespace-free Document at the XML root or directly
 under it, modern `V>=90`, and ordinary absent/`0`/`16384` owner/ancestor/mode flags,
 with unique nonnil **native35** selected identities (8-4-4-16) and existing ordered
-I/Q connectors. Template/`IfT`/`uuidParent`, device-bound, forwarding/excluded
+I/Q connectors. Owning `Document`, `CalendarCaption` and `ModeCaption` Type
+spellings are exact and case-sensitive, including on a no-op.
+Template/`IfT`/`uuidParent`, device-bound, forwarding/excluded
 flags, ambiguous identities/mode numbers, malformed/trailing XML, guarded or
 identity duplicate attributes, conflicting duplicates, unsafe stamp bounds,
 numeric-reference admission fields and text affected by shared-loader digit-name

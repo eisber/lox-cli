@@ -26,12 +26,16 @@ fn fixture() -> String {
 }
 
 fn command(input: &Path, from: &str, to: &str) -> assert_cmd::Command {
+    command_for_owner(input, OWNER, from, to)
+}
+
+fn command_for_owner(input: &Path, owner: &str, from: &str, to: &str) -> assert_cmd::Command {
     let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
     command
         .env("LOX_TELEMETRY", "0")
         .args(["config", "set-operating-time-range"])
         .arg(input)
-        .arg(format!("uuid:{OWNER}"))
+        .arg(format!("uuid:{owner}"))
         .args(["--from", from, "--to", to]);
     command
 }
@@ -50,6 +54,7 @@ fn operating_time_range_cli_converts_civil_dates_and_preserves_unselected_bytes(
         .stdout
         .clone();
     let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(result["saved_to"], input.to_string_lossy().as_ref());
     let change = &result["operating_time_range"];
     assert_eq!(change["changed"], true);
     assert_eq!(change["previous_from"], "2025-06-06");
@@ -128,6 +133,10 @@ fn operating_time_range_cli_supports_cross_year_single_day_and_missing_stamps() 
 }
 
 fn assert_refusal(xml: &str, from: &str, to: &str) {
+    assert_refusal_for_owner(xml, OWNER, from, to);
+}
+
+fn assert_refusal_for_owner(xml: &str, owner: &str, from: &str, to: &str) {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
     let existing = dir.path().join("existing.Loxone");
@@ -135,7 +144,7 @@ fn assert_refusal(xml: &str, from: &str, to: &str) {
     fs::write(&input, xml).unwrap();
     fs::write(&existing, b"preserve").unwrap();
     for destination in [None, Some(&existing), Some(&new)] {
-        let mut edit = command(&input, from, to);
+        let mut edit = command_for_owner(&input, owner, from, to);
         if let Some(destination) = destination {
             edit.arg("--save-as").arg(destination);
         }
@@ -264,4 +273,168 @@ fn operating_time_range_cli_preserves_safe_markup_and_root_document() {
         .failure()
         .stderr(predicates::str::contains("dry-run not supported"));
     assert_eq!(fs::read(&output).unwrap(), source.as_bytes());
+}
+
+#[test]
+fn operating_time_range_cli_review_defect_exact_context_types_before_noop_or_change() {
+    let source = fixture();
+    for kind in ["Document", "CalendarCaption", "ModeCaption"] {
+        let xml = source.replacen(
+            &format!("Type=\"{kind}\""),
+            &format!("Type=\"{}\"", kind.to_ascii_lowercase()),
+            1,
+        );
+        for (from, to) in [("2025-06-06", "2025-06-07"), ("2028-02-29", "2028-03-01")] {
+            assert_refusal(&xml, from, to);
+        }
+    }
+}
+
+#[test]
+fn operating_time_range_cli_review_defect_saved_to_reports_only_actual_writes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let existing = dir.path().join("existing.Loxone");
+    let new = dir.path().join("new.Loxone");
+    let source = fixture();
+    fs::write(&input, &source).unwrap();
+    let output = command(&input, "2025-06-06", "2025-06-07")
+        .args(["-o", "json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(result["saved_to"], serde_json::Value::Null);
+    assert_eq!(result["operating_time_range"]["changed"], false);
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    fs::write(&existing, b"replace only on success").unwrap();
+    for destination in [&existing, &new] {
+        let output = command(&input, "2025-06-06", "2025-06-07")
+            .args(["-o", "json", "--save-as"])
+            .arg(destination)
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let saved: serde_json::Value = serde_json::from_slice(&output).unwrap();
+        assert_eq!(saved["saved_to"], destination.to_string_lossy().as_ref());
+        assert_eq!(
+            saved["operating_time_range"],
+            result["operating_time_range"]
+        );
+        assert_eq!(fs::read(destination).unwrap(), source.as_bytes());
+        assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    }
+}
+
+#[test]
+fn operating_time_range_cli_review_numeric_modes_and_real_zero_defaults() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    for (number, uuid, omit_defaults) in [
+        (-1, "10000000-0000-0000-0000000000000091", false),
+        (5, "10000000-0000-0000-0000000000000073", false),
+        (0, "10000000-0000-0000-0000000000000064", true),
+    ] {
+        let mut source = fixture().replacen("CalType=\"0\"", &format!("CalType=\"{number}\""), 1);
+        if omit_defaults {
+            source = source
+                .replacen(" CalType=\"0\"", "", 1)
+                .replacen(
+                    "Mode=\"0\" Title=\"Fake mode 0\"",
+                    "Title=\"Fake mode 0\"",
+                    1,
+                )
+                .replace("<LoxoneApp>\r\n", "")
+                .replace("</LoxoneApp>\r\n", "");
+            assert!(!source.contains("CalType=\"0\""));
+            assert!(!source.contains("Mode=\"0\" Title=\"Fake mode 0\""));
+        } else {
+            source = source
+                .replace("<LoxoneApp>", "<ControlList>")
+                .replace("</LoxoneApp>", "</ControlList>");
+        }
+        for (from, to, changed) in [
+            ("2025-06-06", "2025-06-07", false),
+            ("2028-02-29", "2028-03-01", true),
+        ] {
+            fs::write(&input, &source).unwrap();
+            let output = command(&input, from, to)
+                .args(["-o", "json"])
+                .assert()
+                .success()
+                .get_output()
+                .stdout
+                .clone();
+            let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+            let change = &result["operating_time_range"];
+            assert_eq!(change["cal_type"], number);
+            assert_eq!(change["mode_uuid"], uuid);
+            assert_eq!(change["changed"], changed);
+            let saved = fs::read_to_string(&input).unwrap();
+            assert!(saved.contains("NumO=\"24\""));
+            assert!(saved.contains("12hTF=\"true\""));
+            assert!(saved.contains("Mode=\"3\" Month=\"1\""));
+            if !changed {
+                assert_eq!(saved, source);
+            }
+        }
+    }
+}
+
+#[test]
+fn operating_time_range_cli_review_alias_quoted_collision_and_signed32_stamp_edge() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let alpha = "abcdefab-cdef-abcd-0000000000000004";
+    let source = fixture();
+    let alpha_source = source.replace(OWNER, alpha);
+    fs::write(&input, &alpha_source).unwrap();
+    command_for_owner(&input, alpha, "2025-06-06", "2025-06-07")
+        .arg("-q")
+        .assert()
+        .success()
+        .stdout("");
+    let alias = alpha_source.replace(
+        "10000000-0000-0000-000000000000000c",
+        &alpha.to_ascii_uppercase(),
+    );
+    let collision = source.replacen(
+        "Note=\"keep &#32; this\"",
+        "Note=\"keep 12hTF='quoted collision'\"",
+        1,
+    );
+    for (xml, owner) in [(&alias, alpha), (&collision, OWNER)] {
+        for (from, to) in [("2025-06-06", "2025-06-07"), ("2028-02-29", "2028-03-01")] {
+            assert_refusal_for_owner(xml, owner, from, to);
+        }
+    }
+    let near_max = source.replace("DateS=\"536493600\"", "DateS=\"2147483645\"");
+    fs::write(&input, near_max).unwrap();
+    command(&input, "2028-02-29", "2028-03-01")
+        .arg("-q")
+        .assert()
+        .success()
+        .stdout("");
+    let saved = fs::read_to_string(&input).unwrap();
+    let observed_stamp = saved
+        .split_once(" DateS=\"")
+        .unwrap()
+        .1
+        .split('"')
+        .next()
+        .unwrap();
+    assert_eq!(observed_stamp, "2147483646");
+    assert!(saved.contains("NumO=\"24\""));
+    assert_refusal(
+        &source.replace("DateS=\"536493600\"", "DateS=\"2147483646\""),
+        "2028-02-29",
+        "2028-03-01",
+    );
+    eprintln!(
+        "CLI DateS: input=2147483645, observed changed stamp={observed_stamp}; input=2147483646 changed edit refused atomically."
+    );
 }

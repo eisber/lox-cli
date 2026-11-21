@@ -2441,20 +2441,23 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
             let data = fs::read(&file).with_context(|| format!("Cannot read {file}"))?;
             let (output, change) =
                 ConfigEditor::edit_operating_time_range(&data, &selector, &from, &to)?;
-            if change.changed || save_as.is_some() {
+            let saved_to = if change.changed || save_as.is_some() {
                 write_edited_bytes(
                     &output,
                     &file,
                     save_as.as_deref(),
                     ctx.quiet || ctx.json || ctx.csv,
                 )?;
-            }
+                Some(save_as.as_deref().unwrap_or(&file))
+            } else {
+                None
+            };
             if ctx.json {
                 emit_json(
                     ctx,
                     serde_json::json!({
                         "ok": true,
-                        "saved_to": save_as.as_deref().unwrap_or(&file),
+                        "saved_to": saved_to,
                         "operating_time_range": change,
                     }),
                 );

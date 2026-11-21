@@ -204,6 +204,12 @@ impl ConfigEditor {
         let mode_caption = editor.get_element(&mode_captions[0]);
         let owner = editor.get_element(&owners[0]);
         ensure!(
+            kind(document) == "Document"
+                && kind(caption) == "CalendarCaption"
+                && kind(mode_caption) == "ModeCaption",
+            "Operating Time requires exact native Document, CalendarCaption and ModeCaption Type spelling; case-variant contexts are unsupported and nothing was changed."
+        );
+        ensure!(
             kind(owner) == "CalendarEntry"
                 && owner.attributes.get("U").map(String::as_str) == Some(requested)
                 && owner.attributes.get("Mode").map(String::as_str) == Some("3")
