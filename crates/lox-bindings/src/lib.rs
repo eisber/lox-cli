@@ -17,6 +17,7 @@ mod custom_listing;
 mod daytimer_state;
 mod firmware_metadata;
 mod fragment_application;
+mod mood_inventory;
 mod mqtt_catalog;
 mod numeric_state;
 mod program_text;

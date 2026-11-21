@@ -91,6 +91,7 @@ Step 'statistics-series-core-focused' 'cargo' @('test', '-p', 'lox-core', '--fea
 Step 'device-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'device_inventory', '--locked', '--offline')
 Step 'user-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-xml', '--test', 'user_inventory', '--locked', '--offline')
 Step 'program-text-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'program_reader_', '--locked', '--offline')
+Step 'mood-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'mood_inventory_', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
@@ -509,6 +510,22 @@ Step 'kotlin-program-text-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$O
     proof = 'Actual selected SequenceController text success and Load/NotFound/Ambiguous/Unsupported RustBuffers from the same export: live address and prefix count 1, freed address and count 0, 64 distinct retained host objects per branch and native_retained=0 per language without requested GC. The marked ProgramTextRequest input buffer calibrates live1/free0, then 64 host surrogate rejections per language retain no matching native input. Installed Python and SAME Java22/Kotlin APIs passed exact/empty text and owned ordered diagnostics with unchanged Core loader (lox-n37w). Empty success has no separate allocation claim.'
 } | ConvertTo-Json | Set-Content "$Output\PROGRAM-TEXT-MECHANISM.json" -Encoding utf8
 
+Step 'python-mood-inventory-smoke' $VenvPython @('-I', '-B', 'tests\bindings\mood_inventory_smoke.py', "$Probe.dll")
+Step 'javac-mood-inventory-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\MoodInventorySmoke.java')
+Step 'java-mood-inventory-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.MoodInventorySmoke'))
+$MoodInventoryKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-mood-inventory-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\MoodInventorySmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-mood-inventory.args", $MoodInventoryKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-mood-inventory-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-mood-inventory.args")
+Step 'kotlin-mood-inventory-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-mood-inventory-smoke.jar", 'MoodInventorySmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Installed list_moods nonempty success and Load/NotFound/Ambiguous/NotLightController RustBuffers: calibrated live address and prefix count 1, freed address and count 0, and 64 distinct retained host values per branch with zero matching native allocations, independently in Python, Java and Kotlin without requested GC. A distinct MoodInventoryRequest XML prefix calibrated live1/free0, then 64 pre-call lone-surrogate rejections per language retained zero matching native inputs. Empty inventory is a value check only.'
+} | ConvertTo-Json | Set-Content "$Output\MOOD-INVENTORY-MECHANISM.json" -Encoding utf8
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -538,6 +555,7 @@ $Artifacts += Get-Item "$Output\statistics-series-core-focused.log", "$Output\py
 $Artifacts += Get-Item "$Output\rust-focused.log", "$Output\python-statistics-month-merge-smoke.log", "$Output\javac-statistics-month-merge-smoke.log", "$Output\java-statistics-month-merge-smoke.log", "$Output\kotlinc-statistics-month-merge-smoke.log", "$Output\kotlin-statistics-month-merge-smoke.log", "$Output\STATISTICS-MONTH-MERGE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-fragment-application-smoke.log", "$Output\javac-fragment-application-smoke.log", "$Output\java-fragment-application-smoke.log", "$Output\kotlinc-fragment-application-smoke.log", "$Output\kotlin-fragment-application-smoke.log", "$Output\FRAGMENT-APPLICATION-MECHANISM.json"
 $Artifacts += Get-Item "$Output\program-text-core-focused.log", "$Output\python-program-text-smoke.log", "$Output\javac-program-text-smoke.log", "$Output\java-program-text-smoke.log", "$Output\kotlinc-program-text-smoke.log", "$Output\kotlin-program-text-smoke.log", "$Output\PROGRAM-TEXT-MECHANISM.json"
+$Artifacts += Get-Item "$Output\mood-inventory-core-focused.log", "$Output\python-mood-inventory-smoke.log", "$Output\javac-mood-inventory-smoke.log", "$Output\java-mood-inventory-smoke.log", "$Output\kotlinc-mood-inventory-smoke.log", "$Output\kotlin-mood-inventory-smoke.log", "$Output\MOOD-INVENTORY-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"
