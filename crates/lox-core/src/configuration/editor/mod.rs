@@ -11,6 +11,7 @@ mod control_move;
 mod daytimer;
 mod description;
 pub(super) mod legacy;
+mod lighting;
 mod moods;
 #[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
 #[doc(hidden)]
@@ -43,6 +44,10 @@ pub use daytimer::{
 pub use daytimer::{SelectedDayTimerEntry, daytimer_integer, daytimer_mode_uuid_key};
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
+};
+pub use lighting::{
+    LightingInspection, LightingInspectionError, LightingStorage, StoredLightingChannel,
+    StoredLightingMood, StoredLightingOutput, StoredLightingWire, inspect_lighting,
 };
 pub use moods::{MoodInfo, MoodInventoryError, list_moods};
 pub use permissions::{

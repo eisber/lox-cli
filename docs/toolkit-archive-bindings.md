@@ -22,7 +22,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only structural summary from raw XML bytes | Optional `configuration::summary::parse_config_summary` (`configuration-xml`) | Existing shared producer for `config diff`; unchanged | `parse_config_summary(bytes) -> ConfigSummary` | `LoxArchive.parseConfigSummary(byte[]) -> ConfigSummary` |
 | Read-only control inventory from raw XML bytes | Optional `configuration::controls::parse_controls` (`configuration-xml`); existing filters and pending associations | `config controls` shares inventory; I/O, limits and presentation stay in CLI | `parse_controls(bytes, type_filter, room_filter) -> list[XmlControlInfo]` | `LoxArchive.parseControls(byte[], String, String) -> List<XmlControlInfo>`; nullable filters |
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
-| Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Source-only candidate `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Source-only candidate `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java22 API in Kotlin |
+| Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Verified at `0adc6a9`: `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Verified at `0adc6a9`: `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java 22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
 | Read-only raw user inventory from XML bytes | Optional typed `configuration::users::parse_users` (`configuration-xml`); existing raw fields/defaults and encounter order | `config users` inventory producer only; separate DOM direct-permission enrichment/fallback, limits and formatting stay head-owned; no whole-command or authentication/permission qualification | Candidate `parse_users(bytes) -> list[XmlUserInfo]` | Candidate `LoxArchive.parseUsers(byte[]) -> List<XmlUserInfo>`; SAME Java API in Kotlin |
 | Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
@@ -180,7 +180,7 @@ JavaGen0.5.2 plus the existing reviewed correction. Source proof is not shipment
 archive packages, review, composition, gates and publication remain independent.
 No ABI stability, registry distribution, other-platform or full-parity claim.
 
-### Offline selected SequenceController program text candidate
+### Offline selected SequenceController program text
 
 The binding delegates to the existing stable `configuration-editor` read. On
 supplied configuration bytes, Core runs the shared loader and selector before
@@ -205,13 +205,15 @@ encoding failure. A lone surrogate is an encoding rejection in the host, not a
 Core selection error; the harness checks that it leaves no marked XML input
 buffer allocated.
 
-The source-only tests are wired into the existing Windows AMD64 installed
-artifact harness. For nonempty text and each of the four reachable typed
-errors, they calibrate the actual export's live and freed RustBuffer and then
-retain 64 distinct host results/errors with no matching native buffer and
-without requesting GC. Empty success is a value check only. This candidate
-does not change the supported platform, ABI or shipping status; independent
-review and the actual installed-artifact checks are still required.
+At published main `0adc6a9`, all 168 SDK steps passed using fresh installed
+artifacts on Windows AMD64 with CPython 3.13 (GIL), Java 22, and Kotlin on
+the same Java API. Each language calibrated the actual export's live and
+freed RustBuffer for nonempty text and each of the four reachable typed
+errors, then retained 64 distinct host results or errors per case without
+a matching native buffer or a GC request. Each language also rejected 64
+unpaired-surrogate inputs without retaining a marked XML input buffer.
+Empty success is a value check only. This does not qualify other platforms
+or native Loxone Config workflows.
 
 ### Offline MQTT topic catalog candidate
 
