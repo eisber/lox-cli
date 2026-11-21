@@ -40,6 +40,8 @@ pub mod load_manager;
 mod mqtt_catalog_tests;
 pub mod operating_modes;
 mod permissions;
+#[cfg(test)]
+mod program_reader_tests;
 mod properties;
 mod rooms;
 pub mod schema;
@@ -439,7 +441,9 @@ pub(crate) fn editor_error(error: lox_core::configuration::editor::EditError) ->
         EditError::ControlMoveSelectorMissing => {
             anyhow::anyhow!("Specify --type or --title to select controls to move")
         }
-        error @ (EditError::RoomNotFound { .. } | EditError::RoomAmbiguous { .. }) => {
+        error @ (EditError::RoomNotFound { .. }
+        | EditError::RoomAmbiguous { .. }
+        | EditError::ProgramTextUnsupported { .. }) => {
             anyhow::anyhow!("{error}")
         }
     }
