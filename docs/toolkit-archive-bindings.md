@@ -33,7 +33,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
 | Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
 | Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Verified at `bbfbcc8`: `unwire(UnwireRequest) -> UnwireOutcome`; typed `UnwireError` | Verified at `bbfbcc8`: `LoxArchive.unwire(UnwireRequest) -> UnwireOutcome`; checked `UnwireException`; same Java 22 API in Kotlin |
-| Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
+| Offline control-to-room byte transaction | Published optional `configuration::editor::move_control` (`configuration-editor`) at `5bf766f`; explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and rich preview share one Core plan/mutator; DTOs, formatting, file I/O and atomic save remain head-owned and unchanged | Source-only, unrun `move_control(ControlMoveRequest) -> ControlMoveOutcome`; typed `ControlMoveError` | Source-only, unrun `LoxArchive.moveControl(ControlMoveRequest) -> ControlMoveOutcome`; checked `ControlMoveException`; same Java 22 API in Kotlin |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
 | Byte-preserving offline three-way merge | Optional `configuration::runtime_overlay::three_way` (`configuration-xml`) | Existing patch/preparation callers unchanged; no deployment claim | Verified at published main `2603542`: `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` | Verified at published main `2603542`: `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused`; SAME Java22 API in Kotlin |
 | Offline application of supplied LoxCC fragments | Optional `configuration::runtime_overlay::merge_overlays` (`configuration-xml`); existing filename-keyed transaction | Existing CLI acquisition, duplicate guard and merge caller unchanged | Source-only, unrun `merge_overlays(base: bytes, fragments: list[LoxccFragment]) -> bytes`; typed `FragmentApplicationError` | Source-only, unrun `LoxArchive.mergeOverlays(byte[], List<LoxccFragment>) -> byte[]`; checked `FragmentApplicationException`; SAME Java22 API in Kotlin |
@@ -364,6 +364,47 @@ retained XML input after 64 pre-call lone-surrogate rejections per field per
 language. This does not claim that failing calls allocated a buffer or
 qualify other platforms, native Loxone Config workflows, or a stable binary
 ABI.
+
+### Offline control-to-room association move
+
+The source candidate wraps only `configuration::editor::move_control`.
+`ControlMoveRequest` holds XML `bytes`, nullable `type_filter` and `title`,
+`target_room`, ordered `exclude` strings, and a caller-supplied
+`ControlMoveClock`. Pass `None` in Python or `null` on the JVM for an omitted
+selector; an empty string is not omission. Python records take keyword
+arguments; Java 22 and Kotlin use the same Java record constructors. The
+clock takes Unix seconds, subsecond nanoseconds and seconds east of UTC;
+unrepresentable components are refused as `InvalidClock` before Core
+loads XML. There is no system-clock lookup or timezone conversion policy.
+
+Core alone resolves the target room and selects controls. A supplied
+type takes precedence, resolves the room first, retains UUID mirrors, and
+honors exclusions. The title branch resolves the control first using the
+legacy selector and ignores exclusions. The edit only changes `Pr` on
+existing direct `IoData`, never creates `IoData`, and leaves nested storage
+alone. The outcome carries the selector kind and exact value, the
+**supplied room query** and resolved room UUID, selected element count,
+association-change flag, and separate canonical-content-change and
+document-stamped flags. It returns Core's raw output without re-encoding;
+a canonical no-op can normalize input without stamping.
+
+Refusals never yield revised bytes. `Load`, `Serialize` and `InvalidUtf8`
+retain cause text; `SelectorMissing`, `NotFound` and `Ambiguous` preserve
+selection distinctions, and `RoomNotFound` and `RoomAmbiguous` carry the
+room query (with ordered, non-deduplicated matching titles for ambiguity).
+`Other` is defensive for editor errors outside this transaction. Core's
+shared loader limitations (`lox-n37w`) still apply. No room classification,
+file I/O, deployment, other editor transaction, native Config behavior,
+or stable binary ABI is qualified.
+
+The installed exercise is pending. It is designed to check exact bytes and
+typed atomicity via the public APIs, and measure only the changed result and
+four marked selector/room error payloads using the same native export. It
+checks the post-free address and matching-payload count separately.
+Pre-call UTF-8 rejection tests look for a retained marked request in each
+language; they do not assert that a rejected call allocated one. Small
+results, load failures, and payload-free errors have value/atomicity checks
+only, not separate allocation witnesses.
 
 ### Offline selected principal direct permissions
 
