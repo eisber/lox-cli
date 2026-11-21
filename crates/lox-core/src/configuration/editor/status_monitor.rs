@@ -1,4 +1,5 @@
 use super::{EditError, legacy::State};
+use chrono::{DateTime, FixedOffset};
 use std::{
     collections::{BTreeMap, HashSet},
     error::Error,
@@ -144,10 +145,143 @@ pub fn inspect_status_monitor(
         .status_monitor_inspection_selected(selector)
 }
 
-#[doc(hidden)]
-pub struct MatchedStatusMonitor {
-    pub path: Vec<usize>,
-    pub states: Vec<(usize, StatusMonitorState)>,
+/// Direction in the stored order of existing Status Monitor states.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum StatusMonitorPriorityDirection {
+    Up,
+    Down,
+}
+
+/// Movement of one stored state, including success at a movable boundary.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct StatusMonitorPriorityMove {
+    /// Persistent `Id` in its stored spelling.
+    pub id: String,
+    /// One-based priority before the operation.
+    pub from_priority: usize,
+    /// One-based priority after the operation.
+    pub to_priority: usize,
+    pub changed: bool,
+}
+
+/// Successful offline byte transaction.
+#[derive(Debug)]
+pub struct StatusMonitorPriorityMoveOutcome {
+    /// Exact input on a boundary no-op; shared writer output on a real move.
+    pub bytes: Vec<u8>,
+    pub movement: StatusMonitorPriorityMove,
+}
+
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum StatusMonitorPriorityMoveError {
+    Edit(EditError),
+    Inspection(StatusMonitorInspectionError),
+    InvalidStateId,
+    StateNotFound { id: String },
+    RestState,
+    UnconfiguredState,
+    UnsupportedDocument,
+    NamespacedContext,
+    TemplateConfiguration,
+    InvalidContextFlags { value: String },
+}
+
+impl fmt::Display for StatusMonitorPriorityMoveError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Edit(error) => fmt::Display::fmt(error, f),
+            Self::Inspection(error) => fmt::Display::fmt(error, f),
+            Self::InvalidStateId => f.write_str(
+                "Status Monitor state Id must be a nonzero native UUID (8-4-4-16 hexadecimal digits). Use `config status-monitor inspect` to find it; nothing was changed.",
+            ),
+            Self::StateNotFound { id } => write!(
+                f,
+                "No Status Monitor state with Id '{id}'. Select an existing Id, not OIdx, name or priority; nothing was changed."
+            ),
+            Self::RestState => f.write_str(
+                "The Status Monitor Rest state (OIdx=10) cannot move; nothing was changed.",
+            ),
+            Self::UnconfiguredState => f.write_str(
+                "Select a named Status Monitor state with an explicit finite Val; nothing was changed.",
+            ),
+            Self::UnsupportedDocument => f.write_str(
+                "Status Monitor priority moves require one owning Document at the root or directly under it; nothing was changed.",
+            ),
+            Self::NamespacedContext => f.write_str(
+                "Namespaced Status Monitor owners or ancestors are unsupported; nothing was changed.",
+            ),
+            Self::TemplateConfiguration => f.write_str(
+                "Status Monitor priority moves do not support Document Template or template-owned state; nothing was changed.",
+            ),
+            Self::InvalidContextFlags { value } => write!(
+                f,
+                "Unsupported Status Monitor context WF '{value}'; nothing was changed."
+            ),
+        }
+    }
+}
+
+impl Error for StatusMonitorPriorityMoveError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            Self::Edit(error) => Some(error),
+            Self::Inspection(error) => Some(error),
+            _ => None,
+        }
+    }
+}
+
+/// Move one configured state by one position in a standalone Status Monitor.
+///
+/// The legacy selector and stored shape are those of [`inspect_status_monitor`].
+/// `id` is a non-nil native 8-4-4-16 State ID, matched case-insensitively; the
+/// loader-observed ID, `OIdx`, `Val`, and rest of each record travel together,
+/// without changing connector identities or references. Rest cannot be selected.
+///
+/// The byte transaction additionally requires one plain, stampable owning
+/// Document (root or direct child). Direct Document `Template` and template
+/// elements, `IfT`, `uuidParent`, and `WF` bit 29 on the owner or its ancestors
+/// are out of scope, even for no-ops. Present context `WF` must parse as a
+/// nonnegative signed 32-bit decimal.
+/// A boundary no-op returns the original bytes. A real swap gets the shared
+/// monotonic Document stamp using `now`, then the shared canonical serializer
+/// (including its BOM, line-ending and lox-n37w behavior). Errors return no
+/// revised bytes. This API performs no filesystem I/O or native validation.
+pub fn move_status_monitor_state(
+    bytes: &[u8],
+    selector: &str,
+    id: &str,
+    direction: StatusMonitorPriorityDirection,
+    now: &DateTime<FixedOffset>,
+) -> Result<StatusMonitorPriorityMoveOutcome, StatusMonitorPriorityMoveError> {
+    use StatusMonitorPriorityMoveError as Failure;
+
+    let mut state = State::load(bytes).map_err(Failure::Edit)?;
+    let plan = state.plan_status_monitor_move(selector, id, direction)?;
+    state.require_status_monitor_move_context(&plan.path)?;
+    let movement = state.apply_status_monitor_move(plan);
+    let bytes = if movement.changed {
+        if !state.stamp_document(now) {
+            return Err(Failure::UnsupportedDocument);
+        }
+        state.to_bytes().map_err(Failure::Edit)?
+    } else {
+        bytes.to_vec()
+    };
+    Ok(StatusMonitorPriorityMoveOutcome { bytes, movement })
+}
+
+struct MatchedStatusMonitor {
+    path: Vec<usize>,
+    states: Vec<(usize, StatusMonitorState)>,
+}
+
+struct StatusMonitorMovePlan {
+    path: Vec<usize>,
+    from: usize,
+    to: usize,
+    movement: StatusMonitorPriorityMove,
 }
 
 impl State {
@@ -165,8 +299,7 @@ impl State {
         })
     }
 
-    #[doc(hidden)]
-    pub fn match_status_monitor(
+    fn match_status_monitor(
         &self,
         selector: &str,
     ) -> Result<MatchedStatusMonitor, StatusMonitorInspectionError> {
@@ -189,6 +322,126 @@ impl State {
         let states = states(block)?;
         Ok(MatchedStatusMonitor { path, states })
     }
+
+    #[cfg(feature = "unstable-legacy-cli-editor")]
+    #[doc(hidden)]
+    // The binary keeps its historical admission and separate file writer.
+    pub fn move_status_monitor_state_legacy(
+        &mut self,
+        selector: &str,
+        id: &str,
+        direction: StatusMonitorPriorityDirection,
+    ) -> Result<StatusMonitorPriorityMove, StatusMonitorPriorityMoveError> {
+        let plan = self.plan_status_monitor_move(selector, id, direction)?;
+        Ok(self.apply_status_monitor_move(plan))
+    }
+
+    fn plan_status_monitor_move(
+        &self,
+        selector: &str,
+        id: &str,
+        direction: StatusMonitorPriorityDirection,
+    ) -> Result<StatusMonitorMovePlan, StatusMonitorPriorityMoveError> {
+        use StatusMonitorPriorityMoveError as Failure;
+
+        let key = status_monitor_identity_key(id).ok_or(Failure::InvalidStateId)?;
+        let MatchedStatusMonitor { path, states } = self
+            .match_status_monitor(selector)
+            .map_err(Failure::Inspection)?;
+        let index = states
+            .iter()
+            .position(|(_, state)| status_monitor_identity_key(&state.id).as_ref() == Some(&key))
+            .ok_or_else(|| Failure::StateNotFound { id: id.into() })?;
+        let (from, selected) = &states[index];
+        if selected.output_index == 10 {
+            return Err(Failure::RestState);
+        }
+        if !selected.configured {
+            return Err(Failure::UnconfiguredState);
+        }
+        // Priority is the State ordinal, not OIdx. Rest never participates.
+        let destination = match direction {
+            StatusMonitorPriorityDirection::Up => index.saturating_sub(1),
+            StatusMonitorPriorityDirection::Down => (index + 1).min(9),
+        };
+        Ok(StatusMonitorMovePlan {
+            path,
+            from: *from,
+            to: states[destination].0,
+            movement: StatusMonitorPriorityMove {
+                id: selected.id.clone(),
+                from_priority: index + 1,
+                to_priority: destination + 1,
+                changed: index != destination,
+            },
+        })
+    }
+
+    fn apply_status_monitor_move(&mut self, plan: StatusMonitorMovePlan) -> StatusMonitorPriorityMove {
+        if plan.movement.changed {
+            self.get_element_mut(&plan.path)
+                .children
+                .swap(plan.from, plan.to);
+        }
+        plan.movement
+    }
+
+    fn require_status_monitor_move_context(
+        &self,
+        owner: &[usize],
+    ) -> Result<(), StatusMonitorPriorityMoveError> {
+        use StatusMonitorPriorityMoveError as Failure;
+
+        let documents = self.find_elements("Type:Document");
+        let [document] = documents.as_slice() else {
+            return Err(Failure::UnsupportedDocument);
+        };
+        if document.len() > 1 || !owner.starts_with(document) {
+            return Err(Failure::UnsupportedDocument);
+        }
+        let document = self.get_element(document);
+        if document.attributes.get("Type").map(String::as_str) != Some("Document") {
+            return Err(Failure::UnsupportedDocument);
+        }
+        // A direct Template configures the Document even when it is a sibling
+        // of the owner's branch, and regardless of its IfT value.
+        if document
+            .children
+            .iter()
+            .filter_map(|node| node.as_element())
+            .any(is_template_element)
+        {
+            return Err(Failure::TemplateConfiguration);
+        }
+        for depth in 0..=owner.len() {
+            let element = self.get_element(&owner[..depth]);
+            if element.namespace.is_some() || element.prefix.is_some() {
+                return Err(Failure::NamespacedContext);
+            }
+            if is_template_element(element)
+                || element.attributes.contains_key("IfT")
+                || element.attributes.contains_key("uuidParent")
+            {
+                return Err(Failure::TemplateConfiguration);
+            }
+            if let Some(raw) = element.attributes.get("WF") {
+                let flags = raw
+                    .parse::<u32>()
+                    .ok()
+                    .filter(|value| i32::try_from(*value).is_ok())
+                    .ok_or_else(|| Failure::InvalidContextFlags { value: raw.clone() })?;
+                if flags & 0x2000_0000 != 0 {
+                    return Err(Failure::TemplateConfiguration);
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+fn is_template_element(element: &Element) -> bool {
+    element.name == "Template"
+        || element.attributes.get("Type").map(String::as_str) == Some("DocumentTemplate")
 }
 
 fn has_inheritance(element: &Element) -> bool {
@@ -200,8 +453,7 @@ fn has_inheritance(element: &Element) -> bool {
             .any(has_inheritance)
 }
 
-#[doc(hidden)]
-pub fn status_monitor_identity_key(raw: &str) -> Option<String> {
+fn status_monitor_identity_key(raw: &str) -> Option<String> {
     if raw.len() != 35 {
         return None;
     }

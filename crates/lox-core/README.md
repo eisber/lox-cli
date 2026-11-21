@@ -89,11 +89,23 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   legacy-selected `C Type="StatusMonitor"` from configuration bytes. It returns
   owned State observations in record order, with persistent IDs and `OIdx`,
   configured flags and loader-decoded attributes without defaults. The cached
-  CLI inspect uses the same matcher and projection; priority mutation and
-  reporting remain CLI-owned. `StatusMonitorInspectionError` retains the
-  original editor load or selection cause and distinguishes shape refusals.
-  The shared loader's lox-n37w limitation is unchanged. No write operation,
-  runtime behavior, native validation or foreign binding is provided.
+  CLI inspect uses the same matcher and projection. `StatusMonitorInspectionError`
+  retains the original editor load or selection cause and distinguishes shape refusals.
+  The shared loader's lox-n37w limitation is unchanged. This inventory does not
+  edit, validate native behavior or add a foreign binding.
+
+- Optional `configuration-editor`:
+  `configuration::editor::move_status_monitor_state(bytes, selector, id,
+  direction, &now)` applies one adjacent priority move of a configured
+  existing state. It moves the whole record, not its persistent `OIdx`, and
+  pins Rest. The byte transaction requires one plain, stampable owning
+  Document and refuses a direct `Template` and template markers on the owner
+  or its ancestors. Boundary no-ops return the input unchanged; real swaps
+  stamp the Document with the supplied time and use the shared writer.
+  `StatusMonitorPriorityMoveError` distinguishes load/write, inspection and
+  move refusals. The existing CLI shares the mutation but retains its
+  admission, diagnostics, output, file and dry-run behavior. No device I/O,
+  native validation or new binding is provided.
 
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_load_manager(bytes, selector)` reads the
