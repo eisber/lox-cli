@@ -2575,7 +2575,13 @@ fn fixture_archive_mtime() -> SystemTime {
 }
 
 fn write_fixture_archive(path: &Path, loxcc: &[u8]) {
-    let mut zip = zip::ZipWriter::new(fs::File::create(path).unwrap());
+    // Prepare all contents and metadata before exposing the archive at its snapshot path.
+    let staging = tempfile::Builder::new()
+        .prefix(".staged-archive-")
+        .tempfile_in(path.parent().unwrap())
+        .unwrap()
+        .into_temp_path();
+    let mut zip = zip::ZipWriter::new(fs::File::create(&staging).unwrap());
     zip.start_file("sps0.LoxCC", zip::write::SimpleFileOptions::default())
         .unwrap();
     zip.write_all(loxcc).unwrap();
@@ -2584,12 +2590,23 @@ fn write_fixture_archive(path: &Path, loxcc: &[u8]) {
     drop(writer);
 
     // Establish the fixture mtime after closing the data writer, independent of the host clock.
-    fs::File::options()
-        .write(true)
-        .open(path)
-        .unwrap()
+    let metadata_writer = fs::File::options().write(true).open(&staging).unwrap();
+    metadata_writer
         .set_modified(fixture_archive_mtime())
         .unwrap();
+    metadata_writer.sync_all().unwrap();
+    drop(metadata_writer);
+    staging.persist_noclobber(path).unwrap();
+    assert_eq!(
+        fs::File::open(path)
+            .unwrap()
+            .metadata()
+            .unwrap()
+            .modified()
+            .unwrap(),
+        fixture_archive_mtime(),
+        "generated fixture archive did not publish its prepared timestamp",
+    );
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -2691,6 +2708,20 @@ fn generated_zip_has_a_stable_baseline_and_detects_timestamp_only_mutations() {
     let before = snapshot(dir.path());
     let fixture_mtime = fixture_archive_mtime();
     assert_eq!(before[key].modified, fixture_mtime);
+    assert_eq!(
+        before.keys().map(PathBuf::as_path).collect::<Vec<_>>(),
+        [Path::new(""), key]
+    );
+    {
+        let mut zip = zip::ZipArchive::new(fs::File::open(&path).unwrap()).unwrap();
+        assert_eq!(zip.len(), 1);
+        let mut entry = Vec::new();
+        zip.by_name("sps0.LoxCC")
+            .unwrap()
+            .read_to_end(&mut entry)
+            .unwrap();
+        assert_eq!(entry, b"synthetic archive entry");
+    }
 
     fs::File::options()
         .write(true)
