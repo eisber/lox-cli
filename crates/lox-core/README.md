@@ -64,6 +64,21 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   RoomInventoryError}` inventories rooms directly from borrowed bytes. The
   existing `lox config rooms` producer uses it through a CLI-owned serialization
   and error adapter.
+- The same feature exposes `configuration::runtime_overlay::{merge_overlays,
+  three_way, validate_document, OverlayError}`. The actual CLI acquisition,
+  baseline preparation and patch merge producers share one private span parser
+  and these byte transactions. Empty overlays bypass parsing; otherwise native35
+  or RFC36 UUID filenames require the exact `.LoxCC` suffix and strict fragment
+  lengths/CRC. Replacements retain Type and untouched bytes; only a new
+  AutopilotRule may enter a unique Page with `SpNo="1"`. Aliases, overlaps and
+  ambiguous placement are refused. Three-way comparison retains existing
+  semantic tokens and raw chosen shell/child spans, not canonicalized output:
+  local equal to base chooses live, otherwise live equal to base or identical
+  edits choose local; incompatible edits fail atomically with typed causes.
+  `validate_document` is the same existing preparation/UUID check, not an XSD,
+  sidecar or deployment validator. Acquisition, baseline/context persistence,
+  ZIP repacking and permission/deployment guards remain in the CLI. This adds
+  no whole-command, Python/JVM or native Config qualification claim.
 - Optional `configuration-editor`: `configuration::editor::set_param` performs
   the existing CLI's connector-only byte transaction with explicit save time,
   typed outcomes/errors and the shared legacy loader/selector/serializer.

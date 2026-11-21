@@ -9,6 +9,7 @@
 //! [`weather_state`] observes complete Weather-State payloads without domain interpretation.
 //! [`message_header`] observes separate application headers without transport or reassembly.
 //! Optional `configuration-xml` adds typed room inventory, summaries and summary deltas.
+//! It also provides byte-preserving runtime overlay and three-way merge transactions.
 //! Optional `configuration-editor` adds a legacy-compatible set-param byte transaction.
 //! Optional `statistics-xml` parses statistics indexes and monthly XML without I/O.
 //! Optional `firmware-metadata` observes update XML and assesses numeric versions offline.
