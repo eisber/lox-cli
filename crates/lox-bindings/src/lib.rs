@@ -19,6 +19,7 @@ mod firmware_metadata;
 mod fragment_application;
 mod mqtt_catalog;
 mod numeric_state;
+mod program_text;
 mod runtime_overlay;
 mod statistics_identity;
 mod statistics_index;

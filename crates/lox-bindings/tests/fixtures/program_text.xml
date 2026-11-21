@@ -1,0 +1,27 @@
+<Root>
+  <C Type="Place" U="r" Title="Kitchen"/>
+  <C Type="SequenceController" U="sequence" Title="Cook &amp; 灯" gid="cook">
+    <IoData Pr="r"/>
+    <Unknown><Field Name="Configuration">nested</Field></Unknown>
+    <Field Name="configuration">wrong name spelling</Field>
+    <field Name="Configuration">wrong tag spelling</field>
+    <Field Name="Configuration">first &amp; Küche
+é<Nested>hidden</Nested>second<![CDATA[hidden]]>third 灯  </Field>
+    <Field Name="Configuration">later</Field>
+  </C>
+  <C Type="SequenceController" U="sequence" Title="Cook &amp; 灯">
+    <Field Name="Configuration">mirror</Field>
+  </C>
+  <C Type="sequencecontroller" U="wrong" Title="Cook &amp; 灯"/>
+  <C Type="SequenceController" U="empty" Title="Empty">
+    <Field Name="configuration">wrong name spelling</Field>
+  </C>
+  <C Type="SequenceController" U="blank" Title="Blank">
+    <Field Name="Configuration"/>
+    <Field Name="Configuration">later</Field>
+  </C>
+  <C U="sparse"/>
+  <C Type="SequenceController" U="legacy" Title="Legacy 12hTF=x" 12hTF="true">
+    <Field Name="Configuration">text 12hTF=value</Field>
+  </C>
+</Root>
