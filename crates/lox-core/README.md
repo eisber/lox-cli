@@ -107,6 +107,18 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   The shared loader limitation `lox-n37w` is unchanged. No native validation,
   runtime priority semantics, mutation or foreign binding is provided.
 
+- Optional `configuration-xml`:
+  `configuration::editor::move_load_manager_load(bytes, selector, io_index, direction, &now)`
+  shares the existing `config load-manager move` transaction. It moves one
+  complete direct Load by resolved connector index; interleaved non-Load
+  siblings retain their positions. The result includes one-based before/after
+  positions, the post-move inspection and canonical bytes, with an explicit
+  monotonic owning-Document stamp when present. Ends of the list are refusals,
+  not successful no-ops. Move refuses namespaces, unsupported Document or
+  inherited state, DTDs and multiple roots; read-only inspection is unchanged.
+  CLI output and atomic file saving remain head-owned. There is no runtime
+  priority claim, native validation, loader change or foreign binding.
+
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_central_light_links(bytes, selector)` shares
   the cached `lox config central-light inspect` matcher. It returns owned

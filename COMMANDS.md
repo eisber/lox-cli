@@ -408,8 +408,12 @@ for zero: an absent attribute resolves to **0**, while its absence remains visib
 in JSON's raw `attributes`. The complete record moves with its connector association,
 name, power, timing, unknown attributes and children. Connectors, UUIDs, other
 siblings and block settings are untouched; no priority attribute is invented.
-The usual save helper updates the Document save stamp on a successful change
-and preserves BOM/line-ending convention. Without `--save-as`, the input is edited.
+The shared Rust transaction serializes with the usual canonical writer (including
+BOM/line-ending convention) and updates the save stamp when a single root or
+direct-child Document owns the selected block. Document-less input is not stamped.
+Move refuses XML namespaces, DTDs, multiple roots, and direct Document
+Template/DocumentTemplate or inherited owner state. Without `--save-as`, the
+input is edited through the same atomic writer.
 
 All these commands require exactly twelve direct `Load` records with **resolved**
 unique `ioIdx` values 0..11. Exactly one omitted zero is supported; an omitted

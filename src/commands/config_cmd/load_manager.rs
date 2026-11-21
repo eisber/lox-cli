@@ -1,9 +1,14 @@
 use anyhow::{Result, bail};
 use clap::{Args, Subcommand, ValueEnum};
+use lox_core::configuration::editor::{
+    LoadManagerMoveDirection, LoadManagerMoveError, move_load_manager_load,
+};
 
 use crate::commands::RunContext;
-use crate::config_edit::ConfigEditor;
-use crate::config_edit::load_manager::LoadMoveDirection;
+use crate::config_edit::{
+    ConfigEditor, editor_error,
+    load_manager::{LoadManagerInspection, load_manager_error},
+};
 
 #[derive(Args)]
 pub(crate) struct LoadManagerTarget {
@@ -177,17 +182,37 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
         ),
     };
     let selector = target.selector()?;
-    let mut editor = ConfigEditor::load(&std::fs::read(&target.file)?)?;
+    let bytes = std::fs::read(&target.file)?;
     if let Some((io_index, direction)) = edit {
-        editor.move_load_manager_load(
+        let outcome = move_load_manager_load(
+            &bytes,
             &selector,
             io_index,
             match direction {
-                DirectionArg::Up => LoadMoveDirection::Up,
-                DirectionArg::Down => LoadMoveDirection::Down,
+                DirectionArg::Up => LoadManagerMoveDirection::Up,
+                DirectionArg::Down => LoadManagerMoveDirection::Down,
             },
+            &chrono::Local::now().fixed_offset(),
+        )
+        .map_err(|error| match error {
+            LoadManagerMoveError::Edit(error) => editor_error(error),
+            LoadManagerMoveError::Inspection(error) => load_manager_error(error),
+            error => anyhow::anyhow!("{error}"),
+        })?;
+        super::write_edited_bytes(
+            &outcome.bytes,
+            &target.file,
+            save_as.as_deref(),
+            ctx.quiet || ctx.json || ctx.csv,
         )?;
+        return report(
+            ctx,
+            outcome.inspection.into(),
+            Some(save_as.as_deref().unwrap_or(&target.file)),
+            None,
+        );
     }
+    let mut editor = ConfigEditor::load(&bytes)?;
     let name_changed = set_name
         .as_ref()
         .map(|(io_index, name)| editor.set_load_manager_load_name(&selector, *io_index, name))
@@ -213,18 +238,26 @@ pub(crate) fn run(ctx: &RunContext, action: LoadManagerCmd) -> Result<()> {
         .or(max_off_changed)
         .or(min_on_changed);
     let inspection = editor.inspect_load_manager(&selector)?;
-    let saved_to =
-        if edit.is_some() || changed == Some(true) || (changed.is_some() && save_as.is_some()) {
-            super::save_edited_with_quiet(
-                &mut editor,
-                &target.file,
-                save_as.as_deref(),
-                ctx.quiet || ctx.json || ctx.csv,
-            )?;
-            Some(save_as.as_deref().unwrap_or(&target.file))
-        } else {
-            None
-        };
+    let saved_to = if changed == Some(true) || (changed.is_some() && save_as.is_some()) {
+        super::save_edited_with_quiet(
+            &mut editor,
+            &target.file,
+            save_as.as_deref(),
+            ctx.quiet || ctx.json || ctx.csv,
+        )?;
+        Some(save_as.as_deref().unwrap_or(&target.file))
+    } else {
+        None
+    };
+    report(ctx, inspection, saved_to, changed)
+}
+
+fn report(
+    ctx: &RunContext,
+    inspection: LoadManagerInspection,
+    saved_to: Option<&str>,
+    changed: Option<bool>,
+) -> Result<()> {
     if ctx.json {
         let mut result = serde_json::json!({
             "ok": true,

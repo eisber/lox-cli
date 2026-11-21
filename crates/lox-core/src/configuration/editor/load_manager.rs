@@ -2,6 +2,14 @@ use super::{EditError, legacy::State};
 use std::{collections::BTreeMap, error::Error, fmt};
 use xmltree::Element;
 
+#[cfg(feature = "configuration-xml")]
+mod movement;
+#[cfg(feature = "configuration-xml")]
+pub use movement::{
+    LoadManagerMove, LoadManagerMoveDirection, LoadManagerMoveError, LoadManagerMoveOutcome,
+    move_load_manager_load,
+};
+
 /// One direct Load record in the selected Load Manager.
 #[derive(Debug, PartialEq, Eq)]
 pub struct LoadManagerLoad {
@@ -118,27 +126,31 @@ impl State {
     ) -> Result<LoadManagerInspection, LoadManagerInspectionError> {
         let path = self.load_manager_path(selector)?;
         let block = self.get_element(&path);
-        let loads = load_positions(block)?
-            .into_iter()
-            .enumerate()
-            .map(|(index, position)| {
-                let load = block.children[position].as_element().unwrap();
-                LoadManagerLoad {
-                    priority: index + 1,
-                    io_index: resolve_io_index(load).unwrap(),
-                    attributes: load
-                        .attributes
-                        .iter()
-                        .map(|(key, value)| (key.clone(), value.clone()))
-                        .collect(),
-                }
-            })
-            .collect();
-        Ok(LoadManagerInspection {
-            uuid: block.attributes.get("U").cloned().unwrap_or_default(),
-            title: block.attributes.get("Title").cloned().unwrap_or_default(),
-            loads,
+        Ok(inspect_positions(block, &load_positions(block)?))
+    }
+}
+
+fn inspect_positions(block: &Element, positions: &[usize]) -> LoadManagerInspection {
+    let loads = positions
+        .iter()
+        .enumerate()
+        .map(|(index, &position)| {
+            let load = block.children[position].as_element().unwrap();
+            LoadManagerLoad {
+                priority: index + 1,
+                io_index: resolve_io_index(load).unwrap(),
+                attributes: load
+                    .attributes
+                    .iter()
+                    .map(|(key, value)| (key.clone(), value.clone()))
+                    .collect(),
+            }
         })
+        .collect();
+    LoadManagerInspection {
+        uuid: block.attributes.get("U").cloned().unwrap_or_default(),
+        title: block.attributes.get("Title").cloned().unwrap_or_default(),
+        loads,
     }
 }
 

@@ -192,6 +192,119 @@ fn load_manager_inspect_cli_keeps_admission_and_exact_refusals() {
 }
 
 #[test]
+fn load_manager_move_cli_preserves_save_as_report_and_canonical_empty_nodes() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    let source = fixture()
+        .replace(r#"DateS="1""#, r#"DateS="2147483647""#)
+        .replacen(
+            r#"Unknown="keep-0"/><Load ioIdx="1""#,
+            r#"Unknown="keep-0"><Empty/></Load><Between/><Load ioIdx="1""#,
+            1,
+        );
+    fs::write(&input, &source).unwrap();
+    let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+        .env("LOX_TELEMETRY", "0")
+        .args(["config", "load-manager", "move"])
+        .arg(&input)
+        .args(["Load Manager", "0", "down", "-r", "Office", "--save-as"])
+        .arg(&output)
+        .args(["-o", "json", "--trace-id", "move-trace"])
+        .assert()
+        .success()
+        .stderr(predicate::str::is_empty())
+        .get_output()
+        .stdout
+        .clone();
+    let result: Value = serde_json::from_slice(&result).unwrap();
+    assert_eq!(result["ok"], true);
+    assert_eq!(result["trace_id"], "move-trace");
+    assert_eq!(result["saved_to"], output.to_str().unwrap());
+    assert!(result.get("changed").is_none());
+    let loads = result["load_manager"]["loads"].as_array().unwrap();
+    assert_eq!(loads[0]["priority"], 1);
+    assert_eq!(loads[0]["io_index"], 1);
+    assert_eq!(
+        loads[1],
+        serde_json::json!({
+            "priority": 2, "io_index": 0,
+            "attributes": {
+                "nm": "Consumer 0", "pwr": "2.5", "maxOff": "123", "minOn": "45",
+                "Unknown": "keep-0"
+            }
+        })
+    );
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+    let saved = fs::read_to_string(&output).unwrap();
+    assert!(saved.starts_with("\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n"));
+    assert!(saved.contains(r#"DateS="2147483648""#));
+    assert!(saved.contains(r#"<Co K="AQl1" U="connector"/>"#));
+    let first = saved.find(r#"Unknown="keep-1"/>"#).unwrap();
+    let between = saved.find("<Between></Between>").unwrap();
+    let zero = saved.find(r#"Unknown="keep-0">"#).unwrap();
+    let empty = saved.find("<Empty></Empty>").unwrap();
+    assert!(first < between && between < zero && zero < empty);
+}
+
+#[test]
+fn load_manager_move_cli_refusals_never_touch_input_or_destination() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let output = dir.path().join("output.Loxone");
+    fs::write(&output, "existing output").unwrap();
+    let run = |direction: &str, extra: &[&str]| {
+        assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "move"])
+            .arg(&input)
+            .args(["uuid:manager", "0", direction, "--save-as"])
+            .arg(&output)
+            .args(["-o", "json"])
+            .args(extra)
+            .assert()
+            .code(1)
+            .get_output()
+            .stdout
+            .clone()
+    };
+    let dry_run: Value = serde_json::from_slice(&run("down", &["--dry-run"])).unwrap();
+    assert_eq!(dry_run["error"], "dry_run_not_supported");
+    assert!(!input.exists());
+    let source = fixture();
+    for (xml, direction, message) in [
+        (
+            source.clone(),
+            "up",
+            "Load io-index 0 is already at the first priority boundary; nothing was changed.",
+        ),
+        (
+            source.replace(r#"ioIdx="1""#, r#"ioIdx="00""#),
+            "down",
+            "Unsupported Load Manager shape: duplicate ioIdx 0; identities must be unique.",
+        ),
+        (
+            source.replace(r#"ioIdx="1""#, r#"xml:ioIdx="1""#),
+            "down",
+            "Load Manager movement does not support XML namespaces; nothing was changed.",
+        ),
+        (
+            source.replace(r#"DateS="1">"#, r#"DateS="1"><Template IfT="true"/>"#),
+            "down",
+            "Load Manager movement does not support Template/DocumentTemplate or inherited owner state; nothing was changed.",
+        ),
+    ] {
+        fs::write(&input, &xml).unwrap();
+        let failed: Value = serde_json::from_slice(&run(direction, &[])).unwrap();
+        assert_eq!(failed["ok"], false);
+        assert_eq!(failed["message"], message);
+        assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+        assert_eq!(fs::read(&output).unwrap(), b"existing output");
+        assert!(!output.with_extension("Loxone.tmp").exists());
+    }
+}
+
+#[test]
 fn load_manager_cli_min_on_seconds_and_zero_follow_identity_after_move() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");

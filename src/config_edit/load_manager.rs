@@ -1,17 +1,13 @@
 use std::collections::BTreeMap;
 
 use anyhow::{Result, bail};
-use lox_core::configuration::editor::{LoadManagerInspectionError, legacy_load_manager};
+use lox_core::configuration::editor::{
+    LoadManagerInspection as CoreInspection, LoadManagerInspectionError, legacy_load_manager,
+};
 use serde::Serialize;
 use xmltree::Element;
 
 use super::{ConfigEditor, editor_error};
-
-#[derive(Debug, Clone, Copy)]
-pub enum LoadMoveDirection {
-    Up,
-    Down,
-}
 
 #[derive(Debug, Serialize)]
 pub struct LoadManagerLoad {
@@ -25,6 +21,24 @@ pub struct LoadManagerInspection {
     pub uuid: String,
     pub title: String,
     pub loads: Vec<LoadManagerLoad>,
+}
+
+impl From<CoreInspection> for LoadManagerInspection {
+    fn from(inspection: CoreInspection) -> Self {
+        Self {
+            uuid: inspection.uuid,
+            title: inspection.title,
+            loads: inspection
+                .loads
+                .into_iter()
+                .map(|load| LoadManagerLoad {
+                    priority: load.priority,
+                    io_index: load.io_index,
+                    attributes: load.attributes,
+                })
+                .collect(),
+        }
+    }
 }
 
 impl ConfigEditor {
@@ -195,23 +209,10 @@ impl ConfigEditor {
     }
 
     pub fn inspect_load_manager(&self, selector: &str) -> Result<LoadManagerInspection> {
-        let inspection = self
-            .kernel
+        self.kernel
             .load_manager_inspection_selected(selector)
-            .map_err(load_manager_error)?;
-        Ok(LoadManagerInspection {
-            uuid: inspection.uuid,
-            title: inspection.title,
-            loads: inspection
-                .loads
-                .into_iter()
-                .map(|load| LoadManagerLoad {
-                    priority: load.priority,
-                    io_index: load.io_index,
-                    attributes: load.attributes,
-                })
-                .collect(),
-        })
+            .map(Into::into)
+            .map_err(load_manager_error)
     }
 
     /// Edit the Configure loads Name cell, addressed by its stable connector identity.
@@ -260,42 +261,6 @@ impl ConfigEditor {
             load.attributes.insert("nm".into(), name.into());
         }
         Ok(true)
-    }
-
-    /// Move the complete record in Configure loads/XML order, keeping its connector identity.
-    pub fn move_load_manager_load(
-        &mut self,
-        selector: &str,
-        io_index: u8,
-        direction: LoadMoveDirection,
-    ) -> Result<()> {
-        if io_index > 11 {
-            bail!("Load Manager io-index must be 0..11, not a 1-based priority.");
-        }
-        let path = self.load_manager_path(selector)?;
-        let block = self.get_element(&path);
-        let positions = load_positions(block)?;
-        let index = positions
-            .iter()
-            .position(|position| {
-                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
-                    == io_index
-            })
-            .unwrap();
-        let next = match direction {
-            LoadMoveDirection::Up if index > 0 => index - 1,
-            LoadMoveDirection::Down if index + 1 < positions.len() => index + 1,
-            _ => bail!(
-                "Load io-index {io_index} is already at the {} priority boundary; nothing was changed.",
-                if index == 0 { "first" } else { "last" }
-            ),
-        };
-        // Native dialog accept copies the reordered row fields by position.
-        // XML serializes that order; ioIdx travels with the name/power/timing settings.
-        self.get_element_mut(&path)
-            .children
-            .swap(positions[index], positions[next]);
-        Ok(())
     }
 }
 
@@ -377,7 +342,7 @@ fn resolve_io_index(load: &Element) -> Result<u8> {
     legacy_load_manager::resolve_io_index(load).map_err(load_manager_error)
 }
 
-fn load_manager_error(error: LoadManagerInspectionError) -> anyhow::Error {
+pub(crate) fn load_manager_error(error: LoadManagerInspectionError) -> anyhow::Error {
     match error {
         LoadManagerInspectionError::Edit(error) => editor_error(error),
         error => anyhow::anyhow!("{error}"),
@@ -387,6 +352,21 @@ fn load_manager_error(error: LoadManagerInspectionError) -> anyhow::Error {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lox_core::configuration::editor::{
+        LoadManagerMoveDirection as LoadMoveDirection, move_load_manager_load,
+    };
+
+    fn move_load(
+        editor: &mut ConfigEditor,
+        io_index: u8,
+        direction: LoadMoveDirection,
+    ) -> Result<()> {
+        let now = chrono::DateTime::parse_from_rfc3339("2026-01-01T00:00:00Z").unwrap();
+        let outcome =
+            move_load_manager_load(&editor.to_bytes()?, "Loads", io_index, direction, &now)?;
+        *editor = ConfigEditor::load(&outcome.bytes)?;
+        Ok(())
+    }
 
     fn fixture() -> ConfigEditor {
         let loads: String = (0..12)
@@ -412,9 +392,7 @@ mod tests {
         let original = editor.to_bytes().unwrap();
         let path = editor.require_one("uuid:manager").unwrap();
         let before = editor.get_element(&path).clone();
-        editor
-            .move_load_manager_load("Loads", 4, LoadMoveDirection::Up)
-            .unwrap();
+        move_load(&mut editor, 4, LoadMoveDirection::Up).unwrap();
         let mut expected = before;
         expected.children.swap(7, 5);
         assert_eq!(*editor.get_element(&path), expected);
@@ -426,9 +404,7 @@ mod tests {
         assert_eq!(loads[3].io_index, 4);
         assert_eq!(loads[4].io_index, 3);
         assert_eq!(loads[3].attributes["Unknown"], "keep-4");
-        editor
-            .move_load_manager_load("Loads", 4, LoadMoveDirection::Down)
-            .unwrap();
+        move_load(&mut editor, 4, LoadMoveDirection::Down).unwrap();
         assert_eq!(editor.to_bytes().unwrap(), original);
     }
 
@@ -442,9 +418,7 @@ mod tests {
     #[test]
     fn load_manager_power_preserves_identity_order_and_every_other_field() {
         let mut editor = native_fixture();
-        editor
-            .move_load_manager_load("Loads", 0, LoadMoveDirection::Down)
-            .unwrap();
+        move_load(&mut editor, 0, LoadMoveDirection::Down).unwrap();
         let path = editor.require_one("Loads").unwrap();
         let mut expected = editor.get_element(&path).clone();
         let position = load_positions(&expected).unwrap()[1];
@@ -591,9 +565,7 @@ mod tests {
     #[test]
     fn load_manager_name_uses_stable_identity_and_preserves_every_other_field() {
         let mut editor = native_fixture();
-        editor
-            .move_load_manager_load("Loads", 0, LoadMoveDirection::Down)
-            .unwrap();
+        move_load(&mut editor, 0, LoadMoveDirection::Down).unwrap();
         let path = editor.require_one("Loads").unwrap();
         let mut expected = editor.get_element(&path).clone();
         let name = "  Wärmepumpe 東京 🔌 & \"Haus\"  ";
@@ -699,19 +671,16 @@ mod tests {
         let path = down.require_one("Loads").unwrap();
         let mut expected = down.get_element(&path).clone();
         expected.children.swap(2, 3);
-        down.move_load_manager_load("Loads", 0, LoadMoveDirection::Down)
-            .unwrap();
+        move_load(&mut down, 0, LoadMoveDirection::Down).unwrap();
         assert_eq!(*down.get_element(&path), expected);
         let loads = down.inspect_load_manager("Loads").unwrap().loads;
         assert_eq!(loads[1].io_index, 0);
         assert!(!loads[1].attributes.contains_key("ioIdx"));
         assert_eq!(loads[1].attributes["Unknown"], "keep-0");
         let mut up = native_fixture();
-        up.move_load_manager_load("Loads", 1, LoadMoveDirection::Up)
-            .unwrap();
+        move_load(&mut up, 1, LoadMoveDirection::Up).unwrap();
         assert_eq!(up.to_bytes().unwrap(), down.to_bytes().unwrap());
-        down.move_load_manager_load("Loads", 0, LoadMoveDirection::Up)
-            .unwrap();
+        move_load(&mut down, 0, LoadMoveDirection::Up).unwrap();
         assert_eq!(down.to_bytes().unwrap(), original);
     }
 
@@ -762,9 +731,7 @@ mod tests {
                 }
             }
             let before = editor.to_bytes().unwrap();
-            let error = editor
-                .move_load_manager_load("Loads", 0, LoadMoveDirection::Down)
-                .unwrap_err();
+            let error = move_load(&mut editor, 0, LoadMoveDirection::Down).unwrap_err();
             if identity.is_none() || identity == Some("0") {
                 assert!(error.to_string().contains("duplicate ioIdx 0"));
             }
@@ -781,11 +748,7 @@ mod tests {
         ] {
             let mut editor = fixture();
             let before = editor.to_bytes().unwrap();
-            assert!(
-                editor
-                    .move_load_manager_load("Loads", io_index, direction)
-                    .is_err()
-            );
+            assert!(move_load(&mut editor, io_index, direction).is_err());
             assert_eq!(editor.to_bytes().unwrap(), before);
         }
         for mutation in [
@@ -827,9 +790,7 @@ mod tests {
             }
             let before = editor.to_bytes().unwrap();
             assert!(
-                editor
-                    .move_load_manager_load("Loads", 4, LoadMoveDirection::Up)
-                    .is_err(),
+                move_load(&mut editor, 4, LoadMoveDirection::Up).is_err(),
                 "{mutation}"
             );
             assert_eq!(editor.to_bytes().unwrap(), before, "{mutation}");
