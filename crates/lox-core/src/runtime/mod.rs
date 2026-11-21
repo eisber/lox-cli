@@ -14,6 +14,9 @@ mod model;
 // Provisional Rust session components; no foreign ABI.
 #[doc(hidden)]
 pub mod auth_path_component;
+#[cfg(feature = "runtime-websocket")]
+#[doc(hidden)]
+pub mod auth_reply_framing;
 #[doc(hidden)]
 pub mod login_challenge;
 #[cfg(feature = "auth-hash")]
