@@ -35,7 +35,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
 | Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); ordered finite rows, typed errors, timestamps remain opaque | `stats get` shares decoding; acquisition, rich diagnostics, group/month selection and formatting stay in CLI | Source candidate `parse_statistics_series(str) -> StatSeries`; typed `StatRow` and `StatisticsError`, not qualified until actual native/package gates | Source candidate `LoxArchive.parseStatisticsSeries(String) -> StatSeries`; owned `List<StatRow>` / `double[]` and checked `StatisticsException`; SAME generated Java22 API in Kotlin |
 | Supplied statistics-index identity resolution | Published optional `statistics::resolve_identity` (`statistics-xml`); raw UUID result and typed identity errors | Actual `stats get` already shares Core selection before separate acquisition/group/month/output logic; unchanged | Source-only unvalidated `resolve_statistics_identity(list[StatEntry], str) -> str`; typed `StatisticResolutionError` | Source-only unvalidated `LoxArchive.resolveStatisticsIdentity(List<StatEntry>, String) -> String`; checked `StatisticResolutionException`; SAME generated Java22 API in Kotlin |
-| Caller-ordered statistics month merge | Optional `statistics::merge_months` (`statistics-xml`); existing independent Core contract | Existing CLI caller unchanged | Unsupported | Unsupported |
+| Caller-ordered statistics month merge | Published optional `statistics::merge_months` (`statistics-xml`); existing independent Core contract | Existing CLI caller unchanged | Source-only unvalidated `merge_statistics_months(list[StatMonthPart]) -> StatSeries`; typed `StatisticsMergeError.OutputMismatch` | Source-only unvalidated `LoxArchive.mergeStatisticsMonths(List<StatMonthPart>) -> StatSeries`; checked `StatisticsMergeException.OutputMismatch`; SAME generated Java22 API in Kotlin |
 | Read-only HTML statistics index catalog | Published optional `statistics::parse_index` (`statistics-xml`); infallible existing omissions, raw fields, order and duplicates | Existing index producer unchanged | Candidate `parse_statistics_index(str) -> list[StatEntry]` | Candidate `LoxArchive.parseStatisticsIndex(String) -> List<StatEntry>`; SAME generated Java API in Kotlin |
 | Offline firmware metadata and comparison | Published optional `firmware_metadata` (`firmware-metadata`); strict XML, numeric versions, Gregorian dates and explicit-date observations | Existing CLI unchanged; no updater or device contact | Candidate `parse_firmware_version`, `compare_firmware_versions`, `parse_firmware_metadata`, `assess_firmware_metadata`; typed records/enums/errors | Candidate corresponding `LoxArchive` methods; SAME generated Java22 FFM API in Kotlin |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
@@ -335,6 +335,38 @@ Existing generator pins/correction, source/license notices and supported
 platform boundaries are unchanged. This family does not expose identity
 selection, HTML index parsing, month merge, statistics acquisition, binary
 statistics, a new CLI command or another SDK architecture.
+
+### Caller-ordered statistics month merge Source candidate
+
+`merge_statistics_months` consumes supplied `StatMonthPart { month, series }`
+records, reusing the owned `StatSeries` and `StatRow` DTOs. It calls
+`lox_core::statistics::merge_months` once, without XML parsing, acquisition,
+identity/group/month selection, or changes to the existing CLI caller.
+
+Empty input yields an empty series. Core keeps the first part's metadata and
+rows and checks each later part's output labels for exact, ordered equality.
+Rows are filtered only against timestamps from earlier parts; repeated
+timestamps within the same part survive. Caller order, raw month and timestamp
+text, row widths and values are not interpreted or normalized. The typed
+`OutputMismatch` contains `name`, `previous_month`, `month`, `previous_outputs`
+and `outputs`. The previous month is the immediately preceding part, even if
+it has no rows; the name and previous output labels come from the first part.
+
+The Rust boundary moves the `f64` values unchanged; unlike XML parsing, this
+operation does not reject nonfinite values. Source tests require the generated
+Python API and SAME Java22/Kotlin API (owned `double[]` / `DoubleArray`) to
+round-trip raw witnesses for signed zero, a subnormal, both infinities and
+noncanonical quiet NaNs. Foreign bit preservation is not qualified until those
+tests run successfully on the actual generated artifacts.
+
+The native builder retains all 141 existing steps and adds five. It must
+show live1/free0 on actual large success and checked-error RustBuffers using
+the unchanged 128-byte-prefix/minimum64000 HeapWalk matcher, then zero matching
+native buffers with 64 distinct host objects retained per branch per language,
+without requested GC. The builder includes the qualification logs in
+`ARTIFACTS.json` and emits the mechanism receipt with the tested DLL hash only
+after all three language tests pass. This remains source-only: actual counts
+are CLI 16, Python 26, SAME JVM 26, and native Config 2 historical / 0 new.
 
 ### Read-only HTML statistics index candidate
 

@@ -1,4 +1,4 @@
-//! Owned monthly XML series; parsing and rejection policy remain in Core.
+//! Owned statistics series; XML parsing and caller-ordered merging remain in Core.
 
 use lox_core::statistics as core;
 
@@ -30,6 +30,78 @@ impl From<core::StatSeries> for StatSeries {
                 .collect(),
         }
     }
+}
+
+impl From<StatSeries> for core::StatSeries {
+    fn from(value: StatSeries) -> Self {
+        Self {
+            name: value.name,
+            group: value.group,
+            outputs: value.outputs,
+            rows: value
+                .rows
+                .into_iter()
+                .map(|StatRow { timestamp, values }| (timestamp, values))
+                .collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, uniffi::Record)]
+pub struct StatMonthPart {
+    pub month: String,
+    pub series: StatSeries,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, thiserror::Error, uniffi::Error)]
+pub enum StatisticsMergeError {
+    #[error(
+        "Statistic '{name}' has different outputs in {previous_month} ({previous}) and {month} ({current}); \
+         use --from/--to to select months with the same outputs",
+        previous = .previous_outputs.join(", "),
+        current = .outputs.join(", ")
+    )]
+    OutputMismatch {
+        name: String,
+        previous_month: String,
+        month: String,
+        previous_outputs: Vec<String>,
+        outputs: Vec<String>,
+    },
+}
+
+impl From<core::MergeMonthsError> for StatisticsMergeError {
+    fn from(error: core::MergeMonthsError) -> Self {
+        let core::MergeMonthsError {
+            name,
+            previous_month,
+            month,
+            previous_outputs,
+            outputs,
+        } = error;
+        Self::OutputMismatch {
+            name,
+            previous_month,
+            month,
+            previous_outputs,
+            outputs,
+        }
+    }
+}
+
+/// Merge already supplied series in caller order, without parsing or choosing months.
+#[uniffi::export]
+pub fn merge_statistics_months(
+    parts: Vec<StatMonthPart>,
+) -> Result<StatSeries, StatisticsMergeError> {
+    core::merge_months(
+        parts
+            .into_iter()
+            .map(|part| (part.month, part.series.into()))
+            .collect(),
+    )
+    .map(Into::into)
+    .map_err(Into::into)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, thiserror::Error, uniffi::Error)]
@@ -159,6 +231,126 @@ pub fn parse_statistics_series(xml: String) -> Result<StatSeries, StatisticsErro
 mod tests {
     use super::*;
     use std::error::Error;
+
+    fn month_part(
+        month: &str,
+        name: &str,
+        group: Option<u32>,
+        outputs: &[&str],
+        rows: &[(&str, &[f64])],
+    ) -> StatMonthPart {
+        StatMonthPart {
+            month: month.into(),
+            series: StatSeries {
+                name: name.into(),
+                group,
+                outputs: outputs.iter().map(|value| (*value).into()).collect(),
+                rows: rows
+                    .iter()
+                    .map(|(timestamp, values)| StatRow {
+                        timestamp: (*timestamp).into(),
+                        values: values.to_vec(),
+                    })
+                    .collect(),
+            },
+        }
+    }
+
+    #[test]
+    fn merge_retains_caller_order_batch_duplicates_and_opaque_float_bits() {
+        let bits = [
+            0x8000_0000_0000_0000,
+            1,
+            0x7ff0_0000_0000_0000,
+            0xfff0_0000_0000_0000,
+            0x7ff8_0000_0000_1234,
+            0xfff0_0000_0000_5678,
+        ];
+        let values = bits.map(f64::from_bits);
+        let labels = [" watts ", "", " watts "];
+        let opaque = " \0e\u{301}\r\n ";
+        let merged = merge_statistics_months(vec![
+            month_part(
+                "z\0",
+                "first \0",
+                Some(u32::MAX),
+                &labels,
+                &[(opaque, &values), (opaque, &[])],
+            ),
+            month_part(
+                "",
+                "ignored",
+                Some(0),
+                &labels,
+                &[(opaque, &[99.0]), ("", &[2.0]), ("", &[3.0])],
+            ),
+            month_part(
+                "z\0",
+                "",
+                None,
+                &labels,
+                &[("", &[99.0]), ("a", &[4.0, 5.0])],
+            ),
+        ])
+        .unwrap();
+        assert_eq!(merged.name, "first \0");
+        assert_eq!(merged.group, Some(u32::MAX));
+        assert_eq!(merged.outputs, labels);
+        assert_eq!(
+            merged
+                .rows
+                .iter()
+                .map(|row| row.timestamp.as_str())
+                .collect::<Vec<_>>(),
+            [opaque, opaque, "", "", "a"]
+        );
+        assert_eq!(
+            merged.rows[0]
+                .values
+                .iter()
+                .map(|value| value.to_bits())
+                .collect::<Vec<_>>(),
+            bits
+        );
+        assert!(merged.rows[1].values.is_empty());
+        assert_eq!(merged.rows[2].values, [2.0]);
+        assert_eq!(merged.rows[3].values, [3.0]);
+        assert_eq!(merged.rows[4].values, [4.0, 5.0]);
+        assert_eq!(
+            merge_statistics_months(vec![]).unwrap(),
+            month_part("", "", None, &[], &[]).series
+        );
+    }
+
+    #[test]
+    fn merge_reports_first_schema_and_immediately_preceding_empty_month() {
+        let first = [" B ", "A", "A", ""];
+        let different = ["A", " B ", "A", ""];
+        let error = merge_statistics_months(vec![
+            month_part("first", "raw \0name", Some(0), &first, &[("x", &[])]),
+            month_part(" empty \0", "ignored", None, &first, &[]),
+            month_part("bad\0 ", "also ignored", None, &different, &[("x", &[])]),
+        ])
+        .unwrap_err();
+        let expected = core::MergeMonthsError {
+            name: "raw \0name".into(),
+            previous_month: " empty \0".into(),
+            month: "bad\0 ".into(),
+            previous_outputs: first.map(String::from).to_vec(),
+            outputs: different.map(String::from).to_vec(),
+        };
+        assert_eq!(error.to_string(), expected.to_string());
+        assert_eq!(
+            error,
+            StatisticsMergeError::OutputMismatch {
+                name: expected.name,
+                previous_month: expected.previous_month,
+                month: expected.month,
+                previous_outputs: expected.previous_outputs,
+                outputs: expected.outputs,
+            }
+        );
+    }
 
     #[test]
     fn owned_rows_preserve_core_labels_order_and_finite_float_bits() {
