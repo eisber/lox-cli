@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "kind": "ux-property-pilot",
+  "id": "config-property-pilot-20261110-v4",
+  "application": {
+    "version": "17.2.10.21",
+    "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+  },
+  "mix": {
+    "configuration": 5,
+    "simulator": 0
+  },
+  "executor_sources": [
+    {
+      "path": "scripts\\ux_property_executor.py",
+      "sha256": "74d0b50dc6992a09a9c3f8a73961855f16e20fd23f4f40cd340a3de1840818a1",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\ux-experiment.py",
+      "sha256": "3137705f6d5f3b01d5f5c15807b37ac44e84532a06d8ebf381ecf9a8c45edd49",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\ux-campaign.py",
+      "sha256": "4b26e4fb77eb69f89570817191feea4319aa971e394fd1e09949e22b1b86b18a",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\loxone-ux.py",
+      "sha256": "2c048b06195398c443fad1178959188decd5cdc9d9c2ac3c427bad5254a9fb6a",
+      "digest_kind": "sha256-lf-source-bytes"
+    },
+    {
+      "path": "scripts\\loxone_ux_transport.py",
+      "sha256": "527e4743b0bae46fc25a8318d4504dc0b25a7872d256e22ab843248ac4cb3334",
+      "digest_kind": "sha256-lf-source-bytes"
+    }
+  ],
+  "native_qualification": "UNKNOWN; private live authority and per-worker canary required.",
+  "whole_product_behavior_percentage": null,
+  "cases": [
+    {
+      "id": "pilot-title-ascii-20261110-v4",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-roundtrip-v1",
+      "executor_compatible": true,
+      "canary_for": "sdk-property-roundtrip-v1",
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "56df38960f6c6b27bb12bb00d7de78e552bb77588da2f380fcf15742711901b9",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy ManagerPilot"
+      },
+      "selectors": {
+        "target": {
+          "role": "target-block",
+          "xml_uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84"
+        },
+        "property": {
+          "role": "property-label",
+          "name": "Bezeichnung"
+        },
+        "value": {
+          "role": "property-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "ace8906fee70873729532ec9b75fded582d348e55349ce0da9db7423bf14ac9b"
+    },
+    {
+      "id": "pilot-title-unicode-20261110-v4",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-roundtrip-v1",
+      "executor_compatible": true,
+      "canary_for": null,
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "56df38960f6c6b27bb12bb00d7de78e552bb77588da2f380fcf15742711901b9",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy Manager W\u00e4rme"
+      },
+      "selectors": {
+        "target": {
+          "role": "target-block",
+          "xml_uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84"
+        },
+        "property": {
+          "role": "property-label",
+          "name": "Bezeichnung"
+        },
+        "value": {
+          "role": "property-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "afdee7e4779e262c22e33f2083589b9cda7049d81a78e2d57097c0a8d65ab60c"
+    },
+    {
+      "id": "pilot-title-spaces-20261110-v4",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-roundtrip-v1",
+      "executor_compatible": true,
+      "canary_for": null,
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "56df38960f6c6b27bb12bb00d7de78e552bb77588da2f380fcf15742711901b9",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy Manager Pilot Room"
+      },
+      "selectors": {
+        "target": {
+          "role": "target-block",
+          "xml_uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84"
+        },
+        "property": {
+          "role": "property-label",
+          "name": "Bezeichnung"
+        },
+        "value": {
+          "role": "property-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "3423a3b2dc2d76c3ee42a00aeb3c57c50815a3f264ebb2495f756ccf3566feaa"
+    },
+    {
+      "id": "pilot-title-punctuation-20261110-v4",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-roundtrip-v1",
+      "executor_compatible": true,
+      "canary_for": null,
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "56df38960f6c6b27bb12bb00d7de78e552bb77588da2f380fcf15742711901b9",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy Manager (Pilot-4)"
+      },
+      "selectors": {
+        "target": {
+          "role": "target-block",
+          "xml_uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84"
+        },
+        "property": {
+          "role": "property-label",
+          "name": "Bezeichnung"
+        },
+        "value": {
+          "role": "property-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "f9e6d7dbc776440a49ed95b62d271ff399a28a2565be28d53d72852a4c9bf319"
+    },
+    {
+      "id": "pilot-title-long-20261110-v4",
+      "phase": "configuration",
+      "family": "EnergyManager2",
+      "application": {
+        "version": "17.2.10.21",
+        "sha256": "7b55e3ef18401574ab967c5c6a0140cd5a66dc728521ebba04ad53093577d8b3"
+      },
+      "adapter": "sdk-property-roundtrip-v1",
+      "executor_compatible": true,
+      "canary_for": null,
+      "needed_capabilities": [
+        "sdk-property-roundtrip",
+        "guarded-native-input",
+        "owned-capture"
+      ],
+      "fixture_alias": "property-baseline",
+      "fixture_sha256": "56df38960f6c6b27bb12bb00d7de78e552bb77588da2f380fcf15742711901b9",
+      "timeout_seconds": 300,
+      "field_bindings": [
+        "@Title"
+      ],
+      "property": {
+        "uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84",
+        "type": "EnergyManager2",
+        "attribute": "Title",
+        "before": "Energy Manager",
+        "after": "Energy Manager Pilot Persistence Observation Five"
+      },
+      "selectors": {
+        "target": {
+          "role": "target-block",
+          "xml_uuid": "1ea20af3-0284-bf5d-ffff741afa8d2a84"
+        },
+        "property": {
+          "role": "property-label",
+          "name": "Bezeichnung"
+        },
+        "value": {
+          "role": "property-value",
+          "control_type": "Edit"
+        }
+      },
+      "expectation": "Observe Title persistence only; all unrelated XML changes remain unexplained.",
+      "definition_sha256": "4085a8f9cc4dd3326467251bf61c240dfc1556fc31e87a4cb8717e9b46a0a944"
+    }
+  ]
+}
