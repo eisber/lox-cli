@@ -4,6 +4,199 @@ use lox_core::configuration::editor::{
 };
 use std::error::Error;
 
+mod central_light_links {
+    use lox_core::configuration::editor::{
+        CentralLightLink, CentralLightLinks, CentralLightLinksError as Refusal, EditError,
+        SelectionError, inspect_central_light_links as inspect,
+    };
+    use std::error::Error;
+
+    const OWNER: &str = "ABCDEF01-0002-0003-0000000000000001";
+    const FIRST: &str = "ABCDEF01-0002-0003-000000000000000A";
+    const SECOND: &str = "abcdef01-0002-0003-000000000000000b";
+    const MISSING: &str = "abcdef01-0002-0003-000000000000000c";
+
+    fn document() -> String {
+        let first = FIRST.to_ascii_lowercase();
+        format!(
+            r#"<ControlList><C Type="Document">
+<C Type="Place" U="den" Title="Den"/>
+<C Type="CentralLight" U="{OWNER}" Title="Central" gid="primary" linkC="{FIRST},{SECOND}">
+  <IoData Visu="true" Pr="den"/>
+</C>
+<C Type="Not" U="{SECOND}" Title="Sensor &amp; status" WF="268451840"/>
+<Wrapper><C U="{first}" WF="268435456"/></Wrapper>
+<C Type="Other" U="unrelated"/>
+</C></ControlList>"#
+        )
+    }
+
+    #[test]
+    fn reads_owned_stored_order_and_defaults_with_legacy_selectors() {
+        let expected = CentralLightLinks {
+            uuid: OWNER.into(),
+            title: "Central".into(),
+            links: vec![
+                CentralLightLink {
+                    position: 1,
+                    uuid: FIRST.into(),
+                    title: String::new(),
+                    control_type: String::new(),
+                },
+                CentralLightLink {
+                    position: 2,
+                    uuid: SECOND.into(),
+                    title: "Sensor & status".into(),
+                    control_type: "Not".into(),
+                },
+            ],
+        };
+        for selector in [
+            "cent",
+            "Central [dEn]",
+            "gid:PRIMARY",
+            &format!("uuid:{OWNER}"),
+        ] {
+            let actual = inspect(document().as_bytes(), selector).unwrap();
+            assert_eq!(actual, expected);
+        }
+
+        let empty = format!(
+            r#"<C Type="document"><C Type="CentralLight" U="{OWNER}"><IoData Visu="true"/></C></C>"#
+        );
+        let empty = inspect(empty.as_bytes(), &format!("uuid:{OWNER}")).unwrap();
+        assert!(empty.title.is_empty() && empty.links.is_empty());
+    }
+
+    #[test]
+    fn selection_and_load_errors_precede_admission_and_keep_causes() {
+        let xml = document().replace(
+            r#"<C Type="Other" U="unrelated"/>"#,
+            r#"<C Type="Other" U="unrelated" Title="Central"/>"#,
+        );
+        let ambiguous = inspect(xml.as_bytes(), "Central").unwrap_err();
+        assert!(matches!(
+            ambiguous.source().and_then(|cause| cause.downcast_ref::<EditError>()),
+            Some(EditError::Selection(SelectionError::Ambiguous { matches, .. }))
+                if matches.len() == 2 && matches[1].block_type == "Other"
+        ));
+        let missing = inspect(
+            xml.as_bytes(),
+            &format!("uuid:{}", OWNER.to_ascii_lowercase()),
+        );
+        assert!(matches!(
+            missing,
+            Err(Refusal::Edit(EditError::Selection(
+                SelectionError::NotFound { .. }
+            )))
+        ));
+        let lower_type = xml.replace(r#"Type="CentralLight""#, r#"Type="centrallight""#);
+        assert!(matches!(
+            inspect(lower_type.as_bytes(), "Type:CentralLight"),
+            Err(Refusal::NotPlainCentralLight { selector }) if selector == "Type:CentralLight"
+        ));
+        let malformed = inspect(b"<C A='1' A='2'/>", "Central").unwrap_err();
+        assert!(matches!(malformed, Refusal::Edit(EditError::Load(_))));
+        assert!(malformed.source().and_then(Error::source).is_some());
+    }
+
+    #[test]
+    fn document_and_direct_owner_admission_are_not_fallbacks() {
+        let inspect_xml = |xml: String| inspect(xml.as_bytes(), "Central").unwrap_err();
+        let xml = document();
+        assert!(matches!(
+            inspect_xml(xml.replace("</ControlList>", r#"<C Type="Document"/></ControlList>"#)),
+            Refusal::NoSingleOwningDocument
+        ));
+        assert!(matches!(
+            inspect_xml(
+                xml.replace(
+                    r#"<C Type="Document">"#,
+                    r#"<x:C Type="Document" xmlns:x="urn:test">"#
+                )
+                .replace("</C></ControlList>", "</x:C></ControlList>")
+            ),
+            Refusal::NotPlainDocument
+        ));
+        assert!(matches!(
+            inspect_xml(xml.replace(r#"Type="Document">"#, r#"Type="Document"><Template/>"#)),
+            Refusal::DocumentTemplate
+        ));
+        assert!(matches!(
+            inspect_xml(xml.replace(
+                r#"Type="CentralLight""#,
+                r#"Type="CentralLight" xmlns="urn:test""#
+            )),
+            Refusal::NotPlainCentralLight { .. }
+        ));
+        for io in [
+            r#"<IoData Visu="True"/>"#,
+            r#"<IoData xmlns="urn:test" Visu="true"/>"#,
+            r#"<Nested><IoData Visu="true"/></Nested>"#,
+            r#"<IoData Visu="true"/><IoData Visu="true"/>"#,
+        ] {
+            assert!(matches!(
+                inspect_xml(xml.replace(r#"<IoData Visu="true" Pr="den"/>"#, io)),
+                Refusal::NotDirectVisibleOwner
+            ));
+        }
+        assert!(matches!(
+            inspect_xml(xml.replace(&format!(r#" U="{OWNER}""#), "")),
+            Refusal::MissingOwnerIdentity
+        ));
+    }
+
+    #[test]
+    fn validates_document_wide_link_graph_and_wf_without_repair() {
+        let inspect_xml = |xml: String| inspect(xml.as_bytes(), "Central").unwrap_err();
+        let xml = document();
+        let first = FIRST.to_ascii_lowercase();
+        for invalid in [
+            format!(" {SECOND}"),
+            format!("uuid:{SECOND}"),
+            "00000000-0000-0000-0000000000000000".into(),
+        ] {
+            assert!(matches!(
+                inspect_xml(xml.replacen(SECOND, &invalid, 1)),
+                Refusal::InvalidIdentity { uuid } if uuid == invalid
+            ));
+        }
+        assert!(matches!(
+            inspect_xml(xml.replacen(SECOND, &first, 1)),
+            Refusal::DuplicateReference { uuid } if uuid == first
+        ));
+        for other in [
+            format!(
+                r#"<C Type="Other" linkC="{}"/>"#,
+                MISSING.to_ascii_uppercase()
+            ),
+            format!(r#"<C Type="Other" U="{FIRST}"/>"#),
+        ] {
+            let expected = if other.contains("linkC=") {
+                MISSING
+            } else {
+                &first
+            };
+            assert!(matches!(
+                inspect_xml(xml.replace(r#"<C Type="Other" U="unrelated"/>"#, &other)),
+                Refusal::UnresolvedControl { uuid } if uuid == expected
+            ));
+        }
+        let bad_wf = inspect_xml(xml.replace("268451840", "-1"));
+        assert!(matches!(&bad_wf, Refusal::InvalidFlags { value, .. } if value == "-1"));
+        assert!(
+            bad_wf
+                .source()
+                .and_then(|cause| cause.downcast_ref::<std::num::ParseIntError>())
+                .is_some()
+        );
+        assert!(matches!(
+            inspect_xml(xml.replace("268451840", "16384")),
+            Refusal::InconsistentMarker { identity: Some(uuid) } if uuid == SECOND
+        ));
+    }
+}
+
 #[test]
 fn principal_permissions_are_direct_ordered_and_raw() {
     use lox_core::configuration::editor::{DirectPermission, PrincipalKind, principal_permissions};
