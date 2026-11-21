@@ -45,6 +45,80 @@ fn write_fixture(dir: &TempDir) -> String {
     path.to_str().unwrap().to_string()
 }
 
+#[test]
+fn config_xml_title_edit_preserves_ordered_wires_and_unrelated_metadata() {
+    let dir = tempfile::Builder::new()
+        .prefix(".title-edit-")
+        .tempdir_in(env!("CARGO_MANIFEST_DIR"))
+        .unwrap();
+    let path = dir.path().join("title.Loxone");
+    let xml = r#"<?xml version="1.0" encoding="utf-8"?>
+<ControlList Version="267" NextObj="73" NextMem="3">
+	<C Type="Document" U="10000000-0000-0000-0000-000000000001" Title="Test" Date="2020-01-01 00:00:00" DateS="347068800" NumO="4">
+		<C Type="Page" U="10000000-0000-0000-0000-000000000002" Title="Page">
+			<C Type="EnergyManager2" U="10000000-0000-0000-0000-000000000003" Title="Test Energy" LtE="300000000" WF="16384">
+				<Co K="AI1" U="20000000-0000-0000-0000-000000000001">
+					<In Input="20000000-0000-0000-0000-000000000003"/>
+					<In Input="20000000-0000-0000-0000-000000000002" FLG="2"/>
+					<In Input="20000000-0000-0000-0000-000000000003" FLG="1"/>
+				</Co>
+				<SET>
+					<Future t="11" v="retain"/>
+				</SET>
+			</C>
+			<C Type="Constant" U="10000000-0000-0000-0000-000000000004" Title="Source">
+				<Co K="AQ" U="20000000-0000-0000-0000-000000000002"/>
+				<Co K="AQ2" U="20000000-0000-0000-0000-000000000003"/>
+			</C>
+		</C>
+	</C>
+</ControlList>
+"#;
+    let mut before = vec![0xEF, 0xBB, 0xBF];
+    before.extend_from_slice(xml.replace('\n', "\r\n").as_bytes());
+    fs::write(&path, &before).unwrap();
+
+    lox()
+        .env("LOX_CONFIG", dir.path().join("absent.yaml"))
+        .args([
+            "config",
+            "xml",
+            "set-attr",
+            path.to_str().unwrap(),
+            "uuid:10000000-0000-0000-0000-000000000003",
+            "Title",
+            "Renamed Energy",
+        ])
+        .assert()
+        .success();
+
+    let after = fs::read(&path).unwrap();
+    assert!(after.starts_with(&[0xEF, 0xBB, 0xBF]));
+    let text = std::str::from_utf8(&after[3..]).unwrap();
+    assert!(!text.replace("\r\n", "").contains('\n'));
+    let actual = xmltree::Element::parse(&after[3..]).unwrap();
+    let actual_doc = actual.get_child("C").unwrap();
+    assert!(actual_doc.attributes["DateS"].parse::<i64>().unwrap() > 347068800);
+    assert_ne!(actual_doc.attributes["Date"], "2020-01-01 00:00:00");
+
+    // Raw set-attr minimal-change contract, not native Title-edit/LtE parity.
+    let mut expected = xmltree::Element::parse(&before[3..]).unwrap();
+    let document = expected.get_mut_child("C").unwrap();
+    for key in ["Date", "DateS"] {
+        document
+            .attributes
+            .insert(key.to_string(), actual_doc.attributes[key].clone());
+    }
+    document
+        .get_mut_child("C")
+        .unwrap()
+        .get_mut_child("C")
+        .unwrap()
+        .attributes
+        .insert("Title".to_string(), "Renamed Energy".to_string());
+    assert_eq!(actual, expected);
+}
+
 mod energy {
     use super::*;
 
