@@ -2,7 +2,10 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::io::{Read, Write};
 #[cfg(windows)]
-use std::os::windows::fs::OpenOptionsExt;
+use std::os::windows::{
+    fs::{MetadataExt, OpenOptionsExt},
+    io::AsRawHandle,
+};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
@@ -2507,7 +2510,24 @@ impl Sandbox {
             .unwrap();
         zip.write_all(&fs::read(root.join("input.LoxCC")).unwrap())
             .unwrap();
-        zip.finish().unwrap();
+        let zip_file = zip.finish().unwrap();
+        #[cfg(windows)]
+        trace_zip_metadata(
+            "writer-finished",
+            &root.join("input.zip"),
+            &zip_file,
+            &zip_file.metadata().unwrap(),
+        );
+        drop(zip_file);
+        #[cfg(windows)]
+        eprintln!(
+            "ZIPTRACE {}",
+            serde_json::json!({
+                "phase": "writer-dropped",
+                "fixture": root.file_name().unwrap().to_string_lossy(),
+                "wall_nanos": SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos(),
+            })
+        );
         sandbox
     }
 
@@ -2613,11 +2633,17 @@ fn snapshot(root: &Path) -> BTreeMap<PathBuf, Entry> {
         // Windows path queries can return stale directory-entry mtimes. Use the
         // same opened handle for both metadata and bytes, including directories.
         let metadata = file.metadata().unwrap();
+        #[cfg(windows)]
+        let trace_zip = path.file_name().is_some_and(|name| name == "input.zip");
         let contents = metadata.is_file().then(|| {
             let mut bytes = Vec::new();
             file.read_to_end(&mut bytes).unwrap();
             bytes
         });
+        #[cfg(windows)]
+        if trace_zip {
+            trace_zip_metadata("snapshot", path, &file, &metadata);
+        }
         entries.insert(
             path.strip_prefix(root).unwrap().to_path_buf(),
             Entry {
@@ -2635,6 +2661,54 @@ fn snapshot(root: &Path) -> BTreeMap<PathBuf, Entry> {
     let mut entries = BTreeMap::new();
     visit(root, root, &mut entries);
     entries
+}
+
+#[cfg(windows)]
+fn trace_zip_metadata(phase: &str, path: &Path, file: &fs::File, selected: &fs::Metadata) {
+    #[repr(C)]
+    struct HandleInfo {
+        attributes: u32,
+        creation: [u32; 2],
+        access: [u32; 2],
+        write: [u32; 2],
+        volume: u32,
+        size_high: u32,
+        size_low: u32,
+        nlink: u32,
+        index_high: u32,
+        index_low: u32,
+    }
+
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn GetFileInformationByHandle(
+            handle: std::os::windows::io::RawHandle,
+            info: *mut HandleInfo,
+        ) -> i32;
+    }
+
+    let mut info = std::mem::MaybeUninit::<HandleInfo>::uninit();
+    let result = unsafe { GetFileInformationByHandle(file.as_raw_handle(), info.as_mut_ptr()) };
+    assert_ne!(result, 0, "{}", std::io::Error::last_os_error());
+    // The Windows API filled this structure when it returned success.
+    let info = unsafe { info.assume_init() };
+    let raw_write = (u64::from(info.write[1]) << 32) | u64::from(info.write[0]);
+    let file_index = (u64::from(info.index_high) << 32) | u64::from(info.index_low);
+    eprintln!(
+        "ZIPTRACE {}",
+        serde_json::json!({
+            "phase": phase,
+            "fixture": path.parent().unwrap().file_name().unwrap().to_string_lossy(),
+            "wall_nanos": SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos(),
+            "selected_write": selected.last_write_time(),
+            "raw_handle_write": raw_write,
+            "path_write": fs::metadata(path).unwrap().last_write_time(),
+            "volume": info.volume,
+            "file_index": file_index,
+            "readonly": selected.permissions().readonly(),
+            "len": selected.len(),
+        })
+    );
 }
 
 #[test]
