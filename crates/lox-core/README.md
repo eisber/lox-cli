@@ -50,6 +50,17 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   quoted-text/digit-name limitation (lox-n37w) remains; raw-byte/lossless foreign
   XML preservation is not claimed. Default Core dependencies are unchanged.
 
+- Optional `configuration-editor`: `configuration::editor::list_moods(bytes,
+  selector)` reads the selected `LightController2` through the same cached
+  producer used by `lox config moods`, Lighting inspection and mood creation
+  planning. It returns owned `MoodInfo` records in depth-first document order,
+  including nested records and duplicates. Missing and empty names/UUIDs both
+  become empty strings; SID/CID are optional `i64`s, and absent `Q1` is distinct
+  from an empty stored value. `MoodInventoryError` wraps editor load and
+  selection errors and reports a separately typed wrong-controller refusal.
+  The shared loader's lox-n37w limitation is unchanged. This read does not
+  decode colors, alter configuration, validate native behavior or add bindings.
+
 - Optional `configuration-editor`: `configuration::editor::set_attribute(bytes,
   selector, attribute, value, &now)` migrates the existing legacy raw attribute
   operation. Its owned `AttributeChange` captures the selected identity before

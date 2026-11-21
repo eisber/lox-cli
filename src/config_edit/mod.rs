@@ -129,6 +129,25 @@ pub struct MoodInfo {
     pub q1: Option<String>,
 }
 
+impl From<lox_core::configuration::editor::MoodInfo> for MoodInfo {
+    fn from(mood: lox_core::configuration::editor::MoodInfo) -> Self {
+        let lox_core::configuration::editor::MoodInfo {
+            name,
+            uuid,
+            sid,
+            cid,
+            q1,
+        } = mood;
+        Self {
+            name,
+            uuid,
+            sid,
+            cid,
+            q1,
+        }
+    }
+}
+
 /// Resolved endpoint for a config-wide wire.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct ConfigWireEndpoint {

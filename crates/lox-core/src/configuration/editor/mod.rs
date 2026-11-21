@@ -10,6 +10,7 @@ mod control_move;
 mod daytimer;
 mod description;
 pub(super) mod legacy;
+mod moods;
 #[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
 #[doc(hidden)]
 pub mod operating_modes;
@@ -37,6 +38,7 @@ pub use daytimer::{SelectedDayTimerEntry, daytimer_integer, daytimer_mode_uuid_k
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
 };
+pub use moods::{MoodInfo, MoodInventoryError, list_moods};
 pub use program::{ProgramTextError, get_program_text};
 pub use unwire::{UnwireChange, UnwireError, UnwireOutcome, unwire};
 
