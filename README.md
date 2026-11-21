@@ -292,6 +292,35 @@ Single static Rust binary (~14MB). No runtime dependencies. Works on Linux, macO
 
 See **[COMMANDS.md](COMMANDS.md)** for the full command reference, **[DESIGN.md](DESIGN.md)** for architecture details, and **[AGENTS.md](AGENTS.md)** for AI agent integration guidance.
 
+## Forum knowledge archive
+
+`scripts\scrape-forum.py` uses a local Scrapling checkout to archive reachable
+public loxforum threads for later curation into CLI recipes and help. Windows
+setup and usage:
+
+```powershell
+python -m venv target\forum-tools
+target\forum-tools\Scripts\python.exe -m pip install -e "E:\work\Scrapling[fetchers]"
+target\forum-tools\Scripts\python.exe scripts\scrape-forum.py --scrapling-path E:\work\Scrapling crawl --max-pages 10
+target\forum-tools\Scripts\python.exe scripts\scrape-forum.py crawl
+target\forum-tools\Scripts\python.exe scripts\scrape-forum.py status
+target\forum-tools\Scripts\python.exe scripts\scrape-forum.py export --output .lox\forum\posts.jsonl
+```
+
+The SQLite archive under `.lox\forum\` is git-ignored. It saves raw HTML and
+deduplicated post text/HTML, IDs, authors, timestamps, and source URLs; JSONL
+exports include content hashes. Re-running resumes the saved queue;
+`crawl --refresh` revisits pages for edits and new replies. Requests are
+sequential, at least three seconds apart, and respect robots.txt. HTTP errors
+stop the crawl without discarding progress; a blocked robots.txt also stops it.
+
+Queue exhaustion means all discovered allowed pages were visited, **not** proof
+that every forum post was captured. Private, deleted, and unlinked posts and
+attachment downloads are outside this crawler's coverage. Extraction selectors
+have fixture coverage but still need verification against live forum markup.
+Forum content is not bundled into the binary: curate and verify source-linked
+technical guidance before promoting it into help.
+
 ## License
 
 Dual-licensed: [AGPL-3.0](LICENSE-AGPL) for open use, [Commercial License](LICENSE-COMMERCIAL) for proprietary redistribution.
