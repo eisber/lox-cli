@@ -25,6 +25,9 @@ pub mod session_endpoints;
 pub mod session_http;
 #[doc(hidden)]
 pub mod session_token;
+#[cfg(feature = "runtime-websocket")]
+#[doc(hidden)]
+pub mod session_websocket;
 #[doc(hidden)]
 pub mod token_command_profile;
 
