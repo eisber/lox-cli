@@ -1,6 +1,6 @@
 use chrono::{DateTime, Duration, FixedOffset};
 use lox_core::configuration::editor::{
-    ControlMoveSelector, EditError, SelectionError, move_control, set_param,
+    ControlMoveSelector, EditError, SelectionError, move_control, remove_element, set_param,
 };
 use std::error::Error;
 
@@ -209,4 +209,75 @@ fn control_move_typed_refusals_preserve_branch_error_order_and_room_duplicates()
     assert!(matches!(error, EditError::Load(_)));
     assert!(error.source().is_some());
     assert_eq!(xml.as_slice(), saved);
+}
+
+#[test]
+fn removal_is_sibling_first_exact_and_does_not_clean_references() {
+    let xml = br#"<Root U="root"><Container><C U="x" Title="nested"><C U="descendant"/></C></Container><Other U="x" Title="direct"><C U="subtree"/></Other><C U="x" Title="mirror"/><Co U="wire"><In Input="x"/></Co><PRM REF="x"/></Root>"#;
+    let first = remove_element(xml, "x", &now()).unwrap();
+    assert_eq!(first.removed_title, "direct");
+    let text = String::from_utf8(first.bytes.clone()).unwrap();
+    assert!(!text.contains("subtree"));
+    assert!(text.contains("Title=\"nested\""));
+    assert!(text.contains("Title=\"mirror\""));
+    assert!(text.contains("<In Input=\"x\"/>"));
+    assert!(text.contains("<PRM REF=\"x\"/>"));
+    let second = remove_element(&first.bytes, "x", &now()).unwrap();
+    assert_eq!(second.removed_title, "mirror");
+    let third = remove_element(&second.bytes, "x", &now()).unwrap();
+    assert_eq!(third.removed_title, "nested");
+    assert!(
+        !String::from_utf8(third.bytes)
+            .unwrap()
+            .contains("descendant")
+    );
+    for raw in ["root", "X", "uuid:x"] {
+        assert!(matches!(
+            remove_element(xml, raw, &now()),
+            Err(EditError::ExactUuidNotFound { uuid }) if uuid == raw
+        ));
+    }
+}
+
+#[test]
+fn removal_empty_unicode_missing_title_and_recursive_branch_priority() {
+    let xml = "<R><A><B><Deep U=\"ü\" Title=\"first branch\"/></B></A><B><Shallow U=\"ü\" Title=\"second branch\"/></B><Missing/><Empty U=\"\"/><Literal U=\"uuid:x\"/></R>";
+    let removed = remove_element(xml.as_bytes(), "ü", &now()).unwrap();
+    assert_eq!(removed.removed_title, "first branch");
+    assert!(
+        String::from_utf8(removed.bytes)
+            .unwrap()
+            .contains("second branch")
+    );
+    let empty = remove_element(xml.as_bytes(), "", &now()).unwrap();
+    assert_eq!(empty.removed_title, "");
+    let text = String::from_utf8(empty.bytes).unwrap();
+    assert!(text.contains("<Missing></Missing>"));
+    assert!(!text.contains("<Empty"));
+    assert!(remove_element(xml.as_bytes(), "uuid:x", &now()).is_ok());
+}
+
+#[test]
+fn removal_preserves_canonical_bom_eol_stamps_and_load_refusal_order() {
+    let xml = "\u{feff}<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<C Type=\"Document\" Date=\"2026-10-12 07:55:33\" DateS=\"561020133\">\r\n\t<Other U=\"gone\"/>\r\n\t<C U=\"keep\" NTXT=\"first\nsecond\"/>\r\n</C>\r\n";
+    let before = xml.as_bytes().to_vec();
+    let outcome = remove_element(&before, "gone", &(now() - Duration::days(1))).unwrap();
+    assert_eq!(
+        outcome.bytes,
+        xml.replace("\t<Other U=\"gone\"/>\r\n", "")
+            .replace("DateS=\"561020133\"", "DateS=\"561020134\"")
+            .replace(
+                "Date=\"2026-10-12 07:55:33\"",
+                "Date=\"2026-10-12 07:55:34\""
+            )
+            .as_bytes()
+    );
+    assert!(outcome.content_changed && outcome.document_stamped);
+    let missing = remove_element(&before, "absent", &now()).unwrap_err();
+    assert_eq!(missing.to_string(), "Element with UUID 'absent' not found");
+    assert!(missing.source().is_none());
+    assert_eq!(before, xml.as_bytes());
+    let load = remove_element(b"<R A='1' A='2'/>", "absent", &now()).unwrap_err();
+    assert!(matches!(load, EditError::Load(_)));
+    assert!(load.source().is_some());
 }

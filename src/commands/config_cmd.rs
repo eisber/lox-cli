@@ -5343,10 +5343,14 @@ fn cmd_xml_edit(_ctx: &RunContext, action: XmlEditCmd) -> Result<()> {
             save_as,
         } => {
             let data = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
-            let mut editor = ConfigEditor::load(&data)?;
-            let title = editor.remove_element(&uuid)?;
-            println!("✓ Removed '{}' (UUID: {})", title, uuid);
-            save_edited(&mut editor, &file, save_as.as_deref())?;
+            let outcome = lox_core::configuration::editor::remove_element(
+                &data,
+                &uuid,
+                &chrono::Local::now().fixed_offset(),
+            )
+            .map_err(crate::config_edit::editor_error)?;
+            println!("✓ Removed '{}' (UUID: {})", outcome.removed_title, uuid);
+            write_edited_bytes(&outcome.bytes, &file, save_as.as_deref(), false)?;
         }
     }
     Ok(())

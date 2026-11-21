@@ -1,4 +1,4 @@
-use super::{ConfigEditor, ConnectorMap, remove_by_uuid};
+use super::{ConfigEditor, ConnectorMap};
 use anyhow::Result;
 use xmltree::Element;
 
@@ -251,8 +251,11 @@ impl ConfigEditor {
     }
 
     /// Remove an element by UUID.
+    #[allow(dead_code)]
     pub fn remove_element(&mut self, uuid: &str) -> Result<String> {
-        remove_by_uuid(&mut self.root.children, uuid)
+        self.kernel
+            .remove_element_legacy(uuid)
+            .map_err(super::editor_error)
     }
 
     /// Create a VirtualIn element under the given parent.

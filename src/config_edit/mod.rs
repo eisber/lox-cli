@@ -56,7 +56,7 @@ pub use permissions::{PermissionChange, PermissionEdit, PrincipalKind};
 pub use rooms::{ControlMovePreview, RoomAddPreview, RoomRenamePreview};
 pub use wiring::SpliceActorPreview;
 
-use anyhow::{Result, bail};
+use anyhow::Result;
 use std::collections::HashMap;
 use xmltree::Element;
 
@@ -424,6 +424,9 @@ pub(crate) fn editor_error(error: lox_core::configuration::editor::EditError) ->
             anyhow::Error::from_boxed(cause.into_inner()).context("XML is not valid UTF-8")
         }
         EditError::Selection(error) => selection_error(error),
+        EditError::ExactUuidNotFound { uuid } => {
+            anyhow::anyhow!("Element with UUID '{}' not found", uuid)
+        }
         EditError::ParameterMissing { element, parameter } => anyhow::anyhow!(
             "Parameter '{}' not found on '{}' ({})",
             parameter,
@@ -443,24 +446,88 @@ pub(crate) fn editor_error(error: lox_core::configuration::editor::EditError) ->
     }
 }
 
-fn remove_by_uuid(children: &mut Vec<xmltree::XMLNode>, uuid: &str) -> Result<String> {
-    for i in 0..children.len() {
-        if let Some(elem) = children[i].as_element()
-            && elem.attributes.get("U").map(|u| u == uuid).unwrap_or(false)
-        {
-            let title = elem.attributes.get("Title").cloned().unwrap_or_default();
-            children.remove(i);
-            return Ok(title);
+#[cfg(test)]
+mod exact_uuid_removal_tests {
+    use super::*;
+
+    // Frozen PUBLIC4ab helper: intentionally independent of the migrated producer.
+    fn old_remove(children: &mut Vec<xmltree::XMLNode>, uuid: &str) -> Result<String> {
+        for i in 0..children.len() {
+            if let Some(elem) = children[i].as_element()
+                && elem.attributes.get("U").map(|u| u == uuid).unwrap_or(false)
+            {
+                let title = elem.attributes.get("Title").cloned().unwrap_or_default();
+                children.remove(i);
+                return Ok(title);
+            }
         }
-    }
-    for child in children.iter_mut() {
-        if let Some(elem) = child.as_mut_element()
-            && let Ok(title) = remove_by_uuid(&mut elem.children, uuid)
-        {
-            return Ok(title);
+        for child in children.iter_mut() {
+            if let Some(elem) = child.as_mut_element()
+                && let Ok(title) = old_remove(&mut elem.children, uuid)
+            {
+                return Ok(title);
+            }
         }
+        anyhow::bail!("Element with UUID '{}' not found", uuid)
     }
-    bail!("Element with UUID '{}' not found", uuid)
+
+    #[test]
+    fn removal_frozen_helper_cached_bridge_and_public_transaction_match() {
+        let now = chrono::DateTime::parse_from_rfc3339("2026-10-12T07:55:33+01:00").unwrap();
+        let xml = "\u{feff}<C Type=\"Document\" U=\"root\" DateS=\"999999999\">\r\n<C><X U=\"x\" Title=\"nested\"/></C><X U=\"x\" Title=\"direct\"><Co U=\"subtree\"/></X><X U=\"x\" Title=\"mirror\"/><C U=\"\"/><PRM REF=\"x\"/><Co U=\"wire\"><In Input=\"x\"/></Co>\r\n</C>\r\n";
+        for uuid in ["x", "", "root", "X", "uuid:x", "ü"] {
+            let mut old = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let mut cached = ConfigEditor::load(xml.as_bytes()).unwrap();
+            let expected = old_remove(&mut old.root.children, uuid);
+            let legacy = cached.remove_element(uuid);
+            let actual =
+                lox_core::configuration::editor::remove_element(xml.as_bytes(), uuid, &now);
+            match expected {
+                Ok(title) => {
+                    assert_eq!(legacy.unwrap(), title);
+                    assert_eq!(cached.to_bytes().unwrap(), old.to_bytes().unwrap());
+                    old.stamp_document(&now);
+                    let actual = actual.unwrap();
+                    assert_eq!(actual.removed_title, title);
+                    assert_eq!(actual.bytes, old.to_bytes().unwrap());
+                }
+                Err(expected) => {
+                    for error in [legacy.unwrap_err(), editor_error(actual.unwrap_err())] {
+                        assert_eq!(format!("{error}"), format!("{expected}"));
+                        assert_eq!(format!("{error:?}"), format!("{expected:?}"));
+                        assert_eq!(format!("{error:#}"), format!("{expected:#}"));
+                        assert_eq!(error.chain().count(), expected.chain().count());
+                        assert!(error.downcast_ref::<String>().is_some());
+                        assert_eq!(
+                            error.root_cause().to_string(),
+                            expected.root_cause().to_string()
+                        );
+                    }
+                }
+            }
+        }
+        let malformed = b"<R A='1' A='2'/>";
+        let old = ConfigEditor::load(malformed).err().unwrap();
+        let new = editor_error(
+            lox_core::configuration::editor::remove_element(malformed, "absent", &now).unwrap_err(),
+        );
+        assert_eq!(format!("{new:?}"), format!("{old:?}"));
+        assert_eq!(format!("{new:#}"), format!("{old:#}"));
+        assert_eq!(
+            new.downcast_ref::<xmltree::ParseError>().is_some(),
+            old.downcast_ref::<xmltree::ParseError>().is_some()
+        );
+        let lox_core::configuration::editor::EditError::Load(cause) =
+            lox_core::configuration::editor::remove_element(malformed, "absent", &now).unwrap_err()
+        else {
+            panic!("expected native boxed parser cause");
+        };
+        assert!(cause.into_inner().downcast::<xmltree::ParseError>().is_ok());
+        assert_eq!(
+            format!("{:?}", new.root_cause()),
+            format!("{:?}", old.root_cause())
+        );
+    }
 }
 
 // ── Data types ───────────────────────────────────────────────────────────────
