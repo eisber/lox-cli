@@ -1,0 +1,25 @@
+<Root>
+  <C Type="User" U="user-01" Title="Sämple &amp; 灯">
+    <PH NUM="001">
+      <PRM REF="target" ACT="0007" TIM="opaque &amp; 01"/>
+      <Wrap><PRM REF="nested"/></Wrap>
+      <PRM REF="target" ACT="" TIM=""/>
+      <PRM REF="Target" ACT="text"/>
+      <PRM REF=""/>
+      <PRM/>
+    </PH>
+    <PH><PRM REF="later"/></PH>
+  </C>
+  <C Type="Button" U="target" Title="Erste &amp; Küche"/>
+  <C Type="Other" U="target" Title="Later"/>
+  <C Type="" U="" Title=""/>
+  <C Type="UserGroup" U="group-01" Title="Sämple &amp; 灯">
+    <PH><PRM REF="target" ACT="opaque" TIM="01"/></PH>
+  </C>
+  <C Type="User" Title="Empty"><Wrap><PH><PRM REF="nested"/></PH></Wrap></C>
+  <C Type="User" U="z" Title="Duplicate"/>
+  <C Type="User" Title="Duplicate"/>
+  <C Type="User" U="z" Title="duplicate"/>
+  <C Type="User" U="titleless"/>
+  <C Type="user" Title="Ignored"/>
+</Root>

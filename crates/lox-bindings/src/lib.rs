@@ -20,6 +20,7 @@ mod fragment_application;
 mod mood_inventory;
 mod mqtt_catalog;
 mod numeric_state;
+mod principal_permissions;
 mod program_text;
 mod runtime_overlay;
 mod statistics_identity;
