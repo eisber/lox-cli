@@ -1,8 +1,9 @@
 use chrono::{DateTime, FixedOffset};
-use quick_xml::{Reader, events::Event};
 use std::{error::Error, fmt};
-use xmltree::Element;
 
+use crate::configuration::editor::transaction_scope::{
+    ScopeError, require_ordinary_owner, require_plain_xml,
+};
 use super::{
     EditError, LoadManagerInspection, LoadManagerInspectionError, State, inspect_positions,
     load_positions, resolve_io_index,
@@ -94,6 +95,18 @@ impl Error for LoadManagerMoveError {
             Self::Edit(error) => Some(error),
             Self::Inspection(error) => Some(error),
             _ => None,
+        }
+    }
+}
+
+impl From<ScopeError> for LoadManagerMoveError {
+    fn from(error: ScopeError) -> Self {
+        match error {
+            ScopeError::Edit(error) => Self::Edit(error),
+            ScopeError::NamespacedXml => Self::NamespacedXml,
+            ScopeError::UnsupportedXml => Self::UnsupportedXml,
+            ScopeError::DocumentScope => Self::DocumentScope,
+            ScopeError::TemplateOrInherited => Self::TemplateOrInherited,
         }
     }
 }
@@ -208,122 +221,4 @@ fn swap_load(
         },
         positions,
     ))
-}
-
-fn require_plain_xml(bytes: &[u8]) -> Result<(), LoadManagerMoveError> {
-    use LoadManagerMoveError as Refusal;
-
-    let text = std::str::from_utf8(bytes).map_err(|_| Refusal::UnsupportedXml)?;
-    if bytes.contains(&0) {
-        return Err(Refusal::UnsupportedXml);
-    }
-    // xmltree discards attribute prefixes. Check qualified names with the XML
-    // reader before trusting DOM attributes; comments, CDATA and PI are opaque.
-    let mut reader = Reader::from_str(text.strip_prefix('\u{feff}').unwrap_or(text));
-    reader.config_mut().expand_empty_elements = true;
-    let mut depth = 0usize;
-    let mut root_seen = false;
-    loop {
-        match reader
-            .read_event()
-            .map_err(|error| Refusal::Edit(EditError::load(error)))?
-        {
-            Event::Start(element) => {
-                if depth == 0 {
-                    if root_seen {
-                        return Err(Refusal::UnsupportedXml);
-                    }
-                    root_seen = true;
-                }
-                depth += 1;
-                if element.name().as_ref().contains(&b':') {
-                    return Err(Refusal::NamespacedXml);
-                }
-                // Identical duplicate attributes remain the shared loader's policy.
-                for attr in element.attributes().with_checks(false) {
-                    let attr = attr.map_err(|error| Refusal::Edit(EditError::load(error)))?;
-                    let name = attr.key.as_ref();
-                    if name == b"xmlns" || name.contains(&b':') {
-                        return Err(Refusal::NamespacedXml);
-                    }
-                }
-            }
-            Event::End(_) => {
-                depth = depth.checked_sub(1).ok_or(Refusal::UnsupportedXml)?;
-            }
-            Event::DocType(_) => return Err(Refusal::UnsupportedXml),
-            Event::Decl(decl) => {
-                if let Some(encoding) = decl.encoding()
-                    && !encoding
-                        .map_err(|error| Refusal::Edit(EditError::load(error)))?
-                        .eq_ignore_ascii_case(b"utf-8")
-                {
-                    return Err(Refusal::UnsupportedXml);
-                }
-            }
-            Event::Text(text) if depth == 0 => {
-                if !text
-                    .as_ref()
-                    .iter()
-                    .all(|byte| matches!(byte, b' ' | b'\t' | b'\r' | b'\n'))
-                {
-                    return Err(Refusal::UnsupportedXml);
-                }
-            }
-            Event::CData(_) if depth == 0 => return Err(Refusal::UnsupportedXml),
-            Event::Eof if root_seen && depth == 0 => return Ok(()),
-            Event::Eof => return Err(Refusal::UnsupportedXml),
-            _ => {}
-        }
-    }
-}
-
-fn template(element: &Element) -> bool {
-    matches!(element.name.as_str(), "Template" | "DocumentTemplate")
-        || (element.name == "C"
-            && matches!(
-                element.attributes.get("Type").map(String::as_str),
-                Some("Template" | "DocumentTemplate")
-            ))
-}
-
-fn require_ordinary_owner(state: &State, path: &[usize]) -> Result<(), LoadManagerMoveError> {
-    use LoadManagerMoveError as Refusal;
-
-    for depth in 0..=path.len() {
-        let element = state.get_element(&path[..depth]);
-        if template(element)
-            || element.attributes.contains_key("IfT")
-            || element.attributes.contains_key("uuidParent")
-            || element.attributes.get("WF").is_some_and(|raw| {
-                raw.parse::<u32>()
-                    .map_or(true, |flags| flags & 0x2000_0000 != 0)
-            })
-        {
-            return Err(Refusal::TemplateOrInherited);
-        }
-    }
-    let documents = state.find_elements("Type:Document");
-    let document = match documents.as_slice() {
-        [] => &state.root,
-        [owner] if owner.len() <= 1 && path.starts_with(owner) => {
-            let document = state.get_element(owner);
-            if document.attributes.get("Type").map(String::as_str) != Some("Document") {
-                return Err(Refusal::DocumentScope);
-            }
-            document
-        }
-        _ => return Err(Refusal::DocumentScope),
-    };
-    let has_direct_template = |element: &Element| {
-        element
-            .children
-            .iter()
-            .filter_map(|child| child.as_element())
-            .any(template)
-    };
-    if has_direct_template(document) || has_direct_template(&state.root) {
-        return Err(Refusal::TemplateOrInherited);
-    }
-    Ok(())
 }

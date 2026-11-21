@@ -12,6 +12,8 @@ mod daytimer;
 mod description;
 pub(super) mod legacy;
 mod lighting;
+#[cfg(feature = "configuration-xml")]
+mod lighting_recount;
 mod load_manager;
 mod moods;
 #[cfg(all(feature = "configuration-xml", feature = "unstable-legacy-cli-editor"))]
@@ -21,6 +23,8 @@ mod permissions;
 mod program;
 mod selector;
 mod status_monitor;
+#[cfg(feature = "configuration-xml")]
+mod transaction_scope;
 mod unwire;
 #[cfg(any(test, feature = "unstable-legacy-cli-editor"))]
 mod virtual_input;
@@ -52,6 +56,11 @@ pub use description::{
 pub use lighting::{
     LightingInspection, LightingInspectionError, LightingStorage, StoredLightingChannel,
     StoredLightingMood, StoredLightingOutput, StoredLightingWire, inspect_lighting,
+};
+#[cfg(feature = "configuration-xml")]
+pub use lighting_recount::{
+    LightingMoodCountChange, LightingMoodCountError, LightingMoodCountOutcome,
+    recount_lighting_moods,
 };
 pub use load_manager::{
     LoadManagerInspection, LoadManagerInspectionError, LoadManagerLoad, inspect_load_manager,

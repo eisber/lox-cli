@@ -84,6 +84,20 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   formatting stay with the CLI. This operation does not edit, decode colors,
   infer physical roles, validate native behavior or add foreign bindings.
 
+- Optional `configuration-xml`:
+  `configuration::editor::recount_lighting_moods(bytes, selector, &now)`
+  reconciles one legacy-selected `LightController2`'s sole direct
+  `LightscenesC/@Num` with its direct `LightsceneC` count. An equivalent
+  signed-32-bit value keeps its spelling and returns the original bytes with
+  no stamp. A change returns canonical XML with the explicit monotonic save
+  stamp for a recognized owning Document; Document-less input is not stamped.
+  The byte transaction refuses namespaced XML, DTDs, non-UTF-8 declarations,
+  multiple roots, unsupported Document scope, and template or inherited state.
+  The CLI shares count planning and mutation but keeps its own admission,
+  preview, reporting and save path. There is no filesystem access, arbitrary
+  XML byte preservation, native validation or foreign binding; the shared
+  loader limitation `lox-n37w` is unchanged.
+
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_status_monitor` reads one standalone,
   legacy-selected `C Type="StatusMonitor"` from configuration bytes. It returns
