@@ -598,6 +598,26 @@ Step 'kotlin-lighting-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$Ap
     proof = 'Installed full Lighting projection and NotFound/Ambiguous/NotLightController: exact marked payload and address live/free calibration, 64 held host outcomes per branch and zero matching native payloads per language without requested GC. Each language also calibrated the marked XML request and verified 64 strict pre-call lone-surrogate rejections with no matching retained input. Load, small/empty inventories and absent fields are value checks only.'
 } | ConvertTo-Json | Set-Content "$Output\LIGHTING-INSPECTION-MECHANISM.json" -Encoding utf8
 
+$LoadManagerFixture = "$Output\fixtures\load_manager_inspection.xml"
+Copy-Item -LiteralPath 'tests\bindings\load_manager_inspection.xml' -Destination $LoadManagerFixture
+Step 'python-load-manager-inspection-smoke' $VenvPython @('-I', '-B', 'tests\bindings\load_manager_inspection_smoke.py', "$Probe.dll", $LoadManagerFixture)
+Step 'javac-load-manager-inspection-smoke' $Javac @('--release', '22', '-encoding', 'UTF-8', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\LoadManagerInspectionSmoke.java')
+Step 'java-load-manager-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.LoadManagerInspectionSmoke', $LoadManagerFixture))
+$LoadManagerInspectionKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-load-manager-inspection-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\LoadManagerInspectionSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-load-manager-inspection.args", $LoadManagerInspectionKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-load-manager-inspection-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-load-manager-inspection.args")
+Step 'kotlin-load-manager-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-load-manager-inspection-smoke.jar", 'LoadManagerInspectionSmokeKt', $LoadManagerFixture))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    fixture_sha256 = (Get-FileHash $LoadManagerFixture -Algorithm SHA256).Hash.ToLowerInvariant()
+    probe_sha256 = (Get-FileHash "$Probe.dll" -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Installed Load Manager inventory and NotFound/Ambiguous/NotLoadManager/InvalidIoIndex: exact marked payload and separate address live/free calibration, 64 held host outcomes per branch and zero matching native payloads per language without requested GC. Each language also calibrated its marked XML input control and verified 64 strict pre-call lone-surrogate rejections with no matching retained input. All five generated Python records are keyword-only. Load, RecordCount, DuplicateIoIndex and empty fields are value checks only; Other is unobserved.'
+} | ConvertTo-Json | Set-Content "$Output\LOAD-MANAGER-INSPECTION-MECHANISM.json" -Encoding utf8
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -632,6 +652,7 @@ $Artifacts += Get-Item "$Output\principal-permissions-core-focused.log", "$Outpu
 $Artifacts += Get-Item "$Output\central-light-links-core-focused.log", "$Output\python-central-light-links-smoke.log", "$Output\javac-central-light-links-smoke.log", "$Output\java-central-light-links-smoke.log", "$Output\kotlinc-central-light-links-smoke.log", "$Output\kotlin-central-light-links-smoke.log", "$Output\CENTRAL-LIGHT-LINKS-MECHANISM.json"
 $Artifacts += Get-Item "$Output\unwire-core-focused.log", "$Output\python-unwire-smoke.log", "$Output\javac-unwire-smoke.log", "$Output\java-unwire-smoke.log", "$Output\kotlinc-unwire-smoke.log", "$Output\kotlin-unwire-smoke.log", "$Output\UNWIRE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\lighting-inspection-core-focused.log", "$Output\python-lighting-inspection-smoke.log", "$Output\javac-lighting-inspection-smoke.log", "$Output\java-lighting-inspection-smoke.log", "$Output\kotlinc-lighting-inspection-smoke.log", "$Output\kotlin-lighting-inspection-smoke.log", "$Output\LIGHTING-INSPECTION-MECHANISM.json"
+$Artifacts += Get-Item "$Output\python-load-manager-inspection-smoke.log", "$Output\javac-load-manager-inspection-smoke.log", "$Output\java-load-manager-inspection-smoke.log", "$Output\kotlinc-load-manager-inspection-smoke.log", "$Output\kotlin-load-manager-inspection-smoke.log", "$Output\LOAD-MANAGER-INSPECTION-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"

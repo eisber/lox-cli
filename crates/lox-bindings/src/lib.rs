@@ -19,6 +19,7 @@ mod daytimer_state;
 mod firmware_metadata;
 mod fragment_application;
 mod lighting_inspection;
+mod load_manager;
 mod mood_inventory;
 mod mqtt_catalog;
 mod numeric_state;
