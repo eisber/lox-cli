@@ -56,6 +56,11 @@ pub use lighting::{
 pub use load_manager::{
     LoadManagerInspection, LoadManagerInspectionError, LoadManagerLoad, inspect_load_manager,
 };
+#[cfg(feature = "configuration-xml")]
+pub use load_manager::{
+    LoadManagerMove, LoadManagerMoveDirection, LoadManagerMoveError, LoadManagerMoveOutcome,
+    move_load_manager_load,
+};
 pub use moods::{MoodInfo, MoodInventoryError, list_moods};
 pub use permissions::{
     DirectPermission, PermissionPrincipal, PrincipalKind, PrincipalPermissions,

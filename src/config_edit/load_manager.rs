@@ -1,17 +1,14 @@
 use std::collections::BTreeMap;
 
 use anyhow::{Result, bail};
-use lox_core::configuration::editor::{LoadManagerInspectionError, legacy_load_manager};
+pub use lox_core::configuration::editor::LoadManagerMoveDirection as LoadMoveDirection;
+use lox_core::configuration::editor::{
+    LoadManagerInspectionError, LoadManagerMoveError, legacy_load_manager,
+};
 use serde::Serialize;
 use xmltree::Element;
 
 use super::{ConfigEditor, editor_error};
-
-#[derive(Debug, Clone, Copy)]
-pub enum LoadMoveDirection {
-    Up,
-    Down,
-}
 
 #[derive(Debug, Serialize)]
 pub struct LoadManagerLoad {
@@ -269,33 +266,12 @@ impl ConfigEditor {
         io_index: u8,
         direction: LoadMoveDirection,
     ) -> Result<()> {
-        if io_index > 11 {
-            bail!("Load Manager io-index must be 0..11, not a 1-based priority.");
-        }
-        let path = self.load_manager_path(selector)?;
-        let block = self.get_element(&path);
-        let positions = load_positions(block)?;
-        let index = positions
-            .iter()
-            .position(|position| {
-                resolve_io_index(block.children[*position].as_element().unwrap()).unwrap()
-                    == io_index
+        self.kernel
+            .move_load_manager_load(selector, io_index, direction)
+            .map_err(|error| match error {
+                LoadManagerMoveError::Inspection(error) => load_manager_error(error),
+                error => anyhow::anyhow!("{error}"),
             })
-            .unwrap();
-        let next = match direction {
-            LoadMoveDirection::Up if index > 0 => index - 1,
-            LoadMoveDirection::Down if index + 1 < positions.len() => index + 1,
-            _ => bail!(
-                "Load io-index {io_index} is already at the {} priority boundary; nothing was changed.",
-                if index == 0 { "first" } else { "last" }
-            ),
-        };
-        // Native dialog accept copies the reordered row fields by position.
-        // XML serializes that order; ioIdx travels with the name/power/timing settings.
-        self.get_element_mut(&path)
-            .children
-            .swap(positions[index], positions[next]);
-        Ok(())
     }
 }
 
