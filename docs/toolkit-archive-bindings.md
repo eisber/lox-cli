@@ -24,6 +24,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only selected-element description | Optional `configuration::editor::describe_element` (`configuration-editor`); owned typed properties, connectors and child identities with typed `EditError`; existing loader limit `lox-n37w` retained | Existing `config control describe` and cached editor share one Core walk; raw last-value SET/IoData observations, unordered properties and direct connector/child order retained; DTOs, formatting and file I/O remain head-owned | Unsupported | Unsupported |
 | Offline selected SequenceController program text | Published optional `configuration::editor::get_program_text` (`configuration-editor`); direct text in order and typed editor/type failures | Existing `config get-program` and cached editor share the read; file I/O, JSON counts and terminal presentation stay in CLI | Verified at `0adc6a9`: `get_program_text(ProgramTextRequest(bytes=..., selector=...)) -> str`; typed `ProgramTextError` | Verified at `0adc6a9`: `LoxArchive.getProgramText(ProgramTextRequest) -> String`; checked `ProgramTextException`; same Java 22 API in Kotlin |
 | Offline selected Lighting mood inventory | Published optional `configuration::editor::list_moods` (`configuration-editor`) at `1746c9b`; stored rows only | Existing `lox config moods` shares the Core traversal; file I/O, DTO and rendering stay in CLI | Verified at `8b36cb2`: `list_moods(MoodInventoryRequest(bytes=..., selector=...)) -> list[MoodInfo]`; typed `MoodInventoryError` | Verified at `8b36cb2`: `LoxArchive.listMoods(MoodInventoryRequest) -> List<MoodInfo>`; checked `MoodInventoryException`; same Java 22 API in Kotlin |
+| Offline full stored Lighting inspection | Published optional `configuration::editor::inspect_lighting` (`configuration-editor`) at `c9a68a5`; stored controller, channels, moods, collection shape and document versions | CLI formatting, diagnostics and classification stay in CLI | Unqualified source candidate: `inspect_lighting(LightingInspectionRequest(bytes=..., selector=...)) -> LightingInspection`; typed `LightingInspectionError` | Unqualified source candidate: `LoxArchive.inspectLighting(LightingInspectionRequest) -> LightingInspection`; checked `LightingInspectionException`; same Java 22 API in Kotlin |
 | Offline selected standalone CentralLight stored links | Published optional `configuration::editor::inspect_central_light_links` (`configuration-editor`) at `19d1d2b`; ordered stored link records and typed graph refusals | Existing `lox config central-light inspect` shares the Core matcher; file I/O and presentation stay in CLI | Verified at `01cb43b`: `inspect_central_light_links(CentralLightLinksRequest(bytes=..., selector=...)) -> CentralLightLinks`; typed `CentralLightLinksError` | Verified at `01cb43b`: `LoxArchive.inspectCentralLightLinks(CentralLightLinksRequest) -> CentralLightLinks`; checked `CentralLightLinksException`; same Java 22 API in Kotlin |
 | Offline selected principal direct permissions | Published optional `configuration::editor::principal_permissions` (`configuration-editor`); ordered direct entries and typed failures | Existing `lox config user-perms` uses Core; file I/O, diagnostics and presentation stay in CLI | Verified at `06d8238`: `principal_permissions(PrincipalPermissionsRequest(bytes=..., selector=..., kind=...)) -> PrincipalPermissions`; typed `PrincipalPermissionsError` | Verified at `06d8238`: `LoxArchive.principalPermissions(PrincipalPermissionsRequest) -> PrincipalPermissions`; checked `PrincipalPermissionsException`; same Java 22 API in Kotlin |
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Candidate `parse_devices(bytes) -> list[XmlDeviceInfo]` | Candidate `LoxArchive.parseDevices(byte[]) -> List<XmlDeviceInfo>`; same API in Kotlin |
@@ -247,6 +248,39 @@ matching native buffer or requesting GC. A separate marked XML input verified
 that 64 pre-call lone-surrogate rejections per language retained no matching
 input buffer. Empty success is a value check only. This does not qualify other
 platforms or native Loxone Config workflows.
+
+### Offline full stored Lighting inspection
+
+The candidate delegates once to the published `inspect_lighting`, with one
+owned request in wire order XML bytes, UTF-8 selector. Core controls loading,
+legacy selection and the exact `LightController2` type check. The result
+keeps optional controller identity, direct indexed channels, exact downstream
+references (including incomplete references and UUID occurrence counts),
+depth-first moods with the existing `MoodInfo` summary, raw indexed `Qn`
+values in loader order, recursive non-`Co` storage, and document version
+observations. Attribute entries retain Core's key order. The optional sole
+collection index addresses the returned top-level storage list (zero-based);
+membership flags and collection counts come from Core. Attribute strings are
+from the loaded DOM, not original XML bytes (`lox-n37w` remains unchanged).
+
+`Load` carries parser cause text, `NotFound` the selector and sorted unique
+titles, `Ambiguous` the selector and ordered title/type/UUID matches, and
+`NotLightController` the selector and stored type (empty if missing). `Other`
+is a fallback for unexpected Core errors. This is separate from `list_moods`;
+it does not classify editors, interpret colors, derive roles or units, edit
+XML, access files or devices, or validate native Config behavior.
+
+The standalone installed-artifact witness sources under `tests/bindings`
+are unrun. They target only four marked payloads: a full inventory and
+`NotFound`, `Ambiguous`, and `NotLightController`. Each verifies the exact
+expected prefix in a live buffer from this export, reports address liveness
+and matching payload count separately after freeing it, and holds 64 distinct
+host results from the public API without a matching allocation or requested
+GC. A distinct marked request control calibrates the generated converter
+before 64 strict pre-call lone-surrogate rejections per language. The check
+only excludes retained matching inputs; it does not assert that every rejected
+lowering allocated a buffer. Small/empty inventories, `Load`, and absent
+fields are value checks only; `Other` has no specimen.
 
 ### Offline selected standalone CentralLight stored links
 
