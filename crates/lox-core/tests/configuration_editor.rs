@@ -838,3 +838,188 @@ fn control_move_typed_refusals_preserve_branch_error_order_and_room_duplicates()
     assert!(error.source().is_some());
     assert_eq!(xml.as_slice(), saved);
 }
+
+fn status_monitor_fixture() -> String {
+    let rows: String = [5, 3, 0, 7, 9, 1, 6, 2, 8, 4, 10]
+        .into_iter()
+        .map(|index| {
+            let attrs = match index {
+                5 => r#" Na=" A &amp; B " Val="+5e0" Cl="1,2,3" Future="""#.to_owned(),
+                3 => r#" Na="" Val="3""#.to_owned(),
+                0 => r#" Val="0""#.to_owned(),
+                7 => r#" Na="no value""#.to_owned(),
+                10 => r#" Na="Rest""#.to_owned(),
+                _ => format!(r#" Na="Active" Val="{index}""#),
+            };
+            let output = if index == 5 {
+                "05".to_owned()
+            } else {
+                index.to_string()
+            };
+            format!(r#"<State Id="ABCDEF01-0002-0003-{index:016x}" OIdx="{output}"{attrs}/>"#)
+        })
+        .collect();
+    format!(
+        r#"<Loxone><C Type="Place" Title="Workshop" U="place"/>
+        <C Type="StatusMonitor" Title="Status" U="Mon-1"><IoData Pr="place"/>
+        <Co K="AQ1"><State Id="nested-is-ignored"/></Co>{rows}<Other/>
+        </C><C Type="Switch" Title="Other" U="not-monitor"/></Loxone>"#
+    )
+}
+
+#[test]
+fn status_monitor_inspection_retains_raw_records_without_defaults() {
+    use lox_core::configuration::editor::inspect_status_monitor;
+    use std::collections::BTreeMap;
+
+    let xml = status_monitor_fixture();
+    let inspection = inspect_status_monitor(xml.as_bytes(), "uuid:Mon-1").unwrap();
+    assert_eq!(
+        inspect_status_monitor(xml.as_bytes(), "stat [work]").unwrap(),
+        inspection
+    );
+    assert_eq!(
+        (inspection.uuid.as_str(), inspection.title.as_str()),
+        ("Mon-1", "Status")
+    );
+    assert_eq!(inspection.states.len(), 11);
+    let first = &inspection.states[0];
+    assert_eq!(
+        (first.priority, first.output_index, first.configured),
+        (1, 5, true)
+    );
+    assert_eq!(first.id, "ABCDEF01-0002-0003-0000000000000005");
+    assert_eq!(
+        first.attributes,
+        BTreeMap::from([
+            ("Cl".into(), "1,2,3".into()),
+            ("Future".into(), "".into()),
+            ("Id".into(), first.id.clone()),
+            ("Na".into(), " A & B ".into()),
+            ("OIdx".into(), "05".into()),
+            ("Val".into(), "+5e0".into()),
+        ])
+    );
+    let [empty_name, absent_name, absent_value] = &inspection.states[1..4] else {
+        unreachable!();
+    };
+    assert!(!empty_name.configured && !absent_name.configured && !absent_value.configured);
+    assert_eq!(empty_name.attributes["Na"], "");
+    assert!(!absent_name.attributes.contains_key("Na"));
+    assert!(!absent_value.attributes.contains_key("Val"));
+    let rest = &inspection.states[10];
+    assert_eq!(
+        (rest.priority, rest.output_index, rest.configured),
+        (11, 10, false)
+    );
+    assert!(!rest.attributes.contains_key("Val"));
+
+    let unnamed = xml.replace(r#" Title="Status" U="Mon-1""#, "");
+    let unnamed = inspect_status_monitor(unnamed.as_bytes(), "Type:StatusMonitor").unwrap();
+    assert!(unnamed.uuid.is_empty() && unnamed.title.is_empty());
+}
+
+#[test]
+fn status_monitor_inspection_refuses_in_original_order_with_causes() {
+    use lox_core::configuration::editor::{
+        EditError, SelectionError, StatusMonitorInspectionError as Failure, inspect_status_monitor,
+    };
+
+    let error = inspect_status_monitor(b"<Loxone><C></Loxone>", "Missing").unwrap_err();
+    assert!(matches!(&error, Failure::Edit(EditError::Load(_))));
+    assert!(error.source().and_then(|cause| cause.source()).is_some());
+
+    let inherited = br#"<Loxone iObjS=""><C Type="StatusMonitor" Title="Status"/><C Type="statusmonitor" Title="Wrong"/><C Type="Switch" Title="Status"/></Loxone>"#;
+    let error = inspect_status_monitor(inherited, "Missing").unwrap_err();
+    assert!(matches!(
+        &error,
+        Failure::Edit(EditError::Selection(SelectionError::NotFound { selector, .. }))
+            if selector == "Missing"
+    ));
+    assert!(error.source().and_then(|cause| cause.source()).is_some());
+    assert!(matches!(
+        inspect_status_monitor(inherited, "Status"),
+        Err(Failure::Edit(EditError::Selection(
+            SelectionError::Ambiguous { .. }
+        )))
+    ));
+    assert!(matches!(
+        inspect_status_monitor(inherited, "Wrong"),
+        Err(Failure::NotStatusMonitor { selector }) if selector == "Wrong"
+    ));
+    assert!(matches!(
+        inspect_status_monitor(
+            br#"<Loxone><C U="mon" Type="StatusMonitor"/><Other iObjS=""/></Loxone>"#,
+            "uuid:mon"
+        ),
+        Err(Failure::InheritedConfiguration)
+    ));
+}
+
+#[test]
+fn status_monitor_inspection_keeps_strict_state_identity_and_shape() {
+    use lox_core::configuration::editor::{
+        StatusMonitorInspectionError as Failure, inspect_status_monitor,
+    };
+
+    let xml = status_monitor_fixture();
+    let failure = |old: &str, new: &str| {
+        let changed = xml.replacen(old, new, 1);
+        assert_ne!(changed, xml);
+        inspect_status_monitor(changed.as_bytes(), "Status").unwrap_err()
+    };
+    assert!(matches!(
+        failure(r#"<State Id="ABCDEF01"#, r#"<Other Id="ABCDEF01"#),
+        Failure::StateCount { found: 10 }
+    ));
+    assert!(matches!(
+        failure(
+            r#"<State Id="ABCDEF01"#,
+            r#"<s:State xmlns:s="urn:synthetic" Id="ABCDEF01"#
+        ),
+        Failure::NamespacedState
+    ));
+    assert!(matches!(
+        failure(r#" Id="ABCDEF01-0002-0003-0000000000000005""#, ""),
+        Failure::MissingStateId
+    ));
+    assert!(matches!(
+        failure("ABCDEF01-0002-0003-0000000000000003", "abcdef01-0002-0003-0000000000000005"),
+        Failure::DuplicateStateId { id } if id == "abcdef01-0002-0003-0000000000000005"
+    ));
+    for rejected in [
+        "00000000-0000-0000-0000000000000000",
+        "abcdef01-0002-0003-0000-000000000003",
+    ] {
+        assert!(matches!(
+            failure("ABCDEF01-0002-0003-0000000000000003", rejected),
+            Failure::InvalidStateId { id } if id == rejected
+        ));
+    }
+    assert!(matches!(
+        failure(r#" OIdx="3""#, ""),
+        Failure::InvalidOutputIndex
+    ));
+    assert!(matches!(
+        failure(r#"OIdx="3""#, r#"OIdx="5""#),
+        Failure::DuplicateOutputIndex { output_index: 5 }
+    ));
+    assert!(matches!(
+        failure(r#"OIdx="05""#, r#"OIdx="10""#),
+        Failure::RestNotLast
+    ));
+    assert!(matches!(
+        failure(r#"Na="Rest""#, r#"Na="Rest" Val="42""#),
+        Failure::RestHasValue
+    ));
+    for raw in ["NaN".to_owned(), "inf".to_owned(), f64::MAX.to_string()] {
+        assert!(matches!(
+            failure(r#"Val="3""#, &format!(r#"Val="{raw}""#)),
+            Failure::InvalidValue { raw: observed } if observed == raw
+        ));
+    }
+    assert!(matches!(
+        failure(r#"Val="3""#, r#"Val="-0""#),
+        Failure::DuplicateValue { value } if value == 0.0
+    ));
+}

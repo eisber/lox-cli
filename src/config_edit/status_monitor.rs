@@ -1,10 +1,12 @@
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 
 use anyhow::{Result, bail};
+use lox_core::configuration::editor::{
+    MatchedStatusMonitor, StatusMonitorInspectionError, status_monitor_identity_key as identity_key,
+};
 use serde::Serialize;
-use xmltree::Element;
 
-use super::ConfigEditor;
+use super::{ConfigEditor, editor_error};
 
 #[derive(Debug, Clone, Copy)]
 pub enum StatusPriorityDirection {
@@ -38,13 +40,24 @@ pub struct StatusPriorityMove {
 
 impl ConfigEditor {
     pub fn inspect_status_monitor(&self, selector: &str) -> Result<StatusMonitorInspection> {
-        let path = self.status_monitor_path(selector)?;
-        let block = self.get_element(&path);
-        let states = states(block)?;
+        let inspection = self
+            .kernel
+            .status_monitor_inspection_selected(selector)
+            .map_err(status_monitor_error)?;
         Ok(StatusMonitorInspection {
-            uuid: block.attributes.get("U").cloned().unwrap_or_default(),
-            title: block.attributes.get("Title").cloned().unwrap_or_default(),
-            states: states.into_iter().map(|(_, state)| state).collect(),
+            uuid: inspection.uuid,
+            title: inspection.title,
+            states: inspection
+                .states
+                .into_iter()
+                .map(|state| StatusMonitorState {
+                    priority: state.priority,
+                    id: state.id,
+                    output_index: state.output_index,
+                    configured: state.configured,
+                    attributes: state.attributes,
+                })
+                .collect(),
         })
     }
 
@@ -59,9 +72,10 @@ impl ConfigEditor {
                 "Status Monitor state Id must be a nonzero native UUID (8-4-4-16 hexadecimal digits). Use `config status-monitor inspect` to find it; nothing was changed."
             )
         })?;
-        let path = self.status_monitor_path(selector)?;
-        let block = self.get_element(&path);
-        let states = states(block)?;
+        let MatchedStatusMonitor { path, states } = self
+            .kernel
+            .match_status_monitor(selector)
+            .map_err(status_monitor_error)?;
         let index = states
             .iter()
             .position(|(_, state)| identity_key(&state.id).as_ref() == Some(&key))
@@ -98,153 +112,13 @@ impl ConfigEditor {
         }
         Ok(result)
     }
-
-    fn status_monitor_path(&self, selector: &str) -> Result<Vec<usize>> {
-        let path = self.require_one(selector)?;
-        let block = self.get_element(&path);
-        if block.name != "C"
-            || block.attributes.get("Type").map(String::as_str) != Some("StatusMonitor")
-        {
-            bail!(
-                "'{selector}' is not a StatusMonitor. Use `lox config controls FILE --type StatusMonitor` to find one; nothing was changed."
-            );
-        }
-        if has_inheritance(&self.root) {
-            bail!(
-                "Status Monitor priority editing supports standalone configurations only: an iObjS inheritance attribute is present in this file. Native inherited-owner redirection and propagation are not implemented; nothing was changed."
-            );
-        }
-        Ok(path)
-    }
 }
 
-fn has_inheritance(element: &Element) -> bool {
-    element.attributes.contains_key("iObjS")
-        || element
-            .children
-            .iter()
-            .filter_map(|child| child.as_element())
-            .any(has_inheritance)
-}
-
-fn identity_key(raw: &str) -> Option<String> {
-    if raw.len() != 35 {
-        return None;
+fn status_monitor_error(error: StatusMonitorInspectionError) -> anyhow::Error {
+    match error {
+        StatusMonitorInspectionError::Edit(error) => editor_error(error),
+        error => anyhow::anyhow!("{error}"),
     }
-    let mut key = String::with_capacity(32);
-    for (index, byte) in raw.bytes().enumerate() {
-        if [8, 13, 18].contains(&index) {
-            if byte != b'-' {
-                return None;
-            }
-        } else if byte.is_ascii_hexdigit() {
-            key.push(char::from(byte.to_ascii_lowercase()));
-        } else {
-            return None;
-        }
-    }
-    (!key.bytes().all(|byte| byte == b'0')).then_some(key)
-}
-
-fn states(block: &Element) -> Result<Vec<(usize, StatusMonitorState)>> {
-    let positions: Vec<_> = block
-        .children
-        .iter()
-        .enumerate()
-        .filter_map(|(position, child)| {
-            child
-                .as_element()
-                .filter(|child| child.name == "State")
-                .map(|child| (position, child))
-        })
-        .collect();
-    if positions.len() != 11 {
-        bail!(
-            "Unsupported Status Monitor shape: expected exactly eleven direct State records, including Rest; found {}. Nothing was changed.",
-            positions.len()
-        );
-    }
-    let mut identities = HashSet::new();
-    let mut outputs = HashSet::new();
-    let mut values = Vec::new();
-    let mut result = Vec::with_capacity(11);
-    for (ordinal, (position, state)) in positions.into_iter().enumerate() {
-        if state.namespace.is_some() || state.prefix.is_some() {
-            bail!("Namespaced Status Monitor State records are unsupported; nothing was changed.");
-        }
-        let id = state.attributes.get("Id").ok_or_else(|| {
-            anyhow::anyhow!(
-                "Every Status Monitor State must have an explicit Id; nothing was changed."
-            )
-        })?;
-        let key = identity_key(id).ok_or_else(|| {
-            anyhow::anyhow!("Unsupported Status Monitor State Id '{id}': expected a nonzero native UUID (8-4-4-16); nothing was changed.")
-        })?;
-        if !identities.insert(key) {
-            bail!("Duplicate Status Monitor State Id '{id}'; nothing was changed.");
-        }
-        let output_index = state
-            .attributes
-            .get("OIdx")
-            .filter(|raw| !raw.is_empty() && raw.bytes().all(|byte| byte.is_ascii_digit()))
-            .and_then(|raw| raw.parse::<u8>().ok())
-            .filter(|index| *index <= 10)
-            .ok_or_else(|| {
-                anyhow::anyhow!(
-                    "Every Status Monitor State must have an explicit decimal OIdx in 0..10; missing/defaulted associations are unsupported. Nothing was changed."
-                )
-            })?;
-        if !outputs.insert(output_index) {
-            bail!("Duplicate Status Monitor OIdx {output_index}; nothing was changed.");
-        }
-        if (ordinal == 10) != (output_index == 10) {
-            bail!("The Status Monitor Rest state (OIdx=10) must be last; nothing was changed.");
-        }
-        let value = match state.attributes.get("Val") {
-            None => None,
-            Some(raw) => Some(
-                raw.parse::<f64>()
-                    .ok()
-                    .filter(|value| value.is_finite() && *value != f64::MAX)
-                    .ok_or_else(|| {
-                        anyhow::anyhow!(
-                            "Unsupported Status Monitor Val '{raw}': expected a finite decimal, not the native unset sentinel; nothing was changed."
-                        )
-                    })?,
-            ),
-        };
-        if output_index == 10 && value.is_some() {
-            bail!("The Status Monitor Rest state must omit Val; nothing was changed.");
-        }
-        if let Some(value) = value {
-            if values.contains(&value) {
-                bail!(
-                    "Colliding Status Monitor Val '{value}'; resolve duplicate matching values before moving a state. Nothing was changed."
-                );
-            }
-            values.push(value);
-        }
-        let configured = value.is_some()
-            && state
-                .attributes
-                .get("Na")
-                .is_some_and(|name| !name.is_empty());
-        result.push((
-            position,
-            StatusMonitorState {
-                priority: ordinal + 1,
-                id: id.clone(),
-                output_index,
-                configured,
-                attributes: state
-                    .attributes
-                    .iter()
-                    .map(|(key, value)| (key.clone(), value.clone()))
-                    .collect(),
-            },
-        ));
-    }
-    Ok(result)
 }
 
 #[cfg(test)]
@@ -387,5 +261,29 @@ mod tests {
         assert_eq!(view.states[0].id, id(3));
         assert!(!view.states[1].configured);
         assert!(!view.states[1].attributes.contains_key("Val"));
+    }
+
+    #[test]
+    fn status_monitor_cached_adapter_preserves_move_refusal_order_and_text() {
+        let xml = fixture().replace("Type=\"StateV\"", "Type=\"StateV\" iObjS=\"\"");
+        let mut editor = ConfigEditor::load(xml.as_bytes()).unwrap();
+        let before = editor.to_bytes().unwrap();
+        let invalid_id = editor
+            .move_status_monitor_state("Status", "bad-id", StatusPriorityDirection::Up)
+            .unwrap_err();
+        assert_eq!(
+            invalid_id.to_string(),
+            "Status Monitor state Id must be a nonzero native UUID (8-4-4-16 hexadecimal digits). Use `config status-monitor inspect` to find it; nothing was changed."
+        );
+        let inspect_error = editor.inspect_status_monitor("Status").unwrap_err();
+        let move_error = editor
+            .move_status_monitor_state("Status", &id(3), StatusPriorityDirection::Up)
+            .unwrap_err();
+        assert_eq!(
+            inspect_error.to_string(),
+            "Status Monitor priority editing supports standalone configurations only: an iObjS inheritance attribute is present in this file. Native inherited-owner redirection and propagation are not implemented; nothing was changed."
+        );
+        assert_eq!(inspect_error.to_string(), move_error.to_string());
+        assert_eq!(editor.to_bytes().unwrap(), before);
     }
 }
