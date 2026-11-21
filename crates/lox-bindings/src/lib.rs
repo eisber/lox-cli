@@ -1,4 +1,4 @@
-//! Thin native archive, configuration inspection, numeric/text, clock, control and color adapters.
+//! Thin native archive, configuration inspection, numeric/text/weather, clock, control and color adapters.
 //! All behavior lives in lox-core.
 //! Generated code and its native library must come from the same build.
 
@@ -19,6 +19,7 @@ mod numeric_state;
 mod statistics_index;
 mod structure_metadata;
 mod text_state;
+mod weather_state;
 
 uniffi::setup_scaffolding!();
 
