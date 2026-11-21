@@ -43,17 +43,25 @@ pub fn admit_getjwt(
     reply: &AuthReplyText<'_>,
     response: &LoginResponse,
 ) -> Result<JwtGrantValue, JwtGrantEnvelopeError> {
+    admit_matching_getjwt(reply, response, |wire, logical| wire == logical)
+}
+
+pub(super) fn admit_matching_getjwt(
+    reply: &AuthReplyText<'_>,
+    response: &LoginResponse,
+    matches_control: impl FnOnce(&str, &str) -> bool,
+) -> Result<JwtGrantValue, JwtGrantEnvelopeError> {
     use JwtGrantEnvelopeError as Error;
 
-    let value = admit_value(
-        reply,
-        &format!("jdev/sys/getjwt/{}", response.to_lower_hex()),
-    )
-    .map_err(|error| match error {
-        EnvelopeError::InvalidEnvelope => Error::InvalidEnvelope,
-        EnvelopeError::EchoMismatch => Error::EchoMismatch,
-        EnvelopeError::StatusNotAccepted => Error::StatusNotAccepted,
-    })?;
+    let expected = format!("jdev/sys/getjwt/{}", response.to_lower_hex());
+    let value =
+        admit_value(reply, |control| matches_control(control, &expected)).map_err(|error| {
+            match error {
+                EnvelopeError::InvalidEnvelope => Error::InvalidEnvelope,
+                EnvelopeError::EchoMismatch => Error::EchoMismatch,
+                EnvelopeError::StatusNotAccepted => Error::StatusNotAccepted,
+            }
+        })?;
     jwt_grant_value::decode(value).map_err(Error::InvalidGrant)
 }
 

@@ -312,6 +312,8 @@ async fn refuses_redirect_without_contacting_location() {
 
 mod local_wss {
     use super::*;
+    #[cfg(feature = "runtime-websocket-encrypted-loopback")]
+    mod encrypted_loopback;
     use futures_util::{FutureExt, SinkExt, StreamExt};
     use lox_core::message_header::{MessageHeader, MessageType};
     use lox_core::runtime::auth_challenge_envelope::AuthChallengeEnvelopeError;
@@ -496,6 +498,13 @@ mod local_wss {
                     .filter(|_| case.alert.is_none())
                     .map(|&(_, name)| name),
             );
+            #[cfg(feature = "runtime-websocket-encrypted-loopback")]
+            let names = names.chain(
+                encrypted_loopback::CASES
+                    .iter()
+                    .filter(|_| case.alert.is_none())
+                    .map(|&(_, name)| name),
+            );
             for name in names {
                 let passed = format!("{CHILD_PASSED}{name}");
                 assert!(
@@ -545,6 +554,14 @@ mod local_wss {
             for (case, name) in BOUND_RESPONSE_CASES {
                 runtime.block_on(check_bound_response_case(case, &acceptor));
                 println!("{CHILD_PASSED}{name}");
+            }
+            #[cfg(feature = "runtime-websocket-encrypted-loopback")]
+            {
+                let application_key = encrypted_loopback::application_key();
+                for (case, name) in encrypted_loopback::CASES {
+                    runtime.block_on(encrypted_loopback::check(case, &acceptor, &application_key));
+                    println!("{CHILD_PASSED}{name}");
+                }
             }
         }
     }

@@ -13,11 +13,11 @@ pub(super) enum EnvelopeError {
 
 pub(super) fn admit_value<'a>(
     reply: &AuthReplyText<'a>,
-    expected_control: &str,
+    matches_control: impl FnOnce(&str) -> bool,
 ) -> Result<&'a [u8], EnvelopeError> {
     let envelope: Envelope<'_> =
         serde_json::from_slice(reply.as_bytes()).map_err(|_| EnvelopeError::InvalidEnvelope)?;
-    if envelope.0.control != expected_control {
+    if !matches_control(&envelope.0.control) {
         return Err(EnvelopeError::EchoMismatch);
     }
     let status = envelope.0.code.get();
