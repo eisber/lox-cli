@@ -31,7 +31,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Offline MQTT topic catalog | Optional `configuration::mqtt::list_topics` (`configuration-xml`); owned `MqttTopic` / `MqttDirection`, typed `EditError`; known loader limit `lox-n37w` retained | Actual `config mqtt topics` delegates byte input to Core; file I/O, DTO and rendering remain head-owned | Candidate `list_mqtt_topics(bytes) -> list[MqttTopic]` | Candidate `LoxArchive.listMqttTopics(byte[]) -> List<MqttTopic>`; SAME generated Java22 API in Kotlin |
 | Legacy-compatible configuration parameter byte transaction | Optional `configuration::editor::set_param` (`configuration-editor`); explicit stamp, typed outcome/errors, opaque normal API | Existing `config set-param` connector-only transaction; file/output/warnings/dry-run refusal/atomic writer remain head-owned; other editor methods use an opt-in unstable state bridge | Unsupported | Unsupported |
 | Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
-| Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Unsupported | Unsupported |
+| Legacy-compatible connector disconnection byte transaction | Optional `configuration::editor::unwire` (`configuration-editor`); explicit clock, owned typed change/outcome and `UnwireError` wrapping existing editor failures or identifying the missing connector | Existing `config control unwire` and cached editor share one mutation; direct `In`/`Nc` removal and conditional `U` clearing retain legacy second-call behavior; parsing, report-before-save, atomic writer and dry-run policy remain head-owned. `wire` is not migrated | Unqualified source candidate: `unwire(UnwireRequest) -> UnwireOutcome`; typed `UnwireError` | Unqualified source candidate: `LoxArchive.unwire(UnwireRequest) -> UnwireOutcome`; checked `UnwireException`; same Java 22 API in Kotlin |
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
 | Byte-preserving offline three-way merge | Optional `configuration::runtime_overlay::three_way` (`configuration-xml`) | Existing patch/preparation callers unchanged; no deployment claim | Verified at published main `2603542`: `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` | Verified at published main `2603542`: `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused`; SAME Java22 API in Kotlin |
@@ -281,6 +281,55 @@ matching buffer after 64 strict pre-call lone-surrogate rejections. This
 does not observe an allocation during the failing call or transfer earlier
 ProgramText evidence. No installed artifact, other platform, native Config
 workflow or stable binary ABI is qualified here.
+
+### Offline legacy connector disconnection candidate
+
+The candidate delegates once to the published `configuration::editor::unwire`
+from `d2ffd5d`. `UnwireRequest` owns XML `bytes`, a legacy `selector`, an exact
+case-sensitive `connector`, and a caller-supplied `UnwireClock`. Core removes
+direct `In` children and `Nc` from the first matching direct `Co`. It retains
+`U` when references existed; a second call can therefore clear `U`. Results
+own Core's raw output bytes and report the selected title/type/UUID, connector,
+optional original `U` (absent and empty are distinct), removed-reference
+count, and the separate `content_changed`/`document_stamped` flags. There is
+no byte-to-string conversion in the adapter. Core's canonical serialization,
+BOM and EOL behavior, and the quoted-text/digit-name limitation (`lox-n37w`)
+are unchanged. Errors carry no revised XML. There is no `wire`, file I/O,
+deployment, schema validation or repair of other records.
+
+The clock represents the same `DateTime<FixedOffset>` components used by
+Core: signed Unix seconds, unsigned subsecond nanoseconds and signed seconds
+east of UTC (`long`, `int`, `int` in Java). It uses Chrono's checked timestamp
+and offset constructors, not a local clock, timezone lookup or an RFC 3339
+parser that would drop sub-minute offsets. Unrepresentable components
+are a request-construction refusal (`InvalidClock`) before Core is called,
+not part of XML validation. With a valid clock, Core still decides lazily
+whether to stamp: canonical no-ops may normalize raw bytes without stamping,
+and an edited config without a Document is not stamped. Existing `Date` and
+monotonic `DateS` calculation are unchanged.
+
+Typed refusals expose `Load` with the original parser cause text, `NotFound`
+with the selector and sorted/deduplicated titles, `Ambiguous` with the
+selector and ordered identities, and `ConnectorMissing` with the selected
+identity and requested connector. `Serialize` and `InvalidUtf8` retain Core's
+cause text; `Other` is defensive for editor errors outside this transaction.
+
+The **unrun** Windows x64 CPython 3.13 (GIL), Java 22 and same-API Kotlin
+installed harness schedules per-language live/free calibration using this
+export for a marked stamped result and four named payload-bearing
+error shapes. It holds 64 distinct host objects per case while checking for
+no matching native allocation without requesting GC, and verifies that the
+calibrated refusals return no result bytes. Short/no-op results,
+empty or absent fields, empty title suggestions and payload-free
+`InvalidClock` are value checks only. `Serialize`, `InvalidUtf8` and `Other`
+are projected but not triggered by these fixtures.
+
+The single generated record lowers XML before both string fields. Separate
+marked inputs calibrate the actual generated converter per language, then
+check each lone-surrogate field for strict pre-call rejection and no matching
+retained XML input. This does not claim that failing calls allocated a buffer,
+or transfer ProgramText's evidence. No installed qualification, stable binary
+ABI, or native Loxone Config compatibility is established here.
 
 ### Offline selected principal direct permissions
 

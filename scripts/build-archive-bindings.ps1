@@ -94,6 +94,7 @@ Step 'principal-permissions-core-focused' 'cargo' @('test', '-p', 'lox-core', '-
 Step 'program-text-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'program_reader_', '--locked', '--offline')
 Step 'mood-inventory-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'mood_inventory_', '--locked', '--offline')
 Step 'central-light-links-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'central_light_links::', '--locked', '--offline')
+Step 'unwire-core-focused' 'cargo' @('test', '-p', 'lox-core', '--features', 'configuration-editor', '--test', 'configuration_editor', 'unwire_', '--locked', '--offline')
 Step 'rust-focused' 'cargo' @('test', '-p', 'lox-bindings', '--locked', '--offline')
 Step 'generator-build' 'cargo' @('build', '-p', 'lox-bindings', '--bin', 'lox-uniffi-bindgen', '--features', 'bindgen', '--release', '--locked', '--offline')
 # maturin's workspace-target discovery otherwise invokes the root package's features.
@@ -560,6 +561,22 @@ Step 'kotlin-central-light-links-smoke' $Java ($AllocationAccess + @('-cp', "$Ap
     proof = 'Installed inspect_central_light_links nonempty result and nine payload-bearing error cases: same-export native address and prefix live1/free0, 64 distinct held host objects and no matching native buffer per case per language without requested GC. Each language also calibrated its own marked request buffer via the generated converter and found no matching marked native input after 64 actual pre-call UTF-8 rejections. Empty result, payload-free refusals and absent marker identity were checked as values only.'
 } | ConvertTo-Json | Set-Content "$Output\CENTRAL-LIGHT-LINKS-MECHANISM.json" -Encoding utf8
 
+Step 'python-unwire-smoke' $VenvPython @('-I', '-B', 'tests\bindings\unwire_smoke.py', "$Probe.dll")
+Step 'javac-unwire-smoke' $Javac @('--release', '22', '-encoding', 'UTF-8', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\UnwireSmoke.java')
+Step 'java-unwire-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.UnwireSmoke'))
+$UnwireKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-unwire-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\UnwireSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-unwire.args", $UnwireKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-unwire-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-unwire.args")
+Step 'kotlin-unwire-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-unwire-smoke.jar", 'UnwireSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Installed unwire changed bytes and Load/NotFound/Ambiguous/ConnectorMissing: same-export native address and prefix live1/free0, 64 distinct held host objects and no matching native buffer per case per language without requested GC. Each language also calibrated two Unwire-specific marked inputs with the generated converter, then found no matching buffer after 64 actual pre-call UTF-8 rejections of each of selector and connector. Short/no-op results, absent/empty fields, empty suggestions and payload-free InvalidClock were checked as values only. Serialize/InvalidUtf8/Other projections were not observed.'
+} | ConvertTo-Json | Set-Content "$Output\UNWIRE-MECHANISM.json" -Encoding utf8
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -592,6 +609,7 @@ $Artifacts += Get-Item "$Output\program-text-core-focused.log", "$Output\python-
 $Artifacts += Get-Item "$Output\mood-inventory-core-focused.log", "$Output\python-mood-inventory-smoke.log", "$Output\javac-mood-inventory-smoke.log", "$Output\java-mood-inventory-smoke.log", "$Output\kotlinc-mood-inventory-smoke.log", "$Output\kotlin-mood-inventory-smoke.log", "$Output\MOOD-INVENTORY-MECHANISM.json"
 $Artifacts += Get-Item "$Output\principal-permissions-core-focused.log", "$Output\python-principal-permissions-smoke.log", "$Output\javac-principal-permissions-smoke.log", "$Output\java-principal-permissions-smoke.log", "$Output\kotlinc-principal-permissions-smoke.log", "$Output\kotlin-principal-permissions-smoke.log", "$Output\PRINCIPAL-PERMISSIONS-MECHANISM.json"
 $Artifacts += Get-Item "$Output\central-light-links-core-focused.log", "$Output\python-central-light-links-smoke.log", "$Output\javac-central-light-links-smoke.log", "$Output\java-central-light-links-smoke.log", "$Output\kotlinc-central-light-links-smoke.log", "$Output\kotlin-central-light-links-smoke.log", "$Output\CENTRAL-LIGHT-LINKS-MECHANISM.json"
+$Artifacts += Get-Item "$Output\unwire-core-focused.log", "$Output\python-unwire-smoke.log", "$Output\javac-unwire-smoke.log", "$Output\java-unwire-smoke.log", "$Output\kotlinc-unwire-smoke.log", "$Output\kotlin-unwire-smoke.log", "$Output\UNWIRE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"
