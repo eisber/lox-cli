@@ -37,12 +37,14 @@ pub use central_light_links::{
 #[doc(hidden)]
 pub use control_move::ControlMovePlan;
 pub use control_move::{ControlMoveChange, ControlMoveOutcome, ControlMoveSelector, move_control};
+#[doc(hidden)]
+pub use daytimer::daytimer_mode_uuid_key;
 pub use daytimer::{
     DayTimerEntryRemoval, DayTimerRemovalError, DayTimerRemovalOutcome, remove_daytimer_entry,
 };
 #[cfg(feature = "unstable-legacy-cli-editor")]
 #[doc(hidden)]
-pub use daytimer::{SelectedDayTimerEntry, daytimer_integer, daytimer_mode_uuid_key};
+pub use daytimer::{SelectedDayTimerEntry, daytimer_integer};
 pub use description::{
     ChildDescription, ConnectorInfo, ElementDescription, PropertyValue, describe_element,
 };
