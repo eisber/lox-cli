@@ -29,7 +29,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Legacy-compatible raw attribute byte transaction | Optional `configuration::editor::set_attribute` (`configuration-editor`); explicit clock, typed outcome/errors, pre-insertion identity and previous optional value; shared legacy loader/selector/canonical writer | Existing `config xml set-attr` and `config control rename` share one Core mutation; raw names/values retain legacy acceptance without schema validation, reference or permission repair; report-before-save, dry-run refusal and atomic I/O remain head-owned | Unsupported | Unsupported |
 | Candidate control-to-room byte transaction | Optional `configuration::editor::move_control` (`configuration-editor`); explicit clock, typed outcome/errors and shared canonical loader/selector/stamp/serializer | Existing `config control move` and unchanged rich preview share one Core plan/mutator; type/title precedence, room lookup/error order, exclusions, UUID mirrors and direct `IoData.Pr` only; DTOs/formatting/file I/O/atomic save remain head-owned. Whole-command migration credit remains publication-gated | Unsupported | Unsupported |
 | Read-only selected connector wiring catalog | Optional `configuration::wiring::connector_wiring` (`configuration-xml`); owned records and typed direction, shared legacy loader/selector and typed `EditError` | Existing `config control wires` byte producer and cached editor share one loop; raw `U`, direct-child/source-order/duplicate behavior, case-sensitive direction and exact 35-character legacy zero sentinel retained (a conventional 36-character zero UUID is connected); file/DTO/format/error presentation stay head-owned | Unsupported | Unsupported |
-| Byte-preserving runtime overlay and three-way merge | Optional `configuration::runtime_overlay` (`configuration-xml`); `merge_overlays`, `three_way` and the existing `validate_document` precondition share one private byte-span kernel and typed errors | Existing acquisition/patch/preparation producers delegate; file/network/baseline/deployment policy and legacy error presentation stay head-owned; no whole-command count increase or safe-deployment claim | Unsupported | Unsupported |
+| Byte-preserving runtime overlay and three-way merge | Optional `configuration::runtime_overlay` (`configuration-xml`); `merge_overlays`, `three_way` and the existing `validate_document` precondition share one private byte-span kernel and typed errors | Existing acquisition/patch/preparation producers delegate; file/network/baseline/deployment policy and legacy error presentation stay head-owned; no whole-command count increase or safe-deployment claim | Source-only unvalidated `three_way(base: bytes, local: bytes, live: bytes) -> bytes`; `OverlayError.Refused` ordered typed frames; no fragment-application/validation export | Source-only unvalidated `LoxArchive.threeWay(byte[], byte[], byte[]) -> byte[]`; checked `OverlayException.Refused.frames()`; SAME generated Java22 API in Kotlin; no fragment-application/validation export |
 | Strict successful `/sys/custom` FTP listing interpretation | Default `configuration::custom_listing::parse_custom_listing`; sorted raw owned names with duplicates, atomic typed row-index errors, exact legacy whitespace/suffix/type-letter quirks; not backup or fragment-filename validation | Actual `ftp::list_custom_changes` called by `custom_overlay::acquire` delegates inside the same retry closure; exact static-str/String diagnostics and quit/error timing retained; transport failures are not empty listings; no whole-command count increase | Source-only unvalidated candidate `parse_custom_listing(list[str]) -> list[str]`; typed `CustomListingError` | Source-only unvalidated candidate `LoxArchive.parseCustomListing(List<String>) -> List<String>`; checked `CustomListingException`; SAME generated Java22 API in Kotlin |
 | Other XML mutations, semantic validation, deployment, sidecars/trust | No further functional transaction beyond the rows above | Existing CLI behavior unchanged; other legacy editor and trust/deployment behavior remains head-owned | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Candidate `diff_configs(ConfigSummary, ConfigSummary) -> ConfigDiff` | Candidate `LoxArchive.diffConfigs(ConfigSummary, ConfigSummary) -> ConfigDiff`; same Java API in Kotlin |
@@ -491,6 +491,68 @@ Archive calls are stateless and still prove **nothing** about runtime lifecycle.
 The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
+
+## Source-only offline three-way projection
+
+This candidate is **uncompiled and unqualified**. Only `three_way` is exported;
+`merge_overlays` and `validate_document` remain Core-only APIs. All validation,
+semantic comparison, placement and selected-byte preservation stay in Core.
+Inputs and output are owned byte buffers, not strings, XML trees or handles.
+There is no acquisition, I/O, network, schema, sidecar, baseline, permission,
+deployment or safe-push guarantee, and no new whole-command migration credit.
+
+Core chooses raw shell/child spans independently: local equal to base chooses
+live; otherwise live equal to base or local equal to live chooses local.
+The output need not keep local's BOM/line endings when the live shell wins.
+Formatting/attribute order equivalence is not normalization of literal
+attribute newlines. Incompatible edits, deletion/modification, placement and
+final duplicate identities are refused. This private byte-span parser does not
+use the DOM/editor loader, so `lox-n37w` is not a generic limitation here.
+
+`OverlayError.Refused.frames` (Java/Kotlin checked
+`OverlayException.Refused.frames()`) is an owned, ordered outer-to-inner list of
+`OverlayErrorFrame`. It follows actual Core `Error::source()` links between
+overlay domain errors, without recursion in the foreign model or truncation.
+For independent additions of UUID `c` under different parents, the final
+consistency refusal retains exactly:
+
+1. `MERGED_CONSISTENCY` / Java `MergedConsistency`
+2. `DUPLICATE_UUID(id="c")` / Java `DuplicateUuid.id()`
+
+The domain frames cover all current `three_way` error paths:
+`DocumentUtf8`, `Utf8`, `StringUtf8`, `Xml`, `Attribute`, `DuplicateUuid`,
+`MissingControlType`, `UnexpectedClosingTag`, `Dtd`, `OutsideRoot`,
+`IncompleteRoot`, `ShellConflict`, `ControlConflict`, `Placement` and
+`MergedConsistency`. Python data-enum variant names are upper snake case;
+Java uses nested record names as listed. UUID spelling/normalization is Core's,
+not reimplemented in the facade.
+
+The native-source boundary is explicit: `Xml` and `Attribute` retain distinct
+frame types, typed `OverlayXmlContext.DOCUMENT`/`BARE`, and the native cause's
+`Display` text in `source_message` / `sourceMessage()`, never Debug. They do
+not pretend native parser errors are additional overlay-domain frames.
+UTF-8 frames retain byte `valid_up_to`/`validUpTo()` and optional byte
+`error_len`/`errorLen()`; `StringUtf8` also keeps the original invalid bytes.
+Native `usize` values widen to `u64` (Java boxed `Long`) without truncation.
+An absent error length means an incomplete UTF-8 sequence, not zero.
+
+New non-exhaustive Core variants, and existing overlay-application-only
+variants outside this single export's contract, cause the payload-free
+`OverlayError.UnsupportedCoreVariant` /
+`OverlayException.UnsupportedCoreVariant` refusal. They are never flattened
+into XML, arbitrary text, JSON or success. No stable cross-version ABI is
+promised; regenerate all matching native/generated artifacts together.
+
+The prepared builder retains its 128 original named steps and adds six:
+Core runtime-overlay focus, Python smoke, Java compile/smoke and Kotlin
+compile/smoke. Existing `rust-focused` includes the facade tests. All six logs
+and `RUNTIME-OVERLAY-MECHANISM.json` enter the existing artifact manifest.
+The new callers include the two-frame witness, byte ownership and typed native
+boundaries. HeapWalk sources calibrate actual returned success/error RustBuffers
+with the unchanged 128-byte-prefix/minimum-64000 matcher (live1/free0), then
+retain host outputs/errors over 64 calls per branch without requesting GC.
+These are **test sources and future proof steps, not passing execution claims**.
+Compiler, native, package and test validation remain unrun pending admission.
 
 ## Offline color heads
 
