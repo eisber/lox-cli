@@ -598,6 +598,38 @@ Step 'kotlin-lighting-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$Ap
     proof = 'Installed full Lighting projection and NotFound/Ambiguous/NotLightController: exact marked payload and address live/free calibration, 64 held host outcomes per branch and zero matching native payloads per language without requested GC. Each language also calibrated the marked XML request and verified 64 strict pre-call lone-surrogate rejections with no matching retained input. Load, small/empty inventories and absent fields are value checks only.'
 } | ConvertTo-Json | Set-Content "$Output\LIGHTING-INSPECTION-MECHANISM.json" -Encoding utf8
 
+$ControlMoveFixture = "$Output\fixtures\control_move.xml"
+Copy-Item -LiteralPath 'crates\lox-bindings\tests\fixtures\control_move.xml' -Destination $ControlMoveFixture
+Step 'python-control-move-smoke' $VenvPython @('-I', '-B', 'tests\bindings\control_move_smoke.py', "$Probe.dll", $ControlMoveFixture)
+Step 'javac-control-move-smoke' $Javac @('--release', '22', '-encoding', 'UTF-8', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ControlMoveSmoke.java')
+Step 'java-control-move-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'net.eisber.lox.archive.ControlMoveSmoke', $ControlMoveFixture))
+$ControlMoveKotlinJar = "$Output\jvm\kotlin-control-move-smoke.jar"
+$ControlMoveKotlinArgs = "$Output\jvm\kotlin-control-move.args"
+$ControlMoveKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + $ControlMoveKotlinJar.Replace('\', '\\') + '"'),
+    'tests\bindings\ControlMoveSmoke.kt')
+[IO.File]::WriteAllLines($ControlMoveKotlinArgs, $ControlMoveKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-control-move-smoke' $KotlinCompiler @("@$ControlMoveKotlinArgs")
+Step 'kotlin-control-move-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$ControlMoveKotlinJar", 'ControlMoveSmokeKt', $ControlMoveFixture))
+$ControlMoveLogs = @("$Output\python-control-move-smoke.log", "$Output\javac-control-move-smoke.log",
+    "$Output\java-control-move-smoke.log", "$Output\kotlinc-control-move-smoke.log", "$Output\kotlin-control-move-smoke.log")
+$ControlMoveEvidence = @($Wheels[0].FullName, $InstalledDll, "$Output\jvm\native\lox_archive.dll",
+    "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", $ApiJar, "$Probe.dll",
+    $ControlMoveFixture, $ControlMoveKotlinJar, $ControlMoveKotlinArgs) + $ControlMoveLogs
+[ordered]@{
+    completed_utc = [DateTime]::UtcNow.ToString('o')
+    source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
+    artifacts = @($ControlMoveEvidence | ForEach-Object {
+        $file = Get-Item -LiteralPath $_
+        [ordered]@{
+            path = [IO.Path]::GetRelativePath($Output, $file.FullName)
+            bytes = $file.Length; sha256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+    })
+    proof = 'Installed move_control changed result and four marked selector/room errors: exact same-export payload, live address and payload count, independently checked post-free address and count, and 64 held host outcomes with no matching retained native payload per language. Each language also verifies strict pre-call lone-surrogate refusal for type, title, room and a later exclusion item without matching retained input, and exercises its generated constructors. Load, small/no-op results and payload-free errors are value/atomicity checks only; no allocation claim for them.'
+} | ConvertTo-Json -Depth 4 | Set-Content "$Output\CONTROL-MOVE-MECHANISM.json" -Encoding utf8
+
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
@@ -632,6 +664,7 @@ $Artifacts += Get-Item "$Output\principal-permissions-core-focused.log", "$Outpu
 $Artifacts += Get-Item "$Output\central-light-links-core-focused.log", "$Output\python-central-light-links-smoke.log", "$Output\javac-central-light-links-smoke.log", "$Output\java-central-light-links-smoke.log", "$Output\kotlinc-central-light-links-smoke.log", "$Output\kotlin-central-light-links-smoke.log", "$Output\CENTRAL-LIGHT-LINKS-MECHANISM.json"
 $Artifacts += Get-Item "$Output\unwire-core-focused.log", "$Output\python-unwire-smoke.log", "$Output\javac-unwire-smoke.log", "$Output\java-unwire-smoke.log", "$Output\kotlinc-unwire-smoke.log", "$Output\kotlin-unwire-smoke.log", "$Output\UNWIRE-MECHANISM.json"
 $Artifacts += Get-Item "$Output\lighting-inspection-core-focused.log", "$Output\python-lighting-inspection-smoke.log", "$Output\javac-lighting-inspection-smoke.log", "$Output\java-lighting-inspection-smoke.log", "$Output\kotlinc-lighting-inspection-smoke.log", "$Output\kotlin-lighting-inspection-smoke.log", "$Output\LIGHTING-INSPECTION-MECHANISM.json"
+$Artifacts += Get-Item -LiteralPath ($ControlMoveLogs + @("$Output\CONTROL-MOVE-MECHANISM.json"))
 $Artifacts += Get-Item "$Output\python-firmware-metadata-smoke.log", "$Output\java-firmware-metadata-smoke.log", "$Output\kotlin-firmware-metadata-smoke.log", "$Output\FIRMWARE-METADATA-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-backup-catalog-smoke.log", "$Output\java-backup-catalog-smoke.log", "$Output\kotlin-backup-catalog-smoke.log", "$Output\BACKUP-CATALOG-MECHANISM.json"
 $Artifacts += Get-Item "$Output\python-mqtt-catalog-smoke.log", "$Output\java-mqtt-catalog-smoke.log", "$Output\kotlin-mqtt-catalog-smoke.log", "$Output\MQTT-CATALOG-MECHANISM.json"

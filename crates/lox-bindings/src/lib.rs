@@ -14,6 +14,7 @@ mod configuration;
 mod configuration_diff;
 mod control;
 mod control_catalog;
+mod control_move;
 mod custom_listing;
 mod daytimer_state;
 mod firmware_metadata;

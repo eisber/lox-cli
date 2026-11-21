@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ControlList>
+	<C Type="Document" Date="old" DateS="30"/>
+	<C Type="Place" U="Raw-r" Title="Küche 室"/>
+	<C Type="Place" U="annex" Title="Küche 室 Annex"/>
+	<C Type="place" U="wrong-case" Title="Küche 室"/>
+	<C Type="Future" U="a" Title="Lamp Ω" 12hTF="true">
+		<IoData Pr="old" Cr="cat" Future="+003"/>
+		<IoData Pr=""/>
+		<IoData/>
+		<Unknown>
+			<IoData Pr="nested"/>
+		</Unknown>
+		<Co K="AQ" U="wire">
+			<In Input="source" FLG="01"/>
+		</Co>
+	</C>
+	<C Type="Future" U="a" Title="Mirror">
+		<IoData Pr="mirror"/>
+	</C>
+	<C Type="Future" U="dry" Title="Dry">
+		<Unknown>
+			<IoData Pr="dry-nested"/>
+		</Unknown>
+	</C>
+</ControlList>
