@@ -160,6 +160,13 @@ lox config get-params file.Loxone "Kitchen Light"            # show all params
 lox config set-param file.Loxone "Kitchen Light" FadingTime 2.0
 ```
 
+For an offline SequenceController, use `lox config set-program file.Loxone
+"Sequence" --file program.txt --save-as edited.Loxone` to write a separate copy.
+Provide either UTF-8 `--file` input or inline program text, not both. The command
+checks sequence syntax before writing the first direct Configuration field (or
+creating it when absent). It overwrites the input if `--save-as` is omitted.
+`--dry-run` is not supported. The offline edit does not execute the program.
+
 ### Wiring & device binding
 
 ```bash

@@ -214,6 +214,14 @@ mod tests {
             &["config", "init", "repo"],
             &["config", "pull"],
             &["config", "set-param", "input.Loxone", "block", "I1", "1"],
+            &[
+                "config",
+                "set-program",
+                "input.Loxone",
+                "block",
+                "--file",
+                "missing-program.txt",
+            ],
             &["config", "wire", "input.Loxone", "Lamp.AI", "uuid:source"],
             &[
                 "config",

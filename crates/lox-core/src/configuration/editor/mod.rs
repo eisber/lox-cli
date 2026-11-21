@@ -59,6 +59,10 @@ pub use permissions::{
     PrincipalPermissionsError, PrincipalSelectionError, principal_permissions,
 };
 pub use program::{ProgramTextError, get_program_text};
+#[cfg(feature = "configuration-xml")]
+pub use program::{
+    ProgramTextReplacementError, ProgramTextReplacementOutcome, replace_program_text,
+};
 #[cfg(feature = "unstable-legacy-cli-editor")]
 #[doc(hidden)]
 pub use status_monitor::{MatchedStatusMonitor, status_monitor_identity_key};

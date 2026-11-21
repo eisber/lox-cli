@@ -146,6 +146,21 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   The legacy loader limitation (lox-n37w) is unchanged. `wire` remains a
   CLI-only mutation; this does not add endpoint validation or foreign bindings.
 
+- Optional `configuration-xml`: `configuration::editor::replace_program_text(
+  bytes, selector, text, &now)` is a Rust-only storage edit for one existing,
+  unique, ordinary `SequenceController`. Exactly one case-sensitive direct
+  `Field Name="Configuration"` containing nonblank plain text must exist.
+  The edited copy retains the field's attributes and other loaded content;
+  formatting, entity spelling and whitespace-only nodes ignored by the editor
+  may normalize. Changed canonical content stamps its owning Document with the
+  explicit clock; a canonical no-op does not stamp. Typed errors return no bytes.
+  Namespaced or non-UTF-8 documents, ambiguous owners or fields, mixed content,
+  alternate storage, and shared loader rewrites (`lox-n37w`) are not admitted.
+  This does not create or clear a program, validate sequence syntax, or expose a
+  foreign binding. The CLI shares the field writer, but retains its existing
+  syntax validation, field creation and first-field policy, save-time comparison,
+  file handling and dry-run refusal.
+
 - Optional `configuration-xml`: `configuration::mqtt::list_topics(&[u8])`
   returns owned `MqttTopic` records with typed `MqttDirection`. The actual
   `lox config mqtt topics` producer and cached CLI editor share this one walker.

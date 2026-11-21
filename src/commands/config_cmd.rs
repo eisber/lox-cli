@@ -6748,6 +6748,59 @@ mod tests {
     }
 
     #[test]
+    fn test_cmd_set_program_file_preserves_legacy_first_direct_field_and_save_semantics() {
+        let dir = TempDir::new().unwrap();
+        let source = dir.path().join("source.Loxone");
+        let target = dir.path().join("copy.Loxone");
+        let program = dir.path().join("program.txt");
+        let contents = r#"<ControlList><C Type="Document" DateS="2100000000">
+<C Type="Page"><C Type="SequenceController" Title="Sequence" U="seq">
+  <Unknown><Field Name="Configuration">nested</Field></Unknown>
+  <Field Name="configuration">case</Field>
+  <Field Name="Configuration" Keep="yes">old<Nested/><![CDATA[old CDATA]]></Field>
+  <Field Name="Configuration">later</Field>
+</C><C Type="SequenceController" Title="Sequence" U="seq">
+  <Field Name="Configuration">mirror</Field>
+</C></C></C></ControlList>"#;
+        let text = "sequence 1\n// 灯 & <tag>\nreturn";
+        fs::write(&source, contents).unwrap();
+        fs::write(&program, text).unwrap();
+        let set = |file: &std::path::Path, save_as: Option<&std::path::Path>| {
+            cmd_config(
+                &ctx(),
+                ConfigCmd::SetProgram {
+                    file: file.to_str().unwrap().to_owned(),
+                    selector: "uuid:seq".into(),
+                    program: None,
+                    program_file: Some(program.to_str().unwrap().to_owned()),
+                    save_as: save_as.map(|path| path.to_str().unwrap().to_owned()),
+                },
+            )
+            .unwrap();
+        };
+        set(&source, Some(&target));
+        assert_eq!(fs::read_to_string(&source).unwrap(), contents);
+        let copy = fs::read(&target).unwrap();
+        let result = ConfigEditor::load(&copy).unwrap();
+        assert_eq!(result.get_program_text("uuid:seq").unwrap(), text);
+        let copy_text = std::str::from_utf8(&copy).unwrap();
+        for kept in [
+            r#"<Field Name="Configuration">nested</Field>"#,
+            r#"<Field Name="configuration">case</Field>"#,
+            r#"<Field Name="Configuration" Keep="yes">"#,
+            r#"<Field Name="Configuration">later</Field>"#,
+            r#"<Field Name="Configuration">mirror</Field>"#,
+            r#"DateS="2100000001""#,
+        ] {
+            assert!(copy_text.contains(kept), "{kept}");
+        }
+        assert!(!copy_text.contains("<Nested"));
+        assert!(!copy_text.contains("old CDATA"));
+        set(&target, None);
+        assert_eq!(fs::read(&target).unwrap(), copy);
+    }
+
+    #[test]
     fn test_cmd_set_program_invalid_syntax() {
         let dir = TempDir::new().unwrap();
         let path = dir.path().join("seq2.Loxone");
@@ -6761,6 +6814,8 @@ mod tests {
 </ControlList>"#;
         fs::write(&path, xml).unwrap();
         let file = path.to_str().unwrap().to_string();
+        let destination = dir.path().join("existing.Loxone");
+        fs::write(&destination, b"existing output").unwrap();
 
         // Try to set an invalid program
         let result = cmd_config(
@@ -6770,12 +6825,14 @@ mod tests {
                 selector: "BadSeq".to_string(),
                 program: Some("seet AQ1 = 5\nsleep".to_string()),
                 program_file: None,
-                save_as: None,
+                save_as: Some(destination.to_str().unwrap().into()),
             },
         );
-        assert!(result.is_err());
         let err = result.unwrap_err().to_string();
-        assert!(err.contains("syntax error"), "error: {}", err);
+        assert!(err.starts_with("Program has 2 syntax errors:\nline 1:"));
+        assert!(err.contains("\nline 2:"));
+        assert_eq!(fs::read_to_string(&path).unwrap(), xml);
+        assert_eq!(fs::read(&destination).unwrap(), b"existing output");
     }
 
     #[test]
@@ -6786,17 +6843,15 @@ mod tests {
             ConfigCmd::SetProgram {
                 file,
                 selector: "TestAnd".to_string(),
-                program: Some("set AQ1 = 1".to_string()),
+                program: Some("seet AQ1 = 1".to_string()),
                 program_file: None,
                 save_as: None,
             },
         );
-        assert!(result.is_err());
         let err = result.unwrap_err().to_string();
-        assert!(
-            err.contains("only for SequenceController"),
-            "error: {}",
-            err
+        assert_eq!(
+            err,
+            "'TestAnd' is a And — set-program is only for SequenceController blocks"
         );
     }
 
