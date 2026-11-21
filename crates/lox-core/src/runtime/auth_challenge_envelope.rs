@@ -9,23 +9,36 @@ use super::login_challenge::{self, LoginChallenge, LoginChallengeError};
 use serde::de::{self, Deserialize, Deserializer, MapAccess, Visitor};
 use serde_json::value::RawValue;
 use std::fmt;
+#[cfg(feature = "auth-hash")]
+use std::sync::Arc;
 
 /// Expected full `getkey2` command, including an encoded principal.
-pub struct GetKey2Command(String);
+pub struct GetKey2Command {
+    encoded: String,
+    #[cfg(feature = "auth-hash")]
+    principal: Arc<str>,
+}
 
 impl GetKey2Command {
     /// Encode the principal as a single path component without normalizing it.
+    /// With `auth-hash`, also retain the original UTF-8 for response preparation.
     pub fn for_principal(principal: &str) -> Result<Self, AuthPathComponentError> {
-        let principal = AuthPathComponent::encode(principal)?;
-        Ok(Self(format!(
-            "jdev/sys/getkey2/{}",
-            principal.as_encoded_str()
-        )))
+        let component = AuthPathComponent::encode(principal)?;
+        Ok(Self {
+            encoded: format!("jdev/sys/getkey2/{}", component.as_encoded_str()),
+            #[cfg(feature = "auth-hash")]
+            principal: Arc::from(principal),
+        })
     }
 
     /// The exact command text. It may contain private data; do not log it.
     pub fn as_str(&self) -> &str {
-        &self.0
+        &self.encoded
+    }
+
+    #[cfg(feature = "auth-hash")]
+    pub(super) fn clone_principal(&self) -> Arc<str> {
+        Arc::clone(&self.principal)
     }
 }
 

@@ -317,6 +317,8 @@ mod local_wss {
     use lox_core::runtime::auth_challenge_envelope::AuthChallengeEnvelopeError;
     use lox_core::runtime::auth_reply_framing::AuthReplyFramingError;
     use lox_core::runtime::login_challenge::HashAlgorithm;
+    #[cfg(feature = "auth-hash")]
+    use lox_core::runtime::session_websocket::PrepareLoginResponseError;
     use std::{
         env,
         net::{IpAddr, Ipv4Addr},
@@ -423,6 +425,32 @@ mod local_wss {
         ),
     ];
 
+    #[cfg(feature = "auth-hash")]
+    #[derive(Clone, Copy)]
+    enum BoundResponseCase {
+        Close,
+        Drop,
+        AlgorithmMismatch,
+        PreCancelled,
+    }
+
+    #[cfg(feature = "auth-hash")]
+    const BOUND_RESPONSE_CASES: [(BoundResponseCase, &str); 4] = [
+        (
+            BoundResponseCase::Close,
+            "bound-response-raw-principal-no-send-close",
+        ),
+        (BoundResponseCase::Drop, "bound-response-no-send-drop"),
+        (
+            BoundResponseCase::AlgorithmMismatch,
+            "bound-response-algorithm-mismatch-released",
+        ),
+        (
+            BoundResponseCase::PreCancelled,
+            "bound-response-pre-cancelled-released",
+        ),
+    ];
+
     fn fixture_dir() -> PathBuf {
         let fixture = PathBuf::from(
             env::var_os(FIXTURE_DIR).expect("set LOX_WSS_FIXTURE_DIR; see Core README"),
@@ -457,6 +485,13 @@ mod local_wss {
             let stdout = String::from_utf8_lossy(&output.stdout);
             let names = std::iter::once(case.name).chain(
                 GETKEY2_CASES
+                    .iter()
+                    .filter(|_| case.alert.is_none())
+                    .map(|&(_, name)| name),
+            );
+            #[cfg(feature = "auth-hash")]
+            let names = names.chain(
+                BOUND_RESPONSE_CASES
                     .iter()
                     .filter(|_| case.alert.is_none())
                     .map(|&(_, name)| name),
@@ -504,6 +539,11 @@ mod local_wss {
         if case.alert.is_none() {
             for (case, name) in GETKEY2_CASES {
                 runtime.block_on(check_getkey2_case(case, &acceptor));
+                println!("{CHILD_PASSED}{name}");
+            }
+            #[cfg(feature = "auth-hash")]
+            for (case, name) in BOUND_RESPONSE_CASES {
+                runtime.block_on(check_bound_response_case(case, &acceptor));
                 println!("{CHILD_PASSED}{name}");
             }
         }
@@ -701,6 +741,139 @@ mod local_wss {
         })
         .await
         .expect("local WSS getkey2 exchange or socket release exceeded fixture deadline");
+    }
+
+    #[cfg(feature = "auth-hash")]
+    async fn check_bound_response_case(case: BoundResponseCase, acceptor: &TlsAcceptor) {
+        const PRINCIPAL: &str = " Fixture\u{0301}:/%2f ";
+        const COMMAND: &str = "jdev/sys/getkey2/%20Fixture%CC%81%3A%2F%252f%20";
+        const PASSWORD: &str = "synthetic password /:";
+        const KEY: &str = "Aa01Bb23";
+        const SALT: &str = " fixture-only:salt ";
+        // Independent .NET SHA256/HMACSHA256 over the original UTF-8 preimages.
+        const EXPECTED: &str = "0018456961a7d14b6c98c94345ff3f3fe97c9f115004d9d67364cd781bab43b3";
+
+        timeout(FIXTURE_DEADLINE, async {
+            let http = probe_listener();
+            let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let address = listener.local_addr().unwrap();
+            assert_eq!(address.ip(), IpAddr::V4(Ipv4Addr::LOCALHOST));
+            let endpoints = SessionEndpoints::parse(
+                &format!("http://{}/unused", http.local_addr().unwrap()),
+                &format!("wss://{address}{WS_PATH}"),
+                ProxyPolicy::Direct,
+            )
+            .unwrap();
+            let (prepared, wait_for_prepared) = oneshot::channel();
+            let (open, wait_for_open) = oneshot::channel();
+            let expected_error = match case {
+                BoundResponseCase::Close | BoundResponseCase::Drop => None,
+                BoundResponseCase::AlgorithmMismatch => {
+                    Some(PrepareLoginResponseError::AlgorithmMismatch)
+                }
+                BoundResponseCase::PreCancelled => Some(PrepareLoginResponseError::Cancelled),
+            };
+
+            let server = async {
+                let (peer, remote) = listener.accept().await.unwrap();
+                assert_eq!(remote.ip(), address.ip());
+                let tls = acceptor.accept(peer).await.unwrap();
+                let mut ws = accept_hdr_async(tls, CheckUpgradeRequest(address))
+                    .await
+                    .unwrap();
+                assert!(
+                    matches!(ws.next().await, Some(Ok(Message::Text(text))) if text == COMMAND),
+                    "expected one exact getkey2 application request"
+                );
+                let value = format!(r#"{{"key":"{KEY}","salt":"{SALT}","hashAlg":"SHA256"}}"#);
+                let body =
+                    format!(r#"{{"LL":{{"control":"{COMMAND}","code":200,"value":{value}}}}}"#);
+                let header = MessageHeader::new(
+                    MessageType::Text as u8,
+                    0,
+                    0,
+                    body.len().try_into().unwrap(),
+                );
+                ws.send(Message::Binary(header.to_wire_bytes().to_vec()))
+                    .await
+                    .unwrap();
+                ws.send(Message::Text(body)).await.unwrap();
+                // Inspect decrypted bytes after the challenge, even if a new frame were incomplete.
+                let tls = ws.get_mut();
+                let mut byte = [0];
+                if expected_error.is_none() {
+                    wait_for_prepared.await.unwrap();
+                    assert!(
+                        tls.read(&mut byte).now_or_never().is_none(),
+                        "the same connection must still be held without follow-up application bytes"
+                    );
+                    open.send(()).unwrap();
+                }
+                match tls.read(&mut byte).await {
+                    Ok(0) => {}
+                    Err(error)
+                        if matches!(
+                            error.kind(),
+                            ErrorKind::UnexpectedEof
+                                | ErrorKind::ConnectionReset
+                                | ErrorKind::ConnectionAborted
+                        ) => {}
+                    _ => panic!("expected release without follow-up application bytes"),
+                }
+            };
+            let client = async {
+                let cancellation = Cancellation::new();
+                let pending = {
+                    let command = GetKey2Command::for_principal(PRINCIPAL).unwrap();
+                    SessionWebSocket::getkey2(&endpoints, &command, &cancellation)
+                        .await
+                        .unwrap()
+                };
+                if matches!(case, BoundResponseCase::PreCancelled) {
+                    cancellation.cancel();
+                }
+                let permitted = if matches!(case, BoundResponseCase::AlgorithmMismatch) {
+                    HashAlgorithm::Sha1
+                } else {
+                    HashAlgorithm::Sha256
+                };
+                let result = pending.prepare_response(permitted, PASSWORD, &cancellation);
+                let assert_redacted = |text: &str| {
+                    for private in [PRINCIPAL, COMMAND, PASSWORD, KEY, SALT, EXPECTED, WS_PATH] {
+                        assert!(
+                            !text.contains(private),
+                            "unexpected fixture value in diagnostics"
+                        );
+                    }
+                };
+                assert_redacted(&format!("{result:#?}"));
+                if let Some(expected) = expected_error {
+                    let error = result.unwrap_err();
+                    assert_eq!(error, expected);
+                    assert_redacted(&error.to_string());
+                    assert!(std::error::Error::source(&error).is_none());
+                } else {
+                    let response = result.unwrap();
+                    assert!(
+                        response.response().to_lower_hex() == EXPECTED,
+                        "response must use the exact original preimage"
+                    );
+                    assert_redacted(&format!("{:#?}", response.response()));
+                    prepared.send(()).unwrap();
+                    wait_for_open.await.unwrap();
+                    if matches!(case, BoundResponseCase::Close) {
+                        response.close();
+                    } else {
+                        drop(response);
+                    }
+                }
+            };
+            tokio::join!(server, client);
+            assert!(listener.accept().now_or_never().is_none());
+            assert_no_contact(&http);
+        })
+        .await
+        .expect("bound response preparation or socket release exceeded fixture deadline");
     }
 
     fn check_token_eligibility(handle: &SessionWebSocket, endpoints: &SessionEndpoints) {
