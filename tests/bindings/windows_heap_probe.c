@@ -59,3 +59,28 @@ __declspec(dllexport) DWORD lox_test_heap_catalog_error_count(
     }
     return lox_test_heap_count(prefix, sizeof(prefix), sizeof(prefix), count);
 }
+
+/* Statistics errors contain only one big-endian variant tag (NonFiniteValue=14).
+   Match the complete four-byte allocation, not arbitrary larger prefix matches. */
+__declspec(dllexport) DWORD lox_test_heap_statistics_error_count(SIZE_T *count) {
+    HANDLE heap = GetProcessHeap();
+    PROCESS_HEAP_ENTRY entry = {0};
+    DWORD error;
+    *count = 0;
+    if (!HeapLock(heap)) {
+        return GetLastError();
+    }
+    while (HeapWalk(heap, &entry)) {
+        if ((entry.wFlags & PROCESS_HEAP_ENTRY_BUSY) && entry.cbData == 4) {
+            const unsigned char *data = (const unsigned char *)entry.lpData;
+            if (data[0] == 0 && data[1] == 0 && data[2] == 0 && data[3] == 14) {
+                ++*count;
+            }
+        }
+    }
+    error = GetLastError();
+    if (!HeapUnlock(heap)) {
+        return GetLastError();
+    }
+    return error == ERROR_NO_MORE_ITEMS ? ERROR_SUCCESS : error;
+}

@@ -145,6 +145,9 @@ Step 'java-color-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm
 Step 'javac-numeric-state-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\NumericStateSmoke.java', 'tests\bindings\NativeNumericStateProbe.java')
 Step 'python-numeric-state-smoke' $VenvPython @('-I', '-B', 'tests\bindings\numeric_state_smoke.py', "$Probe.dll")
 Step 'java-numeric-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'NumericStateSmoke'))
+Step 'javac-statistics-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\StatisticsSmoke.java', 'tests\bindings\NativeStatisticsProbe.java')
+Step 'python-statistics-smoke' $VenvPython @('-I', '-B', 'tests\bindings\statistics_smoke.py', "$Probe.dll", 'crates\lox-bindings\tests\fixtures\statistics.xml')
+Step 'java-statistics-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'StatisticsSmoke', 'crates\lox-bindings\tests\fixtures\statistics.xml'))
 Step 'java-allocation-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveAllocationSmoke', "$Output\fixtures"))
 Step 'java-config-inspection-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ConfigInspectionSmoke', 'crates\lox-bindings\tests\fixtures\config_inspection.xml'))
 Step 'kotlinc-smoke' $KotlinCompiler @('-jvm-target', '22', '-classpath', $ApiJar, '-include-runtime', '-d', "$Output\jvm\kotlin-smoke.jar", 'tests\bindings\ArchiveSmoke.kt')
@@ -187,6 +190,13 @@ $NumericKotlinArguments = @('-jvm-target', '22', '-classpath',
 [IO.File]::WriteAllLines("$Output\jvm\kotlin-numeric-state.args", $NumericKotlinArguments, [Text.UTF8Encoding]::new($false))
 Step 'kotlinc-numeric-state-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-numeric-state.args")
 Step 'kotlin-numeric-state-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-numeric-state-smoke.jar", 'NumericStateSmokeKt'))
+$StatisticsKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-statistics-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\StatisticsSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-statistics.args", $StatisticsKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-statistics-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-statistics.args")
+Step 'kotlin-statistics-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-statistics-smoke.jar", 'StatisticsSmokeKt', 'crates\lox-bindings\tests\fixtures\statistics.xml'))
 $KotlinArguments = @('-jvm-target', '22', '-classpath',
     ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
     '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-allocation-smoke.jar".Replace('\', '\\') + '"'),
@@ -216,6 +226,7 @@ $Artifacts += Get-Item "$Output\python-xml-controls-smoke.log", "$Output\java-xm
 $Artifacts += Get-Item "$Output\python-catalog-smoke.log", "$Output\java-catalog-smoke.log", "$Output\kotlin-catalog-smoke.log"
 $Artifacts += Get-Item "$Output\python-color-smoke.log", "$Output\java-color-smoke.log", "$Output\kotlin-color-smoke.log"
 $Artifacts += Get-Item "$Output\python-numeric-state-smoke.log", "$Output\java-numeric-state-smoke.log", "$Output\kotlin-numeric-state-smoke.log"
+$Artifacts += Get-Item "$Output\python-statistics-smoke.log", "$Output\java-statistics-smoke.log", "$Output\kotlin-statistics-smoke.log"
 $Manifest = foreach ($file in $Artifacts) {
     [ordered]@{
         path = [IO.Path]::GetRelativePath($Output, $file.FullName)
@@ -227,7 +238,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, payload-only numeric state decoding with exact UUID/IEEE bits, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, framing/diff/editor/auth/control I/O/statistics/text payloads/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, monthly XML statistics with opaque timestamps and owned nested records, payload-only numeric state decoding with exact UUID/IEEE bits, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, framing/diff/editor/auth/control I/O/binary statistics/text payloads/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest

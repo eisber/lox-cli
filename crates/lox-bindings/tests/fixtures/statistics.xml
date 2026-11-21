@@ -1,0 +1,6 @@
+﻿<?xml version="1.0"?><Envelope>
+<Statistics Name="Caf&#xE9; &amp; 気" StatsGroup=" 4294967295 " NumOutputs="3" Outputs=" Energy &amp; power, ,Energy &amp; power,discarded">
+<S T=" arbitrary &amp; timestamp " V3="3" V2=" 2e1 " V="-0"/>
+<S T="earlier" V="1" V2="2" V3="3"/>
+<S T="earlier" V="4" V2="5" V3="6"/>
+</Statistics></Envelope>trailing<Other/>

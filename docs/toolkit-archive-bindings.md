@@ -1,8 +1,8 @@
-# Experimental native archive, configuration inspection, numeric, clock, control and color bindings
+# Experimental native archive, configuration inspection, statistics, numeric, clock, control and color bindings
 
-This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, numeric payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML control/room/summary inspection, monthly statistics XML, LoxApp3 catalog, numeric payload decoding, offline color, HTTP clock and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
-facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, `numeric_state`, `color`, optional `control_catalog` and the optional production
+facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, `numeric_state`, `color`, optional `statistics`, optional `control_catalog` and the optional production
 `runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
@@ -24,7 +24,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only legacy device inventory from raw XML bytes | Optional typed `configuration::devices::parse_devices` (`configuration-xml`); raw attributes and encounter order | Default `config devices` table producer shares Core; `--ports`, JSON, `--summary` and `--room` remain separate DOM/editor paths | Unsupported | Unsupported |
 | XML editing, validation, deployment, sidecars/trust | Not migrated by this slice | Existing CLI behavior unchanged | Unsupported | Unsupported |
 | Structural configuration summary comparison | Optional typed `configuration::diff` (`configuration-xml`); raw identities and room references retained | `config diff` shares parsing and comparison; human/JSON presentation stays in CLI | Unsupported | Unsupported |
-| Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); timestamps remain opaque | `stats get` shares decoding; acquisition, selection, merging and formatting stay in CLI | Unsupported | Unsupported |
+| Monthly statistics XML decoding | Optional `statistics::parse_series` (`statistics-xml`); timestamps remain opaque | `stats get` shares decoding; acquisition, selection, merging and formatting stay in CLI | `parse_statistics_series(str) -> StatSeries` | `LoxArchive.parseStatisticsSeries(String) -> StatSeries`; same Java API in Kotlin |
 | Offline color encoding/decoding and raw mood codecs | Typed `color` encoders and explicit legacy observers; distinct actor/mood representations | `color encode` / `color decode` and raw mood parser share core; unchanged | Candidate `encode_color`, `decode_color_legacy`, `parse_mood_color_legacy`, `observe_actor_color_legacy`, `color_format_number`; only when published | Candidate same generated Java API, also used by Kotlin; only when published |
 | Existing APP / CONFIG WSX authentication hash profiles | Optional `authentication` (`auth-hash`); explicit profiles and redacted new models | Existing token/WSX hash producers share core; transport and version policy stay in CLI | Unsupported | Unsupported |
 | Legacy WSX handshake packet codec | Optional `legacy_wsx` (`legacy-wsx`); typed nonce and complete legacy packet | Existing fast-reload callers share encoding; time, randomness and transport stay in CLI | Unsupported | Unsupported |
@@ -167,6 +167,50 @@ Existing generator checksum/fail-closed correction, archive/clock/control and
 room/summary tests remain required. Qualification is Windows AMD64, Python 3.13
 GIL, JDK 22 and Kotlin 2.4 only; no new MSRV, ABI, platform, registry or native
 Config credit. Historical native UI qualifications remain two; new credit zero.
+
+## Monthly statistics XML heads
+
+`parse_statistics_series(xml)` / `LoxArchive.parseStatisticsSeries(xml)` delegates
+UTF-8 text directly to the published optional Core `statistics::parse_series`.
+It returns an owned `StatSeries` with `name`, optional `group`, `outputs` and
+ordered `rows`. Each `StatRow` contains `timestamp: String` and `values: List<Double>`
+(Python `str` / `list[float]`). Core's row tuples are mapped to these native records,
+not JSON. Core's optional u32 group widens losslessly to u64: Python gets a
+nonnegative integer, Java/Kotlin a nullable `Long` in `0..4294967295`, never a
+negative signed-u32 reinterpretation. Output and row counts are the actual
+collection lengths; there are no narrowed count fields.
+
+Entity-decoded names/labels/timestamps, trimmed/fallback labels, duplicate
+labels/timestamps, row order, finite doubles and negative zero retain Core's
+exact meaning. Timestamp strings remain **opaque**, including whitespace,
+empty strings and non-calendar text. No epoch/timezone, V1/V2, binary statistics,
+transport, selection, merging or new CLI behavior is introduced. XML admission
+remains Core's existing policy, including lazy attribute validation, ignored
+unknown content and accepted rows after a closed header. Zero outputs and no
+rows are valid; empty XML is a missing-header error. There is no new resource cap.
+
+Python raises nested `StatisticsError` variants; Java throws checked
+`StatisticsException` subclasses, also used by Kotlin: `Xml`,
+`MalformedAttribute`, `AttributeValue`, `UnexpectedClosingElement`,
+`TruncatedXml`, `MultipleStatistics`, `MissingStatistics`,
+`RowBeforeStatistics`, `InvalidStatsGroup`, `InvalidNumOutputs`,
+`MissingTimestamp`, `MissingValue`, `InvalidValue`, `NonFiniteValue`.
+The mapping is exhaustive and **payload-free**: no XML, timestamp, attribute
+value, parser source text or partial series crosses through an error. Branch
+on the variant, not generated message spelling. This sanitization does not
+change Core's richer Rust errors or existing CLI diagnostics.
+
+Installed Python and compiled Java/Kotlin consumers check nested values,
+opaque/duplicate timestamps, unsigned groups, empty results, each reachable
+error and a valid decode after every error. Success and small error RustBuffers
+have positive-live, explicit-free and zero-retained calibration plus 64 public
+calls per language without requesting GC. A test-only native heap walk identifies
+the entire four-byte `NonFiniteValue` error allocation, not an address that may
+be reused. This proves serialized-buffer release, not global heap quiescence
+or elimination of Java caller-thread `Arena.ofAuto` fallback.
+Matching wheel/JAR/DLL builds only; qualified target is Windows AMD64,
+CPython 3.13 GIL, JDK 22 and Kotlin 2.4. No registry, other-platform, MSRV,
+stable ABI or new native Config qualification claim.
 
 ## Payload-only numeric state heads
 
@@ -624,7 +668,8 @@ pwsh -NoProfile -File scripts\build-archive-bindings.ps1 `
   -JavaHome 'C:\private-tools\jdk-22.0.2+9' `
   -KotlinCompiler 'C:\private-tools\kotlinc\bin\kotlinc.bat' `
   -Python 'C:\Python313\python.exe' `
-  -OutputDirectory 'target\archive-proof-1'
+  -OutputDirectory 'D:\private-build\archive-proof-1' `
+  -CargoTargetDirectory 'D:\private-build\owned-target'
 ```
 
 Use a **fresh output directory** on each attempt; the script refuses reuse
