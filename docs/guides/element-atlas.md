@@ -280,6 +280,61 @@ Original inventory CLI/UX observations are retained as historical snapshots.
 Current connector metadata is separately digest-pinned repository data, not a
 claim that every associated CLI operation or native behavior works.
 
+## Current grid-power-offset CLI/unit evidence
+
+A separate current CLI execution at source commit
+`4c608d649a941050e3eb03fa50a125b266be6ae3` verifies only
+`offset-grid-power.implementation` and `offset-grid-power.unit_test`.
+The existing typed O implementation was not replaced and no command was added.
+Thirteen isolated local-file CLI operations and four exact named tests cover
+signed/zero persistence, parameter direction, invalid/nonzero-underflow
+rejection, unrelated XML preservation, dry-run nonmutation and parser-wire
+retention. All 50 recorded assertions passed.
+
+The narrower collector/selector procedure was explicitly accepted only because
+all existing O conditions were retained. Neither the monolithic CLI runner nor
+its broad test selector was executed or claimed. Independent semantic review
+reconstructed the logs, fixtures and binary bindings rather than trusting
+the validator's free-text observations: 41 read-only checks, nine semantic
+counterexamples and a strict digest negative. Review SHA-256:
+`6bb916943aa6c783df1b894bdff594ecc04807304def027f6c1ee815ec31dbae`.
+This is cooperative-toolchain evidence, not immutable OS execution attestation.
+
+Use the exact unchanged contract copy and new result as additional arguments
+to the catalog command, with a new output directory:
+
+```powershell
+--contract .reverse-engineering\ux\energy-manager2\offset-current-run-20261108T0057Z\contract.json `
+--results .reverse-engineering\ux\energy-manager2\offset-current-run-20261108T0057Z\results.json `
+--output .reverse-engineering\element-atlas\report-reviewed-offset-current-20261108T0112Z
+```
+
+The contract SHA-256 is
+`74bd4f5931c73a2bfbcfaa15e2b7e16e92cfcce9b9b80fb756748fc8d37c7b29`;
+the result SHA-256 is
+`2166de52b0d3ce68bd440198337efffbef7584f4b7df78f44d271e8982d1f8b3`.
+The contract copy preserves the existing Git-blob bytes. A CRLF Windows checkout
+has a different digest and correctly fails with an older result pinned to the
+LF bytes. Do not normalize the verifier, substitute a digest, or relabel that
+historical execution as current.
+
+The three original contract reports and their 37 capability instances remain
+unchanged. Adding the separate 19-instance CLI snapshot produces **56 declared
+capability instances**, including overlaps: implementation **1/56**, unit test
+**1/56**, GUI oracle **0/56**, complete **0/56**. These are not 56 unique controls
+or an overall completion percentage. Only EnergyManager2's evidence snapshots
+change; all 522 catalog records and 483 native records remain unchanged.
+The new CLI snapshot has two verified observations and **51 missing cases**,
+including both GUI cases; its `complete` gate remains false. Parser evidence
+does not establish simulator runtime, and no new native behavior pass is added.
+
+The packet's `collect.py --verify` rehashes the frozen inputs and replays the
+unchanged verifier without executing CLI/tests or overwriting evidence.
+Fresh execution needs a new owned output, current source/build/fixture and
+contract pins, a new run/record and every required O assertion/test. Preserve
+the original GUI requirements and re-establish native binding evidence for a
+new Config release rather than inheriting this image's verdict.
+
 ## Reviewed evidence outside atlas stages
 
 Later assessments for the pinned 17.2.10.21 executable are retained
