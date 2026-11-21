@@ -51,7 +51,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Unsupported | Unsupported |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
 | LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | `select_loxapp3_controls(bytes, ControlFilter) -> list[Control]` | `LoxArchive.selectLoxapp3Controls(byte[], ControlFilter) -> List<Control>` |
-| Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | Candidate `list_loxapp3_autopilot_rules(bytes) -> list[AutopilotRule]` | Candidate `LoxArchive.listLoxapp3AutopilotRules(byte[]) -> List<AutopilotRule>`; SAME generated Java API in Kotlin |
+| Runtime LoxApp3 autopilot rule catalog and selection | Optional `autopilot_catalog` (`structure-json`); unchanged owned four-field catalog plus borrowed `resolve_rule` / typed `RuleResolutionError`, preserving loose raw UUID or name-substring row matching and caller order | Existing cached `list_autopilot_rules` and `find_autopilot_rule` delegate; acquisition, diagnostics and commands remain head-owned. The selector has no current whole-command caller; no whole-command count increase | `list_loxapp3_autopilot_rules(bytes) -> list[AutopilotRule]`; source-only UNRUN candidate `resolve_autopilot_rule(rules, query) -> AutopilotRule` with typed errors | `LoxArchive.listLoxapp3AutopilotRules(byte[]) -> List<AutopilotRule>`; source-only UNRUN candidate `resolveAutopilotRule(List<AutopilotRule>, String)`; SAME generated Java API in Kotlin |
 | Legacy backup filename / FTP LIST catalog | Default `backup_catalog`; owned raw filename/version/timestamp/size, permissive row omission and stable descending raw timestamp ordering | Existing `list_backups` producer delegates after unchanged FTP acquisition; head DTO/date/output retained; no whole-command count increase | Candidate `parse_backup_name(str, int) -> BackupInfo \| None`, `parse_backup_listing(list[str]) -> list[BackupInfo]` | Candidate `LoxArchive.parseBackupName(String, long) -> BackupInfo` (nullable), `parseBackupListing(List<String>) -> List<BackupInfo>`; SAME generated Java22 API in Kotlin |
 | LoxApp3 metadata snapshot | Optional `structure_metadata` (`structure-json`); typed owned projections | Existing three metadata producers share Core; acquisition/presentation unchanged | Candidate `parse_loxapp3_structure_metadata(bytes) -> StructureMetadata` | Candidate `LoxArchive.parseLoxapp3StructureMetadata(byte[]) -> StructureMetadata`; SAME Java API in Kotlin |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
@@ -285,7 +285,8 @@ Malformed JSON fails atomically through the SAME payload-free
 `CatalogDecodeError.InvalidJson(line, column)` / checked Java
 `CatalogDecodeException.InvalidJson`; Kotlin consumes that Java API.
 These are host-owned values, independent of input storage, not borrowed handles.
-There is no selector, alias/filter API, rule editing, conditions/actions,
+The catalog does not select. The source-only supplied-row selector below does not
+add an alias/filter API, rule editing, conditions/actions,
 state acquisition, authentication/permissions, subscription or Config UI parity.
 
 The focused Python, Java22 and Kotlin consumers exercise actual exports,
@@ -302,6 +303,53 @@ native families plus this one (seventeen total), and the existing Clock lifecycl
 and resource checks. This is one new native family, not broader CLI parity.
 Native Config remains two historical qualifications and zero new qualifications;
 the ten whole-CLI migration count is unchanged. Publication remains review-gated.
+
+### Supplied typed Autopilot rule selector — source-only, UNRUN
+
+`resolve_autopilot_rule(rules, query)` /
+`LoxArchive.resolveAutopilotRule(List<AutopilotRule>, String)` reuses the
+existing four-field `AutopilotRule` record. It converts supplied rows to Core,
+calls `autopilot_catalog::resolve_rule`, and detaches the selected row or error
+candidates. It does not parse another JSON snapshot, call the catalog operation,
+acquire state, or reuse the different control-resolution algorithm.
+
+Core alone chooses the legacy loose UUID branch: a string longer than twenty
+bytes containing at least one hyphen and only ASCII hex digits or hyphens is
+searched as an exact raw,
+case-sensitive UUID; the first identical UUID wins. Other queries match names
+using Rust lowercase substring comparison, with no exact-name preference,
+trimming, alias/room interpretation, Unicode normalization or deduplication.
+An empty name query matches every row. Ambiguity retains all matching rows in
+caller order, including identical IDs and duplicate rows. Every successful row
+and candidate retains all four opaque fields, including NUL and line breaks.
+
+Native `RuleResolutionError.UuidNotFound`, `.NotFound` and `.Ambiguous` map to
+checked Java `RuleResolutionException` variants, also used by Kotlin. All carry
+the exact supplied `query`; `.Ambiguous` additionally owns `candidates`.
+These distinguish all Core variants and preserve their display messages, not
+debug/JSON payloads. Query context is explicit data, not interpolated into the
+display message. Returned values are detached host-owned records, with no new
+native object handle or disposal protocol.
+
+Rust and Python/Java22/Kotlin test **sources only** cover raw first-UUID wins,
+case-sensitive UUID failure, loose hyphen IDs, unranked/duplicate ambiguity,
+empty input/query, Unicode lowercase-only behavior, opaque fields and ownership.
+The existing builder retains its 128 published steps and adds five selector
+steps (133 total, not the pending statistics batch). Its artifact manifest adds
+the three consumer logs and `AUTOPILOT-RULE-MECHANISM.json`. The unchanged C
+HeapWalk primitive is used on the actual export's success, UUID-not-found,
+name-not-found and ambiguous RustBuffers: each future Python, Java and Kotlin
+run must establish live1/free0 calibration and 64 public calls retaining0
+without requesting GC. Large owned name/query strings distinguish all four
+buffer prefixes; helper allocations are not substitutes.
+
+Compilation, generation, tests and these four-branch ownership proofs are
+**UNRUN**. The mechanism timestamp is therefore absent until actual future
+builder execution succeeds. Published native heads remain24 and whole-CLI
+migrations16; this selector has no whole-command caller. Native Config remains
+two historical/zero new. The separate full CLI `clockNoRequest` gate failure is
+unresolved, including its serial failure; this source change neither retries
+nor upgrades that failed gate. No package, publication or parity credit is earned.
 
 ### Read-only LoxApp3 metadata snapshot candidate
 
