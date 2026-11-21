@@ -82,6 +82,17 @@ fn roundtrip(bytes: &[u8]) -> Result<Vec<u8>, ArchiveError> {
   formatting stay with the CLI. This operation does not edit, decode colors,
   infer physical roles, validate native behavior or add foreign bindings.
 
+- Optional `configuration-editor`: `configuration::editor::inspect_energy(bytes,
+  selector)` shares the stored projection used by `lox config energy inspect`.
+  It reads one legacy-selected `EnergyManager2`, retaining direct `O`, `MinSoc`,
+  `MaxSpwr` and `Soc` connectors with `Def`, `Nc` and ordered `In/@Input`, and
+  direct `Load` records with their attributes and immediate element names.
+  Returned strings are from the shared loader, not raw XML bytes (lox-n37w).
+  Malformed and duplicate records remain observations; load, selection and
+  wrong-block refusals are typed. Defaults, diagnostics, inheritance gates
+  and built-in icon enrichment remain CLI-owned. No writes, reset/history
+  operations, native validation, runtime semantics or foreign bindings are added.
+
 - Source candidate, optional `configuration-editor`:
   `configuration::editor::inspect_status_monitor` reads one standalone,
   legacy-selected `C Type="StatusMonitor"` from configuration bytes. It returns

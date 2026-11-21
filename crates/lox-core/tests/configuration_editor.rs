@@ -705,6 +705,91 @@ fn mood_inventory_retains_load_and_selection_causes_before_exact_type_refusal() 
     );
 }
 
+mod energy_inspection {
+    use super::{EditError, SelectionError};
+    use lox_core::configuration::editor::{EnergyInspectionError, inspect_energy};
+
+    const XML: &[u8] = br#"<ControlList>
+  <C Type="Place" U="den" Title="Study"/>
+  <C Type="EnergyManager2" U="e" Title="Solar" gid="energy">
+    <IoData Pr="den"/>
+    <Co K="Soc" Nc="+003"><In Input=""/><In/><In Input="Unresolved"/><Other><In Input="nested"/></Other></Co>
+    <Co K="O" Def="+000.50"/><Co K="O" Def=""/><Co K="MinSoc"/>
+    <Co K="maxspwr" Def="ignored"/>
+    <Load OIdx="+009" Id="duplicate" Na="" ico="future" Future="one &amp; two"><Opaque/><Opaque/></Load>
+    <Other><Load OIdx="nested"/><Co K="MaxSpwr" Def="ignored"/></Other>
+    <Load OIdx="bad" Id="duplicate"/>
+  </C>
+  <C Type="EnergyManager2" U="e" Title="Solar"/>
+  <C Type="And" U="x" Title="Solar"/>
+  <NotC Type="EnergyManager2" U="lookalike" Title="Not a block"/>
+</ControlList>"#;
+
+    #[test]
+    fn retains_raw_connector_and_load_storage_without_defaults_or_repairs() {
+        let inspection = inspect_energy(XML, "sol [study]").unwrap();
+        assert_eq!(inspection, inspect_energy(XML, "gid:ENERGY").unwrap());
+        assert_eq!(inspection, inspect_energy(XML, "uuid:e").unwrap());
+        assert_eq!(inspection.title.as_deref(), Some("Solar"));
+        assert_eq!(inspection.uuid.as_deref(), Some("e"));
+        assert_eq!(
+            inspection
+                .connectors
+                .iter()
+                .map(|co| (co.key.as_str(), co.stored_default.as_deref()))
+                .collect::<Vec<_>>(),
+            [
+                ("Soc", None),
+                ("O", Some("+000.50")),
+                ("O", Some("")),
+                ("MinSoc", None)
+            ]
+        );
+        let soc = &inspection.connectors[0];
+        assert_eq!(soc.stored_connection_count.as_deref(), Some("+003"));
+        assert_eq!(
+            soc.input_references,
+            [Some(String::new()), None, Some("Unresolved".into())]
+        );
+        let [first, second] = inspection.loads.as_slice() else {
+            panic!("expected direct records only");
+        };
+        assert_eq!(first.attributes["Id"], second.attributes["Id"]);
+        assert_eq!(first.attributes["OIdx"], "+009");
+        assert_eq!(second.attributes["OIdx"], "bad");
+        assert_eq!(first.attributes["Na"], "");
+        assert!(!second.attributes.contains_key("Na"));
+        assert_eq!(first.attributes["ico"], "future");
+        assert_eq!(first.attributes["Future"], "one & two");
+        assert_eq!(first.child_elements, ["Opaque", "Opaque"]);
+    }
+
+    #[test]
+    fn distinguishes_loader_selector_and_exact_block_type_refusals() {
+        assert!(matches!(
+            inspect_energy(b"<C A='1' A='2'/>", "uuid:e"),
+            Err(EnergyInspectionError::Edit(EditError::Load(_)))
+        ));
+        assert!(matches!(
+            inspect_energy(XML, "uuid:lookalike"),
+            Err(EnergyInspectionError::Edit(EditError::Selection(
+                SelectionError::NotFound { selector, .. }
+            ))) if selector == "uuid:lookalike"
+        ));
+        assert!(matches!(
+            inspect_energy(XML, "Solar"),
+            Err(EnergyInspectionError::Edit(EditError::Selection(
+                SelectionError::Ambiguous { matches, .. }
+            ))) if matches.len() == 2 && matches[0].uuid == "e" && matches[1].uuid == "x"
+        ));
+        assert!(matches!(
+            inspect_energy(XML, "uuid:x"),
+            Err(EnergyInspectionError::NotEnergyManager { selector, title, block_type, .. })
+                if selector == "uuid:x" && title == "Solar" && block_type == "And"
+        ));
+    }
+}
+
 mod lighting_inspection {
     use super::{EditError, SelectionError};
     use lox_core::configuration::editor::{LightingInspectionError, inspect_lighting, list_moods};

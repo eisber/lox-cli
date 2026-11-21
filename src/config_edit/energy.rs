@@ -3,6 +3,9 @@
 use std::collections::{BTreeMap, HashSet};
 
 use anyhow::Result;
+use lox_core::configuration::editor::{
+    EnergyInspection as StoredEnergyInspection, EnergyInspectionError, StoredEnergyConnector,
+};
 use serde::Serialize;
 use xmltree::{Element, XMLNode};
 
@@ -251,46 +254,48 @@ pub enum EnergyStoragePowerFeedback {
     Unknown(&'static str),
 }
 
-fn energy_connector<'a>(element: &'a Element, key: &str) -> Option<&'a Element> {
-    let mut connectors = element
-        .children
+fn energy_connectors<'a>(
+    storage: &'a StoredEnergyInspection,
+    key: &'a str,
+) -> impl Iterator<Item = &'a StoredEnergyConnector> {
+    storage
+        .connectors
         .iter()
-        .filter_map(XMLNode::as_element)
-        .filter(|co| co.name == "Co" && co.attributes.get("K").map(String::as_str) == Some(key));
+        .filter(move |connector| connector.key == key)
+}
+
+fn energy_connector<'a>(
+    storage: &'a StoredEnergyInspection,
+    key: &'a str,
+) -> Option<&'a StoredEnergyConnector> {
+    let mut connectors = energy_connectors(storage, key);
     let connector = connectors.next()?;
     connectors.next().is_none().then_some(connector)
 }
 
-fn native_connection_count(connector: &Element) -> Option<usize> {
-    let inputs: Vec<_> = connector
-        .children
-        .iter()
-        .filter_map(XMLNode::as_element)
-        .filter(|child| child.name == "In")
-        .collect();
-    let count = match connector.attributes.get("Nc") {
+fn native_connection_count(connector: &StoredEnergyConnector) -> Option<usize> {
+    let count = match &connector.stored_connection_count {
         Some(raw) => usize::try_from(raw.parse::<i32>().ok()?).ok()?,
         None => 0,
     };
     // The native reader uses Nc, not the mere presence of In elements.
-    (count == inputs.len()
-        && inputs.iter().all(|input| {
+    (count == connector.input_references.len()
+        && connector.input_references.iter().all(|input| {
             input
-                .attributes
-                .get("Input")
-                .and_then(|raw| native_identity(raw))
+                .as_deref()
+                .and_then(native_identity)
                 .is_some_and(|id| !id.is_nil())
         }))
     .then_some(count)
 }
 
 fn storage_power_feedback(
-    element: &Element,
+    storage: &StoredEnergyInspection,
     scalars: &[EnergyScalar],
 ) -> EnergyStoragePowerFeedback {
     use EnergyStoragePowerFeedback::{Missing, NotTriggered, Unknown};
 
-    let Some(soc) = energy_connector(element, "Soc") else {
+    let Some(soc) = energy_connector(storage, "Soc") else {
         return Unknown("Soc connector is absent or duplicated; no native connection is guessed.");
     };
     let Some(soc_connections) = native_connection_count(soc) else {
@@ -299,7 +304,7 @@ fn storage_power_feedback(
     if soc_connections == 0 {
         return NotTriggered;
     }
-    let Some(maximum) = energy_connector(element, "MaxSpwr") else {
+    let Some(maximum) = energy_connector(storage, "MaxSpwr") else {
         return Unknown("MaxSpwr connector is absent or duplicated.");
     };
     let Some(maximum_connections) = native_connection_count(maximum) else {
@@ -320,7 +325,7 @@ fn storage_power_feedback(
     if maximum_value > 0.0 {
         return NotTriggered;
     }
-    let Some(minimum) = energy_connector(element, "MinSoc") else {
+    let Some(minimum) = energy_connector(storage, "MinSoc") else {
         return Unknown("MinSoc connector is absent or duplicated.");
     };
     let Some(minimum_connections) = native_connection_count(minimum) else {
@@ -395,35 +400,46 @@ fn load_positions(element: &Element) -> Vec<usize> {
         .collect()
 }
 
-fn shape_diagnostics(element: &Element) -> Vec<Diagnostic> {
-    let positions = load_positions(element);
+struct LoadShape<'a> {
+    id: Option<&'a str>,
+    output_index: Option<&'a str>,
+    used: Option<&'a str>,
+}
+
+impl<'a> LoadShape<'a> {
+    fn read(attribute: impl Fn(&str) -> Option<&'a str>) -> Self {
+        Self {
+            id: attribute("Id"),
+            output_index: attribute("OIdx"),
+            used: attribute("U"),
+        }
+    }
+}
+
+fn shape_diagnostics<'a>(loads: impl ExactSizeIterator<Item = LoadShape<'a>>) -> Vec<Diagnostic> {
+    let count = loads.len();
     let mut diagnostics = Vec::new();
-    if positions.len() != 12 {
+    if count != 12 {
         diagnostics.push(Diagnostic::new(
             "unsupported_load_shape",
             "EnergyManager2/Load",
-            format!("Expected the verified 12 existing direct Load slots, found {}; add/delete/sparse configurations are unverified and will not be repaired.", positions.len()),
+            format!("Expected the verified 12 existing direct Load slots, found {count}; add/delete/sparse configurations are unverified and will not be repaired."),
         ));
     }
     let mut ids = HashSet::new();
     let mut outputs = HashSet::new();
-    for (priority, position) in positions.into_iter().enumerate() {
-        let load = element.children[position].as_element().unwrap();
+    for (priority, load) in loads.enumerate() {
         let path = format!("EnergyManager2/Load[{}]", priority + 1);
-        match load.attributes.get("Id").and_then(|id| native_identity(id)) {
+        match load.id.and_then(native_identity) {
             Some(id) if ids.insert(id) => {}
             Some(_) => diagnostics.push(Diagnostic::new("ambiguous_load_id", &format!("{path}/@Id"), "Duplicate persistent load UUID; select an independently verified configuration.")),
             None => diagnostics.push(Diagnostic::new("invalid_load_id", &format!("{path}/@Id"), "Each existing Load must have a hexadecimal native 8-4-4-16 or RFC 8-4-4-4-12 UUID Id; U is a boolean, not an identity.")),
         }
-        match load.attributes.get("OIdx").and_then(|raw| raw.parse::<i32>().ok()) {
+        match load.output_index.and_then(|raw| raw.parse::<i32>().ok()) {
             Some(output) if (0..12).contains(&output) && outputs.insert(output) => {}
             _ => diagnostics.push(Diagnostic::new("ambiguous_output_association", &format!("{path}/@OIdx"), "Require unique explicit OIdx values 0..11. OIdx is output association, not priority; it will never be renumbered.")),
         }
-        if load
-            .attributes
-            .get("U")
-            .is_some_and(|raw| boolean(raw).is_none())
-        {
+        if load.used.is_some_and(|raw| boolean(raw).is_none()) {
             diagnostics.push(Diagnostic::new(
                 "invalid_used_flag",
                 &format!("{path}/@U"),
@@ -434,33 +450,50 @@ fn shape_diagnostics(element: &Element) -> Vec<Diagnostic> {
     diagnostics
 }
 
+fn energy_inspection_error(error: EnergyInspectionError) -> anyhow::Error {
+    match error {
+        EnergyInspectionError::Edit(error) => super::editor_error(error),
+        EnergyInspectionError::NotEnergyManager {
+            selector,
+            title,
+            block_type,
+            ..
+        } => Diagnostic::new(
+            "wrong_block_type",
+            &selector,
+            format!("Selected '{title}' is type '{block_type}', not EnergyManager2. Use `lox config controls FILE --type EnergyManager2` to find an energy manager."),
+        )
+        .into(),
+        other => other.into(),
+    }
+}
+
 impl ConfigEditor {
     fn energy_path(&self, selector: &str) -> Result<Vec<usize>> {
-        let path = self.require_one(selector)?;
-        let element = self.get_element(&path);
-        if element.name != "C"
-            || element.attributes.get("Type").map(String::as_str) != Some("EnergyManager2")
-        {
-            return Err(Diagnostic::new(
-                "wrong_block_type",
-                selector,
-                format!("Selected '{}' is type '{}', not EnergyManager2. Use `lox config controls FILE --type EnergyManager2` to find an energy manager.", element.attributes.get("Title").map_or("", String::as_str), element.attributes.get("Type").map_or("", String::as_str)),
-            ).into());
-        }
-        Ok(path)
+        self.kernel
+            .select_energy_path(selector)
+            .map_err(energy_inspection_error)
     }
 
     pub fn inspect_energy(&self, selector: &str) -> Result<EnergyInspection> {
-        let path = self.energy_path(selector)?;
+        let storage = self
+            .kernel
+            .inspect_energy_selected(selector)
+            .map_err(energy_inspection_error)?;
         let catalog = BuiltinIconCatalog::embedded()?;
-        Ok(Self::inspect_energy_element(
-            self.get_element(&path),
-            &catalog,
-        ))
+        Ok(Self::inspect_energy_storage(storage, &catalog))
     }
 
-    fn inspect_energy_element(element: &Element, catalog: &BuiltinIconCatalog) -> EnergyInspection {
-        let shape = shape_diagnostics(element);
+    fn inspect_energy_storage(
+        storage: StoredEnergyInspection,
+        catalog: &BuiltinIconCatalog,
+    ) -> EnergyInspection {
+        let shape = shape_diagnostics(
+            storage
+                .loads
+                .iter()
+                .map(|load| LoadShape::read(|key| load.attributes.get(key).map(String::as_str))),
+        );
         let load_edit_supported = shape.is_empty();
         let mut diagnostics = shape;
         let mut scalar_parameters = Vec::new();
@@ -471,16 +504,8 @@ impl ConfigEditor {
         ] {
             let binding = parameter.binding();
             let path = format!("EnergyManager2/Co[K={}]/@Def", binding.key);
-            let connectors: Vec<_> = element
-                .children
-                .iter()
-                .filter_map(XMLNode::as_element)
-                .filter(|co| {
-                    co.name == "Co"
-                        && co.attributes.get("K").map(String::as_str) == Some(binding.key)
-                })
-                .collect();
-            let raw = connectors.first().and_then(|co| co.attributes.get("Def"));
+            let connectors: Vec<_> = energy_connectors(&storage, binding.key).collect();
+            let raw = connectors.first().and_then(|co| co.stored_default.as_ref());
             let mut value = stored(raw, binding.default, &path, &mut diagnostics, |raw| {
                 binding.parse(raw, &path).ok()
             });
@@ -496,7 +521,7 @@ impl ConfigEditor {
                 value,
             });
         }
-        let storage_power_feedback = storage_power_feedback(element, &scalar_parameters);
+        let storage_power_feedback = storage_power_feedback(&storage, &scalar_parameters);
         if storage_power_feedback == EnergyStoragePowerFeedback::Missing {
             diagnostics.push(Diagnostic::new(
                 "missing_storage_power",
@@ -505,8 +530,7 @@ impl ConfigEditor {
             ));
         }
         let mut loads = Vec::new();
-        for (priority, position) in load_positions(element).into_iter().enumerate() {
-            let load = element.children[position].as_element().unwrap();
+        for (priority, load) in storage.loads.into_iter().enumerate() {
             let mut read_bool = |key: &str| {
                 stored(
                     load.attributes.get(key),
@@ -595,23 +619,14 @@ impl ConfigEditor {
                 unused_feedback,
                 icon: load.attributes.get("ico").cloned(),
                 icon_resolution: catalog.resolve(load.attributes.get("ico").map(String::as_str)),
-                attributes: load
-                    .attributes
-                    .iter()
-                    .map(|(key, value)| (key.clone(), value.clone()))
-                    .collect(),
-                child_elements: load
-                    .children
-                    .iter()
-                    .filter_map(XMLNode::as_element)
-                    .map(|child| child.name.clone())
-                    .collect(),
+                attributes: load.attributes,
+                child_elements: load.child_elements,
             });
         }
         EnergyInspection {
             block_type: "EnergyManager2",
-            title: element.attributes.get("Title").cloned().unwrap_or_default(),
-            uuid: element.attributes.get("U").cloned().unwrap_or_default(),
+            title: storage.title.unwrap_or_default(),
+            uuid: storage.uuid.unwrap_or_default(),
             verification: "verified_storage_subset_not_complete_gui_or_runtime_parity",
             scalar_parameters,
             loads,
@@ -671,12 +686,17 @@ impl ConfigEditor {
     fn editable_load(&self, selector: &str, id: &str) -> Result<(Vec<usize>, usize)> {
         let path = self.energy_path(selector)?;
         let element = self.get_element(&path);
-        if let Some(diagnostic) = shape_diagnostics(element).into_iter().next() {
+        let positions = load_positions(element);
+        let loads = positions.iter().map(|&index| {
+            let load = element.children[index].as_element().unwrap();
+            LoadShape::read(|key| load.attributes.get(key).map(String::as_str))
+        });
+        if let Some(diagnostic) = shape_diagnostics(loads).into_iter().next() {
             return Err(diagnostic.into());
         }
         let uuid = native_identity(id.strip_prefix("uuid:").unwrap_or(id))
             .ok_or_else(|| Diagnostic::new("invalid_load_selector", id, "Select a native 8-4-4-16 or RFC 8-4-4-4-12 Load Id from `config energy inspect`, not a priority, name, U flag or malformed dash spelling."))?;
-        let position = load_positions(element).into_iter().find(|&index| {
+        let position = positions.into_iter().find(|&index| {
             element.children[index].as_element().unwrap().attributes.get("Id").and_then(|id| native_identity(id)) == Some(uuid)
         }).ok_or_else(|| Diagnostic::new("load_not_found", id, "No existing Load has that Id; inspect the block. Adding slots is unverified and unsupported."))?;
         Ok((path, position))
