@@ -1670,7 +1670,8 @@ Core owns no worker; an in-progress system DNS lookup can finish inside Tokio
 but cannot continue the dial after the connect future is dropped. The resulting
 opaque handle owns the connection; explicit `close()` or drop releases it without
 sending a Close frame or waiting for the peer. Cancellation is not monitored
-after connect. There is no frame I/O API, auth, reconnect, CLI change or foreign ABI.
+after connect. There is no generic frame I/O API, auth, reconnect, CLI change
+or foreign ABI.
 
 The provisional Rust-only `SessionWebSocket::eligible_token` checks the actual
 Rustls stream on this owned direct `wss` handle, then matches the requested
@@ -1715,7 +1716,33 @@ without reserializing it. The envelope subset is based on pinned
 [rs-loxone reply tests](https://github.com/JoDehli/rs-loxone/blob/2cdafc4f151f68f8814cd784c3a5b4a83cd31a6a/src/auth/reply.rs#L136-L159)
 and [Kotlin authenticator stubs](https://github.com/Smarteon/loxone-client-kotlin/blob/22fc2d9c1ec58065295fde384fb2cab79fa71d31/src/commonTest/kotlin/LoxoneTokenAuthenticatorTest.kt#L150-L161),
 not device qualification. A matching echo alone establishes neither ordering
-nor peer trust, and there is no request send or authentication here.
+nor peer trust, and the parser does not send anything.
+
+### Provisional on-socket getkey2 challenge
+
+`SessionWebSocket::getkey2(&endpoints, &command, &cancellation)` opens a fresh
+direct connection and sends one text message from `GetKey2Command`. It refuses
+plaintext before dialing, even on loopback, and sends only on an upgraded
+Rustls stream from the default verified connector. The encoded command is
+capped at 1 KiB before dialing; the upgrade installs 16 KiB incoming
+WebSocket frame-payload and assembled-message limits before reading the reply.
+The next two WebSocket messages must be the exact binary header and its
+matching text payload; an intervening control or application message fails
+the exchange. The strict envelope and original raw-value checks above apply.
+No third message is read. TLS and WebSocket upgrade/protocol control bytes
+are separate from the single application send.
+
+One ten-second Tokio deadline covers dial, upgrade, send and reply; it does
+not extend the existing connect deadline. Cancellation or dropping the
+future releases any acquired socket, as does a refused reply. On success
+`PendingLoginChallenge` retains the same socket, exposes only a borrowed
+challenge, and releases the socket on close or drop. Cancellation is not
+retained by this handle. The operation never contacts the separate HTTP
+route, retries, downgrades or sends a password, hash or token. It assumes
+only the pinned mock dialect: it does not negotiate or infer versions,
+qualify application-encrypted routes or firmware, or authenticate a session.
+Core redacts its own diagnostics; do not enable wire tracing with private
+principals or challenges.
 
 ### Local WSS fixture
 
@@ -1725,11 +1752,23 @@ against an IPv4 loopback TLS/WebSocket server. The three children always dial
 one uses the same CA but a leaf valid for `127.0.0.2`, and one reuses the first
 leaf with an unrelated root as the only trust anchor. The trusted case checks
 token eligibility and scope refusals with a synthetic token, without sending
-application bytes. The negative cases require distinct client TLS alerts before
-any WebSocket upgrade; all cases observe socket release. The parent checks every
-required file before starting any child. It ignores any inherited case selector,
-sets the intended case and `SSL_CERT_FILE` in each child, and removes
-`SSL_CERT_DIR` and proxy variables there. The real trust store is unchanged.
+application bytes. It then uses fresh verified connections to check a single
+synthetic getkey2 request, same-socket reply, ownership and release on success,
+wrong echo, cancellation or dropping after request receipt, an intervening
+Ping, and both transport size ceilings. Each exchange observes socket
+release without further messages and checks that the HTTP route was not
+contacted. The certificate-negative cases still require distinct client TLS
+alerts before any WebSocket upgrade and observe socket release. The parent
+checks every required file before starting any child. It ignores any inherited
+case selector, sets the intended case and `SSL_CERT_FILE` in each child, and
+removes `SSL_CERT_DIR` and proxy variables there. The real trust store is unchanged.
+
+The regular fixture check needs no certificates and prints named markers
+for plaintext and overlong encoded request refusal before dialing:
+
+```powershell
+cargo test --locked --offline -p lox-core --no-default-features --features runtime-websocket --test session_websocket -- --exact getkey2_refuses_plaintext_and_oversize_encoded_request_before_dial --nocapture
+```
 
 On Windows, run this PowerShell recipe from the repository root with Git for
 Windows OpenSSL and an already provisioned offline Cargo cache. Use a fresh,
@@ -1793,7 +1832,14 @@ try {
     $output = & cargo @wssTest 2>&1 | Out-String
     $output
     if ($LASTEXITCODE -ne 0) { throw 'Local WSS fixture failed' }
-    foreach ($case in 'trusted-loopback', 'wrong-ip', 'untrusted-chain') {
+    $cases = @(
+        'trusted-loopback', 'wrong-ip', 'untrusted-chain',
+        'getkey2-trusted-same-socket', 'getkey2-wrong-echo-released',
+        'getkey2-cancel-after-request-released', 'getkey2-drop-after-request-released',
+        'getkey2-control-in-pair-released', 'getkey2-oversize-frame-released',
+        'getkey2-oversize-message-released'
+    )
+    foreach ($case in $cases) {
         if (!$output.Contains("local WSS child passed: $case")) { throw "Case did not run: $case" }
     }
 
@@ -1817,14 +1863,13 @@ try {
 
 Use the exact public test filter shown above, not a bare `--ignored`. The
 separate `local_wss::strict_direct_wss_child` entry is internal; it fails
-without an explicit known case. With all inputs, expect three named child
-successes and one passing parent test even with the positive selector
-inherited. The second run must fail before any child starts despite that
-selector and intact positive inputs. Remove the disposable fixture directory
-after validation. The fixture changes no production code. Only an actual
-pass on an exact source tree qualifies IPv4 loopback WSS on that platform;
-IPv6 needs a separate fixture. This does not qualify Linux, SDKs,
-authentication or devices.
+without an explicit known case. With all inputs, expect all named case
+markers and one passing parent test even with the positive selector inherited.
+The second run must fail before any child starts despite that selector and
+intact positive inputs. Remove the disposable fixture directory after
+validation. Only an actual pass on an exact source tree qualifies IPv4
+loopback WSS on that platform; IPv6 needs a separate fixture. This does not
+qualify Linux, SDKs, authentication or devices.
 
 ## Optional clock runtime
 

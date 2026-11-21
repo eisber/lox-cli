@@ -19,6 +19,7 @@ serde = { version = "1", default-features = false, optional = true }
 serde_json = { version = "1", optional = true }
 tokio = { version = "1", features = ["rt", "sync", "time", "macros"], optional = true }
 tokio-tungstenite = { version = "0.24", default-features = false, features = ["rustls-tls-native-roots"], optional = true }
+futures-util = { version = "0.3", default-features = false, features = ["sink"], optional = true }
 hmac = { version = "0.12", optional = true }
 sha1 = { version = "0.10", optional = true }
 sha2 = { version = "0.10", optional = true }
@@ -44,7 +45,7 @@ firmware-metadata = ["dep:quick-xml"]
 structure-json = ["dep:serde_json"]
 runtime = ["dep:reqwest", "dep:serde", "dep:serde_json", "dep:tokio"]
 runtime-blocking = ["runtime"]
-runtime-websocket = ["runtime", "dep:tokio-tungstenite", "tokio/net", "serde_json/raw_value"]
+runtime-websocket = ["runtime", "dep:tokio-tungstenite", "dep:futures-util", "tokio/net", "serde_json/raw_value"]
 
 [dev-dependencies]
 httpmock = "0.7"

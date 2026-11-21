@@ -1,10 +1,11 @@
 #![cfg(feature = "runtime-websocket")]
 
 use lox_core::runtime::Cancellation;
+use lox_core::runtime::auth_challenge_envelope::GetKey2Command;
 use lox_core::runtime::session_endpoints::{ProxyPolicy, SessionEndpoints};
 use lox_core::runtime::session_token::{TokenExpiry, TokenSlot, TokenSubject};
 use lox_core::runtime::session_websocket::{
-    SessionWebSocket, SessionWebSocketError, SessionWebSocketTokenError,
+    GetKey2ExchangeError, SessionWebSocket, SessionWebSocketError, SessionWebSocketTokenError,
 };
 use std::io::ErrorKind;
 use std::net::{SocketAddr, TcpListener as ProbeListener};
@@ -183,6 +184,44 @@ async fn refuses_proxy_plaintext_non_loopback_and_sticky_cancellation_without_co
 }
 
 #[tokio::test]
+async fn getkey2_refuses_plaintext_and_oversize_encoded_request_before_dial() {
+    let ws = probe_listener();
+    let http = probe_listener();
+    let address = ws.local_addr().unwrap();
+    let http_address = http.local_addr().unwrap();
+    let endpoints = direct(address, http_address);
+    let cancellation = Cancellation::new();
+    let command = GetKey2Command::for_principal("synthetic loopback account").unwrap();
+    assert_eq!(
+        SessionWebSocket::getkey2(&endpoints, &command, &cancellation)
+            .await
+            .unwrap_err(),
+        GetKey2ExchangeError::VerifiedWssRequired
+    );
+    assert_no_contact(&ws);
+    assert_no_contact(&http);
+    println!("getkey2-plaintext-no-dial");
+
+    let endpoints = SessionEndpoints::parse(
+        &format!("http://{http_address}/unused"),
+        &format!("wss://{address}{WS_PATH}"),
+        ProxyPolicy::Direct,
+    )
+    .unwrap();
+    // The raw principal fits, but its escaped command does not.
+    let command = GetKey2Command::for_principal(&"/".repeat(400)).unwrap();
+    assert_eq!(
+        SessionWebSocket::getkey2(&endpoints, &command, &cancellation)
+            .await
+            .unwrap_err(),
+        GetKey2ExchangeError::RequestTooLarge
+    );
+    assert_no_contact(&ws);
+    assert_no_contact(&http);
+    println!("getkey2-encoded-bound-no-dial");
+}
+
+#[tokio::test]
 async fn cancellation_during_upgrade_releases_the_peer_socket() {
     timeout(FIXTURE_DEADLINE, async {
         let server = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -273,15 +312,30 @@ async fn refuses_redirect_without_contacting_location() {
 
 mod local_wss {
     use super::*;
+    use futures_util::{FutureExt, SinkExt, StreamExt};
+    use lox_core::message_header::{MessageHeader, MessageType};
+    use lox_core::runtime::auth_challenge_envelope::AuthChallengeEnvelopeError;
+    use lox_core::runtime::auth_reply_framing::AuthReplyFramingError;
+    use lox_core::runtime::login_challenge::HashAlgorithm;
     use std::{
         env,
+        net::{IpAddr, Ipv4Addr},
         path::{Path, PathBuf},
         process::Command,
         sync::Arc,
     };
+    use tokio::sync::oneshot;
     use tokio_rustls::TlsAcceptor;
     use tokio_rustls::rustls::pki_types::{CertificateDer, PrivateKeyDer, pem::PemObject};
     use tokio_rustls::rustls::{AlertDescription, Error as TlsError, ServerConfig};
+    use tokio_rustls::server::TlsStream;
+    use tokio_tungstenite::WebSocketStream;
+    use tokio_tungstenite::tungstenite::error::ProtocolError;
+    use tokio_tungstenite::tungstenite::protocol::frame::{
+        Frame,
+        coding::{Data, OpCode},
+    };
+    use tokio_tungstenite::tungstenite::{Error as WebSocketError, Message};
 
     const FIXTURE_DIR: &str = "LOX_WSS_FIXTURE_DIR";
     const CHILD_CASE: &str = "LOX_WSS_FIXTURE_CHILD_CASE";
@@ -333,6 +387,42 @@ mod local_wss {
         },
     ];
 
+    #[derive(Clone, Copy)]
+    enum GetKey2Case {
+        Success,
+        WrongEcho,
+        CancelAfterRequest,
+        DropAfterRequest,
+        ControlInPair,
+        OversizeFrame,
+        OversizeMessage,
+    }
+
+    const GETKEY2_CASES: [(GetKey2Case, &str); 7] = [
+        (GetKey2Case::Success, "getkey2-trusted-same-socket"),
+        (GetKey2Case::WrongEcho, "getkey2-wrong-echo-released"),
+        (
+            GetKey2Case::CancelAfterRequest,
+            "getkey2-cancel-after-request-released",
+        ),
+        (
+            GetKey2Case::DropAfterRequest,
+            "getkey2-drop-after-request-released",
+        ),
+        (
+            GetKey2Case::ControlInPair,
+            "getkey2-control-in-pair-released",
+        ),
+        (
+            GetKey2Case::OversizeFrame,
+            "getkey2-oversize-frame-released",
+        ),
+        (
+            GetKey2Case::OversizeMessage,
+            "getkey2-oversize-message-released",
+        ),
+    ];
+
     fn fixture_dir() -> PathBuf {
         let fixture = PathBuf::from(
             env::var_os(FIXTURE_DIR).expect("set LOX_WSS_FIXTURE_DIR; see Core README"),
@@ -365,15 +455,22 @@ mod local_wss {
             }
             let output = child.output().expect("run isolated WSS fixture child");
             let stdout = String::from_utf8_lossy(&output.stdout);
-            let passed = format!("{CHILD_PASSED}{}", case.name);
-            assert!(
-                output.status.success() && stdout.lines().any(|line| line == passed),
-                "WSS fixture case {} did not report success ({}):\n{stdout}\n{}",
-                case.name,
-                output.status,
-                String::from_utf8_lossy(&output.stderr)
+            let names = std::iter::once(case.name).chain(
+                GETKEY2_CASES
+                    .iter()
+                    .filter(|_| case.alert.is_none())
+                    .map(|&(_, name)| name),
             );
-            eprintln!("{passed}");
+            for name in names {
+                let passed = format!("{CHILD_PASSED}{name}");
+                assert!(
+                    output.status.success() && stdout.lines().any(|line| line == passed),
+                    "WSS fixture case {name} did not report success ({}):\n{stdout}\n{}",
+                    output.status,
+                    String::from_utf8_lossy(&output.stderr)
+                );
+                eprintln!("{passed}");
+            }
         }
     }
 
@@ -397,12 +494,19 @@ mod local_wss {
             .with_no_client_auth()
             .with_single_cert(vec![cert], key)
             .expect("configure fixture TLS server");
-        tokio::runtime::Builder::new_current_thread()
+        let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
-            .unwrap()
-            .block_on(check_case(case, TlsAcceptor::from(Arc::new(config))));
+            .unwrap();
+        let acceptor = TlsAcceptor::from(Arc::new(config));
+        runtime.block_on(check_case(case, acceptor.clone()));
         println!("\n{CHILD_PASSED}{}", case.name);
+        if case.alert.is_none() {
+            for (case, name) in GETKEY2_CASES {
+                runtime.block_on(check_getkey2_case(case, &acceptor));
+                println!("{CHILD_PASSED}{name}");
+            }
+        }
     }
 
     async fn check_case(case: &Case, acceptor: TlsAcceptor) {
@@ -456,6 +560,147 @@ mod local_wss {
         })
         .await
         .expect("local WSS handshake or socket release exceeded fixture deadline");
+    }
+
+    async fn assert_wss_released(ws: &mut WebSocketStream<TlsStream<TcpStream>>) {
+        match ws.next().await {
+            None
+            | Some(Err(WebSocketError::Protocol(ProtocolError::ResetWithoutClosingHandshake))) => {}
+            Some(Err(WebSocketError::Io(error)))
+                if matches!(
+                    error.kind(),
+                    ErrorKind::UnexpectedEof
+                        | ErrorKind::ConnectionReset
+                        | ErrorKind::ConnectionAborted
+                ) => {}
+            result => {
+                panic!("expected release without a follow-up WebSocket message, got {result:?}")
+            }
+        }
+    }
+
+    async fn check_getkey2_case(case: GetKey2Case, acceptor: &TlsAcceptor) {
+        use GetKey2Case::*;
+        use GetKey2ExchangeError as Error;
+
+        const PRINCIPAL: &str = "Fixture / café %";
+        const COMMAND: &str = "jdev/sys/getkey2/Fixture%20%2F%20caf%C3%A9%20%25";
+        const WRONG_ECHO: &str = "jdev/sys/getkey2/another%20fixture";
+        const KEY: &str = "Aa01Bb23";
+        const SALT: &str = "fixture-only salt";
+
+        timeout(FIXTURE_DEADLINE, async {
+            let http = probe_listener();
+            let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let address = listener.local_addr().unwrap();
+            assert_eq!(address.ip(), IpAddr::V4(Ipv4Addr::LOCALHOST));
+            let endpoints = SessionEndpoints::parse(
+                &format!("http://{}/unused", http.local_addr().unwrap()),
+                &format!("wss://{address}{WS_PATH}"),
+                ProxyPolicy::Direct,
+            )
+            .unwrap();
+            let command = GetKey2Command::for_principal(PRINCIPAL).unwrap();
+            let cancellation = Cancellation::new();
+            let (request_received, wait_for_request) = oneshot::channel();
+            let (admitted, wait_for_admission) = oneshot::channel();
+            let (still_open, wait_for_open_check) = oneshot::channel();
+
+            let server = async {
+                    let (peer, remote) = listener.accept().await.unwrap();
+                    assert_eq!(remote.ip(), address.ip());
+                    let tls = acceptor.accept(peer).await.unwrap();
+                    let mut ws = accept_hdr_async(tls, CheckUpgradeRequest(address))
+                        .await
+                        .unwrap();
+                    assert_eq!(ws.next().await.unwrap().unwrap(), Message::Text(COMMAND.into()));
+                    match case {
+                        Success | WrongEcho | ControlInPair => {
+                            let echo = if matches!(case, WrongEcho) { WRONG_ECHO } else { COMMAND };
+                            let body = format!(
+                                r#"{{"LL":{{"control":"{echo}","code":"200","value":{{"key":"{KEY}","salt":"{SALT}","hashAlg":"SHA256"}}}}}}"#
+                            );
+                            let header = MessageHeader::new(
+                                MessageType::Text as u8,
+                                0,
+                                0,
+                                body.len().try_into().unwrap(),
+                            );
+                            ws.send(Message::Binary(header.to_wire_bytes().to_vec())).await.unwrap();
+                            if matches!(case, ControlInPair) {
+                                ws.send(Message::Ping(b"fixture control".to_vec())).await.unwrap();
+                            } else {
+                                ws.send(Message::Text(body)).await.unwrap();
+                            }
+                            if matches!(case, Success) {
+                                wait_for_admission.await.unwrap();
+                                assert!(ws.next().now_or_never().is_none());
+                                still_open.send(()).unwrap();
+                            }
+                        }
+                        CancelAfterRequest => cancellation.cancel(),
+                        DropAfterRequest => request_received.send(()).unwrap(),
+                        OversizeFrame => {
+                            // Unmasked FIN text frame declaring 16 KiB + 1; never send its body.
+                            ws.get_mut().write_all(&[0x81, 126, 0x40, 0x01]).await.unwrap();
+                            ws.get_mut().flush().await.unwrap();
+                        }
+                        OversizeMessage => {
+                            for (opcode, size, last) in [(Data::Text, 8192, false), (Data::Continue, 8193, true)] {
+                                let frame = Frame::message(vec![b'x'; size], OpCode::Data(opcode), last);
+                                ws.send(Message::Frame(frame)).await.unwrap();
+                            }
+                        }
+                    }
+                    assert_wss_released(&mut ws).await;
+            };
+            let client = async {
+                    let exchange = SessionWebSocket::getkey2(&endpoints, &command, &cancellation);
+                    if matches!(case, DropAfterRequest) {
+                        tokio::select! {
+                            _ = wait_for_request => {}
+                            result = exchange => panic!("exchange finished before drop: {result:?}"),
+                        }
+                        return;
+                    }
+                    let result = exchange.await;
+                    let diagnostics = format!("{result:?}");
+                    let expected = match case {
+                        Success => {
+                            let pending = result.unwrap();
+                            let challenge = pending.challenge();
+                            assert_eq!(challenge.key_hex(), KEY);
+                            assert_eq!(challenge.salt(), SALT);
+                            assert_eq!(challenge.algorithm(), HashAlgorithm::Sha256);
+                            assert!(!format!("{challenge:?}").contains(SALT));
+                            for private in [PRINCIPAL, COMMAND, KEY, SALT, WS_PATH] {
+                                assert!(!diagnostics.contains(private));
+                            }
+                            admitted.send(()).unwrap();
+                            wait_for_open_check.await.unwrap();
+                            pending.close();
+                            return;
+                        }
+                        WrongEcho => Error::Envelope(AuthChallengeEnvelopeError::EchoMismatch),
+                        CancelAfterRequest => Error::Cancelled,
+                        ControlInPair => Error::Framing(AuthReplyFramingError::PayloadMessageKind),
+                        OversizeFrame | OversizeMessage => Error::ReplyTooLarge,
+                        DropAfterRequest => unreachable!(),
+                    };
+                    let error = result.unwrap_err();
+                    assert_eq!(error, expected);
+                    assert!(std::error::Error::source(&error).is_none());
+                    for private in [PRINCIPAL, COMMAND, WRONG_ECHO, KEY, SALT, WS_PATH, "127.0.0.1", "fixture control"] {
+                        assert!(!diagnostics.contains(private));
+                        assert!(!error.to_string().contains(private));
+                    }
+            };
+            tokio::join!(server, client);
+            assert!(listener.accept().now_or_never().is_none());
+            assert_no_contact(&http);
+        })
+        .await
+        .expect("local WSS getkey2 exchange or socket release exceeded fixture deadline");
     }
 
     fn check_token_eligibility(handle: &SessionWebSocket, endpoints: &SessionEndpoints) {

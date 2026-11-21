@@ -1973,6 +1973,7 @@ dependencies = [
  "cbc",
  "chrono",
  "crc32fast",
+ "futures-util",
  "hex",
  "hmac",
  "httpmock",
