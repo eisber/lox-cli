@@ -139,6 +139,21 @@ $Probe = "$Output\jvm\test-native\windows_heap_probe"
 $NativeCommand = 'call "' + $VcVars + '" >nul && cl /nologo /W4 /WX /O2 /LD /MT /Fo"' + $Probe + '.obj" /Fe"' + $Probe + '.dll" tests\bindings\windows_heap_probe.c /link /IMPLIB:"' + $Probe + '.lib"'
 Step 'native-heap-probe-build' $env:ComSpec @('/d', '/c', $NativeCommand)
 $AllocationAccess = $NativeAccess + @("-Dlox.archive.heapProbe=$Probe.dll")
+Step 'python-message-header-smoke' $VenvPython @('-I', '-B', 'tests\bindings\message_header_smoke.py', "$Probe.dll")
+Step 'javac-message-header-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\MessageHeaderSmoke.java', 'tests\bindings\NativeMessageHeaderProbe.java')
+Step 'java-message-header-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'MessageHeaderSmoke'))
+$HeaderKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\test-classes".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-message-header-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\MessageHeaderSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-message-header.args", $HeaderKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-message-header-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-message-header.args")
+Step 'kotlin-message-header-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes;$Output\jvm\kotlin-message-header-smoke.jar", 'MessageHeaderSmokeKt'))
+@{
+    actual_all_three_established_utc = [DateTime]::UtcNow.ToString('o')
+    dll_sha256 = (Get-FileHash $InstalledDll -Algorithm SHA256).Hash.ToLowerInvariant()
+    proof = 'Actual exact header success/length/magic RustBuffers live1/free0,64 calls per branch per language retained0 without requested GC; Python and compiledJava22/Kotlin SAME API'
+} | ConvertTo-Json | Set-Content "$Output\MESSAGE-HEADER-MECHANISM.json" -Encoding utf8
 Step 'python-mqtt-catalog-smoke' $VenvPython @('-I', '-B', 'tests\bindings\mqtt_catalog_smoke.py', "$Probe.dll")
 Step 'javac-mqtt-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\MqttCatalogSmoke.java', 'tests\bindings\NativeMqttCatalogProbe.java')
 Step 'java-mqtt-catalog-smoke' $Java ($AllocationAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'MqttCatalogSmoke'))

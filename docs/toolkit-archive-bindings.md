@@ -43,7 +43,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Complete numeric value-state table payload decoding | Default `numeric_state::decode_value_state_payload`; ordered typed records, raw UUID/native35 and exact f64 bits; strict atomic tail rejection | Unsupported; no existing numeric decoder/caller migrated or new command | `decode_value_state_payload(bytes) -> list[NumericState]` | `LoxArchive.decodeValueStatePayload(byte[]) -> List<NumericState>` |
 | Complete runtime Daytimer-State payload observations | Default `daytimer_state::decode_daytimer_state_payload`; shared `StateUuid`, signed entry observations, raw activation word and authoritative IEEE default/entry bits; strict atomic errors | Unsupported; no existing decoder/caller migrated or new command | Unsupported | Unsupported |
 | Complete Weather-State table payload observations | Default `weather_state::decode_weather_state_payload`; raw unsigned update, signed entry fields, exact IEEE bits, ordered states/entries and atomic count/length errors | Unsupported; no existing decoder/caller migrated or new command; HTTP weather layout is distinct | Unsupported | Unsupported |
-| Application binary-message header observation/encoding | Default `message_header`; exact eight-byte header, known-type classification and lossless raw fields, unsigned size and estimated bit; no transport, payload validation or dispatch | Unsupported; new Rust-only primitive, no migrated caller | Unsupported | Unsupported |
+| Application binary-message header observation/encoding | Default `message_header`; exact eight-byte header, known-type classification and lossless raw fields, unsigned size and estimated bit; no transport, payload validation or dispatch | Unsupported; no migrated caller | Candidate `decode_message_header(bytes) -> MessageHeader`, `encode_message_header(u8, u8, u8, u32) -> bytes` | Candidate `LoxArchive.decodeMessageHeader(byte[])`, `encodeMessageHeader(byte, byte, byte, int)`; SAME Java22 API in Kotlin |
 | Complete text-state table payload decoding | Default `text_state::decode_text_state_payload`; state/icon `StateUuid`, byte count and exact UTF-8 text; strict atomic bounds/UTF-8 errors, ignored four-byte-alignment padding | Unsupported; no existing decoder/caller migrated or new command | Candidate `decode_text_state_payload(bytes) -> list[TextState]`; only with matching published artifacts | Candidate `LoxArchive.decodeTextStatePayload(byte[]) -> List<TextState>`; Kotlin uses the same Java API |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
@@ -61,6 +61,28 @@ Kotlin sees `byte[]` as `ByteArray`. The generated Python surface returns
 actual `bytes`, not lists, strings, JSON or a subprocess result. The bridge
 uses owned `Vec<u8>` so both heads copy byte buffers. It deliberately does not
 export borrowed buffers or zero-copy/lifetime obligations in this slice.
+
+### Application message-header candidate
+
+The thin adapter delegates exact-length/magic admission and known-type
+classification to existing Core `message_header`. Unknown raw type, flag and
+reserved bits survive alongside the estimated-size bit, unsigned size and exact
+eight-byte encoding. An estimated size is not a payload length guarantee.
+No framing, transport, dispatch, payload decoding or Config qualification is added.
+
+Python receives owned `MessageHeader` records, `MessageType` enum values and
+typed `MessageHeaderError.InvalidLength` / `.InvalidMagic` exceptions. Java and
+Kotlin use the same generated record/enum and checked `MessageHeaderException`
+variants. Java `byte` / `int` and Kotlin `Byte` / `Int` carry the exact unsigned
+u8/u32 bit patterns; use `Byte.toUnsignedInt`, `Integer.toUnsignedLong` or
+Kotlin `toUByte` / `toUInt` for numeric interpretation. Python ints are nonnegative.
+Records and byte arrays are host-owned, with no native handle to close.
+
+Qualification is restricted to matching Windows AMD64, CPython 3.13 GIL,
+Java22 FFM and Kotlin artifacts; this candidate remains unpublished until actual
+same-DLL native disposal proofs, all existing native-family/Clock sweeps, gates,
+independent review and serialized publication pass. No registry or other-platform
+claim is made.
 
 ### Offline MQTT topic catalog candidate
 

@@ -14,6 +14,7 @@ mod configuration_diff;
 mod control;
 mod control_catalog;
 mod firmware_metadata;
+mod message_header;
 mod mqtt_catalog;
 mod numeric_state;
 mod statistics_index;
