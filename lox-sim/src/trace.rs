@@ -422,6 +422,7 @@ mod tests {
         let fixture_paths = [
             "../../sps_0267_20260416093258.Loxone",
             "../../sps_0267_20260414190409.Loxone",
+            "tests/fixtures/eval.xml",
         ];
 
         let graph = fixture_paths.iter().find_map(|path| {
