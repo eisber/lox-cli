@@ -108,6 +108,12 @@ impl SessionEndpoints {
     pub fn proxy_policy(&self) -> ProxyPolicy {
         self.proxy_policy
     }
+
+    pub(super) fn same_scope(&self, other: &Self) -> bool {
+        self.http_url() == other.http_url()
+            && self.websocket_url() == other.websocket_url()
+            && self.proxy_policy() == other.proxy_policy()
+    }
 }
 
 impl fmt::Debug for SessionEndpoints {

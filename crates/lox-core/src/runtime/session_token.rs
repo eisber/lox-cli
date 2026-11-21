@@ -31,6 +31,11 @@ impl<'a> TokenSubject<'a> {
             principal,
         })
     }
+
+    #[cfg(feature = "runtime-websocket")]
+    pub(super) fn endpoints(&self) -> &SessionEndpoints {
+        self.endpoints
+    }
 }
 
 impl fmt::Debug for TokenSubject<'_> {
@@ -175,9 +180,7 @@ impl TokenSlot {
     }
 
     fn require_subject(&self, subject: &TokenSubject<'_>) -> Result<(), TokenSlotError> {
-        if self.endpoints.http_url() == subject.endpoints.http_url()
-            && self.endpoints.websocket_url() == subject.endpoints.websocket_url()
-            && self.endpoints.proxy_policy() == subject.endpoints.proxy_policy()
+        if self.endpoints.same_scope(subject.endpoints)
             && self.principal.as_str() == subject.principal
         {
             Ok(())
