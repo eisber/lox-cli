@@ -468,3 +468,29 @@ async fn bootstrap_rejects_non_command_routes_without_contacting_the_origin() {
         assert_eq!(result, Err(BootstrapError::WrongRoute));
     }
 }
+
+#[cfg(feature = "runtime-blocking")]
+#[tokio::test(flavor = "current_thread")]
+async fn blocking_bootstrap_uses_its_own_executor_on_a_tokio_caller() {
+    use lox_core::runtime::session_http::{BlockingBootstrapError, bootstrap_preflight_blocking};
+
+    let origin = TcpListener::bind(LOOPBACK).await.unwrap();
+    let address = origin.local_addr().unwrap();
+    let endpoints = SessionEndpoints::parse(
+        &format!("http://{address}/not-bootstrap"),
+        &format!("ws://{address}/unused"),
+        ProxyPolicy::Direct,
+    )
+    .unwrap();
+    assert_eq!(
+        bootstrap_preflight_blocking(endpoints),
+        Err(BlockingBootstrapError::Preflight(
+            BootstrapError::WrongRoute
+        ))
+    );
+    tokio::select! {
+        biased;
+        result = origin.accept() => panic!("a non-command route was contacted: {result:?}"),
+        () = std::future::ready(()) => {}
+    }
+}

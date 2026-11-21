@@ -132,3 +132,58 @@ impl fmt::Debug for SessionHttpClient {
         f.debug_struct("SessionHttpClient").finish_non_exhaustive()
     }
 }
+
+#[cfg(feature = "runtime-blocking")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum BlockingBootstrapError {
+    WorkerStart,
+    ExecutorBuild,
+    WorkerPanicked,
+    Client(SessionHttpError),
+    Preflight(BootstrapError),
+}
+
+#[cfg(feature = "runtime-blocking")]
+impl fmt::Display for BlockingBootstrapError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::WorkerStart => f.write_str("failed to start bootstrap HTTP worker"),
+            Self::ExecutorBuild => f.write_str("failed to build bootstrap HTTP executor"),
+            Self::WorkerPanicked => f.write_str("bootstrap HTTP worker panicked"),
+            Self::Client(error) => fmt::Display::fmt(error, f),
+            Self::Preflight(error) => fmt::Display::fmt(error, f),
+        }
+    }
+}
+
+#[cfg(feature = "runtime-blocking")]
+impl std::error::Error for BlockingBootstrapError {}
+
+/// Runs one preflight on an owned worker and joins it before returning.
+///
+/// The request retains the async carrier's ten-second timeout. There is no
+/// caller cancellation or wall-clock bound on startup and cleanup: dropping
+/// the runtime waits for blocking tasks such as an in-progress system DNS
+/// lookup. Async callers should use the async client or offload this call.
+#[cfg(feature = "runtime-blocking")]
+pub fn bootstrap_preflight_blocking(
+    endpoints: SessionEndpoints,
+) -> Result<BootstrapCapabilities, BlockingBootstrapError> {
+    use BlockingBootstrapError as Error;
+
+    std::thread::Builder::new()
+        .name("lox-bootstrap-preflight".into())
+        .spawn(move || {
+            let runtime = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .map_err(|_| Error::ExecutorBuild)?;
+            runtime.block_on(async move {
+                let client = SessionHttpClient::new(&endpoints).map_err(Error::Client)?;
+                client.bootstrap_preflight().await.map_err(Error::Preflight)
+            })
+        })
+        .map_err(|_| Error::WorkerStart)?
+        .join()
+        .map_err(|_| Error::WorkerPanicked)?
+}
