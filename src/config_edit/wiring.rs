@@ -2,6 +2,7 @@ use super::lighting::LightingMoodCreationPreview;
 use super::schema::Diagnostic;
 use super::{ConfigEditor, MoodInfo, MqttTopic, WireInfo};
 use anyhow::Result;
+use lox_core::configuration::editor::UnwireError;
 use serde::Serialize;
 use std::collections::BTreeMap;
 use xmltree::Element;
@@ -448,46 +449,20 @@ impl ConfigEditor {
         ))
     }
 
-    /// Disconnect a connector (set its target UUID to empty/zero).
+    /// Disconnect using the shared legacy reference/UUID mutation.
     pub fn unwire(&mut self, selector: &str, connector_name: &str) -> Result<String> {
-        let path = self.require_one(selector)?;
-        let elem = self.get_element_mut(&path);
-        let title = elem.attributes.get("Title").cloned().unwrap_or_default();
-
-        let co = elem
-            .children
-            .iter_mut()
-            .find_map(|c| {
-                c.as_mut_element().filter(|e| {
-                    e.name == "Co"
-                        && e.attributes
-                            .get("K")
-                            .map(|k| k == connector_name)
-                            .unwrap_or(false)
-                })
-            })
-            .ok_or_else(|| {
-                anyhow::anyhow!("Connector '{}' not found on '{}'", connector_name, title)
+        let change = self
+            .kernel
+            .unwire_connector(selector, connector_name)
+            .map_err(|error| match error {
+                UnwireError::Edit(error) => super::editor_error(error),
+                error @ UnwireError::ConnectorMissing { .. } => anyhow::anyhow!("{error}"),
             })?;
-
-        let old = co.attributes.get("U").cloned().unwrap_or_default();
-        // Remove all <In> children (the wiring references)
-        let had_in_children = co
-            .children
-            .iter()
-            .any(|c| c.as_element().map(|e| e.name == "In").unwrap_or(false));
-        co.children
-            .retain(|c| !c.as_element().map(|e| e.name == "In").unwrap_or(false));
-        // Remove Nc attribute (connection count)
-        co.attributes.shift_remove("Nc");
-        // If no <In> children were present, the wiring was via Co U= attribute — clear it
-        if !had_in_children {
-            co.attributes.shift_remove("U");
-        }
-
         Ok(format!(
             "Unwired {}.{} (was {})",
-            title, connector_name, old
+            change.element.title,
+            change.connector,
+            change.previous_uuid.as_deref().unwrap_or_default()
         ))
     }
 

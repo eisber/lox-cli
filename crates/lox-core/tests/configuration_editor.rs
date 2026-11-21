@@ -90,6 +90,92 @@ fn now() -> DateTime<FixedOffset> {
 }
 
 #[test]
+fn unwire_removes_direct_references_only_and_retains_identity_then_legacy_uuid_wiring() {
+    use lox_core::configuration::editor::unwire;
+    let input = br#"<C Type="Document" DateS="561020133"><C Type="Future" U="a" Title="Gate.dot" Nio="9" WF="18432"><Co K="I1" U="raw35-not-a-validated-uuid" Nc="2" Other="keep"><In Input="same" FLG="2"/><In Input="same"/><Future><In Input="nested"/></Future></Co><Co K="I1" U="duplicate"/><Co K="Q" U="other"/></C><C U="a" Title="mirror"><Co K="I1" U="mirror"/></C></C>"#;
+    let first = unwire(input, "uuid:a", "I1", &now()).unwrap();
+    assert_eq!(first.change.removed_references, 2);
+    assert_eq!(
+        first.change.previous_uuid.as_deref(),
+        Some("raw35-not-a-validated-uuid")
+    );
+    let text = String::from_utf8(first.bytes.clone()).unwrap();
+    assert!(text.contains("U=\"raw35-not-a-validated-uuid\" Other=\"keep\""));
+    assert!(text.contains("<In Input=\"nested\"/>"));
+    assert!(text.contains("<Co K=\"I1\" U=\"duplicate\"/>"));
+    assert!(text.contains("<Co K=\"Q\" U=\"other\"/>"));
+    assert!(text.contains("<Co K=\"I1\" U=\"mirror\"/>"));
+    assert!(text.contains("Nio=\"9\" WF=\"18432\""));
+    assert!(text.contains("DateS=\"561020134\""));
+    assert!(!text.contains("Nc="));
+    let second = unwire(&first.bytes, "uuid:a", "I1", &now()).unwrap();
+    assert!(second.content_changed);
+    assert_eq!(second.change.removed_references, 0);
+    let third = unwire(&second.bytes, "uuid:a", "I1", &now()).unwrap();
+    assert!(!third.content_changed);
+    assert!(!third.document_stamped);
+    assert_eq!(third.bytes, second.bytes);
+}
+
+#[test]
+fn unwire_normalization_noop_and_explicit_clock_preserve_bom_eol_and_attribute_lf() {
+    use lox_core::configuration::editor::unwire;
+    for ending in ["\n", "\r\n"] {
+        for bom in ["", "\u{feff}"] {
+            let input = format!(
+                "{bom}<?xml version=\"1.0\" encoding=\"utf-8\"?>{ending}<C Type=\"Document\" DateS=\"561020133\" Note=\"first\nsecond\" 12hTF=\"true\"><C Title=\"Gate\" U=\"a\"><Co K=\"Q\" Nc=\"0\"/></C></C>{ending}"
+            );
+            let first = unwire(input.as_bytes(), "Gate", "Q", &now()).unwrap();
+            assert!(first.content_changed && first.document_stamped);
+            assert_eq!(first.change.previous_uuid, None);
+            let text = std::str::from_utf8(&first.bytes).unwrap();
+            assert_eq!(text.starts_with('\u{feff}'), !bom.is_empty());
+            assert!(text.contains(&format!("?>{ending}")));
+            assert!(text.contains("Note=\"first\nsecond\" 12hTF=\"true\""));
+            let noop = unwire(&first.bytes, "Gate", "Q", &(now() + Duration::days(1))).unwrap();
+            assert!(!noop.content_changed && !noop.document_stamped);
+            assert_eq!(noop.bytes, first.bytes);
+        }
+    }
+}
+
+#[test]
+fn unwire_selection_and_connector_refusals_are_typed_and_atomic() {
+    use lox_core::configuration::editor::{UnwireError, unwire};
+    let input = br#"<Root><C Type="Place" U="r" Title="Kitchen"/><C U="a" Title="Gate"><Co K="I1" U="wire"/><IoData Pr="r"/></C><C U="b" Title="Gate"><Co K="I1"/></C></Root>"#;
+    let before = input.to_vec();
+    assert_eq!(
+        unwire(input, "gate [KITCHEN]", "I1", &now())
+            .unwrap()
+            .change
+            .element
+            .uuid,
+        "a"
+    );
+    assert!(matches!(
+        unwire(input, "Gate", "missing", &now()),
+        Err(UnwireError::Edit(EditError::Selection(
+            SelectionError::Ambiguous { .. }
+        )))
+    ));
+    assert!(matches!(
+        unwire(input, "absent", "missing", &now()),
+        Err(UnwireError::Edit(EditError::Selection(
+            SelectionError::NotFound { .. }
+        )))
+    ));
+    assert!(matches!(
+        unwire(input, "uuid:a", "i1", &now()),
+        Err(UnwireError::ConnectorMissing { element, connector })
+            if element.uuid == "a" && connector == "i1"
+    ));
+    let error = unwire(b"<C>", "absent", "", &now()).unwrap_err();
+    assert!(matches!(error, UnwireError::Edit(EditError::Load(_))));
+    assert!(error.source().unwrap().is::<xmltree::ParseError>());
+    assert_eq!(input.as_slice(), before);
+}
+
+#[test]
 fn legacy_attribute_identity_previous_option_and_raw_values() {
     use lox_core::configuration::editor::{describe_element, set_attribute};
     let xml = br#"<ControlList><C Type="And" U="a" Title="Old" Empty=""/><C Type="And" U="a" Title="Mirror"/></ControlList>"#;
