@@ -8,7 +8,7 @@ use crate::config_edit::energy::{
     EnergyParameter,
 };
 use crate::config_edit::icons::BuiltinIconCatalog;
-use crate::config_edit::schema::Diagnostic;
+use crate::config_edit::schema::{Diagnostic, NumericBinding, minutes_to_seconds};
 
 #[derive(Args)]
 pub(crate) struct EnergyTarget {
@@ -89,8 +89,8 @@ pub(crate) enum EnergyLoadCmd {
         /// Preparation seconds (30..86400), not minimum runtime
         #[arg(long, allow_hyphen_values = true)]
         preparation_seconds: Option<i64>,
-        /// Integer minutes converted to signed 32-bit seconds; negatives allowed
-        #[arg(long, allow_hyphen_values = true)]
+        /// Minutes rounded half away from zero, then checked signed 32-bit seconds; negatives allowed
+        #[arg(long, allow_hyphen_values = true, value_parser = parse_minimum_runtime_minutes)]
         min_runtime_minutes: Option<i64>,
         /// Integer minutes/day (0..1440), stored in seconds
         #[arg(long, allow_hyphen_values = true)]
@@ -122,6 +122,25 @@ pub(crate) enum EnergyLoadCmd {
         #[arg(long, value_name = "PATH")]
         save_as: Option<String>,
     },
+}
+
+fn parse_minimum_runtime_minutes(raw: &str) -> Result<i64> {
+    if let Ok(minutes) = raw.parse::<i64>() {
+        return Ok(minutes);
+    }
+    let value = NumericBinding {
+        key: "MinRt",
+        unit: "min",
+        default: 0.0,
+        min: None,
+        max: None,
+    }
+    .parse(raw, "Load/@MinRt")?;
+    // Qt 6.10.2's Double-to-Int helper uses std::round, not qRound.
+    let minutes = value.round() as i64;
+    // Checked seconds also reject saturation of an out-of-range float-to-integer cast.
+    minutes_to_seconds(minutes, "Load/@MinRt")?;
+    Ok(minutes)
 }
 
 pub(crate) fn run(ctx: &RunContext, action: EnergyCmd) -> Result<()> {
@@ -392,4 +411,130 @@ fn csv_row(values: &[String]) {
             .collect::<Vec<_>>()
             .join(",")
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use clap::Parser;
+
+    #[derive(Parser)]
+    struct EnergyCli {
+        #[command(subcommand)]
+        action: EnergyCmd,
+    }
+
+    #[test]
+    fn energy_fractional_minimum_runtime_uses_native_minute_conversion() {
+        let source = include_bytes!("../../../tests/ux/energy-manager2/synthetic.Loxone");
+        let id = "30000000-0000-0000-0000000000000002";
+        for (raw, expected) in [
+            ("1.5", 2),
+            ("-1.5", -2),
+            ("-0.5", -1),
+            ("0.5", 1),
+            ("2", 2),
+            ("-1", -1),
+            ("0", 0),
+        ] {
+            let parsed = EnergyCli::try_parse_from([
+                "energy",
+                "load",
+                "set",
+                "synthetic.Loxone",
+                "Synthetic Energy",
+                id,
+                "--min-runtime-minutes",
+                raw,
+            ])
+            .unwrap_or_else(|error| panic!("{raw}: {error}"));
+            let EnergyCmd::Load {
+                action:
+                    EnergyLoadCmd::Set {
+                        min_runtime_minutes,
+                        ..
+                    },
+            } = parsed.action
+            else {
+                panic!("expected existing load set command");
+            };
+            assert_eq!(min_runtime_minutes, Some(expected));
+            let mut editor = ConfigEditor::load(source).unwrap();
+            editor
+                .configure_energy_load(
+                    "Synthetic Energy",
+                    id,
+                    &EnergyLoadPatch {
+                        min_runtime_minutes,
+                        ..Default::default()
+                    },
+                )
+                .unwrap();
+            let replacement = if expected == 0 {
+                String::new()
+            } else {
+                format!(" MinRt=\"{}\"", expected * 60)
+            };
+            let expected_xml = std::str::from_utf8(source)
+                .unwrap()
+                .replace(" MinRt=\"600\"", &replacement);
+            let expected_bytes = ConfigEditor::load(expected_xml.as_bytes())
+                .unwrap()
+                .to_bytes()
+                .unwrap();
+            let saved = editor.to_bytes().unwrap();
+            assert_eq!(saved, expected_bytes, "{raw}: preserve all other storage");
+            let reloaded = ConfigEditor::load(&saved).unwrap();
+            assert_eq!(
+                reloaded.inspect_energy("Synthetic Energy").unwrap().loads[1]
+                    .min_runtime_seconds
+                    .effective,
+                Some(expected as i32 * 60)
+            );
+        }
+    }
+
+    #[test]
+    fn energy_fractional_minimum_runtime_retains_checked_cli_policy() {
+        for raw in [
+            "1,5",
+            "1e1",
+            "NaN",
+            "inf",
+            "35791394.5",
+            "-35791394.5",
+            "35791394.50000001",
+            "-35791394.50000001",
+        ] {
+            assert!(
+                EnergyCli::try_parse_from([
+                    "energy",
+                    "load",
+                    "set",
+                    "synthetic.Loxone",
+                    "Synthetic Energy",
+                    "30000000-0000-0000-0000000000000001",
+                    "--min-runtime-minutes",
+                    raw,
+                ])
+                .is_err(),
+                "{raw}"
+            );
+        }
+        for (raw, expected) in [
+            ("35791394.49999999", 35_791_394),
+            ("-35791394.49999999", -35_791_394),
+        ] {
+            let minutes = parse_minimum_runtime_minutes(raw).unwrap();
+            assert_eq!(minutes, expected);
+            assert!(minutes_to_seconds(minutes, "Load/@MinRt").is_ok());
+        }
+        for minutes in [i64::MIN, i64::MAX] {
+            assert_eq!(
+                parse_minimum_runtime_minutes(&minutes.to_string()).unwrap(),
+                minutes
+            );
+            assert!(minutes_to_seconds(minutes, "Load/@MinRt").is_err());
+        }
+    }
 }

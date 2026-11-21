@@ -111,6 +111,39 @@ Original contracts/results and old runner directories stay frozen.
   scope still require review; the follow-up does not establish general CRUD or
   malformed-input equivalence. No production upload, restart or live call was used.
 
+## Fractional minimum-runtime authoring
+
+The existing `config energy load set --min-runtime-minutes` option accepts finite
+invariant decimal minutes. It rounds to a whole minute before converting to
+seconds: `1.5` stores `MinRt="120"`, not 90 seconds. This closes the existing
+`load-minimum-runtime` / `gui-runtime-conversion` authoring gap: the retained
+17.2.10.21 GUI observation saved locale input `1,5` as 120 seconds, and native
+setter `0x14061b060`, case 6, converts to integer minutes before multiplying by 60.
+No new GUI run or broader numeric-input equivalence is claimed.
+
+The negative-half rule is established independently from the positive GUI case:
+public Qt **v6.10.2** `QVariant::toInt` uses `qNumVariantToHelper<int>` and
+`QMetaType::convert`; the Double-to-Int entry invokes
+`qIntegerConversionFromFPHelper`, which applies **`std::round`**, then converts
+through `qint64` to `int`. This route is not the separate `qRound` helper.
+It rounds halves away from zero: `-1.5` becomes -2 minutes (-120 seconds), and
+`-0.5` becomes -1 minute (-60 seconds). These negative-half regressions are
+source-backed synthetic cases, not new GUI observations.
+
+- [Qt v6.10.2 QVariant conversion source](https://code.qt.io/cgit/qt/qtbase.git/tree/src/corelib/kernel/qvariant.cpp?h=v6.10.2#n1827)
+- [Qt v6.10.2 Double-to-integer helper](https://code.qt.io/cgit/qt/qtbase.git/tree/src/corelib/kernel/qmetatype.cpp?h=v6.10.2#n1013)
+
+Integer inputs, negative minimum runtimes, zero-default omission and checked
+signed 32-bit seconds are unchanged. Decimal commas, scientific/non-finite input
+and overflowing seconds are rejected rather than emulating GUI filtering or
+overflow. At the seconds boundary, `35791394.49999999` and its negative round to
+valid +/-2147483640 seconds, whereas either sign of `35791394.5` rounds outside
+signed 32-bit seconds and is rejected. Native integer narrowing/multiplication
+overflow is deliberately not copied. Daily-runtime minutes and preparation
+seconds remain integer options.
+The focused CLI parser/serialization regressions are
+`commands::config_cmd::energy::tests::energy_fractional_minimum_runtime`.
+
 ## Storage-power incompleteness diagnostic
 
 `lox config energy inspect FILE BLOCK --output json` now exposes typed
