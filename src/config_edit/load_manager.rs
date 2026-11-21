@@ -1,10 +1,11 @@
 use std::collections::BTreeMap;
 
 use anyhow::{Result, bail};
+use lox_core::configuration::editor::{LoadManagerInspectionError, legacy_load_manager};
 use serde::Serialize;
 use xmltree::Element;
 
-use super::ConfigEditor;
+use super::{ConfigEditor, editor_error};
 
 #[derive(Debug, Clone, Copy)]
 pub enum LoadMoveDirection {
@@ -188,38 +189,26 @@ impl ConfigEditor {
     }
 
     fn load_manager_path(&self, selector: &str) -> Result<Vec<usize>> {
-        let path = self.require_one(selector)?;
-        let block = self.get_element(&path);
-        if block.name != "C" || block.attributes.get("Type").map(String::as_str) != Some("LoadShed")
-        {
-            bail!(
-                "'{selector}' is not a LoadShed (Load Manager). Use `lox config controls FILE --type LoadShed` to find one."
-            );
-        }
-        Ok(path)
+        self.kernel
+            .load_manager_path(selector)
+            .map_err(load_manager_error)
     }
 
     pub fn inspect_load_manager(&self, selector: &str) -> Result<LoadManagerInspection> {
-        let path = self.load_manager_path(selector)?;
-        let block = self.get_element(&path);
-        let positions = load_positions(block)?;
+        let inspection = self
+            .kernel
+            .load_manager_inspection_selected(selector)
+            .map_err(load_manager_error)?;
         Ok(LoadManagerInspection {
-            uuid: block.attributes.get("U").cloned().unwrap_or_default(),
-            title: block.attributes.get("Title").cloned().unwrap_or_default(),
-            loads: positions
-                .iter()
-                .enumerate()
-                .map(|(index, position)| {
-                    let load = block.children[*position].as_element().unwrap();
-                    LoadManagerLoad {
-                        priority: index + 1,
-                        io_index: resolve_io_index(load).unwrap(),
-                        attributes: load
-                            .attributes
-                            .iter()
-                            .map(|(key, value)| (key.clone(), value.clone()))
-                            .collect(),
-                    }
+            uuid: inspection.uuid,
+            title: inspection.title,
+            loads: inspection
+                .loads
+                .into_iter()
+                .map(|load| LoadManagerLoad {
+                    priority: load.priority,
+                    io_index: load.io_index,
+                    attributes: load.attributes,
                 })
                 .collect(),
         })
@@ -381,50 +370,18 @@ fn load_power_request(raw: &str) -> Result<(f64, String)> {
 }
 
 fn load_positions(block: &Element) -> Result<Vec<usize>> {
-    let positions: Vec<_> = block
-        .children
-        .iter()
-        .enumerate()
-        .filter_map(|(index, node)| {
-            node.as_element()
-                .filter(|element| element.name == "Load")
-                .map(|_| index)
-        })
-        .collect();
-    if positions.len() != 12 {
-        bail!(
-            "Unsupported Load Manager shape: expected exactly 12 direct Load records, found {}. Sparse/extended lists are not supported; no defaults were fabricated.",
-            positions.len()
-        );
-    }
-    let mut seen = [false; 12];
-    for position in &positions {
-        let load = block.children[*position].as_element().unwrap();
-        let io_index = usize::from(resolve_io_index(load)?);
-        if seen[io_index] {
-            bail!(
-                "Unsupported Load Manager shape: duplicate ioIdx {io_index}; identities must be unique."
-            );
-        }
-        seen[io_index] = true;
-    }
-    Ok(positions)
+    legacy_load_manager::load_positions(block).map_err(load_manager_error)
 }
 
 fn resolve_io_index(load: &Element) -> Result<u8> {
-    // The native serializer omits zero; an absent attribute reads back as zero.
-    let Some(raw) = load.attributes.get("ioIdx") else {
-        return Ok(0);
-    };
-    if !raw.is_empty()
-        && raw.bytes().all(|byte| byte.is_ascii_digit())
-        && let Ok(index @ 0..=11) = raw.parse::<u8>()
-    {
-        return Ok(index);
+    legacy_load_manager::resolve_io_index(load).map_err(load_manager_error)
+}
+
+fn load_manager_error(error: LoadManagerInspectionError) -> anyhow::Error {
+    match error {
+        LoadManagerInspectionError::Edit(error) => editor_error(error),
+        error => anyhow::anyhow!("{error}"),
     }
-    bail!(
-        "Unsupported Load Manager shape: ioIdx must be absent (native zero) or decimal digits in 0..11. Explicit empty, signed, whitespace and nonnumeric identities are not supported."
-    )
 }
 
 #[cfg(test)]

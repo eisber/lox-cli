@@ -18,6 +18,180 @@ fn fixture() -> String {
 }
 
 #[test]
+fn load_manager_inspect_cli_keeps_exact_json_table_and_csv() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let source = fixture()
+        .replacen(
+            r#"nm="Consumer 0" pwr="2.5" maxOff="123" minOn="45""#,
+            r#"nm=" A &quot;B&quot; " pwr="malformed" minOn="+0045""#,
+            1,
+        )
+        .replacen(r#" nm="Consumer 1""#, "", 1);
+    fs::write(&input, &source).unwrap();
+    let inspect = || {
+        let mut command = assert_cmd::cargo::cargo_bin_cmd!("lox");
+        command
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "inspect"])
+            .arg(&input);
+        command
+    };
+    let mut loads = vec![serde_json::json!({
+        "priority": 1,
+        "io_index": 0,
+        "attributes": {"nm": " A \"B\" ", "pwr": "malformed", "minOn": "+0045", "Unknown": "keep-0"}
+    })];
+    for index in 1..12 {
+        let mut row = serde_json::json!({
+            "priority": index + 1,
+            "io_index": index,
+            "attributes": {"ioIdx": index.to_string(), "pwr": "2.5", "maxOff": "123", "minOn": "45", "Unknown": format!("keep-{index}")}
+        });
+        if index != 1 {
+            row["attributes"]["nm"] = Value::from(format!("Consumer {index}"));
+        }
+        loads.push(row);
+    }
+    let expected = serde_json::json!({
+        "ok": true,
+        "saved_to": null,
+        "load_manager": {"uuid": "manager", "title": "Load Manager", "loads": loads},
+        "trace_id": "inspect-trace"
+    });
+    inspect()
+        .args([
+            "Load Manager",
+            "-r",
+            "Office",
+            "-o",
+            "json",
+            "--trace-id",
+            "inspect-trace",
+        ])
+        .assert()
+        .success()
+        .stdout(format!(
+            "{}\n",
+            serde_json::to_string_pretty(&expected).unwrap()
+        ));
+    inspect()
+        .arg("Manager [Off]")
+        .assert()
+        .success()
+        .stdout(concat!(
+            "PRIORITY  IO_INDEX  NAME\n",
+            "1         0          A \"B\" \n",
+            "2         1         \n",
+            "3         2         Consumer 2\n",
+            "4         3         Consumer 3\n",
+            "5         4         Consumer 4\n",
+            "6         5         Consumer 5\n",
+            "7         6         Consumer 6\n",
+            "8         7         Consumer 7\n",
+            "9         8         Consumer 8\n",
+            "10        9         Consumer 9\n",
+            "11        10        Consumer 10\n",
+            "12        11        Consumer 11\n",
+            "\n12 loads\n"
+        ));
+    inspect()
+        .args(["uuid:manager", "-o", "csv", "--no-header", "-q"])
+        .assert()
+        .success()
+        .stdout(concat!(
+            "1,0,\" A \"\"B\"\" \"\n",
+            "2,1,\"\"\n",
+            "3,2,\"Consumer 2\"\n",
+            "4,3,\"Consumer 3\"\n",
+            "5,4,\"Consumer 4\"\n",
+            "6,5,\"Consumer 5\"\n",
+            "7,6,\"Consumer 6\"\n",
+            "8,7,\"Consumer 7\"\n",
+            "9,8,\"Consumer 8\"\n",
+            "10,9,\"Consumer 9\"\n",
+            "11,10,\"Consumer 10\"\n",
+            "12,11,\"Consumer 11\"\n"
+        ));
+    assert_eq!(fs::read(&input).unwrap(), source.as_bytes());
+}
+
+#[test]
+fn load_manager_inspect_cli_keeps_admission_and_exact_refusals() {
+    let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
+    let input = dir.path().join("input.Loxone");
+    let original = fixture();
+    let inspect = |args: &[&str], code: &str, message: &str| {
+        let result = assert_cmd::cargo::cargo_bin_cmd!("lox")
+            .env("LOX_TELEMETRY", "0")
+            .args(["config", "load-manager", "inspect"])
+            .arg(&input)
+            .args(["-o", "json"])
+            .args(args)
+            .assert()
+            .code(1)
+            .get_output()
+            .stdout
+            .clone();
+        let result: Value = serde_json::from_slice(&result).unwrap();
+        assert_eq!(result["ok"], false);
+        assert_eq!(result["error"], code);
+        assert_eq!(result["message"], message);
+    };
+    inspect(
+        &["--dry-run", "uuid:manager"],
+        "dry_run_not_supported",
+        "dry-run not supported for this command: no safe non-mutating plan is available. Nothing was executed and inputs were not fully validated. Remove --dry-run only when you intend to execute the command.",
+    );
+    inspect(
+        &["Manager [Office]", "--room", "Office"],
+        "error",
+        "Use either a bracket room qualifier or --room, not both.",
+    );
+
+    fs::write(&input, &original).unwrap();
+    inspect(
+        &["Load Managr"],
+        "error",
+        "Element 'Load Managr' not found. Did you mean: Load Manager?\n  Available: Load Manager, Office",
+    );
+    for (xml, selector, message) in [
+        (
+            original.replace(
+                r#"U="room" Title="Office"/>"#,
+                r#"U="room" Title="Office"/><C Type="Switch" U="other" Title="Load Manager"/>"#,
+            ),
+            "Load Manager",
+            "Selector 'Load Manager' matches 2 elements (expected 1):\n  LoadShed 'Load Manager' (uuid:manager)\n  Switch 'Load Manager' (uuid:other)\nUse uuid:<uuid> for exact match.",
+        ),
+        (
+            original.replace(r#"Type="LoadShed""#, r#"Type="loadshed""#),
+            "uuid:manager",
+            "'uuid:manager' is not a LoadShed (Load Manager). Use `lox config controls FILE --type LoadShed` to find one.",
+        ),
+        (
+            original.replacen("<Load nm", "<Other nm", 1),
+            "uuid:manager",
+            "Unsupported Load Manager shape: expected exactly 12 direct Load records, found 11. Sparse/extended lists are not supported; no defaults were fabricated.",
+        ),
+        (
+            original.replacen(r#"ioIdx="1""#, r#"ioIdx="00""#, 1),
+            "uuid:manager",
+            "Unsupported Load Manager shape: duplicate ioIdx 0; identities must be unique.",
+        ),
+        (
+            original.replacen(r#"ioIdx="1""#, r#"ioIdx="+1""#, 1),
+            "uuid:manager",
+            "Unsupported Load Manager shape: ioIdx must be absent (native zero) or decimal digits in 0..11. Explicit empty, signed, whitespace and nonnumeric identities are not supported.",
+        ),
+    ] {
+        fs::write(&input, &xml).unwrap();
+        inspect(&[selector], "error", message);
+        assert_eq!(fs::read(&input).unwrap(), xml.as_bytes());
+    }
+}
+
+#[test]
 fn load_manager_cli_min_on_seconds_and_zero_follow_identity_after_move() {
     let dir = tempfile::tempdir_in(env!("CARGO_MANIFEST_DIR")).unwrap();
     let input = dir.path().join("input.Loxone");
