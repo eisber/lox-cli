@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory)][string]$KotlinCompiler,
     [string]$VcVars,
     [string]$Python = 'python',
+    [string]$SourceDirectory,
     [string]$OutputDirectory = 'target\archive-bindings',
     [string]$CargoTargetDirectory
 )
@@ -14,6 +15,9 @@ if (-not [OperatingSystem]::IsWindows() -or -not [Environment]::Is64BitProcess) 
     throw 'This artifact qualification script currently supports Windows AMD64 only.'
 }
 $Repository = Split-Path $PSScriptRoot -Parent
+if ($SourceDirectory -and (Resolve-Path $SourceDirectory).Path -ne $Repository) {
+    throw 'SourceDirectory must match the checkout owning this build script.'
+}
 Set-Location $Repository
 if (Test-Path $OutputDirectory) { throw 'Use a fresh output directory to preserve previous evidence.' }
 $Output = (New-Item -ItemType Directory $OutputDirectory).FullName
@@ -118,6 +122,7 @@ if ((Get-FileHash $InstalledDll).Hash -ne (Get-FileHash "$Output\jvm\native\lox_
 }
 Step 'javac-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\ArchiveSmoke.java', 'tests\bindings\NativeArchiveReleaseProbe.java', 'tests\bindings\ArchiveAllocationSmoke.java', 'tests\bindings\NativeClockStatusProbe.java', 'tests\bindings\ClockTestSupport.java', 'tests\bindings\ClockSmoke.java', 'tests\bindings\ControlSmoke.java', 'tests\bindings\ConfigInspectionSmoke.java', 'tests\bindings\NativeConfigInspectionProbe.java', 'tests\bindings\XmlControlsSmoke.java', 'tests\bindings\ColorSmoke.java', 'tests\bindings\NativeColorProbe.java')
 Step 'javac-catalog-smoke' $Javac @('--release', '22', '-cp', $ApiJar, '-d', "$Output\jvm\test-classes", 'tests\bindings\CatalogSmoke.java', 'tests\bindings\NativeCatalogProbe.java')
+Step 'javac-control-read-smoke' $Javac @('--release', '22', '-cp', "$ApiJar;$Output\jvm\test-classes", '-d', "$Output\jvm\test-classes", 'tests\bindings\ControlReadTestSupport.java', 'tests\bindings\ControlReadSmoke.java', 'tests\bindings\NativeControlReadProbe.java')
 $NativeAccess = @('--enable-native-access=ALL-UNNAMED', "-Djava.library.path=$Output\jvm\native")
 Step 'java-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ArchiveSmoke', "$Output\fixtures"))
 Step 'java-control-smoke' $Java ($NativeAccess + @('-cp', "$ApiJar;$Output\jvm\test-classes", 'ControlSmoke'))
@@ -193,12 +198,23 @@ Step 'clock-head-smokes' $VenvPython @('-I', '-B', 'tests\bindings\clock_smoke.p
     '--java', $Java, '--api-jar', $ApiJar, '--classes', "$Output\jvm\test-classes",
     '--kotlin-jar', "$Output\jvm\kotlin-clock-smoke.jar", '--native-dir', "$Output\jvm\native",
     '--heap-probe', "$Probe.dll")
+$ControlReadKotlinArguments = @('-jvm-target', '22', '-classpath',
+    ('"' + "$ApiJar;$Output\jvm\allocation-test-support.jar".Replace('\', '\\') + '"'),
+    '-include-runtime', '-d', ('"' + "$Output\jvm\kotlin-control-read-smoke.jar".Replace('\', '\\') + '"'),
+    'tests\bindings\ControlReadSmoke.kt')
+[IO.File]::WriteAllLines("$Output\jvm\kotlin-control-read.args", $ControlReadKotlinArguments, [Text.UTF8Encoding]::new($false))
+Step 'kotlinc-control-read-smoke' $KotlinCompiler @("@$Output\jvm\kotlin-control-read.args")
+Step 'control-read-head-smokes' $VenvPython @('-I', '-B', 'tests\bindings\control_read_smoke.py',
+    '--signals', "$Output\control-read-signals", '--java', $Java, '--api-jar', $ApiJar,
+    '--classes', "$Output\jvm\test-classes", '--kotlin-jar', "$Output\jvm\kotlin-control-read-smoke.jar",
+    '--native-dir', "$Output\jvm\native", '--heap-probe', "$Probe.dll")
 
 $Artifacts = @(Get-ChildItem "$Output\wheels", "$Output\generated-java", "$Output\jvm", "$Output\fixtures" -Recurse -File)
 $Artifacts += Get-Item $InstalledDll, "$Output\venv\Lib\site-packages\lox_archive\lox_archive.py", "$Output\tools\uniffi-bindgen.exe"
 $Artifacts += Get-Item "$Output\venv\Lib\site-packages\lox_archive_async.py"
 $Artifacts += Get-Item "$Output\java-generator-correction.json"
 $Artifacts += Get-Item "$Output\CLOCK-PROOF.json", "$Output\clock-java.log", "$Output\clock-kotlin.log"
+$Artifacts += Get-Item "$Output\CONTROL-READ-PROOF.json", "$Output\control-read-java.log", "$Output\control-read-kotlin.log"
 $Artifacts += Get-Item "$Output\python-control-smoke.log", "$Output\java-control-smoke.log", "$Output\kotlin-control-smoke.log"
 $Artifacts += Get-Item "$Output\python-config-inspection-smoke.log", "$Output\java-config-inspection-smoke.log", "$Output\kotlin-config-inspection-smoke.log"
 $Artifacts += Get-Item "$Output\python-xml-controls-smoke.log", "$Output\java-xml-controls-smoke.log", "$Output\kotlin-xml-controls-smoke.log"
@@ -215,7 +231,7 @@ $Manifest = foreach ($file in $Artifacts) {
     source_head = (git rev-parse HEAD); source_index_tree = (git write-tree)
     source_status = @(git --no-pager status --short)
     platform = 'Windows AMD64 only; see actual version logs'
-    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, strict production HTTP clock, pure typed control selection, and offline typed color encoding/explicit legacy observations. Current loopback clock cancellation/close only; no Lighting eligibility, diff/editor/auth/control I/O/statistics/numeric payloads/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
+    contract = 'Archive, raw-byte read-only XML control/room/summary inspection, stateless typed LoxApp3 catalog parsing/filtering, strict production HTTP clock and validated read-only control state, pure typed control selection, and offline typed color encoding/explicit legacy observations. Loopback clock/control cancellation/close only; no Lighting eligibility, diff/editor/auth sessions/control writes/statistics/numeric payloads/subscriptions/full-runtime/platform parity. Candidate composition remains publication-gated.'
     native_rust_min_stack = $env:RUST_MIN_STACK
     generators = @{ uniffi = '0.32.1'; java = '0.5.2'; maturin = '1.16.0' }
     artifact_manifest = $Manifest

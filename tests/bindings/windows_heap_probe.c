@@ -59,3 +59,19 @@ __declspec(dllexport) DWORD lox_test_heap_catalog_error_count(
     }
     return lox_test_heap_count(prefix, sizeof(prefix), sizeof(prefix), count);
 }
+
+/* Small payload-free control errors: pass the measured bytes by value so
+   the probe never adds a matching prefix allocation to the process heap. */
+__declspec(dllexport) DWORD lox_test_heap_control_error_count(
+    ULONGLONG marker, SIZE_T length, SIZE_T *count
+) {
+    unsigned char prefix[8];
+    unsigned int i;
+    if (length == 0 || length > sizeof(prefix)) {
+        return ERROR_INVALID_PARAMETER;
+    }
+    for (i = 0; i < length; ++i) {
+        prefix[i] = (unsigned char)(marker >> (i * 8));
+    }
+    return lox_test_heap_count(prefix, length, length, count);
+}

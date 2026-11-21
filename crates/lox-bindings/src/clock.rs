@@ -163,7 +163,7 @@ pub struct ClockReading {
 
 #[derive(uniffi::Object)]
 pub struct ClockCancellation {
-    inner: core::Cancellation,
+    pub(super) inner: core::Cancellation,
 }
 
 #[uniffi::export]

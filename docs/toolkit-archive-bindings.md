@@ -1,9 +1,9 @@
 # Experimental native archive, configuration inspection, clock, control and color bindings
 
-This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, HTTP clock and pure control selection** binding slice, not a general
+This is a narrow **archive, XML control/room/summary inspection, LoxApp3 catalog, HTTP clock/control reads and pure control selection** binding slice, not a general
 Loxone SDK or CLI-parity release. `crates/lox-bindings` is one thin UniFFI
 facade over `lox_core::configuration::{archive, controls, rooms, summary}`, `control`, optional `control_catalog` and the optional production
-`runtime::ClockDriver`; all codec, selection, transport, retry and validation behavior
+`runtime::{ClockDriver, ControlReadDriver}`; all codec, selection, transport, retry and validation behavior
 remains in the Rust core. Python and the Java-first JVM API load the same native library.
 Kotlin uses the Java API, not a separately generated Kotlin implementation.
 No head invokes the CLI or runs another protocol stack.
@@ -31,7 +31,7 @@ all validation, codec math and wire rendering also remain in Core.
 | Complete text-state table payload decoding | Default `text_state::decode_text_state_payload`; state/icon `StateUuid`, byte count and exact UTF-8 text; strict atomic bounds/UTF-8 errors, ignored four-byte-alignment padding | Unsupported; no existing decoder/caller migrated or new command | Unsupported | Unsupported |
 | Ordered HTTP Basic clock observation and validation | Optional `ClockClient` / `ClockDriver`; explicit validation | `live time` uses shared runtime with explicit legacy compatibility | Strict `ClockRuntime` and `AsyncClockClient` | Strict `ClockRuntime` and Java `ClockClient`; same API in Kotlin |
 | Current clock cancellation, shutdown and admission | Production sticky cancellation and owned worker close | Per-command owned driver; no new cancellation command | Native handles; bounded asyncio adapter | Native handles; cancellable `CompletableFuture`, explicit `close` |
-| Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Unsupported | Unsupported |
+| Read-only HTTP control-state observation | Optional `ControlReadClient` / `ControlReadDriver`; typed LL results/errors, validation, cancellation and bounded close | Actual `live get` HTTP read uses Core with explicit legacy path/body/error policy; resolution/cache/output remain head-owned | Strict validated `ControlReadRuntime` / `AsyncControlReadClient`; explicit identifier | Strict validated `ControlReadRuntime` / Java `ControlReadClient`; same API in Kotlin |
 | In-memory control name/room resolution | Typed `control` query/catalog/errors; default features | Existing resolver uses core; acquisition/formatting stay in CLI | `prepare_control_query`, `resolve_control_query`; typed records/errors | `LoxArchive.prepareControlQuery`, `resolveControlQuery`; same typed Java API in Kotlin |
 | LoxApp3 control catalog projection and filtering | Optional `control_catalog` (`structure-json`); typed records/errors | `list_controls` / `list_controls_ext` share projection/filtering; acquisition and formatting stay in CLI | `select_loxapp3_controls(bytes, ControlFilter) -> list[Control]` | `LoxArchive.selectLoxapp3Controls(byte[], ControlFilter) -> List<Control>` |
 | Identifier detection / command-path validation | Distinct `is_uuid` / `validate_uuid` contracts | Existing CLI contracts unchanged | `is_uuid`, `validate_uuid`; typed `IdentifierError` | `LoxArchive.isUuid`, `validateUuid`; checked `IdentifierException` |
@@ -79,6 +79,101 @@ Archive calls are stateless and still prove **nothing** about runtime lifecycle.
 The separate clock proofs below cover the current HTTP operation only, never
 imaginary subscriptions or full runtime parity. Task `lox-vuc6` remains open
 until coherent prerequisite integration and independent review are complete.
+
+## Validated read-only control state
+
+This narrow HTTP Basic operation calls the existing Core
+`ControlReadDriver::read_control(identifier, cancellation)` followed by
+`ControlObservation::validate()`. The heads do not parse/stringify LL JSON.
+Core requires an LL object, a successful `"200"` or integer `200` code
+(uppercase `Code` takes precedence over lowercase `code`), and a text or
+finite numeric value. Empty text is legitimate. Numeric text rendering and
+the normalized code come from Core. `ControlReading` has `value: str/String`
+and optional `code: str/String` (currently `"200"` after validation).
+It is a host-owned snapshot, usable after shutdown.
+
+This is **not** Core's `legacy_text()` projection: that explicit projection
+can retain a rejected code or produce empty text from unsupported/missing
+values without validating success. It is not exposed here. Missing/rejected
+codes, missing/nontext values and non-LL shapes instead raise typed validation
+errors. No LL success or device eligibility is inferred from absent data.
+This operation does not confer Lighting eligibility or freshness guarantees
+beyond the existing Core request.
+
+Credentials and host are explicit constructor inputs, never record/repr fields.
+Reuse the nonsecret `ClockSettings` / `default_clock_settings()` transport
+settings and `ClockCancellation` primitive; the existing Clock public API is
+unchanged. Core's `Strict` transport and `StrictJson` response policies remain
+the defaults and cannot be changed through this binding. No raw body observer,
+legacy path mode or backend `into_source()` disclosure is exported.
+Identifiers are explicit Core path-safe hex/dash identifiers (not strict UUID
+grammar); invalid identifiers fail before network I/O. There is no implicit
+alias, name/catalog, context, credential store or home selection.
+
+```python
+from lox_archive_async import AsyncControlReadClient
+
+async def read_one(host, user, password, identifier):
+    async with AsyncControlReadClient(host, user, password) as client:
+        reading = await client.read_control(identifier)
+        return reading.value
+```
+
+The generated synchronous Python API is
+`ControlReadRuntime(host, user, password, settings)`, then
+`read_control(identifier, ClockCancellation())`. Always call `shutdown()` in
+`finally`; object destruction is only fallback. Java/Kotlin use the same
+generated `ControlReadRuntime` and Java `ControlReadClient`:
+
+```java
+try (var client = new ControlReadClient(host, user, password,
+        LoxArchive.defaultClockSettings())) {
+    ControlReading state = client.readControl(identifier).get();
+}
+```
+
+Java `readControl` returns a cancellable `CompletableFuture`; Kotlin uses that
+same API, including `use { ... }`. Python's asyncio adapter and the Java
+wait adapter admit one read and report typed `Busy` rather than queueing an
+unbounded backlog. Cancelling an asyncio task/future signals Core's sticky
+cancellation; merely interrupting a host thread is not a cancellation API.
+Admission remains occupied until native work drains. Explicit close cancels
+HTTP/retry waits, joins the owned Rust worker, drains host waits and releases
+the native handle. Python `aclose()` remains active if its waiter is cancelled.
+Java `close()` can raise `ControlReadDispatchTimeout` if an inline caller
+continuation blocks the host lane after native shutdown; release that
+continuation and retry close. Do not call blocking close from that continuation.
+Close is idempotent, subsequent reads report `Closed`, and shutdown timeouts
+remain explicit/retryable rather than pretending disposal succeeded.
+
+Python raises `ControlReadError` variants; Java/Kotlin receive checked
+`ControlReadException`: `InvalidHost`, `InvalidTarget(issue:
+ControlIdentifierIssue)`, `ClientBuild`, `Http(status)`, `Transport(kind:
+ClockTransportFailure)`, `Decode`, `CancelledRequested`, `CancelledShutdown`,
+`Closed`, `Busy`, `DriverStopped`, `ShutdownTimeout(active)`, and
+`Validation(issue: ControlValidationIssue)`. Identifier issues distinguish
+length, unsafe path characters and non-hex text. Validation issues distinguish
+envelope, missing/unsupported/rejected code, missing/unsupported value.
+New exception fields/diagnostics contain no host, URL, credentials, response
+body or original backend error. Branch on typed variants, not generated
+message spelling.
+
+`build-archive-bindings.ps1 -SourceDirectory <its-own-checkout> ...` retains all
+previous artifact tests and adds installed-wheel/same-DLL Java JAR/Kotlin
+loopback tests. Request-entry/socket-EOF barriers distinguish actual I/O
+cancellation from an abandoned wait; successful Core shutdown proves worker
+join. Native result/error buffer tests positively calibrate live then freed
+RustBuffers and repeat public calls without requesting GC. Owned Java wait
+lanes retain the existing deterministic status-scope correction. Caller-thread
+`Arena.ofAuto` status remains a GC fallback, **not** deterministic per-call
+status-arena disposal. Platform-internal `ClientBuild`, `DriverStopped` and
+`ShutdownTimeout` are preserved mappings, not claims of externally induced
+failure qualification.
+
+Raw/full LL output, arbitrary JSON, control writes, auth sessions, subscriptions,
+stream backpressure and other runtime parity remain unsupported. This adds no
+native Config qualification (historical two, new zero), ABI/registry/MSRV or
+other-platform claim. Keep the generated wheel/JAR and DLL from the same build.
 
 ## Offline color heads
 

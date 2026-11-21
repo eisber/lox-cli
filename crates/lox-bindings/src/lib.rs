@@ -10,6 +10,7 @@ mod color;
 mod configuration;
 mod control;
 mod control_catalog;
+mod control_read;
 
 uniffi::setup_scaffolding!();
 

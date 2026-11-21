@@ -22,6 +22,7 @@ public final class NativeClockStatusProbe {
     private int openScopes;
     private MemorySegment status;
     private long marker;
+    private final String threadName;
 
     private static boolean live(long address) {
         try {
@@ -32,6 +33,11 @@ public final class NativeClockStatusProbe {
     }
 
     public NativeClockStatusProbe() {
+        this("lox-clock-ffi");
+    }
+
+    public NativeClockStatusProbe(String threadName) {
+        this.threadName = threadName;
         long calibrationMarker = 0x4c4f58434c4f4300L;
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment calibration = arena.allocate(32, 8);
@@ -67,7 +73,7 @@ public final class NativeClockStatusProbe {
             Field field = UniffiHelpers.class.getDeclaredField("REUSABLE_STATUS");
             field.setAccessible(true);
             status = (MemorySegment) ((ThreadLocal<?>) field.get(null)).get();
-            if (!Thread.currentThread().getName().equals("lox-clock-ffi")
+            if (!Thread.currentThread().getName().equals(threadName)
                     || status == null || status.byteSize() != 32 || !live(status.address())) {
                 throw new AssertionError("Expected actual owned wait-lane live call status");
             }
