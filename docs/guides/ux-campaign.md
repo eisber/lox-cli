@@ -6,6 +6,10 @@ input, provisions machines, or grants desktop authority. Its default `plan`
 operation performs no input. Beads remains the task tracker (`lox-7cq7`, epic
 `lox-gav4`); the append-only journal is experiment data, not another task system.
 
+The separate opt-in [five-input SDK property pilot](property-pilot.md) reuses
+this queue without changing the historical mixed100 definitions or claiming
+native execution/qualification. The campaign CLI remains file-only.
+
 ## What the 100 definitions actually mean
 
 The generated catalog is
