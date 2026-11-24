@@ -804,6 +804,28 @@ fn unchanged(xml: &str) {
 }
 
 #[test]
+fn catalogued_virtual_output_transport_preserves_native_sidecars() {
+    let uuid = "9b000000-0000-0001-ffff000000000000";
+    let mut app: Value = serde_json::from_str(CATALOGUE).unwrap();
+    app["controls"][format!("U:{uuid}")] = json!({
+        "name": "Socket", "type": "Switch", "uuidAction": uuid,
+        "states": {"active": uuid}
+    });
+    let source = archive(PROJECT, &app.to_string(), &source_permissions());
+    let edited = PROJECT.replace(
+        r#"CmdOn="/on""#,
+        r#"CmdOn="/new" CmdOff="/off" CmdOnHTTP="on-header" CmdOffHTTP="off-header" CmdOnMethod="1" CmdOffMethod="1" CmdOnPost="on-body" CmdOffPost="off-body""#,
+    );
+    let repacked = repack_zip(&source, edited.as_bytes()).unwrap();
+    validate_archive_deployment(&source, &repacked, edited.as_bytes()).unwrap();
+    for name in ["LoxAPP3.json", "permissions.bin"] {
+        assert_eq!(member(&repacked, name), member(&source, name));
+    }
+    let changed_rights = edited.replace(r#"Title="Command""#, r#"Title="Command" RGR="other""#);
+    assert!(repack_zip(&source, changed_rights.as_bytes()).is_err());
+}
+
+#[test]
 fn plumbing_outside_the_app_deploys_without_sidecar_changes() {
     // Additions, edits and removals of logic and I/O plumbing, as in real projects.
     unchanged(&edited(

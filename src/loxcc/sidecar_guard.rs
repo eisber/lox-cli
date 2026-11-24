@@ -18,6 +18,7 @@ struct Shape {
 }
 
 fn shape(element: &Element, include_content: bool) -> Shape {
+    let kind = element.attributes.get("Type").map(String::as_str);
     let attributes = element
         .attributes
         .iter()
@@ -25,8 +26,25 @@ fn shape(element: &Element, include_content: bool) -> Shape {
             if matches!(key.as_str(), "Px" | "Py" | "Px2" | "Py2") {
                 return false;
             }
-            if element.attributes.get("Type").map(String::as_str) == Some("Document")
-                && matches!(key.as_str(), "Date" | "DateS" | "NumO")
+            // A virtual output's destination and request contents are used by the
+            // Miniserver even when its command has a linked app control.
+            if element.name == "C"
+                && matches!(
+                    (kind, key.as_str()),
+                    (Some("Document"), "Date" | "DateS" | "NumO")
+                        | (Some("VirtualOut"), "Address")
+                        | (
+                            Some("VirtualOutCmd"),
+                            "CmdOn"
+                                | "CmdOff"
+                                | "CmdOnHTTP"
+                                | "CmdOffHTTP"
+                                | "CmdOnMethod"
+                                | "CmdOffMethod"
+                                | "CmdOnPost"
+                                | "CmdOffPost"
+                        )
+                )
             {
                 return false;
             }
