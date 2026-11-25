@@ -476,7 +476,10 @@ fn intercom_password_without_catalogue_entry_preserves_native_sidecars() {
     let edited = original.replace("old-password", "new-password");
     let repacked = repack_zip(&source, edited.as_bytes()).unwrap();
 
-    assert_eq!(extract_and_decompress(&repacked).unwrap(), edited.as_bytes());
+    assert_eq!(
+        extract_and_decompress(&repacked).unwrap(),
+        edited.as_bytes()
+    );
     for name in ["LoxAPP3.json", "permissions.bin", "unrelated.bin"] {
         assert_eq!(member(&repacked, name), member(&source, name), "{name}");
     }
@@ -886,7 +889,10 @@ fn catalogue_neutral_edits_of_visualized_controls_need_no_sidecar_changes() {
 
 #[test]
 fn lighting_wiring_preserves_native_names_and_catalogue_bytes() {
-    let project = PROJECT.replace("Title=\"Lights\"", "Title=\"Lights\" Desc=\"Room lighting\"");
+    let project = PROJECT.replace(
+        "Title=\"Lights\"",
+        "Title=\"Lights\" Desc=\"Room lighting\"",
+    );
     let catalogue = CATALOGUE
         .replace("\"name\":\"Lights\"", "\"name\":\"Room lighting\"")
         .replace("2026-01-01 00:00:00", "2026-01-02 00:00:00");
@@ -909,8 +915,7 @@ fn lighting_wiring_preserves_native_names_and_catalogue_bytes() {
     let repacked = repack_zip(&source, renamed.as_bytes()).unwrap();
     validate_archive_deployment(&source, &repacked, renamed.as_bytes()).unwrap();
     let mut expected: Value = serde_json::from_str(&catalogue).unwrap();
-    expected["controls"]["U:9a000000-0000-0001-ffff000000000000"]["name"] =
-        json!("Ceiling lights");
+    expected["controls"]["U:9a000000-0000-0001-ffff000000000000"]["name"] = json!("Ceiling lights");
     expected["lastModified"] = json!("2026-02-01 00:00:00");
     assert_eq!(app(&repacked), expected);
     assert_eq!(member(&repacked, "permissions.bin"), permissions);

@@ -291,7 +291,7 @@ fn credentials_only(before: &Element, after: &Element) -> bool {
 fn intercom_password_only(before: &Element, after: &Element) -> bool {
     let strip = |element: &Element| {
         let mut element = element.clone();
-        element.attributes.remove("VideoPwd");
+        element.attributes.shift_remove("VideoPwd");
         shape(&element, true)
     };
     before.attributes.get("Type").map(String::as_str) == Some("IntercomDevice")
