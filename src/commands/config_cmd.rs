@@ -6069,10 +6069,12 @@ mod tests {
             original.replace("APC=\"{", "APC=\"{&quot;visu&quot;:{},"),
             original.replace("APC=\"{", "APC=\"{&quot;future&quot;:true,"),
             original.replace("&quot;value&quot;:700", "&quot;value&quot;:7e2"),
-            original.replace(
-                "&quot;type&quot;:5,&quot;value&quot;:700",
-                "&quot;type&quot;:4,&quot;value&quot;:123456789012345678901234567890",
-            ),
+            original
+                .replacen("&quot;type&quot;:5", "&quot;type&quot;:4", 1)
+                .replace(
+                    "&quot;value&quot;:700",
+                    "&quot;value&quot;:123456789012345678901234567890",
+                ),
         ] {
             assert_ne!(
                 invalid, original,
