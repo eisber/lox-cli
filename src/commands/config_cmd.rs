@@ -982,6 +982,47 @@ pub fn cmd_config(ctx: &RunContext, action: ConfigCmd) -> Result<()> {
                 .context("No config repo configured. Run `lox config init <path>` first.")?;
             gitops::restore(std::path::Path::new(repo_path), &cfg, &commit, force)?;
         }
+        ConfigCmd::Repack {
+            backup,
+            file,
+            save_as,
+        } => {
+            let source = fs::read(&backup).with_context(|| format!("Cannot read {}", backup))?;
+            loxcc::require_deployable_archive(&source)?;
+            let xml = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
+            let repacked = loxcc::repack_zip(&source, &xml)?;
+            let changed =
+                |name: &str| -> Result<bool> {
+                    Ok(loxcc::archive_member(&source, name)?
+                        != loxcc::archive_member(&repacked, name)?)
+                };
+            let catalogue = changed("LoxAPP3.json")?;
+            let permissions = changed("permissions.bin")?;
+            fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&save_as)
+                .and_then(|mut output| std::io::Write::write_all(&mut output, &repacked))
+                .with_context(|| format!("Cannot create {}", save_as))?;
+            if ctx.json {
+                println!(
+                    "{}",
+                    serde_json::json!({
+                        "output": save_as,
+                        "catalogue_changed": catalogue,
+                        "permissions_changed": permissions,
+                    })
+                );
+            } else {
+                println!(
+                    "Repacked {} → {} (LoxAPP3.json {}, permissions.bin {})",
+                    file,
+                    save_as,
+                    if catalogue { "compiled" } else { "unchanged" },
+                    if permissions { "compiled" } else { "unchanged" },
+                );
+            }
+        }
         ConfigCmd::Compress { file, save_as } => {
             let xml = fs::read(&file).with_context(|| format!("Cannot read {}", file))?;
             let loxcc_data = lox_core::configuration::archive::compress_loxcc(&xml);
@@ -6028,10 +6069,12 @@ mod tests {
             original.replace("APC=\"{", "APC=\"{&quot;visu&quot;:{},"),
             original.replace("APC=\"{", "APC=\"{&quot;future&quot;:true,"),
             original.replace("&quot;value&quot;:700", "&quot;value&quot;:7e2"),
-            original.replace(
-                "&quot;type&quot;:5,&quot;value&quot;:700",
-                "&quot;type&quot;:4,&quot;value&quot;:123456789012345678901234567890",
-            ),
+            original
+                .replacen("&quot;type&quot;:5", "&quot;type&quot;:4", 1)
+                .replace(
+                    "&quot;value&quot;:700",
+                    "&quot;value&quot;:123456789012345678901234567890",
+                ),
         ] {
             assert_ne!(
                 invalid, original,

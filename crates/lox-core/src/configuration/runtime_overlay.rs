@@ -77,7 +77,8 @@ impl<'a> Document<'a> {
                         let value = attr.unescape_value()?.into_owned();
                         attrs.insert(key, value);
                     }
-                    if let Some(id) = attrs.get("U")
+                    if matches!(e.name().as_ref(), b"C" | b"Co")
+                        && let Some(id) = attrs.get("U")
                         && (id.is_empty() || !ids.insert(identity(id)))
                     {
                         return Err(OverlayError::DuplicateUuid { id: id.clone() });

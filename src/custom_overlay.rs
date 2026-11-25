@@ -604,6 +604,47 @@ mod tests {
     }
 
     #[test]
+    fn native_flags_and_references_preserve_upload_and_overlay_edits() {
+        for metadata in [
+            r#"<MO U="true"/><AF U="true"/><FS U="true"/>"#.to_string(),
+            format!(r#"<SObj U="{A}"/><SObj U="{A}"/><SObj U="{RULE}"/>"#),
+        ] {
+            let before = format!(
+                r#"<Root>{metadata}<C Type="DayTimer" U="{A}" Title="before"><Co U="{RULE}" K="I"/></C></Root>"#
+            );
+            let edited = before.replace("Title=\"before\"", "Title=\"edited\"");
+            let prepared = prepare_with_base(
+                None,
+                edited.as_bytes(),
+                snapshot(before.as_bytes(), BTreeMap::new()),
+            )
+            .unwrap();
+            assert_eq!(prepared.xml, edited.as_bytes());
+
+            let fragment =
+                format!(r#"<C Type="DayTimer" U="{A}" Title="edited"><Co U="{RULE}" K="I"/></C>"#);
+            assert_eq!(
+                merge_overlays(before.as_bytes(), &overlay(A, &fragment)).unwrap(),
+                edited.as_bytes()
+            );
+        }
+    }
+
+    #[test]
+    fn empty_control_and_connector_uuids_block_upload_preparation() {
+        let base = config("before", "keep");
+        for invalid in [
+            r#"<Root><C Type="DayTimer" U=""/></Root>"#.to_string(),
+            format!(r#"<Root><C Type="DayTimer" U="{A}"><Co K="I" U=""/></C></Root>"#),
+        ] {
+            let error =
+                prepare_with_base(None, invalid.as_bytes(), snapshot(&base, BTreeMap::new()))
+                    .unwrap_err();
+            assert!(error.to_string().contains("Empty or duplicate UUID"));
+        }
+    }
+
+    #[test]
     fn duplicate_control_and_connector_uuids_are_rejected() {
         let xml = config("old", "keep");
         let fragment = format!(r#"<C Type="DayTimer" U="{A}"><Co U="{B}" K="I"/></C>"#);
